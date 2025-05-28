@@ -8,34 +8,59 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import jewelry from "@/assets/images/jewelry.webp";
-import preDesignedRing from "@/assets/images/pre-designed-ring.webp";
-import { useCallback, useEffect, useState } from "react";
-import { IoIosArrowDown, IoIosSearch } from "react-icons/io";
+import { useCallback, useEffect, useState, useRef } from "react";
+import { IoIosArrowDown } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
-import miniLogo from "@/assets/images/logo-2.webp";
-import { CustomImg, ProgressiveImg } from "../dynamiComponents";
+import miniLogo from "@/assets/images/mini-logo.webp";
+import diamondIcon from "@/assets/icons/diamond.svg";
+import flashDeal from "@/assets/images/flash-deal.webp";
+import engagementHeader from "@/assets/images/engagement-header.webp";
+import {
+  CustomImg,
+  ProgressiveImg,
+  SearchBar,
+} from "@/components/dynamiComponents";
 import CartPopup from "../ui/CartPopup";
-import { helperFunctions } from "@/_helper";
-import { ENGAGEMENT, FLASH_DEALS, GOLD_COLOR } from "@/_helper/constants";
+import {
+  ENGAGEMENT,
+  ENGAGEMENT_RINGS,
+  FLASH_DEALS,
+  GOLD_COLOR,
+  WEDDING,
+  WEDDING_RINGS,
+} from "@/_helper/constants";
 import ProfileDropdown from "../ui/ProfileDropdown";
 import SkeletonLoader from "../ui/skeletonLoader";
 import { usePathname } from "next/navigation";
-import { fetchCustomizeProductsVariation } from "@/_actions/customize.action";
-import defaultSettingStyle from "@/assets/images/default-setting-style.webp";
+import {
+  fetchEngagementCollectionsTypeWiseProduct,
+  fetchWeddingCollectionsTypeWiseProduct,
+} from "@/_actions/product.actions";
+import { helperFunctions } from "@/_helper";
+import { HiOutlineShoppingBag } from "react-icons/hi2";
+import calendarIcon from "@/assets/icons/calendar.svg";
 
+const headingClass =
+  "font-castoro text-[0.9375em] leading-[1.0625em] mb-4 pb-2 border-b border-baseblack";
 const staticLinks = [
+  {
+    title: "Custom",
+    href: "/custom-jewelry",
+  },
   {
     title: "About Katanoff",
     href: "/about-us",
   },
+];
+
+const mainHeaderLinks = [
+  { image: diamondIcon, href: "/contact-us", title: "contact us" },
   {
-    title: "Education",
-    href: "/education",
+    icon: <HiOutlineShoppingBag className="text-xl" />,
+    href: "/cart",
+    title: "my cart",
   },
-  {
-    title: "Contact",
-    href: "/contact-us",
-  },
+  { image: calendarIcon, href: "/book-appointment", title: "book appointment" },
 ];
 
 export default function NavigationHeader() {
@@ -47,19 +72,22 @@ export default function NavigationHeader() {
     isMenuOpen,
     openDropdownMobile,
     menuLoading,
-  } = useSelector(({ common }) => common);
-  const {
-    uniqueFilterOptionsForHeader,
+    weddingHeaderUniqueFilterOptions,
     customizeOptionLoading,
     transparenHeadertBg,
+    weddingHeaderLoader,
+    engagementHeaderLoader,
+    engagementHeaderUniqueFilterOptions,
   } = useSelector(({ common }) => common);
-
   const [isHeaderVisible, setIsHeaderVisible] = useState(false);
+  const [activeNestedMobile, setActiveNestedMobile] = useState(null);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const hideCartPopup =
-    pathname === "/checkout" ||
-    pathname === "/shipping" ||
-    pathname.startsWith("/payment");
+  const navSearchContainerRef = useRef(null);
+  const resultsContainerRef = useRef(null);
+  const navSearchInputRef = useRef(null);
+  const mobileSearchInputRef = useRef(null);
+
+  const hideCartPopup = helperFunctions?.shouldHideCartPopup(pathname);
 
   const closeAllDropdown = useCallback(() => {
     setTimeout(() => {
@@ -69,7 +97,8 @@ export default function NavigationHeader() {
   }, [dispatch]);
 
   const loadData = useCallback(() => {
-    dispatch(fetchCustomizeProductsVariation());
+    dispatch(fetchWeddingCollectionsTypeWiseProduct());
+    dispatch(fetchEngagementCollectionsTypeWiseProduct());
   }, [dispatch]);
 
   useEffect(() => {
@@ -88,29 +117,45 @@ export default function NavigationHeader() {
     loadData();
   }, []);
 
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+    } else {
+      document.body.style.overflow = "auto";
+      document.body.style.position = "";
+      document.body.style.width = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+      document.body.style.position = "";
+      document.body.style.width = "";
+    };
+  }, [isMenuOpen]);
+
   return (
     <header
-      className={`w-full ${
+      className={`w-full  ${
         transparenHeadertBg && !isHeaderVisible ? "bg-offwhite" : "bg-white"
       } ${
-        lastScrollY > 100 ? "bg-white" : ""
+        lastScrollY > 100 ? "bg-white shadow-lg" : ""
       } z-40 transition-all duration-500 ease-in-out ${
-        isHeaderVisible
-          ? "fixed top-0 left-0 "
-          : "relative lg:translate-y-[40%]"
+        isHeaderVisible ? "fixed top-0 left-0" : "relative lg:translate-y-[40%]"
       }`}
     >
       {/* Desktop Navigation */}
       <nav
-        className={`hidden lg:flex ${
+        className={`hidden lg:flex  ${
           lastScrollY > 100 ? "justify-between" : "justify-center"
-        }  w-full container items-center gap-6`}
+        } w-full container items-center gap-6`}
       >
         {lastScrollY > 100 ? (
           <Link href={"/"}>
             <CustomImg
               className={` ${
-                lastScrollY > 100 ? "block w-28 2xl:w-32" : "hidden"
+                lastScrollY > 100 ? "block w-12 2xl:w-12" : "hidden"
               }`}
               srcAttr={miniLogo}
             />
@@ -120,459 +165,731 @@ export default function NavigationHeader() {
         {menuLoading ? (
           <div
             className={`flex justify-center gap-4 bg-white ${
-              lastScrollY > 100 ? "py-2 lg:py-6" : "pb-4"
+              lastScrollY > 100 ? "py-2 lg:py-5" : "py-4"
             }`}
           >
-            {Array.from({ length: 9 }).map((_, index) => (
+            {Array.from({ length: 6 }).map((_, index) => (
               <SkeletonLoader
                 key={index}
                 width="w-24 2xl:w-28"
                 height="h-4 2xl:h-6"
-                className="!px-3 2xl:!px-4"
+                className="!px-5 2xl:!px-6"
               />
             ))}
           </div>
         ) : (
           <ul className={`flex`}>
-            <li
-              className={`relative ${
-                lastScrollY > 100 ? "py-2 lg:py-6" : "pb-4"
-              }`}
-            >
+            <li className={`relative`}>
               <HeaderLinkButton
                 href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
                   FLASH_DEALS
                 )}`}
-                className="rounded-none flex items-center gap-1 hover:!text-primary"
+                className={`rounded-none flex items-center gap-1 hover:!text-primary hover:!font-semibold  ${
+                  lastScrollY > 100 ? "py-2 lg:py-5" : "py-4"
+                }`}
+                onClick={closeAllDropdown}
               >
                 {FLASH_DEALS}
               </HeaderLinkButton>
             </li>
-
             <li
-              className={`relative ${
-                lastScrollY > 100 ? "py-2 lg:py-6" : "pb-4"
-              }`}
-              onMouseEnter={() => {
-                dispatch(setOpenDropdown(ENGAGEMENT));
-              }}
-              onMouseLeave={() => {
-                dispatch(setOpenDropdown(null));
-              }}
+              className={`relative`}
+              onMouseEnter={() => dispatch(setOpenDropdown(ENGAGEMENT))}
+              onMouseLeave={() => dispatch(setOpenDropdown(null))}
             >
               <HeaderLinkButton
-                href={"#"}
-                className="rounded-none flex items-center gap-1 hover:!text-primary"
+                href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                  ENGAGEMENT_RINGS
+                )}`}
+                className={`rounded-none flex items-center gap-1 hover:!text-primary hover:!font-semibold ${
+                  lastScrollY > 100 ? "py-2 lg:py-5" : "py-4"
+                }`}
                 onClick={closeAllDropdown}
               >
                 {ENGAGEMENT}
-                <div className="text-base 2xl:text-lg pb-0.5">
-                  <IoIosArrowDown
-                    className={`transition-all duration-300 ease-in-out transform ${
-                      openDropdown === ENGAGEMENT
-                        ? "rotate-180 scale-110"
-                        : "rotate-0 scale-100"
-                    }`}
-                  />
-                </div>
               </HeaderLinkButton>
               {openDropdown === ENGAGEMENT ? (
                 <div
                   className={`fixed left-0 right-0 ${
-                    isHeaderVisible ? "top-[65px] 2xl:top-[70px]" : "top-[36px]"
-                  } bg-white shadow-lg z-50 border-t-[0.5px]`}
+                    isHeaderVisible
+                      ? "top-[54px] 2xl:top-[63px]"
+                      : "2xl:top-[50px]"
+                  } bg-white shadow-lg z-50 border-t-[0.5px] border-primary`}
                 >
-                  <div className="container flex justify-between p-6">
-                    {customizeOptionLoading ? (
-                      <div className="grid grid-cols-12 2xl:gap-y-10 w-full">
-                        {/* Left Column Section */}
-                        <div className="col-span-2 flex flex-col gap-5">
-                          <div className="space-y-3">
-                            <SkeletonLoader width="w-3/4" height="h-4" />
-                            <SkeletonLoader width="w-2/3" height="h-3" />
-                            <SkeletonLoader width="w-1/2" height="h-3" />
-                            <SkeletonLoader width="w-1/3" height="h-3" />
-                          </div>
-                        </div>
-
-                        {/* Center Grid Section */}
-                        <div className="col-span-4 px-10 border-x border-gray-e2 mx-10">
-                          <div className="grid grid-cols-3 gap-4 mt-3">
-                            {Array.from({ length: 6 }).map((_, i) => (
-                              <div
-                                key={i}
-                                className="flex flex-col items-center gap-2"
-                              >
-                                <SkeletonLoader
-                                  width="w-8"
-                                  height="h-8"
-                                  rounded="rounded-full"
-                                />
-                                <SkeletonLoader width="w-3/4" height="h-3" />
-                              </div>
+                  {engagementHeaderLoader ? (
+                    <div className="container grid grid-cols-2 py-[30px] gap-[30px] text-baseblack">
+                      {/* Left Column Skeleton */}
+                      <div>
+                        <SkeletonLoader width="w-1/3" height="h-5" />{" "}
+                        {/* PRE-DESIGNED RINGS title */}
+                        <div className="grid grid-cols-12 gap-4 mb-[1.5rem] mt-4">
+                          {/* Shop by Style */}
+                          <div className="col-span-3 space-y-3">
+                            <SkeletonLoader width="w-1/2" height="h-4" />
+                            {[...Array(4)].map((_, i) => (
+                              <SkeletonLoader
+                                key={`style-${i}`}
+                                width="w-full"
+                                height="h-4"
+                              />
                             ))}
                           </div>
-                        </div>
 
-                        {/* Right-Side Items with Icons */}
-                        <div className="col-span-2 border-gray-e2">
-                          <div className="space-y-3">
-                            <SkeletonLoader width="w-3/4" height="h-4" />
-                            {Array.from({ length: 3 }).map((_, i) => (
-                              <div key={i} className="flex items-center gap-2">
-                                <SkeletonLoader width="w-10" height="h-10" />
-                                <SkeletonLoader width="w-1/2" height="h-3" />
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Rightmost Preview Box */}
-                        <div className="col-start-9 2xl:col-start-10 col-span-4 flex flex-col gap-1 ps-10 border-s border-gray-e2">
-                          <div className="space-y-3">
-                            <SkeletonLoader width="w-3/4" height="h-4" />
-                            <SkeletonLoader height="h-[250px] 2xl:h-[300px]" />
-                            <SkeletonLoader width="w-1/2" height="h-3" />
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-12 2xl:gap-y-10  w-full">
-                        <div className="flex flex-col gap-5 col-span-2">
-                          <div>
-                            <p className="text-sm 2xl:text-base block !font-semibold capitalize text-primary !px-0 mb-1">
-                              Custom Rings
-                            </p>
-                            <div className="w-5 h-[2px] rounded-full bg-primary bottom-0"></div>
-
-                            <div className="mt-3 flex flex-col gap-1">
-                              <HeaderLinkButton
-                                href={"/customize/start-with-setting"}
-                                className="text-basegray hover:text-baseblack transition-all !px-0 duration-300 capitalize"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  closeAllDropdown();
-                                }}
-                              >
-                                Start with a{" "}
-                                <span className="font-bold">Setting</span>
-                              </HeaderLinkButton>
+                          {/* Shop by Shape */}
+                          <div className="col-span-6">
+                            <SkeletonLoader width="w-1/2" height="h-4" />
+                            <div className="grid grid-cols-2 gap-4 mt-3">
+                              {[...Array(6)].map((_, i) => (
+                                <div
+                                  key={`shape-${i}`}
+                                  className="flex items-center gap-3"
+                                >
+                                  <SkeletonLoader
+                                    width="w-5"
+                                    height="h-5"
+                                    rounded="rounded-full"
+                                  />
+                                  <SkeletonLoader width="w-3/4" height="h-4" />
+                                </div>
+                              ))}
                             </div>
                           </div>
-                          {uniqueFilterOptionsForHeader?.uniqueVariations
-                            ?.length ? (
-                            <div>
-                              <p className="text-sm 2xl:text-base block !font-semibold capitalize text-primary !px-0 mb-1">
-                                Shop By Metal
-                              </p>
-                              <div className="w-5 h-[2px] rounded-full bg-primary bottom-0"></div>
-                              {uniqueFilterOptionsForHeader?.uniqueVariations?.map(
-                                (variation, index) => {
-                                  return (
-                                    <div
-                                      className="flex flex-col gap-2 mt-2"
-                                      key={`variation-${index}`}
+
+                          {/* Shop by Metal */}
+                          <div className="col-span-3 space-y-3">
+                            <SkeletonLoader width="w-1/2" height="h-4" />
+                            {[...Array(4)].map((_, i) => (
+                              <div
+                                key={`metal-${i}`}
+                                className="flex items-center gap-2"
+                              >
+                                <SkeletonLoader
+                                  width="w-6"
+                                  height="h-6"
+                                  className="rounded-full"
+                                />
+                                <SkeletonLoader width="w-3/4" height="h-4" />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <SkeletonLoader width="w-full" height="h-10" />{" "}
+                      </div>
+
+                      {/* Right Column Skeleton */}
+                      <div>
+                        <SkeletonLoader
+                          width="w-1/3"
+                          height="h-5"
+                          className="mb-5"
+                        />
+                        <SkeletonLoader
+                          height="h-[180px]"
+                          className="mb-5 w-full"
+                        />
+                        <div className="flex justify-center">
+                          <SkeletonLoader width="w-1/3" height="h-10" />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="container grid grid-cols-2 py-[30px] gap-[30px] text-baseblack">
+                      <div>
+                        <h3 className={headingClass}>PRE-DESIGNED RINGS</h3>
+                        <div className="grid grid-cols-12 text-sm gap-4 mb-[1.5rem]">
+                          {engagementHeaderUniqueFilterOptions
+                            ?.uniqueSettingStyles?.length ? (
+                            <div className={`col-span-3`}>
+                              <h3 className="font-semibold p-[10px]">
+                                Shop by Style
+                              </h3>
+                              <div className="flex flex-col">
+                                {engagementHeaderUniqueFilterOptions?.uniqueSettingStyles.map(
+                                  (item, index) => (
+                                    <HeaderLinkButton
+                                      key={`variation-${index}4`}
+                                      href={`/customize/start-with-setting?settingStyle=${item.value}`}
+                                      className="!text-[12px] 2xl:!text-[13px] font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        closeAllDropdown();
+                                      }}
                                     >
-                                      {variation.variationName == GOLD_COLOR
-                                        ? variation.variationTypes.map(
-                                            (item, index) => {
-                                              return (
-                                                <HeaderLinkButton
-                                                  key={`variation-${index}2`}
-                                                  href={`/customize/start-with-setting?variationName=${variation?.variationName}&variationTypeName=${item?.variationTypeName}`}
-                                                  className="flex items-center gap-2 text-basegray hover:text-baseblack transition-all !px-0 duration-300 capitalize"
-                                                  onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    closeAllDropdown();
-                                                  }}
-                                                >
-                                                  <div
-                                                    className="w-4 h-4 bg-transparent rounded-full"
-                                                    style={{
-                                                      border: `4px solid ${item?.variationTypeHexCode}`,
-                                                    }}
-                                                  ></div>{" "}
-                                                  {item.variationTypeName}
-                                                </HeaderLinkButton>
-                                              );
-                                            }
+                                      {item.title}
+                                    </HeaderLinkButton>
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          ) : null}
+
+                          {engagementHeaderUniqueFilterOptions?.uniqueVariations
+                            ?.length ? (
+                            <div className="col-span-6">
+                              <h3 className="font-semibold p-[10px]">
+                                Shop by Shape
+                              </h3>
+                              <div className="grid grid-cols-2 text-center">
+                                {engagementHeaderUniqueFilterOptions.uniqueVariations
+                                  .filter(
+                                    (variation) =>
+                                      variation.variationName ===
+                                      "Diamond Shape"
+                                  )
+                                  .flatMap((variation) =>
+                                    variation.variationTypes.map(
+                                      (item, index) => (
+                                        <HeaderLinkButton
+                                          key={`diamond-shape-${index}`}
+                                          href={`/customize/start-with-setting?diamondShape=${item.variationTypeId}`}
+                                          className="flex !text-[12px] 2xl:!text-[13px] font-medium items-center gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            closeAllDropdown();
+                                          }}
+                                        >
+                                          {" "}
+                                          {item?.variationTypeImage ? (
+                                            <ProgressiveImg
+                                              src={item?.variationTypeImage}
+                                              alt={item?.variationTypeName}
+                                              className="w-5 h-5 inline-block"
+                                            />
+                                          ) : null}
+                                          {item.variationTypeName}
+                                        </HeaderLinkButton>
+                                      )
+                                    )
+                                  )}
+                              </div>
+                            </div>
+                          ) : null}
+                          {engagementHeaderUniqueFilterOptions?.uniqueVariations
+                            ?.length ? (
+                            <div className="col-span-3">
+                              {" "}
+                              <h3 className="font-semibold p-[10px]">
+                                Shop by Metal
+                              </h3>
+                              {engagementHeaderUniqueFilterOptions?.uniqueVariations?.map(
+                                (variation, index) => (
+                                  <div
+                                    className="flex flex-col"
+                                    key={`variation-${index}`}
+                                  >
+                                    {variation.variationName === GOLD_COLOR
+                                      ? variation.variationTypes.map(
+                                          (item, index) => (
+                                            <HeaderLinkButton
+                                              key={`variation-${index}2`}
+                                              href={`/customize/start-with-setting?variationName=${variation?.variationName}&variationTypeName=${item?.variationTypeName}`}
+                                              className="flex !text-[12px]  2xl:!text-[13px] font-medium items-center gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                closeAllDropdown();
+                                              }}
+                                            >
+                                              <div
+                                                className="w-5 h-5 rounded-full"
+                                                style={{
+                                                  background:
+                                                    item?.variationTypeHexCode,
+                                                }}
+                                              ></div>{" "}
+                                              {item.variationTypeName}
+                                            </HeaderLinkButton>
                                           )
-                                        : null}
-                                    </div>
-                                  );
-                                }
+                                        )
+                                      : null}
+                                  </div>
+                                )
                               )}
                             </div>
                           ) : null}
                         </div>
-                        {uniqueFilterOptionsForHeader?.uniqueDiamondShapes
-                          ?.length ? (
-                          <div
-                            className={`col-span-4 px-10 ${
-                              uniqueFilterOptionsForHeader?.uniqueSettingStyles
-                                ?.length == 0
-                                ? "border-s"
-                                : "border-x"
-                            }   border-gray-e2 mx-10`}
+                        {engagementHeaderUniqueFilterOptions ? (
+                          <HeaderLinkButton
+                            href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                              ENGAGEMENT_RINGS
+                            )}`}
+                            className={`transition-all !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
                           >
-                            <p className="text-sm 2xl:text-base block !font-semibold capitalize text-primary !px-0 mb-1">
-                              Shop By Diamond Shape
-                            </p>
-                            <div className="w-5 h-[2px] rounded-full bg-primary bottom-0"></div>
-                            <div className="grid grid-cols-3 gap-4 mt-3 text-center">
-                              {uniqueFilterOptionsForHeader?.uniqueDiamondShapes?.map(
-                                (item, index) => {
-                                  return (
-                                    <HeaderLinkButton
-                                      key={`diamond-shape-${index}`}
-                                      href={`/customize/start-with-setting?diamondShape=${item.id}`}
-                                      className="gap-2 text-basegray hover:text-baseblack transition-all !px-0 duration-300 capitalize"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        closeAllDropdown();
-                                      }}
-                                    >
-                                      <ProgressiveImg
-                                        src={item?.image}
-                                        alt={item?.title}
-                                        className="w-8 h-8 inline-block"
-                                      />
-                                      <p className="mt-1">{item?.title}</p>
-                                    </HeaderLinkButton>
-                                  );
-                                }
-                              )}
+                            View All
+                          </HeaderLinkButton>
+                        ) : null}
+                      </div>
+                      <div className=" ">
+                        <h3 className={headingClass}>DESIGN YOUR RING</h3>
+                        <CustomImg
+                          srcAttr={engagementHeader}
+                          altAttr=""
+                          titleAttr=""
+                          className="mb-[22px] w-full"
+                        />
+                        <div className="flex justify-center">
+                          <HeaderLinkButton
+                            href={"/customize/start-with-setting"}
+                            className={`transition-all !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
+                          >
+                            DESIGN WITH DIAMOND
+                          </HeaderLinkButton>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : null}
+            </li>
+            <li
+              className={`relative`}
+              onMouseEnter={() => dispatch(setOpenDropdown(WEDDING))}
+              onMouseLeave={() => dispatch(setOpenDropdown(null))}
+            >
+              <HeaderLinkButton
+                href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                  WEDDING_RINGS
+                )}`}
+                className={`rounded-none flex items-center gap-1 hover:!text-primary hover:!font-semibold ${
+                  lastScrollY > 100 ? "py-2 lg:py-5" : "py-4"
+                }`}
+                onClick={closeAllDropdown}
+              >
+                {WEDDING}
+              </HeaderLinkButton>
+              {openDropdown === WEDDING ? (
+                <div
+                  className={`fixed left-0 right-0 ${
+                    isHeaderVisible
+                      ? "top-[54px] 2xl:top-[63px]"
+                      : "2xl:top-[50px]"
+                  } bg-white shadow-lg z-50 border-t-[0.5px] border-primary`}
+                >
+                  {weddingHeaderLoader ? (
+                    <div className="container grid grid-cols-12 py-[30px] text-baseblack">
+                      {/* Left Column Skeleton */}
+                      <div className="col-span-7 pe-[30px] 2xl:pe-12">
+                        <SkeletonLoader width="w-1/3" height="h-5" />{" "}
+                        {/* PRE-DESIGNED RINGS title */}
+                        <div className="grid grid-cols-12 gap-4 mb-[1.5rem] mt-4">
+                          {/* Shop by Style */}
+                          <div className="col-span-3 space-y-3">
+                            <SkeletonLoader width="w-1/2" height="h-4" />
+                            {[...Array(8)].map((_, i) => (
+                              <SkeletonLoader
+                                key={`style-${i}`}
+                                width="w-full"
+                                height="h-4"
+                              />
+                            ))}
+                          </div>
+
+                          {/* Shop by Shape */}
+                          <div className="col-span-6">
+                            <SkeletonLoader width="w-1/2" height="h-4" />
+                            <div className="grid grid-cols-2 gap-4 mt-3">
+                              {[...Array(6)].map((_, i) => (
+                                <div
+                                  key={`shape-${i}`}
+                                  className="flex items-center gap-3"
+                                >
+                                  <SkeletonLoader
+                                    width="w-5"
+                                    height="h-5"
+                                    rounded="rounded-full"
+                                  />
+                                  <SkeletonLoader width="w-3/4" height="h-4" />
+                                </div>
+                              ))}
                             </div>
                           </div>
-                        ) : null}
 
-                        {uniqueFilterOptionsForHeader?.uniqueSettingStyles
-                          ?.length ? (
-                          <div
-                            className={`col-span-2 ${
-                              uniqueFilterOptionsForHeader?.uniqueDiamondShapes
-                                ?.length == 0
-                                ? "border-s ps-10"
-                                : ""
-                            } border-gray-e2`}
-                          >
-                            <p className="text-sm 2xl:text-base block !font-semibold capitalize text-primary !px-0 mb-1">
-                              Shop By Style
-                            </p>
-                            <div className="w-5 h-[2px] rounded-full bg-primary bottom-0"></div>
-                            <div className="mt-3 flex flex-col gap-1">
-                              {uniqueFilterOptionsForHeader?.uniqueSettingStyles.map(
-                                (item, index) => {
-                                  return (
+                          {/* Shop by Metal */}
+                          <div className="col-span-3 space-y-3">
+                            <SkeletonLoader width="w-1/2" height="h-4" />
+                            {[...Array(4)].map((_, i) => (
+                              <div
+                                key={`metal-${i}`}
+                                className="flex items-center gap-2"
+                              >
+                                <SkeletonLoader
+                                  width="w-6"
+                                  height="h-6"
+                                  className="rounded-full"
+                                />
+                                <SkeletonLoader width="w-3/4" height="h-4" />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <SkeletonLoader width="w-full" height="h-10" />{" "}
+                      </div>
+
+                      {/* Right Column Skeleton */}
+                      <div className="col-span-5">
+                        <div className="grid grid-cols-12 gap-8">
+                          <div className="col-span-5">
+                            <SkeletonLoader width="w-1/3" height="h-5" />{" "}
+                            <div className="col-span-3 space-y-3 mt-4">
+                              <SkeletonLoader width="w-1/2" height="h-4" />
+                              {[...Array(3)].map((_, i) => (
+                                <SkeletonLoader
+                                  key={`style-${i}`}
+                                  width="w-full"
+                                  height="h-4"
+                                />
+                              ))}
+                            </div>
+                          </div>
+                          <div className="col-span-7">
+                            <SkeletonLoader width="w-1/3" height="h-5" />{" "}
+                            <SkeletonLoader
+                              width="w-full"
+                              height="h-40"
+                              className="mt-4"
+                            />
+                          </div>
+                          {/* <SkeletonLoader
+                            width="w-1/3"
+                            height="h-5"
+                            className="mb-5"
+                          />
+                          <SkeletonLoader
+                            height="h-[180px]"
+                            className="mb-5 w-full"
+                          />
+                          <div className="flex justify-center">
+                            <SkeletonLoader width="w-1/3" height="h-10" />
+                          </div> */}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="container grid grid-cols-12 py-[30px] text-baseblack">
+                      <div className="col-span-7 pe-[30px] 2xl:pe-12">
+                        <h3 className={headingClass}>WOMEN</h3>
+                        <div className="grid grid-cols-12 text-sm mb-[1.5rem]">
+                          {weddingHeaderUniqueFilterOptions?.femaleFilters
+                            ?.settingStyles?.length ? (
+                            <div className={`col-span-3`}>
+                              <h3 className="font-semibold p-[10px]">
+                                Shop by Style
+                              </h3>
+                              <div className="flex flex-col">
+                                {weddingHeaderUniqueFilterOptions?.femaleFilters?.settingStyles?.map(
+                                  (item, index) => (
                                     <HeaderLinkButton
                                       key={`variation-${index}4`}
                                       href={`/customize/start-with-setting?settingStyle=${item.value}`}
-                                      className="flex items-center gap-2 text-basegray hover:text-baseblack transition-all !px-0 duration-300 capitalize"
+                                      className="!text-[12px]  2xl:!text-[13px] font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         closeAllDropdown();
                                       }}
                                     >
-                                      {/* <ProgressiveImg
-                                        src={item.image || defaultSettingStyle}
-                                        alt={item.title}
-                                        className="w-10 h-10 rounded-full"
-                                      /> */}
-                                      {item?.image ? (
-                                        <ProgressiveImg
-                                          src={item?.image}
-                                          alt={item?.title}
-                                          className="w-10 h-10 rounded-full"
-                                        />
-                                      ) : (
-                                        <CustomImg
-                                          srcAttr={defaultSettingStyle}
-                                          altAttr=""
-                                          titleAttr=""
-                                          className="w-10 h-10 rounded-full"
-                                        />
-                                      )}
                                       {item.title}
                                     </HeaderLinkButton>
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          ) : null}
+
+                          {weddingHeaderUniqueFilterOptions?.femaleFilters
+                            ?.variations?.length ? (
+                            <div className="col-span-6">
+                              <h3 className="font-semibold p-[10px]">
+                                Shop by Shape
+                              </h3>
+                              <div className="grid grid-cols-2 text-center">
+                                {weddingHeaderUniqueFilterOptions?.femaleFilters?.variations
+                                  ?.filter(
+                                    (variation) =>
+                                      variation.variationName ===
+                                      "Diamond Shape"
+                                  )
+                                  .flatMap((variation) =>
+                                    variation.variationTypes.map(
+                                      (item, index) => (
+                                        <HeaderLinkButton
+                                          key={`diamond-shape-${index}`}
+                                          href={`/customize/start-with-setting?diamondShape=${item.variationTypeId}`}
+                                          className="flex !capitalize !text-[12px] 2xl:!text-[13px] font-medium items-center gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            closeAllDropdown();
+                                          }}
+                                        >
+                                          {" "}
+                                          {item?.variationTypeImage ? (
+                                            <ProgressiveImg
+                                              src={item?.variationTypeImage}
+                                              alt={item?.variationTypeName}
+                                              className="w-5 h-5 inline-block"
+                                            />
+                                          ) : null}
+                                          {item.variationTypeName}
+                                        </HeaderLinkButton>
+                                      )
+                                    )
+                                  )}
+                              </div>
+                            </div>
+                          ) : null}
+
+                          {weddingHeaderUniqueFilterOptions?.femaleFilters
+                            ?.variations?.length
+                            ? weddingHeaderUniqueFilterOptions?.femaleFilters?.variations?.map(
+                                (variation, index) => {
+                                  if (variation.variationName !== GOLD_COLOR)
+                                    return null; // Only render "Gold Color"
+
+                                  return (
+                                    <div
+                                      className="flex flex-col col-span-3"
+                                      key={`variation-${index}`}
+                                    >
+                                      <h3 className="font-semibold p-[10px]">
+                                        Shop by Metal
+                                      </h3>
+                                      {variation.variationTypes.map(
+                                        (item, index) => (
+                                          <HeaderLinkButton
+                                            key={`variation-${index}2`}
+                                            href={`/customize/start-with-setting?variationName=${variation?.variationName}&variationTypeName=${item?.variationTypeName}`}
+                                            className="flex !text-[12px]  2xl:!text-[13px] font-medium items-center gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              closeAllDropdown();
+                                            }}
+                                          >
+                                            <div
+                                              className="w-5 h-5 rounded-full"
+                                              style={{
+                                                background:
+                                                  item?.variationTypeHexCode,
+                                              }}
+                                            ></div>{" "}
+                                            {item.variationTypeName}
+                                          </HeaderLinkButton>
+                                        )
+                                      )}
+                                    </div>
                                   );
                                 }
-                              )}
+                              )
+                            : null}
+                        </div>
+                        <HeaderLinkButton
+                          href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                            WEDDING_RINGS
+                          )}`}
+                          className={`transition-all !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
+                        >
+                          View All
+                        </HeaderLinkButton>
+                      </div>
+                      <div className="col-span-5">
+                        <div className="grid grid-cols-12 gap-8">
+                          <div className="col-span-5">
+                            <h3 className={headingClass}>MEN</h3>
+                            {weddingHeaderUniqueFilterOptions?.maleFilters
+                              ?.settingStyles?.length ? (
+                              <div className={`col-span-3`}>
+                                <h3 className="font-semibold p-[10px]">
+                                  Shop by Style
+                                </h3>
+                                <div className="flex flex-col">
+                                  {weddingHeaderUniqueFilterOptions?.maleFilters?.settingStyles?.map(
+                                    (item, index) => (
+                                      <HeaderLinkButton
+                                        key={`variation-${index}4`}
+                                        href={`/customize/start-with-setting?settingStyle=${item.value}`}
+                                        className="!text-[12px]  2xl:!text-[13px] font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          closeAllDropdown();
+                                        }}
+                                      >
+                                        {item.title}
+                                      </HeaderLinkButton>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+                            ) : null}
+                            <HeaderLinkButton
+                              href={"/customize/start-with-setting"}
+                              className={`transition-all !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
+                            >
+                              View All
+                            </HeaderLinkButton>
+                          </div>
+                          <div className="col-span-7">
+                            <h3 className={`${headingClass} !border-0`}>
+                              {FLASH_DEALS}
+                            </h3>
+                            <CustomImg srcAttr={flashDeal} />{" "}
+                            <div className="flex justify-center pt-3">
+                              <HeaderLinkButton
+                                href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                                  FLASH_DEALS
+                                )}`}
+                                className={`transition-all w-fit !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
+                              >
+                                View All
+                              </HeaderLinkButton>
                             </div>
                           </div>
-                        ) : null}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : null}
+            </li>
+            {menuList?.map((item, index) => {
+              const hasSubCategories = item.subCategories?.length > 0;
 
-                        <div className="col-start-9 2xl:col-start-10 col-span-4 flex flex-col gap-1  ps-10 border-s border-gray-e2">
-                          <div className="mb-2">
-                            <p className="text-sm 2xl:text-base block !font-semibold capitalize text-primary !px-0 mb-1">
-                              Shop Pre-Designed Rings
-                            </p>
-                            <div className="w-5 h-[2px] rounded-full bg-primary bottom-0"></div>
-                          </div>
-                          <CustomImg srcAttr={preDesignedRing} />
-                          <div className="text-sm mt-3">
+              return (
+                <li
+                  key={`${item?.id}-${index}`}
+                  className={`relative`}
+                  onMouseEnter={() =>
+                    hasSubCategories
+                      ? dispatch(setOpenDropdown(item.title))
+                      : null
+                  }
+                  onMouseLeave={() => dispatch(setOpenDropdown(null))}
+                >
+                  <HeaderLinkButton
+                    href={item.href}
+                    className={`rounded-none flex items-center gap-1 hover:!text-primary hover:!font-semibold ${
+                      lastScrollY > 100 ? "!py-2 lg:!py-5" : "!py-4"
+                    }`}
+                    onClick={closeAllDropdown}
+                  >
+                    {item?.title}
+                  </HeaderLinkButton>
+
+                  {/* Dropdown for Desktop */}
+                  {hasSubCategories && openDropdown === item.title ? (
+                    <div
+                      className={`fixed left-0 right-0 ${
+                        isHeaderVisible
+                          ? "top-[54px] 2xl:top-[63px]"
+                          : "2xl:top-[50px]"
+                      } bg-white shadow-lg z-50 border-t-[0.5px] border-primary`}
+                    >
+                      <div className="px-[100px] flex justify-between p-6 w-full">
+                        <div className="w-[70%] flex justify-between flex-wrap h-fit">
+                          {item?.subCategories?.length > 0 &&
+                            item.subCategories.map((subItem, index) => (
+                              <div
+                                key={`${subItem.title}-${index}`}
+                                className={`w-[14%] relative`}
+                              >
+                                <HeaderLinkButton
+                                  href={subItem.href}
+                                  className="block text-sm !font-semibold capitalize !p-[10px]"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    closeAllDropdown();
+                                  }}
+                                >
+                                  {subItem.title}
+                                </HeaderLinkButton>
+                                <div className="flex flex-col">
+                                  {subItem?.productTypes?.length
+                                    ? subItem?.productTypes.map(
+                                        (productType, index) => (
+                                          <HeaderLinkButton
+                                            key={`${productType.title}-${index}`}
+                                            href={productType.href}
+                                            className="!text-[12px]  2xl:!text-[13px] font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              closeAllDropdown();
+                                            }}
+                                          >
+                                            {productType.title}
+                                          </HeaderLinkButton>
+                                        )
+                                      )
+                                    : null}
+                                  <HeaderLinkButton
+                                    href={subItem.href}
+                                    className={`transition-all duration-300 w-full capitalize mt-2 !px-3 !py-1.5 hover:text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
+                                  >
+                                    View All
+                                  </HeaderLinkButton>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                        <div className="ps-10 w-[30%]">
+                          <HeaderLinkButton
+                            href={item.href}
+                            className="block text-sm !font-semibold capitalize !py-[10px] !px-0 mb-3"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              closeAllDropdown();
+                            }}
+                          >
+                            Special buys
+                          </HeaderLinkButton>
+                          <CustomImg
+                            srcAttr={jewelry}
+                            className="w-full"
+                            altAttr=""
+                            titleAttr=""
+                          />
+                          <div className="text-sm flex justify-center pt-5">
                             <Link
-                              href={"/customize/start-with-setting"}
+                              href={item.href}
                               onClick={() => dispatch(setOpenDropdown(null))}
-                              className="underline hover:text-primary transition-all duration-300"
+                              className="px-4 py-1.5 w-fit flex justify-center items-center border border-baseblack hover:text-white hover:bg-[#393939] transition-all duration-300"
                             >
-                              Shop Now
+                              View All
                             </Link>
                           </div>
                         </div>
                       </div>
-                    )}
-                  </div>
-                </div>
-              ) : null}
-            </li>
-
-            {menuList
-              ? menuList.map((item, index) => {
-                  const hasSubCategories = item.subCategories?.length > 0;
-
-                  return (
-                    <li
-                      key={`${item?.id}-${index}`}
-                      className={`relative ${
-                        lastScrollY > 100 ? "py-2 lg:py-6" : "pb-4"
-                      }`}
-                      onMouseEnter={() =>
-                        hasSubCategories
-                          ? dispatch(setOpenDropdown(item.title))
-                          : null
-                      }
-                      onMouseLeave={() => dispatch(setOpenDropdown(null))}
-                    >
-                      <HeaderLinkButton
-                        href={item.href}
-                        className="rounded-none flex items-center gap-1 hover:!text-primary"
-                        onClick={closeAllDropdown}
-                      >
-                        {item?.title}
-                        {hasSubCategories ? (
-                          <div className="text-base 2xl:text-lg pb-0.5">
-                            <IoIosArrowDown
-                              className={`transition-all duration-300 ease-in-out transform ${
-                                openDropdown === item.title
-                                  ? "rotate-180 scale-110"
-                                  : "rotate-0 scale-100"
-                              }`}
-                            />
-                          </div>
-                        ) : null}
-                      </HeaderLinkButton>
-
-                      {/* Dropdown for Desktop */}
-                      {hasSubCategories && openDropdown === item.title ? (
-                        <div
-                          className={`fixed left-0 right-0 ${
-                            isHeaderVisible
-                              ? "top-[65px] 2xl:top-[70px]"
-                              : "top-[36px]"
-                          } bg-white shadow-lg z-50 border-t-[0.5px]`}
-                        >
-                          <div className="container flex justify-between p-6">
-                            <div className="grid grid-cols-12 gap-5 2xl:gap-x-20 2xl:gap-y-10 h-fit">
-                              {item?.subCategories?.length > 0 &&
-                                item.subCategories.map((subItem, index) => (
-                                  <div
-                                    key={`${subItem.title}-${index}`}
-                                    className={`col-span-3 relative px-8 ${
-                                      index % 4 !== 0
-                                        ? "border-l border-gray-200"
-                                        : ""
-                                    }`}
-                                  >
-                                    <HeaderLinkButton
-                                      href={subItem.href}
-                                      className="block !font-semibold text-base capitalize text-primary !px-0 mb-1"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        closeAllDropdown();
-                                      }}
-                                    >
-                                      {subItem.title}
-                                    </HeaderLinkButton>
-                                    <div className="w-5 h-[2px] rounded-full bg-primary bottom-0"></div>
-                                    <div className="mt-3 flex flex-col gap-1">
-                                      {subItem.productTypes?.length
-                                        ? subItem?.productTypes.map(
-                                            (productType, index) => {
-                                              return (
-                                                <HeaderLinkButton
-                                                  key={`${productType.title}-${index}3`}
-                                                  href={productType.href}
-                                                  className="text-basegray hover:text-baseblack transition-all !px-0 duration-300 capitalize"
-                                                  onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    closeAllDropdown();
-                                                  }}
-                                                >
-                                                  {productType.title}
-                                                </HeaderLinkButton>
-                                              );
-                                            }
-                                          )
-                                        : null}
-                                    </div>
-                                  </div>
-                                ))}
-                            </div>
-                            <div className="border-s ps-10">
-                              <CustomImg
-                                srcAttr={jewelry}
-                                className="w-80 2xl:w-96"
-                              />
-                              <div className="text-sm mt-3">
-                                <Link
-                                  href={item.href}
-                                  onClick={() =>
-                                    dispatch(setOpenDropdown(null))
-                                  }
-                                  className="underline hover:text-primary transition-all duration-300"
-                                >
-                                  Shop Now
-                                </Link>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ) : null}
-                    </li>
-                  );
-                })
-              : null}
-
-            {staticLinks?.map((link) => {
-              return (
-                <li
-                  key={`static-link-${link.title}`}
-                  className={`relative ${
-                    lastScrollY > 100 ? "py-2 lg:py-6 hidden" : "pb-4"
-                  } ${openDropdown ? "" : ""}`}
-                >
-                  <HeaderLinkButton
-                    href={link.href}
-                    className="rounded-none flex items-center gap-1 hover:!text-primary"
-                  >
-                    {link.title}
-                  </HeaderLinkButton>
+                    </div>
+                  ) : null}
                 </li>
               );
             })}
+
+            {staticLinks?.map((link) => (
+              <li key={`static-link-${link.title}`} className={`relative `}>
+                <HeaderLinkButton
+                  href={link.href}
+                  className={`rounded-none hover:!font-semibold flex items-center gap-1 hover:!text-primary ${
+                    lastScrollY > 100 ? "py-2 lg:py-5" : "py-4"
+                  }`}
+                >
+                  {link.title}
+                </HeaderLinkButton>
+              </li>
+            ))}
           </ul>
         )}
         {lastScrollY > 100 ? (
-          <div className="text-xl flex py-6 items-center gap-5">
-            <Link href={"/search"}>
-              <IoIosSearch />
-            </Link>
-            {/* <GoHeart /> */}
-            {!hideCartPopup ? <CartPopup /> : null}
+          <div className="text-xl flex py-4 items-center gap-5">
+            <SearchBar
+              isMobile={false}
+              searchContainerRef={navSearchContainerRef}
+              resultsContainerRef={resultsContainerRef}
+              navSearchInputRef={navSearchInputRef}
+              mobileSearchInputRef={mobileSearchInputRef}
+              lastScrollY={lastScrollY}
+              isHeaderVisible={isHeaderVisible}
+            />
             <ProfileDropdown
               className={"hidden lg:block"}
               uniqueId={"desktop-nav-profile"}
             />
+            {!hideCartPopup ? <CartPopup /> : null}
           </div>
         ) : null}
       </nav>
@@ -585,11 +902,11 @@ export default function NavigationHeader() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="lg:hidden fixed top-[70px] left-0 right-0 bottom-0 bg-white z-50"
+            className="lg:hidden fixed top-[100px] left-0 right-0 bottom-0 bg-white z-50"
           >
             {menuLoading ? (
               <div className="px-4 py-2 flex flex-col">
-                {Array.from({ length: 9 }).map((_, index) => (
+                {Array.from({ length: 8 }).map((_, index) => (
                   <div
                     key={index}
                     className={`flex justify-between items-center py-3.5 ${
@@ -603,22 +920,25 @@ export default function NavigationHeader() {
               </div>
             ) : (
               <nav
-                className="h-full px-4 py-2 flex flex-col gap-3 overflow-y-auto mt-6"
+                className="h-full px-4 py-2 flex flex-col overflow-y-auto mt-3"
                 style={{ maxHeight: "calc(100vh - 60px)" }}
               >
-                <HeaderLinkButton
-                  href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-                    FLASH_DEALS
-                  )}`}
-                  onClick={() => {
-                    dispatch(setIsHeaderVisible(false));
-                  }}
-                >
-                  {FLASH_DEALS}
-                </HeaderLinkButton>
+                <div className="border-t py-3.5">
+                  <HeaderLinkButton
+                    href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                      FLASH_DEALS
+                    )}`}
+                    className="text-baseblack px-[10px] hover:text-primary"
+                    onClick={() => dispatch(setIsMenuOpen(false))}
+                  >
+                    {FLASH_DEALS}
+                  </HeaderLinkButton>
+                </div>
                 <div>
                   <div
-                    className="flex justify-between pt-3.5 border-t"
+                    className={`flex justify-between py-3.5 ${
+                      openDropdownMobile === ENGAGEMENT ? "pb-0" : ""
+                    } border-t`}
                     onClick={() =>
                       dispatch(
                         setOpenDropdownMobile(
@@ -629,13 +949,12 @@ export default function NavigationHeader() {
                   >
                     <HeaderLinkButton
                       href={"#"}
-                      className="text-gray-700 px-0 hover:text-black py-0.5"
+                      className="text-baseblack px-[10px] hover:text-primary py-0.5"
                       onClick={() => dispatch(setIsMenuOpen(false))}
                     >
                       {ENGAGEMENT}
                     </HeaderLinkButton>
-
-                    <div className="text-base pb-0.5">
+                    <div className="text-base px-[10px] pb-0.5">
                       <IoIosArrowDown
                         className={`transition-all duration-300 ease-in-out transform ${
                           openDropdownMobile === ENGAGEMENT
@@ -645,7 +964,6 @@ export default function NavigationHeader() {
                       />
                     </div>
                   </div>
-
                   {customizeOptionLoading ? (
                     <div className="block lg:hidden animate-pulse">
                       <div className="grid grid-cols-1 gap-4 max-h-[600px] overflow-hidden transition-all duration-300 ease-in-out">
@@ -672,8 +990,6 @@ export default function NavigationHeader() {
                             </div>
                           </div>
                         ))}
-
-                        {/* Diamond Shape Grid */}
                         <div className="flex flex-col gap-2 mt-2 ms-4">
                           <SkeletonLoader width="w-40" height="h-4" />
                           <div className="grid grid-cols-4 gap-4 mt-3 text-center">
@@ -696,183 +1012,317 @@ export default function NavigationHeader() {
                     </div>
                   ) : (
                     <div
-                      className={`grid grid-cols-1 gap-4 overflow-hidden transition-all duration-300 ease-in-out  ${
+                      className={`grid grid-cols-1 overflow-hidden transition-all duration-300 ease-in-out ${
                         openDropdownMobile === ENGAGEMENT
-                          ? "max-h-[600px] opacity-100 translate-y-0"
+                          ? "max-h-fit opacity-100 translate-y-0"
                           : "max-h-0 opacity-0 -translate-y-2"
                       }`}
                     >
-                      <div className="flex flex-col gap-2 mt-2 ms-4">
-                        <div className="relative">
-                          <p className="text-sm 2xl:text-base block !font-semibold capitalize text-primary !px-0 mb-1">
-                            Custom Rings
-                          </p>
-                          <div className="w-5 h-[2px] rounded-full bg-primary bottom-0"></div>
-                        </div>
-                        <div className="flex flex-col gap-1 ms-3 mt-0.5">
-                          <HeaderLinkButton
-                            href={"/customize/start-with-setting"}
-                            className="text-basegray hover:text-baseblack transition-all !px-0 duration-300 capitalize"
-                            onClick={() => dispatch(setIsMenuOpen(false))}
-                          >
-                            Start with a{" "}
-                            <span className="font-bold">Setting</span>
-                          </HeaderLinkButton>
+                      {/* PRE-DESIGNED RINGS Section */}
+                      <div>
+                        <button
+                          onClick={() =>
+                            setActiveNestedMobile(
+                              activeNestedMobile === "predesigned"
+                                ? null
+                                : "predesigned"
+                            )
+                          }
+                          className="w-full flex items-center justify-between"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="relative">
+                              <h3 className="text-sm font-castoro p-[10px]">
+                                PRE-DESIGNED RINGS
+                              </h3>
+                            </div>
+                          </div>
+
+                          <div className="px-[20px]">
+                            {" "}
+                            <IoIosArrowDown
+                              className={`transition-all duration-300 ease-in-out transform ${
+                                activeNestedMobile === "predesigned"
+                                  ? "rotate-180 scale-110"
+                                  : "rotate-0 scale-100"
+                              }`}
+                            />
+                          </div>
+                        </button>
+
+                        <div
+                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                            activeNestedMobile === "predesigned"
+                              ? "max-h-fit opacity-100"
+                              : "max-h-0 opacity-0"
+                          }`}
+                        >
+                          {engagementHeaderLoader ? (
+                            <>
+                              <div className="flex flex-col gap-2">
+                                <SkeletonLoader
+                                  height="h-4"
+                                  className="ms-[10px]"
+                                  width="!w-[80px]"
+                                />
+
+                                {[...Array(6)].map((_, idx) => (
+                                  <SkeletonLoader
+                                    height="h-3.5"
+                                    key={idx}
+                                    className="ms-[10px]"
+                                    width="!w-[130px]"
+                                  />
+                                ))}
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              {engagementHeaderUniqueFilterOptions ? (
+                                <Link
+                                  href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                                    ENGAGEMENT_RINGS
+                                  )}`}
+                                  className="border-b border-baseblack hover:border-b-primary text-[0.875em] mx-3"
+                                >
+                                  View All
+                                </Link>
+                              ) : null}
+                              {/* Mobile Setting Style */}
+                              {engagementHeaderUniqueFilterOptions
+                                ?.uniqueSettingStyles?.length ? (
+                                <div>
+                                  <h3 className="font-semibold text-[14px] p-[10px] uppercase">
+                                    Shop by Style
+                                  </h3>
+                                  <div className="ps-3 flex flex-col gap-1">
+                                    {engagementHeaderUniqueFilterOptions?.uniqueSettingStyles.map(
+                                      (item, index) => (
+                                        <HeaderLinkButton
+                                          key={`variation-${index}4`}
+                                          href={`/customize/start-with-setting?settingStyle=${item.value}`}
+                                          className="!text-[14px] font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            closeAllDropdown();
+                                          }}
+                                        >
+                                          {item.title}
+                                        </HeaderLinkButton>
+                                      )
+                                    )}
+                                  </div>
+                                </div>
+                              ) : null}
+
+                              {/* Mobile Diamond Shape */}
+                              {engagementHeaderUniqueFilterOptions
+                                ?.uniqueVariations?.length ? (
+                                <div>
+                                  <h3 className="font-semibold text-[14px] p-[10px] uppercase">
+                                    Shop by Shape
+                                  </h3>
+                                  <div className="ps-3 grid grid-cols-2 ">
+                                    {engagementHeaderUniqueFilterOptions.uniqueVariations
+                                      .filter(
+                                        (variation) =>
+                                          variation.variationName ===
+                                          "Diamond Shape"
+                                      )
+                                      .flatMap((variation) =>
+                                        variation.variationTypes.map(
+                                          (item, index) => (
+                                            <HeaderLinkButton
+                                              key={`mobile-variation-${index}`}
+                                              href={`/customize/start-with-setting?settingStyle=${item.value}`}
+                                              className="!text-[14px] font-medium flex items-center !gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                closeAllDropdown();
+                                              }}
+                                            >
+                                              {" "}
+                                              {item?.variationTypeImage ? (
+                                                <ProgressiveImg
+                                                  src={item?.variationTypeImage}
+                                                  alt={item?.variationTypeName}
+                                                  className="w-5 h-5 inline-block"
+                                                />
+                                              ) : null}
+                                              {item.variationTypeName}
+                                            </HeaderLinkButton>
+                                          )
+                                        )
+                                      )}
+                                  </div>
+                                </div>
+                              ) : null}
+
+                              {/* Mobile Shop by Metal */}
+                              {engagementHeaderUniqueFilterOptions
+                                ?.uniqueSettingStyles?.length ? (
+                                <div>
+                                  <h3 className="font-semibold text-[14px] p-[10px] uppercase">
+                                    Shop by Metal
+                                  </h3>
+                                  <div className="ps-3 flex flex-col gap-1">
+                                    {engagementHeaderUniqueFilterOptions?.uniqueVariations?.map(
+                                      (variation, index) => (
+                                        <div
+                                          className="flex flex-col"
+                                          key={`sm-variation-${index}-parent`}
+                                        >
+                                          {variation.variationName ===
+                                          GOLD_COLOR
+                                            ? variation.variationTypes.map(
+                                                (item, index) => (
+                                                  <HeaderLinkButton
+                                                    key={`sm-variation-${index}-child`}
+                                                    href={`/customize/start-with-setting?settingStyle=${item.value}`}
+                                                    className="!text-[14px] flex items-center font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      closeAllDropdown();
+                                                    }}
+                                                  >
+                                                    <div
+                                                      className="w-5 h-5 rounded-full"
+                                                      style={{
+                                                        background:
+                                                          item?.variationTypeHexCode,
+                                                      }}
+                                                    ></div>{" "}
+                                                    {item.variationTypeName}
+                                                  </HeaderLinkButton>
+                                                )
+                                              )
+                                            : null}
+                                        </div>
+                                      )
+                                    )}
+                                  </div>
+                                </div>
+                              ) : null}
+                            </>
+                          )}
                         </div>
                       </div>
-                      {uniqueFilterOptionsForHeader?.uniqueVariations
-                        ?.length ? (
-                        <div className="flex flex-col gap-2 mt-2 ms-4">
-                          <div className="relative">
-                            <p className="text-sm 2xl:text-base block !font-semibold capitalize text-primary !px-0 mb-1">
-                              Shop By Metal
-                            </p>
-                            <div className="w-5 h-[2px] rounded-full bg-primary bottom-0"></div>
-                          </div>
-                          <div className="ms-4 md:w-1/2 mt-1 text-center">
-                            {" "}
-                            {uniqueFilterOptionsForHeader?.uniqueVariations?.map(
-                              (variation, index) => {
-                                return (
-                                  <div
-                                    className="flex flex-col gap-2"
-                                    key={`variation-${index}`}
-                                  >
-                                    {variation.variationName == GOLD_COLOR
-                                      ? variation.variationTypes.map(
-                                          (item, index) => {
-                                            return (
-                                              <HeaderLinkButton
-                                                key={`variation-${index}2`}
-                                                href={`/customize/start-with-setting?variationName=${variation?.variationName}&variationTypeName=${item?.variationTypeName}`}
-                                                className="flex items-center gap-2 text-basegray hover:text-baseblack transition-all !px-0 duration-300 capitalize"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  dispatch(
-                                                    setOpenDropdownMobile(
-                                                      openDropdownMobile
-                                                        ? null
-                                                        : ENGAGEMENT
-                                                    )
-                                                  );
-                                                  dispatch(
-                                                    setIsMenuOpen(false)
-                                                  );
-                                                }}
-                                              >
-                                                <div
-                                                  className="w-4 h-4 bg-transparent rounded-full"
-                                                  style={{
-                                                    border: `4px solid ${item?.variationTypeHexCode}`,
-                                                  }}
-                                                ></div>{" "}
-                                                {item.variationTypeName}
-                                              </HeaderLinkButton>
-                                            );
-                                          }
-                                        )
-                                      : null}
-                                  </div>
-                                );
-                              }
-                            )}
-                          </div>
-                        </div>
-                      ) : null}
-                      {uniqueFilterOptionsForHeader?.uniqueDiamondShapes
-                        ?.length ? (
-                        <div className="flex flex-col gap-2 mt-2 ms-4">
-                          <div className="relative">
-                            <p className="text-sm 2xl:text-base block !font-semibold capitalize text-primary !px-0 mb-1">
-                              Shop By Diamond Shape
-                            </p>
-                            <div className="w-5 h-[2px] rounded-full bg-primary bottom-0"></div>
-                          </div>
-                          <div className="grid grid-cols-4 md:w-1/2 gap-4 mt-3 text-center">
-                            {" "}
-                            {uniqueFilterOptionsForHeader?.uniqueDiamondShapes.map(
-                              (item, index) => {
-                                return (
-                                  <HeaderLinkButton
-                                    key={`variation-${index}1`}
-                                    href={`/customize/start-with-setting?diamondShape=${item.id}`}
-                                    className="gap-2 text-basegray hover:text-baseblack transition-all !px-0 duration-300 capitalize"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      dispatch(
-                                        setOpenDropdownMobile(
-                                          openDropdownMobile ? null : ENGAGEMENT
-                                        )
-                                      );
-                                      dispatch(setIsMenuOpen(false));
-                                    }}
-                                  >
-                                    <ProgressiveImg
-                                      src={item?.image}
-                                      alt={item?.title}
-                                      className="w-8 h-8 inline-block"
-                                    />
-                                    <p className="mt-1">{item?.title}</p>
-                                  </HeaderLinkButton>
-                                );
-                              }
-                            )}
-                          </div>
-                        </div>
-                      ) : null}
 
-                      {uniqueFilterOptionsForHeader?.uniqueSettingStyles
-                        ?.length ? (
-                        <div className="flex flex-col gap-2 mt-2 ms-4">
-                          <div className="relative">
-                            <p className="text-sm 2xl:text-base block !font-semibold capitalize text-primary !px-0 mb-1">
-                              Shop By Style
-                            </p>
-                            <div className="w-5 h-[2px] rounded-full bg-primary bottom-0"></div>
+                      {/* DESIGN YOUR RING Section */}
+                      <div>
+                        <button
+                          onClick={() =>
+                            setActiveNestedMobile(
+                              activeNestedMobile === "design" ? null : "design"
+                            )
+                          }
+                          className="w-full flex items-center justify-between "
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="relative">
+                              <h3 className="text-sm font-castoro p-[10px]">
+                                DESIGN YOUR RING
+                              </h3>
+                            </div>
                           </div>
-                          <div className="flex flex-col gap-1">
-                            {uniqueFilterOptionsForHeader?.uniqueSettingStyles.map(
-                              (item, index) => {
-                                return (
-                                  <HeaderLinkButton
-                                    key={`variation-${index}4`}
-                                    href={`/customize/start-with-setting?settingStyle=${item.value}`}
-                                    className="flex items-center gap-2 text-basegray hover:text-baseblack transition-all !px-0 duration-300 capitalize"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      dispatch(
-                                        setOpenDropdownMobile(
-                                          openDropdownMobile ? null : ENGAGEMENT
-                                        )
-                                      );
-                                      dispatch(setIsMenuOpen(false));
-                                    }}
-                                  >
-                                    {item?.image ? (
-                                      <ProgressiveImg
-                                        src={item?.image}
-                                        alt={item?.title}
-                                        className="w-10 h-10 rounded-full"
-                                      />
-                                    ) : (
-                                      <CustomImg
-                                        srcAttr={defaultSettingStyle}
-                                        altAttr=""
-                                        titleAttr=""
-                                        className="w-10 h-10 rounded-full"
-                                      />
-                                    )}
 
-                                    {item.title}
-                                  </HeaderLinkButton>
-                                );
-                              }
-                            )}
+                          <div className="px-[20px]">
+                            {" "}
+                            <IoIosArrowDown
+                              className={`transition-all duration-300 ease-in-out transform ${
+                                activeNestedMobile === "design"
+                                  ? "rotate-180 scale-110"
+                                  : "rotate-0 scale-100"
+                              }`}
+                            />
+                          </div>
+                        </button>
+
+                        <div
+                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                            activeNestedMobile === "design"
+                              ? "max-h-fit opacity-100 mt-2"
+                              : "max-h-0 opacity-0"
+                          }`}
+                        >
+                          {/* Shop By Metal Nested Section */}
+                          <CustomImg
+                            srcAttr={engagementHeader}
+                            altAttr=""
+                            titleAttr=""
+                            className="w-full h-[150px] object-cover ps-[10px] pe-[20px]"
+                          />
+                          <div className="ps-[10px] pe-[20px] mt-4">
+                            {" "}
+                            <HeaderLinkButton
+                              href={"/customize/start-with-setting"}
+                              className={` transition-all !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
+                            >
+                              DESIGN WITH DIAMOND
+                            </HeaderLinkButton>
                           </div>
                         </div>
-                      ) : null}
+                      </div>
                     </div>
                   )}
+                </div>
+
+                <div className="flex flex-col border-t py-3.5">
+                  <div
+                    className="flex justify-between"
+                    onClick={() => dispatch(setOpenDropdownMobile(WEDDING))}
+                  >
+                    <HeaderLinkButton
+                      href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                        WEDDING_RINGS
+                      )}`}
+                      className="text-baseblack !px-[10px] hover:primary py-0.5"
+                      onClick={() => dispatch(setIsMenuOpen(false))}
+                    >
+                      {WEDDING}
+                    </HeaderLinkButton>
+                    <div className="text-base px-[10px] pb-0.5">
+                      <IoIosArrowDown
+                        className={`transition-all duration-300 ease-in-out transform ${
+                          openDropdownMobile === WEDDING
+                            ? "rotate-180 scale-110"
+                            : "rotate-0 scale-100"
+                        }`}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Dropdown for Mobile */}
+                  <div
+                    className={`grid grid-cols-1 overflow-hidden transition-all duration-300 ease-in-out ${
+                      openDropdownMobile === WEDDING
+                        ? "max-h-fit opacity-100 translate-y-0"
+                        : "max-h-0 opacity-0 -translate-y-2"
+                    }`}
+                  >
+                    <div className="flex flex-col mt-2 ps-3">
+                      <HeaderLinkButton
+                        href={"#"}
+                        className="!font-semibold !p-[10px] !text-[0.875em] leading-[1em] text-baseblack capitalize"
+                        onClick={() => {
+                          dispatch(setIsMenuOpen(false));
+                          closeAllDropdown();
+                        }}
+                      >
+                        WOMEN
+                      </HeaderLinkButton>
+                      <HeaderLinkButton
+                        href={"#"}
+                        className="!font-semibold !p-[10px] !text-[0.875em] leading-[1em] text-baseblack capitalize"
+                        onClick={() => {
+                          dispatch(setIsMenuOpen(false));
+                          closeAllDropdown();
+                        }}
+                      >
+                        MEN
+                      </HeaderLinkButton>
+                    </div>
+                  </div>
                 </div>
 
                 {menuList.map((item, index) => {
@@ -882,58 +1332,63 @@ export default function NavigationHeader() {
                   return (
                     <div
                       key={`${item.title}-${index}`}
-                      className="flex flex-col border-t pt-3"
+                      className="flex flex-col border-t py-3.5"
                     >
                       <div
                         className="flex justify-between"
                         onClick={() =>
-                          hasSubCategories
-                            ? dispatch(
-                                setOpenDropdownMobile(
-                                  isDropdownOpen ? null : item.title
-                                )
-                              )
-                            : null
+                          dispatch(
+                            setOpenDropdownMobile(
+                              isDropdownOpen ? null : item.title
+                            )
+                          )
                         }
                       >
                         <HeaderLinkButton
                           href={item.href}
-                          className="text-gray-700 px-0 hover:text-black py-0.5"
+                          className="text-baseblack !px-[10px] hover:text-primary py-0.5"
                           onClick={() => dispatch(setIsMenuOpen(false))}
                         >
                           {item.title}
                         </HeaderLinkButton>
-                        {hasSubCategories && (
-                          <div className="text-base pb-0.5">
-                            <IoIosArrowDown
-                              className={`transition-all duration-300 ease-in-out transform ${
-                                isDropdownOpen
-                                  ? "rotate-180 scale-110"
-                                  : "rotate-0 scale-100"
-                              }`}
-                            />
-                          </div>
-                        )}
+                        <div className="text-base px-[10px] pb-0.5">
+                          <IoIosArrowDown
+                            className={`transition-all duration-300 ease-in-out transform ${
+                              isDropdownOpen
+                                ? "rotate-180 scale-110"
+                                : "rotate-0 scale-100"
+                            }`}
+                          />
+                        </div>
                       </div>
 
                       {/* Dropdown for Mobile */}
                       {hasSubCategories && (
                         <div
-                          className={`grid grid-cols-1 gap-2 overflow-hidden transition-all duration-300 ease-in-out ${
+                          className={`grid grid-cols-1 overflow-hidden transition-all duration-300 ease-in-out ${
                             isDropdownOpen
-                              ? "max-h-96 opacity-100 translate-y-0"
+                              ? "max-h-fit opacity-100 translate-y-0"
                               : "max-h-0 opacity-0 -translate-y-2"
                           }`}
                         >
+                          <div className="p-[10px] pb-0">
+                            {" "}
+                            <Link
+                              href={item.href}
+                              className="border-b w-fit border-baseblack hover:border-b-primary text-[0.875em] mx-3"
+                            >
+                              View All
+                            </Link>
+                          </div>
                           {item.subCategories.map((subItem, index) => (
                             <div
-                              className="flex flex-col gap-2 mt-2 ms-4"
+                              className="flex flex-col mt-2 ps-3"
                               key={`${subItem.title}-${index}5`}
                             >
                               <div className="relative">
                                 <HeaderLinkButton
                                   href={subItem.href}
-                                  className="!font-semibold text-primary capitalize"
+                                  className="!font-semibold !p-[10px] !text-[0.875em] leading-[1em] text-baseblack capitalize"
                                   onClick={() => {
                                     dispatch(setIsMenuOpen(false));
                                     closeAllDropdown();
@@ -941,29 +1396,6 @@ export default function NavigationHeader() {
                                 >
                                   {subItem.title}
                                 </HeaderLinkButton>
-                                <div className="absolute left-3 w-4 h-[2px] bg-primary ms-2"></div>
-                              </div>
-                              <div className="flex flex-col gap-1 ms-3 mt-0.5">
-                                {subItem.productTypes.length
-                                  ? subItem.productTypes.map(
-                                      (productType, index) => {
-                                        return (
-                                          <HeaderLinkButton
-                                            key={`${productType.title}-${index}6`}
-                                            href={productType.href}
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              closeAllDropdown();
-                                              dispatch(setIsMenuOpen(false));
-                                            }}
-                                            className="capitalize"
-                                          >
-                                            {productType.title}
-                                          </HeaderLinkButton>
-                                        );
-                                      }
-                                    )
-                                  : null}
                               </div>
                             </div>
                           ))}
@@ -972,19 +1404,45 @@ export default function NavigationHeader() {
                     </div>
                   );
                 })}
-                {staticLinks?.map((link, index) => {
+                {staticLinks?.map((link, index) => (
+                  <div
+                    className="py-3.5 border-t"
+                    key={`static-link-${index}12`}
+                  >
+                    <HeaderLinkButton
+                      onClick={() => dispatch(setIsMenuOpen(false))}
+                      href={link.href}
+                      className="!px-[10px]"
+                    >
+                      {link.title}
+                    </HeaderLinkButton>
+                  </div>
+                ))}
+                {mainHeaderLinks?.map((item, index) => {
                   return (
                     <div
-                      className="pt-3.5  border-t"
-                      key={`static-link-${index}12`}
+                      className="py-3.5 border-t"
+                      key={`header-static-link-${index}`}
                     >
                       <HeaderLinkButton
-                        onClick={() => {
-                          dispatch(setIsMenuOpen(false));
+                        key={`variation-${index}4`}
+                        href={item.href}
+                        className="!text-[14px] flex items-center font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !px-[10px] !p-0 duration-300 capitalize"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          closeAllDropdown();
                         }}
-                        href={link.href}
                       >
-                        {link.title}
+                        {item.image ? (
+                          <CustomImg
+                            srcAttr={item.image}
+                            titleAttr=""
+                            altAttr=""
+                          />
+                        ) : item.icon ? (
+                          item.icon
+                        ) : null}
+                        {item.title}
                       </HeaderLinkButton>
                     </div>
                   );

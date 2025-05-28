@@ -5,7 +5,6 @@ import ProductCard from "./productCard";
 import { useWindowSize } from "@/_helper/hooks";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  resetFilters,
   setCurrentPage,
   setSelectedVariations,
   setShowFilterSidebar,
@@ -43,6 +42,10 @@ const ProductGrid = memo(
 
     const handlePageClick = ({ selected }) => {
       dispatch(setCurrentPage(selected));
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
     };
 
     let filteredItemsList = productList;
@@ -106,13 +109,9 @@ const ProductGrid = memo(
       (currentPage + 1) * ITEMS_PER_PAGE
     );
 
-    const getProductLink = ({ queryParams, isDiamondSettingPage, product }) => {
+    const getProductLink = ({ isDiamondSettingPage, product }) => {
       if (!isDiamondSettingPage) return null;
-      const { dId, format } = queryParams || {};
       const basePath = `/customize/start-with-setting/${product?.id}`;
-      // const queryString = dId
-      //   ? `?dId=${dId}&format=${format}`
-      //   : `?format=${format}`;
       return `${basePath}`;
     };
 
@@ -159,11 +158,12 @@ const ProductGrid = memo(
                 ) : null}
               </div>
             ) : null}
-
             <div className={`flex gap-6`}>
-              <ProductFilterSidebar
-                uniqueVariations={uniqueFilterOptions.uniqueVariations}
-              />
+              {showFilter ? (
+                <ProductFilterSidebar
+                  uniqueVariations={uniqueFilterOptions.uniqueVariations}
+                />
+              ) : null}
               {/* Product Grid */}
               <div
                 className={`w-full grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 ${
@@ -177,10 +177,15 @@ const ProductGrid = memo(
                     title={product?.productName}
                     discount={product?.discount}
                     basePrice={product?.basePrice}
-                    img={product?.thumbnailImage || product?.images?.[0]?.image}
-                    video={product?.video}
                     price={product?.baseSellingPrice}
                     goldColorVariations={product?.goldColorVariations}
+                    goldTypeVariations={product?.goldTypeVariations}
+                    whiteGoldThumbnailImage={product?.whiteGoldThumbnailImage}
+                    yellowGoldThumbnailImage={product?.yellowGoldThumbnailImage}
+                    roseGoldThumbnailImage={product?.roseGoldThumbnailImage}
+                    hoveredWhiteGoldImage={product?.whiteGoldImages[0]?.image}
+                    hoveredYellowGoldImage={product?.yellowGoldImages[0]?.image}
+                    hoveredRoseGoldImage={product?.roseGoldImages[0]?.image}
                     productLink={getProductLink({
                       queryParams,
                       isDiamondSettingPage,

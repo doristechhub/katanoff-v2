@@ -127,56 +127,156 @@ export const getSingleProduct = (productId) => async (dispatch) => {
     if (res) {
       let product = { ...productInitDetails, ...res };
 
-      if (res?.images?.length) {
-        const imagesArray = res?.images?.map((image) => {
-          return {
-            type: 'old',
-            image: image.image,
-          };
-        });
+      // Rose Gold Images
+      if (res?.roseGoldImages?.length) {
+        const roseGoldImagesArray = res.roseGoldImages.map((image) => ({
+          type: 'old',
+          image: image.image,
+        }));
         product = {
           ...product,
-          imageFiles: [],
-          previewImages: imagesArray,
-          uploadedDeletedImages: [],
+          roseGoldImageFiles: [],
+          roseGoldPreviewImages: roseGoldImagesArray,
+          roseGoldUploadedDeletedImages: [],
         };
       }
 
-      const thumbnailImageUrl = res?.thumbnailImage;
-      if (thumbnailImageUrl) {
-        const url = new URL(thumbnailImageUrl);
+      // Rose Gold Thumbnail Image
+      const roseGoldThumbnailImageUrl = res?.roseGoldThumbnailImage;
+      if (roseGoldThumbnailImageUrl) {
+        const url = new URL(roseGoldThumbnailImageUrl);
         const fileExtension = url.pathname.split('.').pop();
-
-        const previewThumbnailImageObj = {
+        const roseGoldPreviewThumbnailImageObj = {
           type: 'old',
           mimeType: `image/${fileExtension}`,
-          image: thumbnailImageUrl,
+          image: roseGoldThumbnailImageUrl,
         };
         product = {
           ...product,
-          thumbnailImageFile: [],
-          uploadedDeletedThumbnailImage: [],
-          previewThumbnailImage: [previewThumbnailImageObj],
+          roseGoldThumbnailImageFile: [],
+          roseGoldUploadedDeletedThumbnailImage: [],
+          roseGoldPreviewThumbnailImage: [roseGoldPreviewThumbnailImageObj],
         };
       }
 
-      const videoUrl = res?.video;
-      if (videoUrl) {
-        const url = new URL(videoUrl);
+      // Rose Gold Video
+      const roseGoldVideoUrl = res?.roseGoldVideo;
+      if (roseGoldVideoUrl) {
+        const url = new URL(roseGoldVideoUrl);
         const fileExtension = url.pathname.split('.').pop();
-
-        const previewVideoObj = {
+        const roseGoldPreviewVideoObj = {
           type: 'old',
           mimeType: `video/${fileExtension}`,
-          video: videoUrl,
+          video: roseGoldVideoUrl,
         };
         product = {
           ...product,
-          videoFile: [],
-          deleteUploadedVideo: [],
-          previewVideo: [previewVideoObj],
+          roseGoldVideoFile: [],
+          roseGoldDeleteUploadedVideo: [],
+          roseGoldPreviewVideo: [roseGoldPreviewVideoObj],
         };
       }
+
+      // Yellow Gold Images
+      if (res?.yellowGoldImages?.length) {
+        const yellowGoldImagesArray = res.yellowGoldImages.map((image) => ({
+          type: 'old',
+          image: image.image,
+        }));
+        product = {
+          ...product,
+          yellowGoldImageFiles: [],
+          yellowGoldPreviewImages: yellowGoldImagesArray,
+          yellowGoldUploadedDeletedImages: [],
+        };
+      }
+
+      // Yellow Gold Thumbnail Image
+      const yellowGoldThumbnailImageUrl = res?.yellowGoldThumbnailImage;
+      if (yellowGoldThumbnailImageUrl) {
+        const url = new URL(yellowGoldThumbnailImageUrl);
+        const fileExtension = url.pathname.split('.').pop();
+        const yellowGoldPreviewThumbnailImageObj = {
+          type: 'old',
+          mimeType: `image/${fileExtension}`,
+          image: yellowGoldThumbnailImageUrl,
+        };
+        product = {
+          ...product,
+          yellowGoldThumbnailImageFile: [],
+          yellowGoldUploadedDeletedThumbnailImage: [],
+          yellowGoldPreviewThumbnailImage: [yellowGoldPreviewThumbnailImageObj],
+        };
+      }
+
+      // Yellow Gold Video
+      const yellowGoldVideoUrl = res?.yellowGoldVideo;
+      if (yellowGoldVideoUrl) {
+        const url = new URL(yellowGoldVideoUrl);
+        const fileExtension = url.pathname.split('.').pop();
+        const yellowGoldPreviewVideoObj = {
+          type: 'old',
+          mimeType: `video/${fileExtension}`,
+          video: yellowGoldVideoUrl,
+        };
+        product = {
+          ...product,
+          yellowGoldVideoFile: [],
+          yellowGoldDeleteUploadedVideo: [],
+          yellowGoldPreviewVideo: [yellowGoldPreviewVideoObj],
+        };
+      }
+
+      // White Gold Images
+      if (res?.whiteGoldImages?.length) {
+        const whiteGoldImagesArray = res.whiteGoldImages.map((image) => ({
+          type: 'old',
+          image: image.image,
+        }));
+        product = {
+          ...product,
+          whiteGoldImageFiles: [],
+          whiteGoldPreviewImages: whiteGoldImagesArray,
+          whiteGoldUploadedDeletedImages: [],
+        };
+      }
+
+      // White Gold Thumbnail Image
+      const whiteGoldThumbnailImageUrl = res?.whiteGoldThumbnailImage;
+      if (whiteGoldThumbnailImageUrl) {
+        const url = new URL(whiteGoldThumbnailImageUrl);
+        const fileExtension = url.pathname.split('.').pop();
+        const whiteGoldPreviewThumbnailImageObj = {
+          type: 'old',
+          mimeType: `image/${fileExtension}`,
+          image: whiteGoldThumbnailImageUrl,
+        };
+        product = {
+          ...product,
+          whiteGoldThumbnailImageFile: [],
+          whiteGoldUploadedDeletedThumbnailImage: [],
+          whiteGoldPreviewThumbnailImage: [whiteGoldPreviewThumbnailImageObj],
+        };
+      }
+
+      // White Gold Video
+      const whiteGoldVideoUrl = res?.whiteGoldVideo;
+      if (whiteGoldVideoUrl) {
+        const url = new URL(whiteGoldVideoUrl);
+        const fileExtension = url.pathname.split('.').pop();
+        const whiteGoldPreviewVideoObj = {
+          type: 'old',
+          mimeType: `video/${fileExtension}`,
+          video: whiteGoldVideoUrl,
+        };
+        product = {
+          ...product,
+          whiteGoldVideoFile: [],
+          whiteGoldDeleteUploadedVideo: [],
+          whiteGoldPreviewVideo: [whiteGoldPreviewVideoObj],
+        };
+      }
+
       dispatch(setSelectedProduct(product));
       return res;
     }
@@ -219,13 +319,13 @@ export const updateProduct = (payload) => async (dispatch) => {
   }
 };
 
-export const updateProductPhotosAction = (payload) => async (dispatch) => {
+export const updateRoseGoldMediaAction = (payload) => async (dispatch) => {
   try {
     dispatch(setCrudProductLoading(true));
-    const res = await productService.updateProductPhotos(payload);
+    const res = await productService.updateRoseGoldMedia(payload);
 
     if (res) {
-      toast.success('Product updated successfully');
+      toast.success('Rose Gold media updated successfully');
       return true;
     }
   } catch (e) {
@@ -236,13 +336,13 @@ export const updateProductPhotosAction = (payload) => async (dispatch) => {
   }
 };
 
-export const updateProductThumbnailPhotoAction = (payload) => async (dispatch) => {
+export const updateYellowGoldMediaAction = (payload) => async (dispatch) => {
   try {
     dispatch(setCrudProductLoading(true));
-    const res = await productService.updateProductThumbnailPhoto(payload);
+    const res = await productService.updateYellowGoldMedia(payload);
 
     if (res) {
-      toast.success('Product thumbnail image updated successfully');
+      toast.success('Yellow Gold media updated successfully');
       return true;
     }
   } catch (e) {
@@ -253,13 +353,13 @@ export const updateProductThumbnailPhotoAction = (payload) => async (dispatch) =
   }
 };
 
-export const updateProductVideoAction = (payload) => async (dispatch) => {
+export const updateWhiteGoldMediaAction = (payload) => async (dispatch) => {
   try {
     dispatch(setCrudProductLoading(true));
-    const res = await productService.updateProductVideo(payload);
+    const res = await productService.updateWhiteGoldMedia(payload);
 
     if (res) {
-      toast.success('Product video updated successfully');
+      toast.success('White Gold media updated successfully');
       return true;
     }
   } catch (e) {

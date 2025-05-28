@@ -1,7 +1,23 @@
 import { memo } from "react";
 import { CustomImg } from "../dynamiComponents";
+import dropdownArrow from "@/assets/icons/dropdownArrow.svg";
 
-const VariationsList = ({ variations, selectedVariations, handleSelect }) => {
+function toCamelCase(str) {
+  if (!str) return "";
+  const [first, ...rest] = str.trim().split(" ");
+  return (
+    first.toLowerCase() +
+    rest.map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase()).join("")
+  );
+}
+
+const VariationsList = ({
+  variations,
+  selectedVariations,
+  handleSelect,
+  setHoveredColor,
+  hoveredColor,
+}) => {
   const isSelected = (variationId, variationTypeId) =>
     selectedVariations?.length &&
     selectedVariations?.some(
@@ -10,64 +26,145 @@ const VariationsList = ({ variations, selectedVariations, handleSelect }) => {
     );
 
   return (
-    <div className="flex flex-col mt-4 lg:mt-6 gap-4 lg:gap-6">
-      {variations?.map((variation) => (
-        <div
-          key={variation?.variationId}
-          className="flex items-center md:gap-x-6"
-        >
-          <p className="font-medium text-baseblack text-sm  3xl:text-base !w-[130px] xs:!w-[135px]">
-            {variation?.variationName}:
-          </p>
+    <div className="flex flex-col mt-4 lg:mt-6 gap-6">
+      {variations?.map((variation) => {
+        const selectedType = selectedVariations?.find(
+          (v) => v?.variationId === variation?.variationId
+        );
+        const isGoldColor =
+          variation?.variationName?.toLowerCase() === "gold color";
 
-          <div className="flex flex-wrap gap-2 md:gap-3 items-start lg:items-center">
-            {variation?.variationTypes?.map((type) => {
-              const selected = isSelected(
-                variation?.variationId,
-                type?.variationTypeId,
-                variation?.variationName,
-                type?.variationTypeName
-              );
+        const isSizeVariation = variation?.variationName === "Size";
 
-              return (
-                <div key={type?.variationTypeId} className="relative">
-                  {type?.type === "color" ? (
-                    <div className="relative flex flex-col items-center mb-4">
-                      <button
-                        className={`relative w-12 xs:w-16 3xl:w-20 h-10 xs:h-8 3xl:h-10 p-1 transition-all flex items-center justify-center
-                     ${
-                       selected
-                         ? "border-primary border"
-                         : "border-transparent border"
-                     }
-                   `}
-                        style={{
-                          backgroundColor: type?.variationTypeHexCode,
-                          boxShadow: selected ? "inset 0 0 0 4px #fff" : "none",
-                        }}
-                        onClick={() =>
-                          handleSelect(
-                            variation?.variationId,
-                            type?.variationTypeId,
-                            variation?.variationName,
-                            type?.variationTypeName
-                          )
-                        }
-                      />
-                      {selected && (
-                        <span className="absolute top-full mt-1 text-[12px]  md:text-[12px] 3xl:text-[14px] font-medium text-primary whitespace-nowrap">
-                          {type?.variationTypeName}
-                        </span>
-                      )}
-                    </div>
-                  ) : type?.type === "image" ? (
-                    <>
-                      <div className="relative flex flex-col items-start lg:items-center mb-4">
+        return (
+          <div key={variation?.variationId} className="flex flex-col gap-2">
+            <p className="font-semibold text-baseblack text-sm">
+              {variation?.variationName}
+              {selectedType?.variationTypeName
+                ? `: ${selectedType.variationTypeName}`
+                : ":"}
+            </p>
+
+            {isSizeVariation ? (
+              <div className="relative w-fit">
+                <select
+                  className={`appearance-none px-4 py-2 pr-10 border border-grayborder rounded-sm text-sm font-semibold bg-transparent cursor-pointer`}
+                  value={selectedType?.variationTypeId || ""}
+                  onChange={(e) => {
+                    const selectedOption = variation.variationTypes.find(
+                      (type) => type.variationTypeId === e.target.value
+                    );
+                    handleSelect(
+                      variation?.variationId,
+                      selectedOption?.variationTypeId,
+                      variation?.variationName,
+                      selectedOption?.variationTypeName
+                    );
+                  }}
+                >
+                  <option value="" disabled>
+                    Size
+                  </option>
+                  {variation?.variationTypes?.map((type) => (
+                    <option
+                      key={type.variationTypeId}
+                      value={type.variationTypeId}
+                    >
+                      {type.variationTypeName}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-1 flex items-center px-2 text-black">
+                  <CustomImg
+                    srcAttr={dropdownArrow}
+                    altAttr="Arrow"
+                    titleAttr="Arrow"
+                    className="w-4 h-4"
+                  />
+                </div>
+              </div>
+            ) : (
+              // 👉 Render buttons/color/image for other types
+              <div className="flex flex-wrap gap-2 md:gap-3 items-start lg:items-center">
+                {variation?.variationTypes?.map((type) => {
+                  const selected = isSelected(
+                    variation?.variationId,
+                    type?.variationTypeId
+                  );
+
+                  return (
+                    <div key={type?.variationTypeId} className="relative">
+                      {type?.type === "color" ? (
+                        <div className="relative flex flex-col items-center">
+                          <button
+                            className={`
+    relative w-16 xs:w-16 3xl:w-20 h-10 p-1 xs:h-8 3xl:h-10  transition-all flex items-center justify-center rounded-sm
+    ${
+      selected || hoveredColor === toCamelCase(type.variationTypeName)
+        ? "border-grayborder border"
+        : "border-transparent"
+    }
+  `}
+                            style={{
+                              backgroundColor: type?.variationTypeHexCode,
+                              boxShadow:
+                                selected ||
+                                hoveredColor ===
+                                  toCamelCase(type.variationTypeName)
+                                  ? "inset 0 0 0 4px #fff"
+                                  : "none",
+                            }}
+                            onClick={() =>
+                              handleSelect(
+                                variation?.variationId,
+                                type?.variationTypeId,
+                                variation?.variationName,
+                                type?.variationTypeName
+                              )
+                            }
+                            onMouseEnter={() => {
+                              if (setHoveredColor)
+                                setHoveredColor(
+                                  toCamelCase(type.variationTypeName)
+                                );
+                            }}
+                            onMouseLeave={() => {
+                              if (setHoveredColor) setHoveredColor("");
+                            }}
+                          />
+                        </div>
+                      ) : type?.type === "image" ? (
+                        <div className="relative flex flex-col items-center">
+                          <button
+                            className={`w-12 xs:w-16 4xl:w-20 h-10 xs:h-8 4xl:h-10 p-1 flex items-center justify-center rounded-sm transition-all ${
+                              selected
+                                ? "border-grayborder text-baseblack border"
+                                : "border-transparent border"
+                            }`}
+                            onClick={() =>
+                              handleSelect(
+                                variation?.variationId,
+                                type?.variationTypeId,
+                                variation?.variationName,
+                                type?.variationTypeName
+                              )
+                            }
+                          >
+                            <CustomImg
+                              srcAttr={type?.variationTypeImage}
+                              alt={type?.variationTypeName}
+                              width={100}
+                              height={100}
+                              className="w-7 h-7 object-contain"
+                            />
+                          </button>
+                        </div>
+                      ) : (
                         <button
-                          className={`relative w-12 xs:w-16 3xl:w-20 h-10 xs:h-8 3xl:h-10 p-1 transition-all flex items-center justify-center ${
+                          className={`px-8 py-2 text-[12px] font-semibold rounded-sm transition-all ${
                             selected
-                              ? "border-primary border text-primary"
-                              : "border-transparent border"
+                              ? "border-grayborder text-baseblack border"
+                              : "text-baseblack border-transparent border"
                           }`}
                           onClick={() =>
                             handleSelect(
@@ -78,48 +175,17 @@ const VariationsList = ({ variations, selectedVariations, handleSelect }) => {
                             )
                           }
                         >
-                          <CustomImg
-                            srcAttr={type?.variationTypeImage}
-                            alt={type?.variationTypeName}
-                            width={100}
-                            height={100}
-                            className="w-7 h-7 object-contain"
-                          />
-                        </button>
-                        <span
-                          className={`absolute top-full mt-1 text-[12px]  md:text-[12px] 3xl:text-[14px] font-medium text-primary whitespace-nowrap ${
-                            selected ? "block" : "hidden"
-                          }`}
-                        >
                           {type?.variationTypeName}
-                        </span>
-                      </div>
-                    </>
-                  ) : (
-                    <button
-                      className={`px-4 py-1 text-sm  md:text-sm 3xl:text-xl font-medium transition-all ${
-                        selected
-                          ? "border-primary text-primary border"
-                          : "text-baseblack border-transparent border"
-                      }`}
-                      onClick={() =>
-                        handleSelect(
-                          variation?.variationId,
-                          type?.variationTypeId,
-                          variation?.variationName,
-                          type?.variationTypeName
-                        )
-                      }
-                    >
-                      {type?.variationTypeName}
-                    </button>
-                  )}
-                </div>
-              );
-            })}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

@@ -113,22 +113,24 @@ const shippingForm = () => {
       return;
     }
     dispatch(setSelectedShippingAddress(getParsedAddress));
-    if (subTotal > 199) {
-      dispatch(setSelectedShippingCharge(0));
-    } else {
-      const matchedIndex = shippingOptions.findIndex(
-        (option) => option.name === parsedSavedMethod?.name
-      );
-      if (matchedIndex !== -1) {
-        setSelectedMethod(parsedSavedMethod.name);
-        dispatch(setSelectedShippingCharge(parsedSavedMethod.price));
-        dispatch(setActiveIndex(matchedIndex));
-      } else {
-        setSelectedMethod(shippingOptions?.[0]?.name);
-        dispatch(setSelectedShippingCharge(shippingOptions?.[0]?.price));
-        dispatch(setActiveIndex(0));
-      }
-    }
+    dispatch(setSelectedShippingCharge(0));
+
+    // if (subTotal > 199) {
+    //   dispatch(setSelectedShippingCharge(0));
+    // } else {
+    //   const matchedIndex = shippingOptions.findIndex(
+    //     (option) => option.name === parsedSavedMethod?.name
+    //   );
+    //   if (matchedIndex !== -1) {
+    //     setSelectedMethod(parsedSavedMethod.name);
+    //     dispatch(setSelectedShippingCharge(parsedSavedMethod.price));
+    //     dispatch(setActiveIndex(matchedIndex));
+    //   } else {
+    //     setSelectedMethod(shippingOptions?.[0]?.name);
+    //     dispatch(setSelectedShippingCharge(shippingOptions?.[0]?.price));
+    //     dispatch(setActiveIndex(0));
+    //   }
+    // }
 
     return () => {
       clearAbortController();
@@ -144,12 +146,12 @@ const shippingForm = () => {
       );
       const subTotal = helperFunctions.getSubTotal(cartList);
       if (res) {
-        if (subTotal < 199) {
-          localStorage.setItem(
-            "selectedShippingMethod",
-            JSON.stringify(shippingOptions?.[activeIndex])
-          );
-        }
+        // if (subTotal < 199) {
+        //   localStorage.setItem(
+        //     "selectedShippingMethod",
+        //     JSON.stringify(shippingOptions?.[activeIndex])
+        //   );
+        // }
         dispatch(setIsSubmitted(false));
         router.push(`/payment/${res}`);
       }
@@ -179,7 +181,8 @@ const shippingForm = () => {
         email: selectedShippingAddress?.email,
         companyName: selectedShippingAddress?.companyName,
         apartment: selectedShippingAddress?.apartment,
-        shippingCharge: subTotal < 199 ? selectedShippingCharge : 0,
+        // shippingCharge: subTotal < 199 ? selectedShippingCharge : 0,
+        shippingCharge: 0,
       };
 
       if (!cartList.length) {
@@ -235,7 +238,7 @@ const shippingForm = () => {
 
   return (
     <div className="flex flex-col gap-6 lg:gap-10 pt-8 lg:pt-12">
-      <div className="bg-white px-4 lg:px-6 flex flex-col">
+      <div className="border border-grayborder rounded-md px-4 lg:px-6 flex flex-col">
         <div className="flex justify-between items-center border-b py-4">
           <div>
             <p className="text-baseblack text-lg md:text-xl font-semibold">
@@ -246,7 +249,7 @@ const shippingForm = () => {
             </p>
           </div>
           <Link href={"/checkout"}>
-            <span className="text-primary md:text-xl font-semibold text-lg underline">
+            <span className="text-baseblack md:text-xl font-semibold text-lg underline">
               Change
             </span>
           </Link>
@@ -271,23 +274,22 @@ const shippingForm = () => {
             </div>
           </div>
           <Link href={"/checkout"}>
-            <span className="text-primary md:text-xl font-semibold text-lg underline">
+            <span className="text-baseblack md:text-xl font-semibold text-lg underline">
               Change
             </span>
           </Link>
         </div>
       </div>
-
-      <div>
+      {/* <div>
         <h3 className="font-semibold text-lg mb-3">Shipping Method:</h3>
-        <div className="flex flex-col gap-2 md:gap-4">
+        <div className="flex flex-col px-4 border border-grayborder rounded-md">
           {shippingOptions.map((option, index) => (
             <div
               key={option.name}
-              className={`flex justify-between items-center px-4 py-4 cursor-pointer ${
+              className={`flex justify-between py-5 items-center cursor-pointer border-b border-b-grayborder last:border-b-0 ${
                 selectedMethod === option.name
                   ? "border border-[#0C1D3D]"
-                  : "bg-white"
+                  : "border-transparent"
               }`}
             >
               <div className="flex items-center gap-3">
@@ -318,6 +320,30 @@ const shippingForm = () => {
         <span className="mt-5 font-normal text-gray-500">
           <b className="text-baseblack">Note :</b> Free shipping over 199
         </span>
+      </div> */}
+      <div>
+        <h3 className="font-semibold text-lg mb-3">Shipping Method:</h3>
+        <div className="flex flex-col px-4 border border-grayborder rounded-md">
+          <div
+            className={`flex justify-between py-5 items-center cursor-pointer border-b border-b-grayborder last:border-b-0 border-[#0C1D3D]`}
+          >
+            <div className="flex items-center gap-3">
+              <input
+                type="radio"
+                name="shippingMethod"
+                value="FedEx 2Day"
+                id="fedex-2day"
+                checked={true}
+                readOnly
+                className="form-radio w-6 h-5 accent-primary"
+              />
+              <span className="text-lg text-baseblack font-medium">
+                FedEx 2Day
+              </span>
+            </div>
+            <span className="text-lg text-baseblack font-semibold">Free</span>
+          </div>
+        </div>
       </div>
 
       <div>
@@ -331,7 +357,7 @@ const shippingForm = () => {
                 className={`flex flex-wrap items-center justify-between gap-3 p-3 border rounded cursor-pointer transition-all duration-200 ${
                   isChecked
                     ? "border-primary bg-primary/10"
-                    : "border-gray-300 hover:bg-gray-50"
+                    : "border-gray-300 hover:bg-gray-100"
                 }`}
                 aria-checked={isChecked}
               >

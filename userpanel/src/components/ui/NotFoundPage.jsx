@@ -12,9 +12,7 @@ const NotFoundPage = () => {
           className="h-full w-full object-contain"
         />
       </div>
-      <h3 className="text-3xl md:text-4xl mt-9 font-chong-modern">
-        Page Not Found
-      </h3>
+      <h3 className="text-3xl md:text-4xl mt-9 font-castoro">Page Not Found</h3>
       <p className="mt-5 text-center text-md md:text-xl font-medium px-4 md:px-8 w-full lg:w-[60%] 2xl:w-[40%]">
         We're sorry, but the page you're looking for cannot be found. Please use
         the button below to return to the homepage.

@@ -376,7 +376,7 @@ const isReturnValid = (timestamp) => {
 };
 
 const capitalizeCamelCase = (status) => {
-  if (!status) return 'N/A';
+  if (!status) return '-';
   return status.charAt(0).toUpperCase() + status.slice(1);
 };
 

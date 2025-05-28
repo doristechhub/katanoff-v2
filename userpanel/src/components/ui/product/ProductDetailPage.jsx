@@ -2,10 +2,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import diamondSvg from "@/assets/icons/3stepsDiamond.svg";
-import stripe from "@/assets/images/cart/stripe.webp";
-import paypal from "@/assets/images/cart/paypal.webp";
 import { useParams } from "next/navigation";
-import { helperFunctions } from "@/_helper";
+import dropdownArrow from "@/assets/icons/dropdownArrow.svg";
+import { companyEmail, helperFunctions } from "@/_helper";
 import {
   addUpdateRecentlyViewedProducts,
   fetchProductDetailByProductName,
@@ -16,16 +15,13 @@ import { useDispatch, useSelector } from "react-redux";
 import VariationsList from "@/components/ui/VariationsList";
 import {
   CustomImg,
-  ProgressiveImg,
-  ProductSwiper,
-  ProgressiveVed,
   ProductNotFound,
+  ProductDetailPageImage,
+  AccordionTabs,
+  ProductSwiper,
 } from "@/components/dynamiComponents";
 import DetailPageSkeleton from "@/components/ui/DetailPageSkeleton";
 import KeyFeatures from "@/components/ui/KeyFeatures";
-import calender from "@/assets/icons/calender.svg";
-import inspect from "@/assets/icons/inspect.svg";
-import truck from "@/assets/icons/truck.svg";
 import {
   setSelectedVariations,
   setProductQuantity,
@@ -42,37 +38,20 @@ import {
 } from "@/store/slices/commonSlice";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import { setCartMessage } from "@/store/slices/cartSlice";
-import ProductDetailSwipperSm from "@/components/shop/ProductDetailSwipperSm";
 import {
   MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT,
   messageType,
 } from "@/_helper/constants";
-import ZoomImage from "../ZoomImage";
 import { paymentOptions } from "@/_utils/paymentOptions";
-
+import appointment from "@/assets/icons/appointment.svg";
+import emailIcon from "@/assets/icons/email.svg";
+import paymentIcon from "@/assets/icons/paymentFinancing.svg";
+import returnsIcon from "@/assets/icons/returns.svg";
+import shippingIcon from "@/assets/icons/shippingDetail.svg";
+import warrantyIcon from "@/assets/icons/warranty.svg";
+import Link from "next/link";
 export const minProductQuantity = 1;
 export const maxProductQuantity = 5;
-
-const shippingInfo = [
-  {
-    icon: truck,
-    altAttr: "",
-    titleAttr: "",
-    text: "Please call us: +1-800-282-2242",
-  },
-  {
-    icon: calender,
-    altAttr: "",
-    titleAttr: "",
-    text: "Free 30 Day Returns, Free Resizing, Free Lifetime Warranty.",
-  },
-  {
-    icon: inspect,
-    altAttr: "",
-    titleAttr: "",
-    text: "We inspect & verify authenticity before shipping. 100% Money-Back Guarantee.",
-  },
-];
 
 const shippingReturnContent = [
   {
@@ -121,14 +100,35 @@ const shippingReturnContent = [
       "If your order arrives damaged or incorrect, contact us immediately for a resolution.",
   },
 ];
+
+const supportItems = [
+  {
+    icon: paymentIcon,
+    label: "Payment and Financing",
+    link: "/payment-financing",
+  },
+  { icon: returnsIcon, label: "Returns", link: "/return-policy" },
+  {
+    icon: emailIcon,
+    label: "Email Us",
+    link: `mailto:${companyEmail}`,
+  },
+  { icon: shippingIcon, label: "Shipping", link: "/shipping-policy" },
+  { icon: warrantyIcon, label: "Warranty", link: "/warranty" },
+  {
+    icon: appointment,
+    label: "Book an Appointment",
+    link: "/book-appointment",
+  },
+];
+
 const ProductDetailPage = ({ customizePage }) => {
   const params = useParams();
   const dispatch = useDispatch();
   const router = useRouter();
   let { productName, productId } = params;
   let availableQty = 0;
-
-  // Two Values avilable one is completeRing and other is setting used in 3 steps
+  const [hoveredColor, setHoveredColor] = useState("");
   const isCustomizePage =
     customizePage === "completeRing" || customizePage === "setting";
   const {
@@ -259,6 +259,26 @@ const ProductDetailPage = ({ customizePage }) => {
     );
     availableQty = quantity;
   }
+  // const handleSelect = useCallback(
+  //   (variationId, variationTypeId, variationName, variationTypeName) => {
+  //     dispatch(setCartMessage({ message: "", type: "" }));
+  //     const updated = [
+  //       ...selectedVariations?.filter(
+  //         (item) => item.variationId !== variationId
+  //       ),
+  //       { variationId, variationTypeId, variationName, variationTypeName },
+  //     ];
+  //     dispatch(
+  //       setSelectedVariations({
+  //         ...updated,
+  //         [variationName]: variationTypeName,
+  //       })
+  //     );
+  //     dispatch(setSelectedVariations(updated));
+  //   },
+  //   [selectedVariations]
+  // );
+
   const handleSelect = useCallback(
     (variationId, variationTypeId, variationName, variationTypeName) => {
       dispatch(setCartMessage({ message: "", type: "" }));
@@ -276,7 +296,7 @@ const ProductDetailPage = ({ customizePage }) => {
       );
       dispatch(setSelectedVariations(updated));
     },
-    [selectedVariations]
+    [dispatch, selectedVariations]
   );
 
   const selectedPrice = useMemo(() => {
@@ -431,113 +451,60 @@ const ProductDetailPage = ({ customizePage }) => {
     });
   }
 
+  const variationLabels = [
+    "Gold Type",
+    "Gold Color",
+    "Diamond Color",
+    "Diamond Clarity",
+  ];
+
+  const displayValues = variationLabels
+    .map((label) =>
+      helperFunctions?.getVariationValue(selectedVariations, label)
+    )
+    .filter(Boolean)
+    .join(" ");
+
+  console.log("productDetail", productDetail);
   return (
     <div
       className={` ${
-        isCustomizePage ? "pt-12 lg:pt-6 2xl:pt-8" : "pt-28 lg:pt-12 2xl:pt-16"
+        isCustomizePage ? "pt-12 lg:pt-6 2xl:pt-8" : "pt-36 lg:pt-12 2xl:pt-16"
       }`}
     >
       {productLoading ? (
         <DetailPageSkeleton />
       ) : productDetail && Object.keys(productDetail).length > 0 ? (
         <>
-          <div className="container grid grid-cols-1 lg:grid-cols-[55%_auto] 3xl:grid-cols-[55%_auto] gap-6 xs:gap-12">
-            <div className="hidden lg:block">
-              {" "}
-              {/* <div className="grid grid-cols-2 gap-4 auto-rows-min ">
-                {productDetail?.video && (
-                  <ProgressiveVed
-                    src={productDetail?.video}
-                    type={helperFunctions?.getVideoType(productDetail?.video)}
-                    className="w-full h-full object-cover"
-                  />
-                )}
-                {productDetail?.thumbnailImage && (
-                  <ProgressiveImg
-                    src={productDetail?.thumbnailImage}
-                    className="cursor-pointer transition-all duration-300 w-full"
-                  />
-                )}
-                {productDetail?.images?.map((media, index) => (
-                  <ProgressiveImg
-                    key={index}
-                    src={media?.image}
-                    className="cursor-pointer transition-all duration-300 w-full"
-                  />
-                ))}
-              </div> */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 auto-rows-min">
-                {productDetail?.video && (
-                  <div className="relative w-full h-60 sm:h-64 lg:h-[300px] xl:h-[350px] 4xl:h-[450px] overflow-hidden rounded-md">
-                    <ProgressiveVed
-                      src={productDetail?.video}
-                      type={helperFunctions?.getVideoType(productDetail?.video)}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-
-                {productDetail?.thumbnailImage && (
-                  <div className="zoom-container relative w-full h-60  sm:h-64 lg:h-[300px] xl:h-[350px] 4xl:h-[450px] overflow-hidden rounded-md">
-                    <ZoomImage
-                      src={productDetail?.thumbnailImage}
-                      alt="Product Thumbnail"
-                    />
-                  </div>
-                )}
-
-                {productDetail?.images?.map((media, index) => (
-                  <div
-                    key={index}
-                    className="relative w-full h-60 sm:h-64 lg:h-[300px] xl:h-[350px] 4xl:h-[450px] overflow-hidden rounded-md"
-                  >
-                    <ZoomImage
-                      src={media?.image}
-                      alt="Zoom with Lens"
-                      className="!w-full !h-full"
-                    />
-                    {/* <ProgressiveImg
-                      src={media?.image}
-                      className="cursor-pointer transition-all duration-300 w-full h-full object-cover"
-                    /> */}
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="lg:hidden">
-              <ProductDetailSwipperSm
-                images={
-                  productDetail?.thumbnailImage
-                    ? [
-                        { image: productDetail?.thumbnailImage },
-                        ...productDetail?.images,
-                      ]
-                    : productDetail?.images ?? []
-                }
-                video={productDetail?.video}
+          <div className="container grid grid-cols-1 md:grid-cols-2 3xl:grid-cols-2 gap-6 xs:gap-8 ">
+            <div className=" auto-rows-min">
+              <ProductDetailPageImage
+                productDetail={productDetail}
+                selectedVariations={selectedVariations}
+                hoveredColor={hoveredColor}
               />
             </div>
 
-            <div className="flex flex-col lg:p-6">
-              <h2 className="text-xl  md:text-xl 3xl:text-3xl font-medium">
+            <div className="flex flex-col pl-4 md:pl-0">
+              <h2 className="text-xl font-semibold">
                 {productDetail?.productName}
               </h2>
-              {!isCustomizePage && (
-                <h2 className="text-sm md:text-sm 3xl:text-base text-basegray mt-2 font-chong-modern">
-                  sku: {productDetail?.sku}
+              {!isCustomizePage && displayValues && (
+                <h2 className="text-sm md:text-sm text-basegray font-semibold pt-1">
+                  {displayValues}
                 </h2>
               )}
 
               {isCustomizePage ? (
-                <div className="flex items-center gap-2 mt-2 xl:mt-4  mb-4 lg:mb-4">
-                  <span className="text-xl md:text-xl 3xl:text-4xl font-normal font-chong-modern">
+                <div className="flex items-center gap-2 mb-4 lg:mb-4">
+                  <span className="text-xl md:text-xl 3xl:text-2xl font-normal font-castoro">
                     ${customProductPrice}
                   </span>
                 </div>
               ) : (
                 <>
-                  <div className="flex items-center gap-2 mt-2 xl:mt-4  mb-6 lg:mb-6">
-                    <span className="text-xl md:text-xl 3xl:text-4xl font-normal font-chong-modern">
+                  <div className="flex items-center gap-2 mt-2  mb-6 lg:mb-6">
+                    <span className="text-xl md:text-xl 3xl:text-2xl font-normal font-castoro">
                       {selectedPrice
                         ? `$${(
                             selectedPrice *
@@ -547,12 +514,12 @@ const ProductDetailPage = ({ customizePage }) => {
                         : "N/A"}
                     </span>
                     {productDetail?.discount && selectedPrice ? (
-                      <span className="text-gray-500 line-through text-xl font-chong-modern">
+                      <span className="text-gray-500 line-through text-xl font-castoro">
                         ${(selectedPrice * productQuantity).toFixed(2)}
                       </span>
                     ) : null}
                     {productDetail?.discount && selectedPrice ? (
-                      <span className="bg-primary text-white px-2 py-2 text-xs font-medium">
+                      <span className="bg-baseblack text-white px-2 py-2 text-xs font-medium">
                         {`You Save ${productDetail?.discount}%`}
                       </span>
                     ) : null}
@@ -560,56 +527,51 @@ const ProductDetailPage = ({ customizePage }) => {
                 </>
               )}
 
-              <div className="border-t  border-black_opacity_10" />
+              <div className="border-t border-grayborder" />
 
               {!isCustomizePage && (
-                <div className="mt-6 lg:mt-10 flex items-center lg:gap-6">
-                  <p className="font-medium text-sm  3xl:text-base w-[130px] xs:w-[135px]">
+                <div className="mt-6 lg:mt-6 flex flex-col gap-2">
+                  <p className="font-semibold text-baseblack text-sm 3xl:text-sm">
                     Qty:
                   </p>
-                  <div className="flex items-center py-2 bg-white">
-                    <button
-                      className={` px-1 3xl:px-2 text-sm  md:text-sm 3xl:text-xl font-medium text-baseblack ${
-                        productQuantity <= minProductQuantity || !availableQty
-                          ? "opacity-50 cursor-not-allowed"
-                          : ""
-                      }`}
-                      onClick={() =>
-                        dispatch(
-                          setProductQuantity(Math.max(1, productQuantity - 1))
-                        )
+                  <div className="relative w-fit">
+                    <select
+                      className={`appearance-none px-4 py-2 pr-10 border border-grayborder rounded-sm text-sm font-semibold bg-transparent cursor-pointer
+          ${!availableQty ? "opacity-50 cursor-not-allowed" : ""}
+        `}
+                      value={productQuantity}
+                      onChange={(e) =>
+                        dispatch(setProductQuantity(parseInt(e.target.value)))
                       }
-                      disabled={
-                        productQuantity <= minProductQuantity || !availableQty
-                      }
+                      disabled={!availableQty}
                     >
-                      −
-                    </button>
+                      {Array.from(
+                        {
+                          length:
+                            Math.min(
+                              maxProductQuantity,
+                              availableQty || maxProductQuantity
+                            ) -
+                            minProductQuantity +
+                            1,
+                        },
+                        (_, i) => i + minProductQuantity
+                      ).map((qty) => (
+                        <option key={qty} value={qty}>
+                          {qty}
+                        </option>
+                      ))}
+                    </select>
 
-                    <span className="px-2 3xl:px-4 text-sm  md:text-sm 3xl:text-xl font-medium text-primary">
-                      {productQuantity}
-                    </span>
-                    <button
-                      className={`px-1 3xl:px-2  text-sm  md:text-sm 3xl:text-xl font-medium text-baseblack ${
-                        productQuantity >= maxProductQuantity ||
-                        productQuantity >= availableQty
-                          ? "opacity-50 cursor-not-allowed"
-                          : ""
-                      }`}
-                      onClick={() =>
-                        dispatch(
-                          setProductQuantity(
-                            Math.min(maxProductQuantity, productQuantity + 1)
-                          )
-                        )
-                      }
-                      disabled={
-                        productQuantity >= maxProductQuantity ||
-                        productQuantity >= availableQty
-                      }
-                    >
-                      +
-                    </button>
+                    {/* Custom arrow (optional) */}
+                    <div className="pointer-events-none absolute inset-y-0 right-1 flex items-center px-2 text-black">
+                      <CustomImg
+                        srcAttr={dropdownArrow}
+                        altAttr="Arrow"
+                        titleAttr="Arrow"
+                        className="w-4 h-4"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
@@ -618,12 +580,14 @@ const ProductDetailPage = ({ customizePage }) => {
                 variations={productDetail?.variations}
                 selectedVariations={selectedVariations}
                 handleSelect={handleSelect}
+                setHoveredColor={setHoveredColor}
+                hoveredColor={hoveredColor}
               />
 
               {customizePage === "completeRing" &&
                 customProductDetails?.diamondDetails && (
                   <>
-                    <div className="border-t  border-black_opacity_10 mt-10" />
+                    <div className="border-t border-grayborder mt-10" />
                     <div className=" text-baseblack pt-4 md:pt-6">
                       <div className="flex  items-start gap-2">
                         <div className="flex gap-1">
@@ -647,7 +611,6 @@ const ProductDetailPage = ({ customizePage }) => {
 
                           <div className="mb-4  text-sm  3xl:text-base font-medium text-baseblack">
                             <div className="flex flex-col xs:flex-row xs:items-stretch">
-                              {/* Left column */}
                               <div className="flex flex-col xs:gap-2 xs:pr-4 ">
                                 <p>
                                   Lab Created{"  "}
@@ -668,8 +631,7 @@ const ProductDetailPage = ({ customizePage }) => {
                                 </p>
                               </div>
 
-                              <div className="hidden xs:block border-l border-gray-300 mx-2 h-16"></div>
-                              {/* Right column */}
+                              <div className="hidden xs:block border-l border-grayborder mx-2 h-16" />
                               <div className="flex flex-col xs:gap-2 xs:pl-4 ">
                                 <p>
                                   Clarity-
@@ -694,122 +656,45 @@ const ProductDetailPage = ({ customizePage }) => {
                       <p className="font-medium  text-lg 3xl:text-xl">
                         Final Price: $
                         {(customProductPrice + diamondDetail?.price).toFixed(2)}
-                        <span className="font-semibold font-chong-modern"></span>
+                        <span className="font-semibold font-castoro"></span>
                       </p>
                     </div>
                   </>
                 )}
 
-              <div className="mt-4 lg:mt-8 flex gap-4 items-center">
-                <div
-                  className="w-full"
-                  onMouseEnter={() => dispatch(setIsHovered(true))}
-                  onMouseLeave={() => dispatch(setIsHovered(false))}
-                >
-                  {/* In this the only setting page is there then only handle setting will be done expect then for compplete ring and normal product detail add to cart hanlder will come  */}
-                  {customizePage === "setting" ? (
-                    <LoadingPrimaryButton
-                      className="w-full uppercase"
-                      disabled={isInValidSelectedVariation}
-                      loaderType={isHovered ? "" : "white"}
-                      onClick={handleSelectSetting}
-                    >
-                      SELECT THIS OPTION
-                    </LoadingPrimaryButton>
-                  ) : null}
-
-                  {customizePage === "completeRing" ? (
-                    <LoadingPrimaryButton
-                      className="w-full uppercase"
-                      loading={cartLoading}
-                      disabled={cartLoading || isInValidSelectedVariation}
-                      loaderType={isHovered ? "" : "white"}
-                      onClick={addToCartHandler}
-                    >
-                      ADD TO BAG
-                    </LoadingPrimaryButton>
-                  ) : null}
-
-                  {!customizePage ? (
-                    <LoadingPrimaryButton
-                      className="w-full uppercase"
-                      loading={cartLoading}
-                      disabled={
-                        cartLoading ||
-                        !availableQty ||
-                        availableQty < 0 ||
-                        isInValidSelectedVariation
-                      }
-                      loaderType={isHovered ? "" : "white"}
-                      onClick={addToCartHandler}
-                    >
-                      {availableQty && availableQty > 0
-                        ? "ADD TO BAG"
-                        : "OUT OF STOCK"}
-                    </LoadingPrimaryButton>
-                  ) : null}
-                </div>
-              </div>
-              {isSubmitted && !selectedVariations?.length ? (
-                <ErrorMessage message={"Please select variants"} />
-              ) : null}
-              {isSubmitted &&
-              cartMessage?.message &&
-              !(
-                customizePage === "completeRing" &&
-                cartMessage?.message === "Product already exists in cart"
-              ) ? (
-                <ErrorMessage message={cartMessage?.message} />
-              ) : null}
-              <div className="mt-4 3xl:mt-6 flex items-center gap-3">
-                <p className="font-medium text-base 3xl:text-xl text-gray-500">
-                  Pay With:
-                </p>
-                <div className="flex flex-wrap gap-3 md:gap-6">
-                  {paymentOptions?.map((option, index) => (
-                    <CustomImg
-                      key={index}
-                      srcAttr={option?.img}
-                      titleAttr={option?.titleAttr}
-                      altAttr={option?.altAttr}
-                      className="object-contain  3xl:w-auto h-12 w-10"
-                    />
+              <section className="pt-8 lg:pt-12">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-8 gap-x-4 md:gap-x-8 max-w-6xl mx-auto">
+                  {supportItems.map((item) => (
+                    <Link href={item.link} key={item.label}>
+                      <div className="flex items-center gap-3">
+                        <CustomImg
+                          srcAttr={item.icon}
+                          altAttr={item.label}
+                          titleAttr={item.label}
+                          className="w-6 h-6 object-contain"
+                        />
+                        <p className="text-sm md:text-base font-medium text-black">
+                          {item.label}
+                        </p>
+                      </div>
+                    </Link>
                   ))}
                 </div>
-              </div>
-
-              <div className="mt-6 3xl:mt-8 p-4 bg-white">
-                {/* <p className="font-medium text-base md:text-lg">
-                  Estimate Ship Date Monday, April 7
-                </p> */}
-                <ul className="mt-3">
-                  {shippingInfo.map((info, index) => (
-                    <li
-                      key={index}
-                      className="flex gap-4 items-center text-base md:text-sm 3xl:text-lg mt-2"
-                    >
-                      <CustomImg
-                        srcAttr={info?.icon}
-                        altAttr={info?.altAttr}
-                        className="w-6 h-6"
-                        titleAttr={info?.titleAttr}
-                      />
-                      <span>{info.text}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              </section>
             </div>
           </div>
 
-          <div className="container pt-10 lg:pt-20 2xl:pt-28 md:p-6">
+          <div className="container pt-10 lg:pt-12 2xl:pt-16 md:p-6">
             <ProductDetailTabs selectedVariations={selectedVariations} />
           </div>
+          <section className="pt-10 lg:pt-20 2xl:pt-24 container">
+            <KeyFeatures />
+          </section>
           {!isCustomizePage &&
             recentlyViewProductList &&
             recentlyViewProductList?.length > 0 && (
               <>
-                <section className="pt-16 lg:pt-20 2xl:pt-40 container">
+                <section className="pt-16 lg:pt-20 2xl:pt-24 container">
                   <ProductSwiper
                     productList={recentlyViewProductList}
                     loading={recentlyProductLoading}
@@ -818,9 +703,21 @@ const ProductDetailPage = ({ customizePage }) => {
                 </section>
               </>
             )}
-          <section className="pt-10 lg:pt-20 2xl:pt-28 container">
-            <KeyFeatures />
-          </section>
+
+          <StickyAddToBag
+            customizePage={customizePage}
+            availableQty={availableQty}
+            cartLoading={cartLoading}
+            isHovered={isHovered}
+            isInValidSelectedVariation={isInValidSelectedVariation}
+            onSelectSetting={handleSelectSetting}
+            onAddToCart={addToCartHandler}
+            onHoverChange={(hover) => dispatch(setIsHovered(hover))}
+            paymentOptions={paymentOptions}
+            isSubmitted={isSubmitted}
+            cartMessage={cartMessage}
+            selectedVariations={selectedVariations}
+          />
         </>
       ) : (
         <ProductNotFound textClassName="px-4 md:px-8 w-full md:w-[50%] lg:w-[35%] 2xl:w-[32%]" />
@@ -831,53 +728,239 @@ const ProductDetailPage = ({ customizePage }) => {
 
 export default ProductDetailPage;
 
+const AddToBagBar = ({
+  visible,
+  position,
+  customizePage,
+  availableQty,
+  cartLoading,
+  isHovered,
+  isInValidSelectedVariation,
+  onSelectSetting,
+  onAddToCart,
+  onHoverChange,
+  isSubmitted,
+  cartMessage,
+  selectedVariations,
+}) => {
+  const baseClasses = `w-full bg-[#FFFFFF] shadow-md transition-opacity duration-300 z-50 ${
+    position === "bottom" ? "fixed bottom-0 left-0" : "relative mt-4 lg:mt-12"
+  }`;
+  const estimatedDate = useMemo(() => {
+    const date = new Date();
+    date.setDate(date.getDate() + 15);
+
+    const options = { weekday: "long", month: "long", day: "numeric" };
+    return date.toLocaleDateString("en-US", options);
+  }, []);
+  const visibility = visible
+    ? "opacity-100 pointer-events-auto"
+    : "opacity-0 pointer-events-none";
+
+  return (
+    <>
+      <div className={`${baseClasses} ${visibility}`}>
+        <div
+          className={`mx-auto py-4 px-4 grid lg:grid-cols-3 justify-center  items-center gap-4  container`}
+        >
+          <div className="hidden lg:block">
+            <p className="font-medium font-castoro text-xl">
+              Estimated Ship Date
+            </p>
+
+            <p className="text-base pt-1">
+              {" "}
+              {availableQty && availableQty > 0
+                ? "Made-to-Order"
+                : "Out of Stock"}
+              &nbsp; | {estimatedDate}
+            </p>
+          </div>
+
+          <div className="hidden lg:block text-sm text-gray-700">
+            <div className="flex gap-3 xl:gap-6 flex-wrap">
+              {paymentOptions?.map((option, index) => (
+                <CustomImg
+                  key={index}
+                  srcAttr={option?.img}
+                  titleAttr={option?.titleAttr}
+                  altAttr={option?.altAttr}
+                  className="object-contain h-10 w-10 md:h-12 md:w-12 xl:h-12 xl:w-auto"
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="ml-auto justify-center lg:justify-start w-fit">
+            <div
+              onMouseEnter={() => onHoverChange(true)}
+              onMouseLeave={() => onHoverChange(false)}
+            >
+              {customizePage === "setting" && (
+                <LoadingPrimaryButton
+                  className="w-full uppercase"
+                  disabled={isInValidSelectedVariation}
+                  loaderType={isHovered ? "" : "white"}
+                  onClick={onSelectSetting}
+                >
+                  SELECT THIS OPTION
+                </LoadingPrimaryButton>
+              )}
+
+              {customizePage === "completeRing" && (
+                <LoadingPrimaryButton
+                  className="w-full uppercase"
+                  loading={cartLoading}
+                  disabled={cartLoading || isInValidSelectedVariation}
+                  loaderType={isHovered ? "" : "white"}
+                  onClick={onAddToCart}
+                >
+                  ADD TO BAG
+                </LoadingPrimaryButton>
+              )}
+
+              {!customizePage && (
+                <LoadingPrimaryButton
+                  className="w-full uppercase"
+                  loading={cartLoading}
+                  disabled={
+                    cartLoading ||
+                    !availableQty ||
+                    availableQty < 0 ||
+                    isInValidSelectedVariation
+                  }
+                  loaderType={isHovered ? "" : "white"}
+                  onClick={onAddToCart}
+                >
+                  {availableQty && availableQty > 0
+                    ? "ADD TO BAG"
+                    : "OUT OF STOCK"}
+                </LoadingPrimaryButton>
+              )}
+            </div>
+            {isSubmitted && !selectedVariations?.length ? (
+              <ErrorMessage message={"Please select variants"} />
+            ) : null}
+            {isSubmitted &&
+            cartMessage?.message &&
+            !(
+              customizePage === "completeRing" &&
+              cartMessage?.message === "Product already exists in cart"
+            ) ? (
+              <ErrorMessage message={cartMessage?.message} />
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+const StickyAddToBag = (props) => {
+  const [isAtBottom, setIsAtBottom] = useState(false);
+
+  useEffect(() => {
+    let timeout;
+    const handleScroll = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        const scrollY = window.scrollY;
+        const windowHeight = window.innerHeight;
+        const fullHeight = document.body.scrollHeight;
+        const offset = 260;
+        const isBottom = scrollY + windowHeight >= fullHeight - offset;
+        setIsAtBottom(isBottom);
+      }, 100);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(timeout);
+    };
+  }, []);
+
+  return (
+    <>
+      <AddToBagBar position="top" visible={isAtBottom} {...props} />
+      <AddToBagBar position="bottom" visible={!isAtBottom} {...props} />
+    </>
+  );
+};
+
 const ProductDetailTabs = ({ selectedVariations = [] }) => {
   const { productDetail } = useSelector(({ product }) => product);
-  console.log("productDetail", productDetail);
-  const [activeTab, setActiveTab] = useState("Product Detail");
-  const [open, setOpen] = useState(false);
-  const getVariationValue = (key) => {
-    const variation = selectedVariations?.find(
-      (v) => v.variationName?.trim().toLowerCase() === key.trim().toLowerCase()
-    );
-    return variation ? variation?.variationTypeName : null;
-  };
-  useEffect(() => {
-    setActiveTab("Product Detail");
-  }, [selectedVariations]);
 
   const labelClass =
-    "inline-block min-w-[140px] xl:min-w-[170px] 2xl:min-w-[220px] pt-[2px]";
+    "inline-block min-w-[130px] xl:min-w-[170px] 2xl:min-w-[220px] pt-[2px]";
   const valueClass = "text-baseblack";
   const valueLineClass = "text-baseblack";
 
   const renderInfoRow = (label, value) =>
     value ? (
-      <div className="pt-[6px] 2xl:pt-[30px] 3xl:pt-[40px] flex items-start gap-2">
-        <p className={`${labelClass} ${valueClass}`}>{label}:</p>
-        <div className={`${valueClass} `}>
-          <p className={`${valueLineClass}`}>{value}</p>
+      <div className="pt-[6px] 2xl:pt-[25px]">
+        <div className="flex items-start gap-2 pb-4 border-b border-grayborder">
+          <p className={`${labelClass} ${valueClass} font-semibold`}>
+            {label}:
+          </p>
+          <div className={`${valueClass} font-medium`}>
+            <p className={`${valueLineClass}`}>{value}</p>
+          </div>
         </div>
       </div>
     ) : null;
 
   const tabData = [
     {
+      label: "Description",
+      content: productDetail?.description ? (
+        <div
+          className="text-sm md:text-[15px] font-medium text-baseblack"
+          dangerouslySetInnerHTML={{ __html: productDetail?.description }}
+        />
+      ) : (
+        <p className="text-sm md:text-[15px] font-medium text-baseblack">
+          No Description Available
+        </p>
+      ),
+    },
+    {
       label: "Product Detail",
       content: (
-        <div className="grid xs:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-16 mt-4 2xl:mt-8 3xl:mt-12">
-          {/* Product Information */}
-          <div className="text-sm md:text-sm 2xl:text-base 3xl:text-lg font-medium">
-            <p className="inline-block font-semibold text-baseblack border-b-[2.5px] border-black_opacity_10 pt-[6px] pb-[6px] 3xl:pb-4">
-              Product Information
+        <div
+          className={`grid xs:grid-cols-2 ${
+            productDetail?.specifications?.length > 0
+              ? "lg:grid-cols-3 lg:gap-12"
+              : "lg:grid-cols-2 lg:gap-60"
+          } gap-10 mt-4`}
+        >
+          <div className="text-sm lg:text-[15px] font-medium">
+            <p className="text-base lg:text-lg inline-block font-semibold text-baseblack pb-2 3xl:pb-4">
+              Item Details
             </p>
 
             {renderInfoRow("SKU", productDetail?.sku)}
             {selectedVariations?.length > 0 ? (
               <>
-                {renderInfoRow("Gold Type", getVariationValue("Gold Type"))}
-                {renderInfoRow("Gold Color", getVariationValue("Gold Color"))}
-                {renderInfoRow("Size", getVariationValue("Size"))}
+                {renderInfoRow(
+                  "Gold Type",
+                  helperFunctions?.getVariationValue(
+                    selectedVariations,
+                    "Gold Type"
+                  )
+                )}
+                {renderInfoRow(
+                  "Gold Color",
+                  helperFunctions?.getVariationValue(
+                    selectedVariations,
+                    "Gold Color"
+                  )
+                )}
+                {renderInfoRow(
+                  "Size",
+                  helperFunctions?.getVariationValue(selectedVariations, "Size")
+                )}
                 {renderInfoRow(
                   "Approx Net Wt",
                   productDetail?.netWeight
@@ -889,16 +972,24 @@ const ProductDetailTabs = ({ selectedVariations = [] }) => {
           </div>
 
           {/* Diamond Information */}
-          <div className="text-sm md:text-sm 2xl:text-base 3xl:text-lg font-medium">
-            <p className="inline-block font-semibold text-baseblack border-b-[2.5px] border-black_opacity_10 pt-[6px] pb-[6px] 3xl:pb-4">
+          <div className="text-sm lg:text-[15px] font-medium">
+            <p className="text-base lg:text-lg inline-block font-semibold text-baseblack pb-2 3xl:pb-4">
               Diamond Information
             </p>
             {renderInfoRow("Diamond Type", "Lab Grown Diamond")}
-            {renderInfoRow("Diamond Shape", getVariationValue("Diamond Shape"))}
-            {renderInfoRow("Average Color", getVariationValue("Diamond Color"))}
             {renderInfoRow(
-              "Diamond Clarity",
-              getVariationValue("Average Clarity")
+              "Diamond Shape",
+              helperFunctions?.getVariationValue(
+                selectedVariations,
+                "Diamond Shape"
+              )
+            )}
+            {renderInfoRow(
+              "Diamond Quality",
+              helperFunctions?.getVariationValue(
+                selectedVariations,
+                "Diamond Quality"
+              )
             )}
 
             {productDetail?.settingStyleNamesWithImg?.length > 0 &&
@@ -914,19 +1005,24 @@ const ProductDetailTabs = ({ selectedVariations = [] }) => {
 
           {/* Other Information */}
           {productDetail?.specifications?.length > 0 && (
-            <div className="text-sm md:text-sm 2xl:text-base 3xl:text-lg font-medium">
-              <p className="inline-block font-semibold text-baseblack border-b-[2.5px] border-black_opacity_10 pt-[6px] pb-[6px] 3xl:pb-4">
+            <div className="text-sm lg:text-[15px] font-medium">
+              <p className="text-base lg:text-lg inline-block font-semibold text-baseblack pb-2 3xl:pb-4">
                 Other Information
               </p>
               {productDetail?.specifications.map((item, index) =>
                 item?.title?.trim() && item?.description?.trim() ? (
-                  <p
-                    key={index}
-                    className={`pt-[25px] 2xl:pt-[30px] 3xl:pt-[40px] ${valueClass}`}
+                  <div
+                    className="flex items-start gap-2 pb-4 border-b border-grayborder"
+                    key={helperFunctions?.generateUniqueId()}
                   >
-                    <span className={labelClass}>{item.title.trim()}:</span>{" "}
-                    {item?.description?.trim()}
-                  </p>
+                    <p
+                      key={index}
+                      className={`pt-[25px] 2xl:pt-[25px] ${valueClass}`}
+                    >
+                      <span className={labelClass}>{item.title.trim()}:</span>{" "}
+                      {item?.description?.trim()}
+                    </p>
+                  </div>
                 ) : null
               )}
             </div>
@@ -934,93 +1030,34 @@ const ProductDetailTabs = ({ selectedVariations = [] }) => {
         </div>
       ),
     },
-    {
-      label: "Description",
-      content: productDetail?.description ? (
-        <div
-          className="mt-4 2xl:mt-6 3xl:mt-8 text-sm md:text-sm 2xl:text-base 3xl:text-lg font-medium text-baseblack"
-          dangerouslySetInnerHTML={{ __html: productDetail?.description }}
-        />
-      ) : (
-        <p className="mt-4 2xl:mt-6 3xl:mt-8 text-sm md:text-sm 2xl:text-base 3xl:text-lg font-medium text-baseblack">
-          No Description Available
-        </p>
-      ),
-    },
-    {
-      label: "Shipping & Returns",
-      content: (
-        <div className="mt-4 2xl:mt-8 3xl:mt-12">
-          {shippingReturnContent?.map((item) => (
-            <div
-              key={item?.label}
-              className="flex flex-wrap gap-6 mt-4 lg:mt-8"
-            >
-              <p className="text-sm md:text-sm 2xl:text-base 3xl:text-lg text-baseblack">
-                <span className="font-semibold">{item?.label} </span>
-                {item?.content}
-              </p>
-            </div>
-          ))}
-        </div>
-      ),
-    },
+
+    // {
+    //   label: "Shipping & Returns",
+    //   content: (
+    //     <div className="mt-4 ">
+    //       {shippingReturnContent?.map((item) => (
+    //         <div
+    //           key={helperFunctions?.generateUniqueId()}
+    //           className="flex flex-wrap gap-6 mt-4 lg:mt-8"
+    //         >
+    //           <p className="text-sm md:text-sm 2xl:text-base text-baseblack">
+    //             <span className="font-semibold">{item?.label} </span>
+    //             {item?.content}
+    //           </p>
+    //         </div>
+    //       ))}
+    //     </div>
+    //   ),
+    // },
   ];
 
   return (
-    <div className="mt-6">
-      <div className="relative md:hidden mb-4">
-        <button
-          onClick={() => setOpen(!open)}
-          className="w-full border border-gray-300 px-4 py-2 text-sm bg-white text-left uppercase"
-        >
-          {activeTab}
-          <span className="float-right">▼</span>
-        </button>
-        {open && (
-          <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 shadow-md uppercase">
-            {tabData.map(({ label }) => (
-              <li
-                key={label}
-                onClick={() => {
-                  setActiveTab(label);
-                  setOpen(false);
-                }}
-                className={`px-4 py-2 text-sm cursor-pointer transition ${
-                  activeTab === label
-                    ? "bg-primary text-white"
-                    : "text-gray-700 hover:bg-primary hover:text-white"
-                }`}
-              >
-                {label}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      <div className="hidden md:flex gap-6 lg:gap-20 2xl:gap-28 border-b">
-        {tabData.map(({ label }) => (
-          <button
-            key={label}
-            className={`py-2 3xl:text-[22px] font-medium ${
-              activeTab === label
-                ? "text-primary border-b-2 border-primary"
-                : "text-gray-500"
-            }`}
-            onClick={() => setActiveTab(label)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab Content */}
-      <div className="w-full">
-        {tabData?.find((tab) => tab?.label === activeTab)?.content || (
-          <p>No Data</p>
-        )}
-      </div>
-    </div>
+    <AccordionTabs
+      tabs={tabData}
+      forceResetKey={selectedVariations}
+      // labelCustomClass="!uppercase"
+      alwaysOpenFirst={true}
+      hideFirstToggleIcon={true}
+    />
   );
 };

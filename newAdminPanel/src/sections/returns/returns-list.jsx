@@ -493,7 +493,6 @@ const ReturnList = () => {
     setFilterByReturnStatus('all');
     setFilterByPaymentStatus('all');
   }, []);
-
   return (
     <>
       {returnLoading ? (
@@ -609,6 +608,8 @@ const ReturnList = () => {
                     <TableCell>Id</TableCell>
                     <TableCell>Order Number</TableCell>
                     <TableCell>Date & Time</TableCell>
+                    <TableCell>Payment Method</TableCell>
+
                     <TableCell>Return Payment Status</TableCell>
                     <TableCell>Return Status</TableCell>
                     <TableCell></TableCell>
@@ -623,6 +624,9 @@ const ReturnList = () => {
                           <TableCell>{x?.orderNumber}</TableCell>
                           <TableCell sx={{ minWidth: '180px' }}>
                             {moment(x?.createdDate).format('MM-DD-YYYY hh:mm a')}
+                          </TableCell>
+                          <TableCell>
+                            {helperFunctions?.capitalizeCamelCase(x?.paymentMethod)}
                           </TableCell>
                           <TableCell>
                             <Label

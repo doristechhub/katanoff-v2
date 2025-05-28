@@ -58,6 +58,7 @@ export const companyEmail = process.env.NEXT_PUBLIC_COMPANY_EMAIL;
 export const companyPhoneNo = process.env.NEXT_PUBLIC_COMPANY_PHONE_NO;
 export const companyAddress = process.env.NEXT_PUBLIC_COMPANY_ADDRESS;
 export const companyMapUrl = process.env.NEXT_PUBLIC_COMPANY_MAP_URL;
+export const companyUrl = process.env.NEXT_PUBLIC_COMPANY_LINK;
 
 // SOCIAL_MEDIA_URL
 export const facebookUrl = process.env.NEXT_PUBLIC_FACEBOOK_URL;

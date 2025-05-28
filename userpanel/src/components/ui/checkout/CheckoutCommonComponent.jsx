@@ -3,8 +3,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { helperFunctions } from "@/_helper";
 import { CustomImg, ProgressiveImg } from "../../dynamiComponents";
-import stripe from "@/assets/images/cart/stripe.webp";
-import paypal from "@/assets/images/cart/paypal.webp";
 import { fetchCart } from "@/_actions/cart.action";
 import { setIsNewYorkState } from "@/store/slices/checkoutSlice";
 import { usePathname } from "next/navigation";
@@ -13,7 +11,7 @@ import { setOpenDiamondDetailDrawer } from "@/store/slices/commonSlice";
 import DiamondDetailDrawer from "../customize/DiamondDetailDrawer";
 import { paymentOptions } from "@/_utils/paymentOptions";
 
-const salesTaxPerc = 0.08; // 8%
+const salesTaxPerc = 0.08;
 
 const CheckoutCommonComponent = () => {
   const dispatch = useDispatch();
@@ -101,185 +99,178 @@ const CheckoutCommonComponent = () => {
     <>
       <div className="hidden lg:block ">
         <div className=" flex flex-col gap-6 pt-8 lg:pt-12 h-fit">
-          <section
-            className="bg-white px-2 xs:px-6 flex-1 overflow-y-auto max-h-[45vh]"
-            ref={cartContentRef}
-          >
-            {cartList?.map((cartItem) => (
-              <div
-                className="bg-white py-6  border-b-2 border-alabaster last:border-b-0"
-                key={cartItem?.id}
-              >
-                <div className="flex flex-col md:flex-row justify-between gap-4">
-                  <div className="relative flex border border-alabaster w-36 h-36 md:w-36 md:h-36 mx-auto">
-                    <div className="absolute top-0 left-0 bg-primary text-white text-xs xs:text-sm font-semibold px-3 py-1  z-10">
-                      Qty: {cartItem?.quantity}
-                    </div>
-
-                    <ProgressiveImg
-                      src={cartItem?.productImage}
-                      alt={cartItem?.productName}
-                      className="object-cover w-full h-full"
-                    />
-                  </div>
-
-                  <div className="flex-1 w-full">
-                    <div className="flex flex-col xs:flex-row xs:justify-between  items-center">
-                      <p className="text-lg 2xl:text-xl font-semibold">
-                        {cartItem?.productName}
-                      </p>
-
-                      <p className="text-xl 2xl:text-2xl font-medium font-chong-modern pt-1">
-                        $
-                        {helperFunctions.toFixedNumber(
-                          cartItem?.quantityWiseSellingPrice
-                        )}
-                      </p>
-                    </div>
-
-                    {cartItem?.diamondDetail && (
-                      <p className="font-chong-modern text-xl 2xl:text-2xl font-medium text-baseblack">
-                        $
-                        {helperFunctions
-                          .calculateCustomProductPrice({
-                            netWeight: cartItem?.netWeight,
-                            variations: cartItem?.variations,
-                          })
-                          .toLocaleString("en-US", {
-                            minimumFractionDigits: 2,
-                          })}
-                        {` × ${cartItem?.quantity}`}
-                      </p>
-                    )}
-                    <div className="text-baseblack flex flex-wrap gap-2 md:gap-x-4 md:gap-y-2 pt-2">
-                      {cartItem?.variations?.map((variItem) => (
-                        <div
-                          className="border-2  text-sm xs:text-base px-2 font-medium"
-                          key={variItem?.variationId}
-                        >
-                          <span className="font-bold">
-                            {variItem?.variationName}:{" "}
-                          </span>{" "}
-                          {variItem?.variationTypeName}
-                        </div>
-                      ))}
-                    </div>
-                    {!cartItem?.diamondDetail && (
-                      <div className=" text-sm font-semibold xs:text-base px-2  w-fit mt-2">
-                        $
-                        {helperFunctions.toFixedNumber(
-                          cartItem?.quantityWiseSellingPrice /
-                            cartItem?.quantity
-                        )}{" "}
-                        | Per Item
+          <div className="border border-grayborder">
+            <div className="flex mx-auto justify-center py-4">
+              <p className="text-lg lg:text-xl font-bold"> Order Summary</p>
+            </div>
+            <section
+              className=" px-2 xs:px-6 flex-1 overflow-y-auto max-h-[65vh] custom-scrollbar"
+              ref={cartContentRef}
+            >
+              {cartList?.map((cartItem) => (
+                <div
+                  className="py-6  border-b-2 border-grayborder last:border-b-0"
+                  key={cartItem?.id}
+                >
+                  <div className="flex flex-col md:flex-row justify-between gap-4">
+                    <div className="relative flex border border-alabaster w-36 h-36 md:w-36 md:h-36 mx-auto">
+                      <div className="absolute -top-2 -left-2 bg-baseblack text-white text-xs xs:text-sm lg:text-base font-semibold rounded-full px-2  z-10">
+                        {cartItem?.quantity}
                       </div>
-                    )}
-                    <div className="hidden xl:block mt-4">
-                      <DiamondDetailDrawer
-                        cartItem={cartItem}
-                        isCheckoutPage={true}
-                        openDiamondDetailDrawer={openDiamondDetailDrawer}
-                        dispatch={dispatch}
-                        setOpenDiamondDetailDrawer={setOpenDiamondDetailDrawer}
+
+                      <ProgressiveImg
+                        src={cartItem?.productImage}
+                        alt={cartItem?.productName}
+                        className="object-cover w-full h-full"
                       />
                     </div>
+
+                    <div className="flex-1 w-full">
+                      <p className="text-base font-medium">
+                        {cartItem?.productName}
+                      </p>
+                      <p className="text-baseblack font-medium flex flex-wrap text-bse">
+                        {helperFunctions?.displayVariationsLabel(
+                          cartItem?.variations
+                        )}
+                      </p>
+
+                      {cartItem?.diamondDetail && (
+                        <p className="text-sm font-semibold xs:text-base w-fit mt-2">
+                          $
+                          {helperFunctions
+                            .calculateCustomProductPrice({
+                              netWeight: cartItem?.netWeight,
+                              variations: cartItem?.variations,
+                            })
+                            .toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
+                            })}
+                          {` × ${cartItem?.quantity}`}
+                        </p>
+                      )}
+                      {!cartItem?.diamondDetail && (
+                        <div className="text-sm font-semibold xs:text-base w-fit mt-2">
+                          $
+                          {helperFunctions.toFixedNumber(
+                            cartItem?.quantityWiseSellingPrice /
+                              cartItem?.quantity
+                          )}{" "}
+                          X {cartItem?.quantity}
+                        </div>
+                      )}
+                      <p className="text-base text-baseblack font-medium pt-1">
+                        Total Price: &nbsp;
+                        <span className="font-bold">
+                          $
+                          {helperFunctions.toFixedNumber(
+                            cartItem?.quantityWiseSellingPrice
+                          )}
+                        </span>
+                      </p>
+                      <div className="hidden xl:block mt-4">
+                        <DiamondDetailDrawer
+                          cartItem={cartItem}
+                          isCheckoutPage={true}
+                          openDiamondDetailDrawer={openDiamondDetailDrawer}
+                          dispatch={dispatch}
+                          setOpenDiamondDetailDrawer={
+                            setOpenDiamondDetailDrawer
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="xl:hidden mt-4">
+                    <DiamondDetailDrawer
+                      cartItem={cartItem}
+                      isCheckoutPage={true}
+                      openDiamondDetailDrawer={openDiamondDetailDrawer}
+                      dispatch={dispatch}
+                      setOpenDiamondDetailDrawer={setOpenDiamondDetailDrawer}
+                    />
                   </div>
                 </div>
-                <div className="xl:hidden mt-4">
-                  <DiamondDetailDrawer
-                    cartItem={cartItem}
-                    isCheckoutPage={true}
-                    openDiamondDetailDrawer={openDiamondDetailDrawer}
-                    dispatch={dispatch}
-                    setOpenDiamondDetailDrawer={setOpenDiamondDetailDrawer}
-                  />
-                </div>
-              </div>
-            ))}
-          </section>
-          <section className="bg-white px-2 xs:px-10 pt-10">
-            <p className="text-lg 2xl:text-xl text-baseblack flex justify-between font-semibold">
-              Order Summary
-            </p>
-            <p className="my-4 border-t-2 border-black_opacity_10" />
-            <p className="text-lg 2xl:text-xl text-baseblack flex justify-between font-semibold pt-4">
-              Subtotal: <span>${getSubTotal()}</span>
-            </p>
-            {pathname === "/checkout" ? (
-              <p className="text-lg 2xl:text-xl text-baseblack flex justify-between font-semibold pt-4">
-                Sales Tax {calculateNextStep}
+              ))}
+            </section>
+            <section className="px-2 xs:px-10 pt-6">
+              <p className="text-lg text-baseblack flex justify-between font-semibold pt-4">
+                Subtotal: <span>${getSubTotal()}</span>
               </p>
-            ) : (
-              <div className="flex justify-between pt-4 text-baseblack">
-                <p className="text-lg 2xl:text-xl text-baseblack flex flex-col justify-between font-semibold  max-w-[75%]">
-                  Sales Tax (8%)
-                  <br />
-                  <span className="text-xs font-normal text-gray-500 leading-snug">
-                    *Sales tax will be applied to orders shipped to addresses
-                    within New York State.
+              {pathname === "/checkout" ? (
+                <p className="text-lg text-baseblack flex justify-between font-semibold pt-4">
+                  Sales Tax {calculateNextStep}
+                </p>
+              ) : (
+                <div className="flex justify-between pt-4 text-baseblack">
+                  <p className="text-lg text-baseblack flex flex-col justify-between font-semibold  max-w-[75%]">
+                    Sales Tax (8%)
+                    <br />
+                    <span className="text-xs font-normal text-gray-500 leading-snug">
+                      *Sales tax will be applied to orders shipped to addresses
+                      within New York State.
+                    </span>
+                  </p>
+                  <span className="text-lg text-baseblack font-medium">
+                    ${helperFunctions.toFixedNumber(getSalesTaxAmount())}
                   </span>
+                </div>
+              )}
+              {pathname === "/checkout" ? (
+                <p className="text-lg text-baseblack flex justify-between font-semibold pt-4">
+                  Shipping {calculateNextStep}
                 </p>
-                <span className="text-lg 2xl:text-xl text-baseblack font-medium">
-                  ${helperFunctions.toFixedNumber(getSalesTaxAmount())}
-                </span>
-              </div>
-            )}
-            {pathname === "/checkout" ? (
-              <p className="text-lg 2xl:text-xl text-baseblack flex justify-between font-semibold pt-4">
-                Shipping {calculateNextStep}
-              </p>
-            ) : (
-              <div className="flex justify-between pt-4 text-baseblack">
-                <p className="text-lg 2xl:text-xl text-baseblack  font-semibold  max-w-[75%]">
-                  Shipping
+              ) : (
+                <div className="flex justify-between pt-4 text-baseblack">
+                  <p className="text-lg text-baseblack  font-semibold  max-w-[75%]">
+                    Shipping
+                  </p>
+                  <span className="text-lg text-baseblack font-medium">
+                    ${selectedShippingCharge}
+                  </span>
+                </div>
+              )}
+              <p className="my-4 border-t-2 border-grayborder" />
+
+              {pathname === "/checkout" ? (
+                <p className="text-lg text-baseblack flex justify-between font-semibold pt-2">
+                  Grand Total: <span>${getSubTotal()}</span>
                 </p>
-                <span className="text-lg 2xl:text-xl text-baseblack font-medium">
-                  ${selectedShippingCharge}
-                </span>
-              </div>
-            )}
-
-            {/* <p className="text-lg 2xl:text-xl text-baseblack flex justify-between font-semibold pt-4">
-          Subtotal: <span >${getSubTotal()}</span>
-        </p> */}
-            <p className="my-4 border-t-2 border-black_opacity_10" />
-
-            {pathname === "/checkout" ? (
-              <p className="text-lg 2xl:text-xl text-baseblack flex justify-between font-semibold pt-4">
-                Grand Total: <span>${getSubTotal()}</span>
-              </p>
-            ) : (
-              <p className="text-lg 2xl:text-xl text-baseblack flex justify-between font-semibold pt-4">
-                Grand Total: <span>${renderTotalAmount.toFixed(2)}</span>
-              </p>
-            )}
-
-            <div className="py-6 2xl:py-10">
-              <div className="flex items-center justify-center gap-4 mb-4">
-                <div className="flex-grow h-px bg-gray-300" />
-                <p className="text-sm md:text-lg font-medium text-baseblack uppercase whitespace-nowrap">
-                  We Accept Payment
+              ) : (
+                <p className="text-lg text-baseblack flex justify-between font-semibold pt-2">
+                  Grand Total: <span>${renderTotalAmount.toFixed(2)}</span>
                 </p>
-                <div className="flex-grow h-px bg-gray-300" />
-              </div>
+              )}
 
-              <div className="flex items-center gap-3">
-                <p className="font-medium text-lg text-gray-500">Pay With:</p>
-                <div className="flex gap-3 xl:gap-6 flex-wrap">
-                  {paymentOptions?.map((option, index) => (
-                    <CustomImg
-                      key={index}
-                      srcAttr={option?.img}
-                      titleAttr={option?.titleAttr}
-                      altAttr={option?.altAttr}
-                      alt={option}
-                      className="object-contain w-8 h-10 xs:w-10 xs:h-10 md:h-12 md:w-12 2xl:h-16 2xl:w-16"
-                    />
-                  ))}
+              <div className="py-6">
+                <div className="flex items-center justify-center gap-4 mb-2">
+                  <div className="flex-grow h-px bg-gray-300" />
+                  <p className="text-sm md:text-base font-medium text-baseblack uppercase whitespace-nowrap">
+                    We Accept Payment
+                  </p>
+                  <div className="flex-grow h-px bg-gray-300" />
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <p className="font-medium text-base text-gray-500">
+                    Pay With:
+                  </p>
+                  <div className="flex gap-3 xl:gap-6 flex-wrap">
+                    {paymentOptions?.map((option, index) => (
+                      <CustomImg
+                        key={index}
+                        srcAttr={option?.img}
+                        titleAttr={option?.titleAttr}
+                        altAttr={option?.altAttr}
+                        alt={option}
+                        className="object-contain w-8 h-10 xs:w-10 xs:h-10"
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
+            </section>
+          </div>
         </div>
       </div>
 
@@ -301,16 +292,16 @@ const CheckoutCommonComponent = () => {
 
         {isOpen && (
           <div className="bg-white shadow-inner border border-t-0 border-gray-200">
-            <section className="px-2 xs:px-6 max-h-[45vh] overflow-y-auto">
+            <section className="px-2 xs:px-6 max-h-[50vh] overflow-y-auto">
               {cartList?.map((cartItem) => (
                 <div
-                  key={`cartItem-${cartItem?.productName}`}
+                  key={helperFunctions?.getRandomValue()}
                   className="bg-white py-6  border-b-2 border-alabaster last:border-b-0"
                 >
                   <div className="flex flex-row  gap-4">
                     <div className="relative flex-shrink-0 h-fit border border-alabaster">
-                      <div className="absolute top-0 left-0 bg-primary text-white text-xs xs:text-sm font-semibold px-3 py-1  z-10">
-                        Qty: {cartItem?.quantity}
+                      <div className="absolute -top-2 -left-2 bg-baseblack text-white text-xs xs:text-sm lg:text-base font-semibold rounded-full px-2  z-10">
+                        {cartItem?.quantity}
                       </div>
 
                       <ProgressiveImg
@@ -321,34 +312,16 @@ const CheckoutCommonComponent = () => {
                     </div>
 
                     <div className="flex-1 w-full">
-                      <div className="flex flex-col xs:flex-row xs:justify-between ">
-                        <p className="text-lg md:text-xl font-semibold">
-                          {cartItem?.productName}
-                        </p>
-
-                        <p className="text-xl lg:text-2xl font-medium font-chong-modern pt-1">
-                          $
-                          {helperFunctions.toFixedNumber(
-                            cartItem?.quantityWiseSellingPrice
-                          )}
-                        </p>
-                      </div>
-
-                      <div className="text-baseblack flex flex-wrap gap-2 md:gap-x-4 md:gap-y-2 pt-2">
-                        {cartItem?.variations?.map((variItem) => (
-                          <div
-                            className="border-2  text-sm xs:text-base px-2 font-medium"
-                            key={variItem?.variationId}
-                          >
-                            <span className="font-bold">
-                              {variItem?.variationName}:{" "}
-                            </span>{" "}
-                            {variItem?.variationTypeName}
-                          </div>
-                        ))}
-                      </div>
+                      <p className="text-base font-medium">
+                        {cartItem?.productName}
+                      </p>
+                      <p className="text-baseblack font-medium flex flex-wrap text-base">
+                        {helperFunctions?.displayVariationsLabel(
+                          cartItem?.variations
+                        )}
+                      </p>
                       {cartItem?.diamondDetail && (
-                        <p className="font-chong-modern text-lg md:text-xl lg:text-2xl font-medium text-baseblack pt-2">
+                        <p className="text-sm font-semibold xs:text-base w-fit mt-2">
                           $
                           {helperFunctions
                             .calculateCustomProductPrice({
@@ -358,19 +331,29 @@ const CheckoutCommonComponent = () => {
                             .toLocaleString("en-US", {
                               minimumFractionDigits: 2,
                             })}
-                          {cartItem?.quantity > 1 && ` × ${cartItem.quantity}`}
+                          {` × ${cartItem?.quantity}`}
                         </p>
                       )}
+
                       {!cartItem?.diamondDetail && (
-                        <div className=" text-sm font-semibold xs:text-base px-2  w-fit mt-2">
+                        <div className="text-sm font-semibold xs:text-base w-fit mt-2">
                           $
                           {helperFunctions.toFixedNumber(
                             cartItem?.quantityWiseSellingPrice /
                               cartItem?.quantity
                           )}{" "}
-                          | Per Item
+                          X {cartItem?.quantity}
                         </div>
                       )}
+                      <p className="text-base text-baseblack font-medium pt-1">
+                        Total Price: &nbsp;
+                        <span className="font-bold">
+                          $
+                          {helperFunctions.toFixedNumber(
+                            cartItem?.quantityWiseSellingPrice
+                          )}
+                        </span>
+                      </p>
                       <div className="hidden xs:block mt-4">
                         <DiamondDetailDrawer
                           cartItem={cartItem}
@@ -436,7 +419,7 @@ const CheckoutCommonComponent = () => {
                 </div>
               )}
 
-              <p className="my-4 border-t-2 border-black_opacity_10" />
+              <p className="my-4 border-t-2 border-grayborder" />
 
               {pathname === "/checkout" ? (
                 <p className="text-base lg:text-lg 2xl:text-xl text-baseblack flex justify-between font-semibold pt-4">
@@ -457,7 +440,7 @@ const CheckoutCommonComponent = () => {
                   <div className="flex-grow h-px bg-gray-300" />
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 lg:pt-2">
                   <p className="font-medium text-base lg:text-lg text-gray-500">
                     Pay With:
                   </p>

@@ -94,7 +94,6 @@ const ReturnDetail = () => {
       );
     }
   }, [selectedReturn]);
-
   return (
     <>
       {returnLoading ? (
@@ -396,9 +395,80 @@ const ReturnDetail = () => {
                           </Label>
                         </Stack>
                         <Stack direction={'row'} sx={font14} gap={1}>
-                          <Box sx={sx}>Request By </Box>
-                          <Box sx={sxPrimaryColor}>{selectedReturn?.createdBy}</Box>
+                          <Box sx={sx}>Payment Method </Box>
+                          <Box sx={sxPrimaryColor}>
+                            {helperFunctions?.capitalizeCamelCase(selectedReturn?.paymentMethod)}
+                          </Box>
                         </Stack>
+                        {selectedReturn?.paymentMethod === 'paypal' ? (
+                          <>
+                            {selectedReturn?.paypalCaptureId ? (
+                              <Stack direction={'row'} sx={font14} gap={1}>
+                                <Box sx={sx}>Paypal Capture ID </Box>
+                                <Box sx={sxPrimaryColor}>{selectedReturn?.paypalCaptureId}</Box>
+                              </Stack>
+                            ) : null}
+                            {selectedReturn?.paypalOrderId ? (
+                              <Stack direction={'row'} sx={font14} gap={1}>
+                                <Box sx={sx}>Paypal Order ID </Box>
+                                <Box sx={sxPrimaryColor}>{selectedReturn?.paypalOrderId}</Box>
+                              </Stack>
+                            ) : null}
+
+                            {selectedReturn?.paypalRefundId ? (
+                              <Stack direction={'row'} sx={font14} gap={1}>
+                                <Box sx={sx}>Paypal Refund ID </Box>
+                                <Box sx={sxPrimaryColor}>{selectedReturn?.paypalRefundId}</Box>
+                              </Stack>
+                            ) : null}
+                            {selectedReturn?.paypalRefundFailureReason ? (
+                              <Stack direction={'row'} sx={font14} gap={1}>
+                                <Box sx={sx}>Paypal Refund Failure Reason </Box>
+                                <Box sx={sxPrimaryColor}>
+                                  {selectedReturn?.paypalRefundFailureReason}
+                                </Box>
+                              </Stack>
+                            ) : null}
+                          </>
+                        ) : null}
+                        {selectedReturn?.paymentMethod === 'stripe' ? (
+                          <>
+                            {selectedReturn?.stripePaymentIntentId ? (
+                              <Stack direction={'row'} sx={font14} gap={1}>
+                                <Box sx={sx}>Stripe Payment Intent ID </Box>
+                                <Box sx={sxPrimaryColor}>
+                                  {selectedReturn?.stripePaymentIntentId}
+                                </Box>
+                              </Stack>
+                            ) : null}
+                            {selectedReturn?.stripeCustomerId ? (
+                              <Stack direction={'row'} sx={font14} gap={1}>
+                                <Box sx={sx}>Stripe Customer ID </Box>
+                                <Box sx={sxPrimaryColor}>{selectedReturn?.stripeCustomerId}</Box>
+                              </Stack>
+                            ) : null}
+                            {selectedReturn?.stripeARNNumber ? (
+                              <Stack direction={'row'} sx={font14} gap={1}>
+                                <Box sx={sx}>Stripe ARN Number </Box>
+                                <Box sx={sxPrimaryColor}>{selectedReturn?.stripeARNNumber}</Box>
+                              </Stack>
+                            ) : null}
+                            {selectedReturn?.stripeRefundId ? (
+                              <Stack direction={'row'} sx={font14} gap={1}>
+                                <Box sx={sx}>Stripe Refund ID </Box>
+                                <Box sx={sxPrimaryColor}>{selectedReturn?.stripeRefundId}</Box>
+                              </Stack>
+                            ) : null}
+                            {selectedReturn?.stripeRefundFailureReason ? (
+                              <Stack direction={'row'} sx={font14} gap={1}>
+                                <Box sx={sx}>Refund Failure Reason</Box>
+                                <Box sx={sxPrimaryColor}>
+                                  {selectedReturn?.stripeRefundFailureReason}
+                                </Box>
+                              </Stack>
+                            ) : null}
+                          </>
+                        ) : null}
                       </Stack>
 
                       <Divider sx={{ borderStyle: 'dashed', mt: `0 !important` }} />
@@ -446,20 +516,6 @@ const ReturnDetail = () => {
                           <Stack direction={'row'} sx={font14} gap={1}>
                             <Box sx={sx}>Refund Description</Box>
                             <Box sx={sxPrimaryColor}>{selectedReturn?.refundDescription}</Box>
-                          </Stack>
-                        ) : null}
-                        {selectedReturn?.stripeRefundFailureReason ? (
-                          <Stack direction={'row'} sx={font14} gap={1}>
-                            <Box sx={sx}>Refund Failure Reason</Box>
-                            <Box sx={sxPrimaryColor}>
-                              {selectedReturn?.stripeRefundFailureReason}
-                            </Box>
-                          </Stack>
-                        ) : null}
-                        {selectedReturn?.stripeARNNumber ? (
-                          <Stack direction={'row'} sx={font14} gap={1}>
-                            <Box sx={sx}>ARN Number</Box>
-                            <Box sx={sxPrimaryColor}>{selectedReturn?.stripeARNNumber}</Box>
                           </Stack>
                         ) : null}
                       </Stack>

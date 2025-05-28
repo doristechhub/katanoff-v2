@@ -136,7 +136,7 @@ export default function ShowCaseBanner() {
                       }}
                     >
                       <ProgressiveImg
-                        src={option?.images?.[0]?.image}
+                        src={option?.productImage}
                         alt={'img'}
                         title={'img'}
                         customClassName="w-full h-full rounded-md"

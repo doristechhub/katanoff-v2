@@ -11,14 +11,14 @@ export default function AccordionDropdown({ items }) {
   };
 
   return (
-    <div className="w-full px-6 md:px-0 md:container mx-auto text-gray-900">
+    <div className="w-full  md:px-0 mx-auto text-gray-900">
       {items.map((item, index) => (
         <div key={index} className="border-t border-black">
           <button
-            className="w-full flex justify-between items-center py-4 px-6 text-left hover:bg-gray-100 transition-all duration-200"
+            className="w-full flex justify-between items-center py-8 px-6 text-left transition-all duration-200"
             onClick={() => toggleDropdown(index)}
           >
-            <span className="text-base md:text-xl xl:text-2xl font-chong-modern font-medium">
+            <span className="text-base md:text-xl xl:text-2xl font-castoro font-medium">
               {item?.title}
             </span>
             {openIndex === index ? <Minus size={18} /> : <Plus size={18} />}

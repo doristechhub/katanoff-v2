@@ -117,15 +117,15 @@ export const updateProductQuantityIntoCart = (payload) => {
 export const insertMultipleProductsIntoCart = (payload) => {
   return async (dispatch) => {
     try {
-      const createdOrUpdateCartData =
-        await cartService.insertMultipleProductsIntoCart(payload);
+      const respData = await cartService.insertMultipleProductsIntoCart(
+        payload
+      );
 
-      if (createdOrUpdateCartData.length) {
+      if (respData?.createdOrUpdateCartData?.length) {
         return true;
       }
     } catch (err) {
       const errorMessage = err.message || "something went wrong";
-      console.log("insert multiple cart : ", errorMessage);
     }
   };
 };

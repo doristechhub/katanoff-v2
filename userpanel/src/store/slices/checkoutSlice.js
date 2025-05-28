@@ -8,6 +8,7 @@ const initialState = {
   selectedShippingCharge: null,
   isSubmitted: false,
   isNewYorkState: "",
+  selectedAddressType: "",
 };
 
 const checkoutSlice = createSlice({
@@ -32,6 +33,9 @@ const checkoutSlice = createSlice({
     setIsNewYorkState: (state, action) => {
       state.isNewYorkState = action.payload;
     },
+    setSelectedAddressType: (state, action) => {
+      state.selectedAddressType = action.payload;
+    },
   },
 });
 
@@ -42,6 +46,7 @@ export const {
   setActiveIndex,
   setSelectedShippingCharge,
   setIsNewYorkState,
+  setSelectedAddressType,
 } = checkoutSlice.actions;
 
 export default checkoutSlice.reducer;

@@ -73,7 +73,7 @@ const DiamondColorChartSection = () => {
       <div className="w-full max-w-7xl mx-auto">
         <div className="flex items-center justify-center mb-6 sm:mb-8 md:mb-10">
           <div className="border-t border-gray-200 w-1/6 " />
-          <h2 className="text-center px-4 text-2xl xss:text-3xl md:text-4xl font-chong-modern">
+          <h2 className="text-center px-4 text-2xl xss:text-3xl md:text-4xl font-castoro">
             Diamond colour chart
           </h2>
           <div className="border-t border-gray-200 w-1/6 " />
@@ -91,7 +91,7 @@ const DiamondColorChartSection = () => {
                 key={index}
                 onClick={() => setSelected(item)}
                 className={`
-                              text-[10px] xxs:text-xs sm:text-sm md:text-base font-medium font-chong-modern
+                              text-[10px] xxs:text-xs sm:text-sm md:text-base font-medium font-castoro
                               transition-transform duration-300 ease-in-out transform
                               w-full flex flex-col items-center justify-center text-center
                               aspect-[6/4] sm:aspect-[5/4] md:aspect-square px-2 sm:px-3 md:px-4
@@ -117,13 +117,13 @@ const DiamondColorChartSection = () => {
         <div className="flex w-full justify-center px-4 sm:px-6 md:px-8 lg:px-20 xl:px-30">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 md:gap-10 py-8 sm:py-10 md:py-12 w-full sm:max-w-[600px] lg:max-w-[800px] xl:max-w-[800px] 2xl:max-w-[1000px] mt-8">
             <div>
-              <h3 className="text-lg sm:text-xl md:text-2xl font-chong-modern text-baseblack font-medium mb-2">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-castoro text-baseblack font-medium mb-2">
                 {selected.label}
               </h3>
               <p className="text-sm sm:text-base md:text-lg text-baseblack font-medium mb-4">
                 {selected.range}
               </p>
-              <h4 className="text-base sm:text-lg md:text-xl text-baseblack font-medium mb-3 font-chong-modern">
+              <h4 className="text-base sm:text-lg md:text-xl text-baseblack font-medium mb-3 font-castoro">
                 Diamond Appearance
               </h4>
               <p className="text-sm sm:text-base md:text-lg text-baseblack font-medium leading-relaxed">
@@ -132,7 +132,7 @@ const DiamondColorChartSection = () => {
             </div>
 
             <div>
-              <h4 className="text-base sm:text-lg md:text-xl ttext-baseblack font-medium mb-3 font-chong-modern">
+              <h4 className="text-base sm:text-lg md:text-xl ttext-baseblack font-medium mb-3 font-castoro">
                 Diamond Considerations
               </h4>
               <p className="text-sm sm:text-base md:text-lg text-baseblack font-medium leading-relaxed">

@@ -24,6 +24,7 @@ import {
   setStateList,
 } from "@/store/slices/checkoutSlice";
 import { helperFunctions } from "@/_helper";
+import Link from "next/link";
 const countries = Country.getAllCountries();
 
 const validationSchema = yup.object({
@@ -266,17 +267,31 @@ const CheckoutForm = () => {
     }
   };
   const inputClassName =
-    "!font-medium md:!text-base placeholder:font-medium w-full  2xl:!p-2";
+    "!bg-transparent !border !rounded-md !border-grayborder !font-medium md:!text-base placeholder:font-medium w-full  2xl:!p-2";
   const labelClassName =
-    "block uppercase text-sm font-semibold text-gray-66 mb-1";
+    "block uppercase text-sm font-medium text-[#666666] mb-1";
   return (
     <>
       <form>
-        <div className="flex flex-col gap-6 pt-8 lg:pt-12">
-          <section className="border-2 border-black_opacity_10 px-4 rounded-md">
-            <h2 className="text-lg text-baseblack font-semibold pt-8">
-              Contact Information
-            </h2>
+        <div className="flex flex-col gap-6 pt-4 md:pt-8 lg:pt-12">
+          <section className="px-4">
+            <div className="flex xs:flex-row flex-col justify-between">
+              <h2 className="text-lg xs:text-xl 4xl:text-2xl text-baseblack font-medium pt-4 font-castoro">
+                Contact Information
+              </h2>
+
+              <p className="xs:pt-4 pt-1 text-baseblack font-medium">
+                Already have an account? &nbsp;
+                <Link
+                  href="/auth/login"
+                  onClick={() => {
+                    localStorage.setItem("postLoginRedirect", "/checkout");
+                  }}
+                >
+                  <span className="underline font-semibold">Log in</span>
+                </Link>
+              </p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
               <div>
                 <label className={labelClassName}>First Name</label>
@@ -309,9 +324,7 @@ const CheckoutForm = () => {
                 )}
               </div>
               <div className="md:col-span-2 ">
-                <label className="block uppercase text-sm font-semibold text-gray-66 mb-1">
-                  Phone Number
-                </label>
+                <label className={labelClassName}> Phone Number</label>
                 <input
                   type="text"
                   placeholder="Phone number"
@@ -325,7 +338,7 @@ const CheckoutForm = () => {
                   <ErrorMessage message={errors?.mobile}></ErrorMessage>
                 )}
               </div>
-              <div className="md:col-span-2 pb-8">
+              <div className="md:col-span-2 pb-6">
                 <label className={labelClassName}>Email Address</label>
                 <input
                   type="email"
@@ -345,15 +358,13 @@ const CheckoutForm = () => {
             </div>
           </section>
 
-          <section className="border-2 border-black_opacity_10 px-4 rounded-md">
-            <h2 className="text-lg uppercase font-semibold pt-8">
+          <section className="px-4">
+            <h2 className="text-lg lg:text-xl 4xl:text-2xl text-baseblack font-medium pt-4 font-castoro">
               Shipping Address
             </h2>
             <div className="flex flex-col gap-6 pt-6">
               <div>
-                <label className="block uppercase  text-sm font-semibold text-gray-66 mb-1">
-                  House No, Street Name
-                </label>
+                <label className={labelClassName}> House No, Street Name</label>
                 <input
                   type="text"
                   placeholder="Street Address"

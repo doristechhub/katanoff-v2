@@ -14,14 +14,25 @@ module.exports = {
         "gray-c8": "var(--gray-c8)",
         "gray-lightest": "var(--gray-lightest)",
         "gray-e2": "var(--gray-e2)",
+        grayborder: "var(--grayborder)",
+        isabelline: "var(--isabelline)",
+      },
+      imageRendering: {
+        'pixelated': 'pixelated',
+        'crisp': 'crisp-edges',
+        'optimize': '-webkit-optimize-contrast',
       },
     },
-
     fontFamily: {
-      "chong-modern": ["Chong Modern W01", "sans-serif"],
+      castoro: ["Castoro", "sans-serif"],
     },
     animation: {
       "fade-in": "fadeIn 2s linear infinite",
+      marquee: "marquee 20s linear infinite",
+    },
+    marquee: {
+      from: { transform: "translateX(0)" },
+      to: { transform: "translateX(-75%)" },
     },
     keyframes: {
       fadeIn: {
@@ -44,24 +55,38 @@ module.exports = {
       "5xl": "1920px",
       "6xl": "2200px",
     },
-    container: {
-      center: true,
-      margin: "0 auto",
-      padding: "0.5rem",
-      screens: {
-        xxs: "310px",
-        xss: "380px",
-        xs: "546px",
-        sm: "620px",
-        md: "718px",
-        lg: "992px",
-        xl: "1180px",
-        "2xl": "1420px",
-        // "3xl": "1516px",
-        "4xl": "1700px",
-      },
-    },
+    // container: {
+    //   center: true,
+    //   margin: "0 auto",
+    //   padding: "1rem",
+    //   screens: {
+    //     xxs: "310px",
+    //     xss: "380px",
+    //     xs: "546px",
+    //     sm: "620px",
+    //     md: "718px",
+    //     lg: "992px",
+    //     xl: "1180px",
+    //     "2xl": "1420px",
+    //     // "3xl": "1516px",
+    //     "4xl": "1700px",
+    //   },
+    // },
   },
 
-  plugins: [],
+  plugins: [
+    function ({ addUtilities }) {
+      addUtilities({
+        '.image-rendering-pixelated': {
+          imageRendering: 'pixelated',
+        },
+        '.image-rendering-crisp': {
+          imageRendering: 'crisp-edges',
+        },
+        '.image-rendering-optimize': {
+          imageRendering: '-webkit-optimize-contrast',
+        },
+      });
+    },
+  ],
 };

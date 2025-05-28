@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useCallback, useRef } from "react";
 import { HiOutlineShoppingBag } from "react-icons/hi2";
-import stepArrow from "@/assets/icons/3stepArrow.svg";
-
+import dropdownArrow from "@/assets/icons/dropdownArrow.svg";
 import {
   handleSelectCartItem,
   removeProductIntoCart,
@@ -10,8 +9,7 @@ import {
 } from "@/_actions/cart.action";
 import { helperFunctions } from "@/_helper";
 import Link from "next/link";
-import { GrayLinkButton, PrimaryButton } from "@/components/ui/button";
-import deleteIcon from "@/assets/icons/delete.svg";
+import { LinkButton } from "@/components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setIsCartOpen,
@@ -20,8 +18,6 @@ import {
   setOpenDiamondDetailDrawer,
 } from "@/store/slices/commonSlice";
 import SkeletonLoader from "@/components/ui/skeletonLoader";
-import stripe from "@/assets/images/cart/stripe.webp";
-import paypal from "@/assets/images/cart/paypal.webp";
 import { CartNotFound, CustomImg, ProgressiveImg } from "../dynamiComponents";
 import { useRouter } from "next/navigation";
 import ErrorMessage from "./ErrorMessage";
@@ -48,23 +44,27 @@ const CartPopup = () => {
     (type, cartItem) => {
       dispatch(handleSelectCartItem({ selectedCartItem: cartItem }));
       if (
-        type === "increase" &&
-        (cartItem.quantity < minQuantity ||
-          cartItem.quantity >= maxQuantity ||
-          cartItem.quantity >= cartItem.productQuantity)
-      ) {
-        return;
-      }
-
-      if (
-        type === "decrease" &&
-        (cartItem.quantity < minQuantity || cartItem.quantity > maxQuantity)
+        (type === "increase" &&
+          (cartItem.quantity < minQuantity ||
+            cartItem.quantity >= maxQuantity ||
+            cartItem.quantity >= cartItem.productQuantity)) ||
+        (type === "decrease" &&
+          (cartItem.quantity <= minQuantity ||
+            cartItem.quantity > maxQuantity)) ||
+        (type === "set" &&
+          (cartItem.quantity < minQuantity ||
+            cartItem.quantity > maxQuantity ||
+            cartItem.quantity > cartItem.productQuantity))
       ) {
         return;
       }
 
       const quantity =
-        type === "increase" ? cartItem.quantity + 1 : cartItem.quantity - 1;
+        type === "increase"
+          ? cartItem.quantity + 1
+          : type === "decrease"
+          ? cartItem.quantity - 1
+          : cartItem.quantity;
       const payload = {
         type: type,
         quantity: quantity,
@@ -127,6 +127,16 @@ const CartPopup = () => {
     dispatch(setIsChecked(false));
   }, []);
 
+  const handleCartQuantityChange = (item, newQty) => {
+    handleCartQuantity("set", { ...item, quantity: newQty });
+  };
+  useEffect(() => {
+    if (isSubmitted && isChecked) {
+      router.push("/checkout");
+      setTimeout(() => closeCartPopup(), 100);
+    }
+  }, [isSubmitted, isChecked]);
+
   return (
     <>
       <button
@@ -150,39 +160,38 @@ const CartPopup = () => {
       )}
 
       <div
-        className={`fixed px-4 md:px-8 top-0 right-0 h-screen w-full md:w-[500px] bg-offwhite xl:w-[600px] 3xl:w-[650px] shadow-xl z-50 transform transition-transform duration-300 ${
+        className={`fixed top-0 right-0 h-screen w-full md:w-[450px] bg-offwhite xl:w-[480px] 3xl:w-[500px] shadow-xl z-50 transform transition-transform duration-300 ${
           isCartOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <div className="flex flex-col h-full">
-          <div className="shrink-0 p-4 border-b-2 border-black_opacity_10 flex justify-between items-center pt-8 xl:pt-8 2xl:pt-10 mb-6">
-            <h2 className="text-xl md:text-2xl xl:text-3xl font-medium font-chong-modern text-baseblack">
-              My Bag <span className="pl-2">({cartList?.length}) </span>
+          <div className="shrink-0 p-4 border-b border-black flex justify-between items-center pt-8 xl:pt-8 2xl:pt-6">
+            <h2 className="text-xl md:text-2xl font-medium font-castoro text-baseblack mx-auto">
+              My Bag
             </h2>
             <button
               onClick={closeCartPopup}
-              className="text-xl text-baseblack font-semibold"
+              className="text-xl text-baseblack font-semibold px-4"
             >
               ✕
             </button>
           </div>
-
           {cartLoading ? (
             <CartPopupSkeleton />
           ) : cartList?.length ? (
             <>
-              <div className="flex flex-col h-full min-h-0">
+              <div className="flex flex-col h-full min-h-0 px-4">
                 <div
                   ref={contentRef}
-                  className="flex-1 min-h-0 overflow-y-auto px-2 xs:px-6"
+                  className="flex-1 min-h-0 overflow-y-auto px-2 pt-6"
                 >
                   {cartList?.map((cartItem) => (
                     <div
-                      className="border-b-2 border-alabaster last:border-b-0 pb-6 xl:pb-10 mb-10 last:mb-0"
+                      className="border-b-2 border-alabaster last:border-b-0 pb-6 xl:pb-8"
                       key={cartItem?.id}
                     >
                       <div className="flex justify-between gap-4">
-                        <div className="flex-shrink-0 border-2 border-alabaster w-32 h-32 md:w-36 md:h-36 ">
+                        <div className="flex-shrink-0 border-2 border-alabaster w-32 h-32 md:w-24 md:h-24 ">
                           <ProgressiveImg
                             src={cartItem?.productImage}
                             alt={cartItem?.productName}
@@ -192,117 +201,205 @@ const CartPopup = () => {
                           />
                         </div>
                         <div className="flex-1 w-full">
-                          <div>
-                            <Link
-                              href={`/products/${cartItem?.productName
-                                ?.split(" ")
-                                ?.join("_")}`}
-                              className="text-lg font-medium"
-                            >
-                              {cartItem?.productName}
-                            </Link>
-                            {cartItem?.diamondDetail ? (
-                              <p className="font-chong-modern text-base md:text-xl lg:text-2xl font-medium text-baseblack">
-                                $
-                                {(
-                                  helperFunctions?.calculateCustomProductPrice({
-                                    netWeight: cartItem?.netWeight,
-                                    variations: cartItem?.variations,
-                                  }) * (cartItem?.quantity || 1)
-                                ).toFixed(2)}
-                              </p>
-                            ) : (
-                              <p className="text-base md:text-xl lg:text-2xl font-medium font-chong-modern">
-                                {cartItem?.productDiscount ? (
-                                  <span className="text-lg text-gray-500 line-through mr-2">
-                                    $
-                                    {helperFunctions?.toFixedNumber(
-                                      cartItem?.quantityWisePrice
-                                    )}
-                                  </span>
-                                ) : null}
-                                $
-                                {helperFunctions?.toFixedNumber(
-                                  cartItem?.quantityWiseSellingPrice
+                          <div className="xs:flex justify-between">
+                            <div>
+                              <Link
+                                href={`/products/${cartItem?.productName
+                                  ?.split(" ")
+                                  ?.join("_")}`}
+                                className="text-sm font-semibold text-baseblack"
+                              >
+                                {cartItem?.productName}
+                              </Link>
+                              <p className="text-baseblack font-semibold  flex flex-wrap text-sm">
+                                {helperFunctions?.displayVariationsLabel(
+                                  cartItem?.variations
                                 )}
                               </p>
-                            )}
-                          </div>
-                          <div className="text-baseblack flex flex-wrap gap-1 md:gap-x-4 md:gap-y-2 pt-1 md:pt-2">
-                            {cartItem.variations.map((variItem) => (
-                              <div
-                                className="border md:border-2 border-black_opacity_10  text-xs lg:text-base p-1 md:px-2 font-medium"
-                                key={variItem.variationId}
-                              >
-                                <span className="font-bold">
-                                  {variItem.variationName}:{" "}
-                                </span>{" "}
-                                {variItem.variationTypeName}
-                              </div>
-                            ))}
-                          </div>
-                          <div className="flex items-center gap-x-1 pt-1 md:pt-2">
-                            <h3 className="text-[12px] md:text-base lg:text-lg font-medium">
-                              Qty:
-                            </h3>
-                            <div className="flex items-center bg-alabaster px-1 lg:px-2">
-                              <button
-                                className={`lg:px-1 lg:py-1 text-[12px] md:text-lg lg:text-xl font-medium text-black ${
-                                  cartItem?.quantity <= minQuantity
-                                    ? "opacity-50 cursor-not-allowed"
-                                    : ""
-                                }`}
-                                onClick={() =>
-                                  handleCartQuantity("decrease", cartItem)
-                                }
-                                disabled={cartItem?.quantity <= minQuantity}
-                              >
-                                −
-                              </button>
+                            </div>
+                            <div className="pr-2 items-center flex">
+                              {cartItem?.diamondDetail ? (
+                                (() => {
+                                  const netWeight = Number(cartItem?.netWeight);
+                                  const quantity = cartItem?.quantity || 1;
+                                  const unitPrice =
+                                    netWeight > 0
+                                      ? helperFunctions.calculateCustomProductPrice(
+                                          {
+                                            netWeight,
+                                            variations: cartItem?.variations,
+                                          }
+                                        )
+                                      : 0;
 
+                                  return (
+                                    <p className="text-sm font-semibold text-baseblack">
+                                      ${(unitPrice * quantity).toFixed(2)}
+                                    </p>
+                                  );
+                                })()
+                              ) : (
+                                <p className="text-base font-bold">
+                                  {cartItem?.productDiscount ? (
+                                    <span className="text-base text-gray-500 line-through mr-2">
+                                      $
+                                      {helperFunctions?.toFixedNumber(
+                                        cartItem?.quantityWisePrice
+                                      )}
+                                    </span>
+                                  ) : null}
+                                  $
+                                  {helperFunctions?.toFixedNumber(
+                                    cartItem?.quantityWiseSellingPrice
+                                  )}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          <p className="text-sm font-semibold">
+                            Size:{" "}
+                            {cartItem?.variations?.find(
+                              (v) => v.variationName === "Size"
+                            )?.variationTypeName || "N/A"}
+                          </p>
+
+                          <div className="flex items-center justify-between gap-x-1 pt-1 md:pt-2">
+                            {/* <div className="flex items-center gap-2">
+                              <h3 className="text-sm font-semibold">Qty:</h3>
+                              <div className="flex items-center border border-black rounded-[2px] px-1 lg:px-2">
+                                <button
+                                  className={`px-1 py-[2px] text-sm font-semibold text-baseblack ${
+                                    cartItem?.quantity <= minQuantity
+                                      ? "opacity-50 cursor-not-allowed"
+                                      : ""
+                                  }`}
+                                  onClick={() =>
+                                    handleCartQuantity("decrease", cartItem)
+                                  }
+                                  disabled={cartItem?.quantity <= minQuantity}
+                                >
+                                  −
+                                </button>
+
+                                {selectedCartItem.id === cartItem.id &&
+                                updateCartQtyErrorMessage ? (
+                                  <ErrorMessage
+                                    message={updateCartQtyErrorMessage}
+                                  />
+                                ) : null}
+                                <span className="px-2 py-[2px] text-sm font-semibold text-baseblack">
+                                  {cartItem.quantity}
+                                </span>
+                                <button
+                                  className={`px-1 py-[2px] text-sm font-semibold text-baseblack ${
+                                    cartItem?.quantity >= maxQuantity ||
+                                    cartItem.quantity >=
+                                      cartItem.productQuantity
+                                      ? "opacity-50 cursor-not-allowed"
+                                      : ""
+                                  }`}
+                                  onClick={() =>
+                                    handleCartQuantity("increase", cartItem)
+                                  }
+                                  disabled={
+                                    cartItem?.quantity >= maxQuantity ||
+                                    cartItem.quantity >=
+                                      cartItem.productQuantity
+                                  }
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div> */}
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-semibold">Qty</p>
+                              {selectedCartItem?.id === cartItem.id &&
+                                updateCartQtyErrorMessage && (
+                                  <ErrorMessage
+                                    message={updateCartQtyErrorMessage}
+                                  />
+                                )}
+
+                              <div className="relative inline-block w-fit">
+                                <select
+                                  className={`appearance-none px-3 py-1 pr-10 border border-grayborder rounded-sm text-sm font-semibold bg-transparent cursor-pointer
+      ${
+        (cartItem.quantity < minQuantity ||
+          cartItem.quantity > maxQuantity ||
+          cartItem.quantity > cartItem.productQuantity) &&
+        "opacity-50 cursor-not-allowed"
+      }
+      `}
+                                  value={cartItem.quantity}
+                                  onChange={(e) =>
+                                    handleCartQuantityChange(
+                                      cartItem,
+                                      parseInt(e.target.value)
+                                    )
+                                  }
+                                  disabled={
+                                    cartItem.quantity < minQuantity ||
+                                    cartItem.quantity > maxQuantity ||
+                                    cartItem.quantity > cartItem.productQuantity
+                                  }
+                                >
+                                  {Array.from(
+                                    {
+                                      length:
+                                        Math.min(
+                                          10,
+                                          maxQuantity,
+                                          cartItem.productQuantity || 10
+                                        ) -
+                                        minQuantity +
+                                        1,
+                                    },
+                                    (_, i) => i + minQuantity
+                                  ).map((qty) => {
+                                    const isDisabled =
+                                      qty < minQuantity ||
+                                      qty > maxQuantity ||
+                                      qty > cartItem.productQuantity;
+
+                                    return (
+                                      <option
+                                        key={qty}
+                                        value={qty}
+                                        disabled={isDisabled}
+                                      >
+                                        {qty}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
+                                <div className="pointer-events-none absolute inset-y-0 right-1 flex items-center px-1 text-black">
+                                  <CustomImg
+                                    srcAttr={dropdownArrow}
+                                    altAttr="Arrow"
+                                    titleAttr="Arrow"
+                                    className="w-5 h-5"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+
+                            <div>
+                              <button
+                                className="font-medium px-3 text-sm cursor-pointer flex items-center justify-center transition-all duration-200 hover:!font-bold"
+                                onClick={() => removeFromCart(cartItem)}
+                              >
+                                Remove
+                              </button>
                               {selectedCartItem.id === cartItem.id &&
-                              updateCartQtyErrorMessage ? (
+                              removeCartErrorMessage ? (
                                 <ErrorMessage
-                                  message={updateCartQtyErrorMessage}
+                                  message={removeCartErrorMessage}
                                 />
                               ) : null}
-                              <span className="px-2 md:px-4 text-[12px] md:text-lg lg:text-xl font-medium text-black">
-                                {cartItem.quantity}
-                              </span>
-                              <button
-                                className={`md:px-1 py-1 text-[12px] md:text-lg lg:text-xl font-medium text-black ${
-                                  cartItem?.quantity >= maxQuantity ||
-                                  cartItem.quantity >= cartItem.productQuantity
-                                    ? "opacity-50 cursor-not-allowed"
-                                    : ""
-                                }`}
-                                onClick={() =>
-                                  handleCartQuantity("increase", cartItem)
-                                }
-                                disabled={
-                                  cartItem?.quantity >= maxQuantity ||
-                                  cartItem.quantity >= cartItem.productQuantity
-                                }
-                              >
-                                +
-                              </button>
                             </div>
-                            {selectedCartItem.id === cartItem.id &&
-                            removeCartErrorMessage ? (
-                              <ErrorMessage message={removeCartErrorMessage} />
-                            ) : null}
-                            <button
-                              className="font-medium px-3  cursor-pointer flex items-center justify-center transition-all duration-200"
-                              onClick={() => removeFromCart(cartItem)}
-                            >
-                              <CustomImg
-                                srcAttr={deleteIcon}
-                                altAttr=""
-                                titleAttr=""
-                                className="md:w-6 md:h-6 h-4 w-4 transition-transform duration-200 hover:scale-110"
-                              />
-                            </button>
                           </div>
+
                           <div className="hidden xs:block mt-4">
                             <DiamondDetailDrawer
                               cartItem={cartItem}
@@ -328,18 +425,21 @@ const CartPopup = () => {
                     </div>
                   ))}
                 </div>
-                <div className="shrink-0 px-2 xs:px-6 bg-offwhite border-t-2 border-black_opacity_10 pb-24 pt-4  xl:pt-4 xl:pb-4 ">
-                  <p className="text-lg xl:text-xl text-baseblack flex justify-between font-semibold md:pt-4">
+                <div className="relative w-full mt-4 z-10">
+                  <div className="absolute inset-0 shadow-[0_-8px_16px_-4px_rgba(0,0,0,0.1),0_-2px_6px_-2px_rgba(0,0,0,0.05)]" />
+                </div>
+                <div className="shrink-0 px-2 xs:px-6 bg-offwhite border-t-2 border-black_opacity_10 pb-12 pt-2  xl:pt-2 xl:pb-2 ">
+                  <p className="text-base text-baseblack flex justify-between font-semibold pt-4">
                     Order Total: <span>${getSubTotal()}</span>
                   </p>
-                  <p className="text-basegray text-base mb-2 mt-4">
+                  <p className="text-basegray text-base pt-2">
                     Taxes and shipping calculated at checkout
                   </p>
                   <div className="flex items-start gap-2 mt-2 text-sm">
                     <input
                       type="checkbox"
                       id="terms"
-                      className={`mt-2 cursor-pointer accent-primary rounded-sm ring-1 ring-transparent ${
+                      className={`mt-2 cursor-pointer accent-black rounded-sm ring-1 ring-transparent ${
                         isSubmitted && !isChecked
                           ? " !ring-red-500 appearance-none p-1.5"
                           : ""
@@ -349,7 +449,7 @@ const CartPopup = () => {
                     />
                     <label
                       htmlFor="terms"
-                      className="leading-tight text-baseblack text-sm md:text-base font-medium"
+                      className="leading-tight text-baseblack text-sm font-medium"
                     >
                       I have read, understood, and agree to the{" "}
                       <Link
@@ -387,41 +487,40 @@ const CartPopup = () => {
                     </label>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 mt-5">
-                    <PrimaryButton
+                  <div className="grid grid-cols-1 gap-2 mt-4">
+                    <LinkButton
+                      className="!bg-transparent !text-baseblack hover:!bg-primary hover:!text-white !border-black !font-semibold !rounded-none"
                       title="CHECKOUT"
-                      onClick={() => {
-                        dispatch(setIsSubmitted(true));
-                        if (isChecked) {
-                          closeCartPopup();
-                          router.push("/checkout");
-                        }
-                      }}
+                      onClick={() => dispatch(setIsSubmitted(true))}
                     >
                       CHECKOUT
-                    </PrimaryButton>
-                    <GrayLinkButton
-                      title="SHOPPING BAG"
-                      href="/cart"
-                      onClick={closeCartPopup}
-                    >
-                      SHOPPING BAG
-                    </GrayLinkButton>
+                    </LinkButton>
+
+                    <Link href={"/cart"}>
+                      <div
+                        onClick={closeCartPopup}
+                        className="justify-center flex "
+                      >
+                        <p className="w-fit hover:border-b font-semibold hover:border-black text-[1rem]">
+                          View Your Bag
+                        </p>
+                      </div>
+                    </Link>
                   </div>
 
-                  <div className="mt-2 md:mt-6">
+                  <div className="mt-2 md:mt-4">
                     <div className="flex items-center gap-3">
-                      <p className="font-medium text-base md:text-lg text-gray-500">
+                      <p className="font-medium text-base text-gray-500">
                         Pay With:
                       </p>
-                      <div className="flex gap-3 xl:gap-6 flex-wrap">
+                      <div className="flex gap-3 xl:gap-4 flex-wrap">
                         {paymentOptions?.map((option, index) => (
                           <CustomImg
                             key={index}
                             srcAttr={option?.img}
                             titleAttr={option?.titleAttr}
                             altAttr={option?.altAttr}
-                            className="object-contain h-10 w-10 md:h-12 md:w-12 xl:h-12 xl:w-auto"
+                            className="object-contain h-8 w-8 md:h-8 md:w-10 xl:h-8 xl:w-10"
                           />
                         ))}
                       </div>

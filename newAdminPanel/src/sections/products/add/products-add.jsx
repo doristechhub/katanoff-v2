@@ -10,7 +10,6 @@ import MenuItem from '@mui/material/MenuItem';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
-import DuplicateProductDialog from './duplicate-product-dialog';
 import {
   Card,
   FormControlLabel,
@@ -23,6 +22,8 @@ import {
   Select,
   OutlinedInput,
   ListItemText,
+  InputAdornment,
+  IconButton,
 } from '@mui/material';
 
 import {
@@ -31,11 +32,11 @@ import {
   getAllCustomizationTypeList,
   getAllCustomizationSubTypeList,
   updateStatusProduct,
-  updateProductPhotosAction,
-  updateProductVideoAction,
   getSettingStyleList,
   getDiamondShapeList,
-  updateProductThumbnailPhotoAction,
+  updateRoseGoldMediaAction,
+  updateWhiteGoldMediaAction,
+  updateYellowGoldMediaAction,
 } from 'src/actions';
 import {
   productInitDetails,
@@ -62,20 +63,28 @@ import { Button, LoadingButton } from 'src/components/button';
 import { getCollectionList } from 'src/actions/collectionActions';
 import CombinationDialog, { generateCombinations } from './combination-dialog';
 import DiamondFilters from './diamond-filters';
+import DuplicateProductDialog from './duplicate-product-dialog';
 import {
   ALLOW_MAX_CARAT_WEIGHT,
   ALLOW_MIN_CARAT_WEIGHT,
+  GENDER_LIST,
   GOLD_COLOR,
   GOLD_COLOR_SUB_TYPES_LIST,
   GOLD_TYPE,
   INIT_GOLD_TYPE_SUB_TYPES_LIST,
 } from 'src/_helpers/constants';
+import ClearIcon from '@mui/icons-material/Clear';
 
 // ----------------------------------------------------------------------
 
 const validationSchema = Yup.object({
-  previewImages: Yup.array().min(1, 'At least one image is required'),
-  previewThumbnailImage: Yup.array().min(1, 'ThumbnailImage is required'),
+  previewThumbnailImage: Yup.array().min(1, 'Thumbnail image is required'),
+  roseGoldPreviewImages: Yup.array().min(1, 'At least one rose gold image is required'),
+  roseGoldPreviewThumbnailImage: Yup.array().min(1, 'Rose gold thumbnail image is required'),
+  yellowGoldPreviewImages: Yup.array().min(1, 'At least one yellow gold image is required'),
+  yellowGoldPreviewThumbnailImage: Yup.array().min(1, 'Yellow gold thumbnail image is required'),
+  whiteGoldPreviewImages: Yup.array().min(1, 'At least one white gold image is required'),
+  whiteGoldPreviewThumbnailImage: Yup.array().min(1, 'White gold thumbnail image is required'),
   productName: Yup.string()
     .required('Product name is required')
     .max(60, 'Product name should not exceed 60 characters.')
@@ -83,12 +92,10 @@ const validationSchema = Yup.object({
       /^[a-zA-Z0-9\s]*$/,
       'Product name can only contain letters (a-z, A-Z), numbers (0-9), and spaces.'
     ),
-  sku: Yup.string().required('Sku is required'),
+  sku: Yup.string().required('SKU is required'),
   discount: Yup.number().min(0, 'Discount must be positive').max(100, 'Maximum discount is 100'),
   categoryId: Yup.string().required('Category is required'),
-  // subCategoryId: Yup.string().required('SubCategory is required'),
   description: Yup.string().required('Description is required'),
-  // productTypeIds: Yup.array().min(1, 'ProductType is required'),
   variations: Yup.array()
     .min(1, 'Variation is required')
     .of(
@@ -96,7 +103,7 @@ const validationSchema = Yup.object({
         variationId: Yup.string().required('Variation is required'),
         variationTypes: Yup.array().of(
           Yup.object().shape({
-            variationTypeId: Yup.string().required('VariationType is required'),
+            variationTypeId: Yup.string().required('Variation type is required'),
           })
         ),
       })
@@ -120,7 +127,6 @@ const validationSchema = Yup.object({
         }),
       });
     }
-    // If isDiamondFilter is false, diamondFilters is not required.
     return Yup.mixed().notRequired();
   }),
   netWeight: Yup.lazy((value, { parent }) => {
@@ -131,16 +137,22 @@ const validationSchema = Yup.object({
     }
     return Yup.mixed().notRequired();
   }),
+  sideDiamondWeight: Yup.lazy((value, { parent }) => {
+    if (parent.isDiamondFilter) {
+      return Yup.number()
+        .required('Side diamond weight is required')
+        .positive('Side diamond weight must be positive');
+    }
+    return Yup.mixed().notRequired();
+  }),
 });
 
 // ----------------------------------------------------------------------
 
 export default function AddProductPage() {
   const dispatch = useDispatch();
-
   const [searchParams] = useSearchParams();
   const productId = searchParams.get('productId');
-
   const [duplicateDialog, setDuplicateDialog] = useState(false);
   const [openCombinationDialog, setCombinantionDialog] = useState(false);
   const [statusConfirmationDialog, setStatusConfirmationDialog] = useState(false);
@@ -168,11 +180,10 @@ export default function AddProductPage() {
     dispatch(getAllCustomizationTypeList());
     dispatch(getAllCustomizationSubTypeList());
     return () => dispatch(setSelectedProduct(productInitDetails));
-  }, []);
+  }, [dispatch]);
 
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
-
   const MenuProps = {
     PaperProps: {
       style: {
@@ -182,7 +193,7 @@ export default function AddProductPage() {
     },
   };
 
-  const onSubmit = useCallback((fields, { setStatus, setSubmitting, values, errors }) => {
+  const onSubmit = useCallback((fields, { setStatus, setSubmitting }) => {
     setStatus();
     setSubmitting(false);
     setCombinantionDialog(true);
@@ -205,11 +216,10 @@ export default function AddProductPage() {
       formik.setFieldValue('categoryId', val);
       formik.setFieldValue('subCategoryId', '');
       formik.setFieldValue('productTypeIds', []);
-
       let list = menuList.subCategories?.filter((c) => c.categoryId === val);
       dispatch(setSubCategoriesList(list));
     },
-    [menuList]
+    [dispatch, menuList]
   );
 
   const subCategoryChangeHandler = useCallback(
@@ -219,7 +229,7 @@ export default function AddProductPage() {
       let list = menuList.productType?.filter((c) => c.subCategoryId === val);
       dispatch(setProductTypesList(list));
     },
-    [menuList]
+    [dispatch, menuList]
   );
 
   const getCombinationDetail = useCallback(
@@ -234,54 +244,69 @@ export default function AddProductPage() {
     [customizationTypesList, customizationSubTypesList]
   );
 
-  const changeProductStatus = useCallback(async (values, setFieldValue) => {
+  const changeProductStatus = useCallback(
+    async (values, setFieldValue) => {
+      const payload = { productId, active: !values.active };
+      const res = await dispatch(updateStatusProduct(payload));
+      if (res) {
+        setFieldValue('active', !values.active);
+        setStatusConfirmationDialog(false);
+      }
+    },
+    [dispatch, productId]
+  );
+
+  const updateRoseGoldMedia = async (formik) => {
     const payload = {
       productId,
-      active: !values.active,
+      roseGoldThumbnailImageFile: formik?.values?.roseGoldThumbnailImageFile?.[0],
+      roseGoldImageFiles: formik?.values?.roseGoldImageFiles,
+      roseGoldVideoFile: formik?.values?.roseGoldVideoFile?.[0],
+      deletedRoseGoldImages: formik?.values?.roseGoldUploadedDeletedImages?.map(
+        (item) => item?.image
+      ),
+      deletedRoseGoldVideo: formik?.values?.roseGoldDeleteUploadedVideo?.[0]?.video,
     };
 
-    const res = await dispatch(updateStatusProduct(payload));
-    if (res) {
-      setFieldValue('active', !values.active);
-      setStatusConfirmationDialog(false);
-    }
-  }, []);
+    const res = await dispatch(updateRoseGoldMediaAction(payload));
 
-  const updateProductPhotos = async (formik) => {
-    if (!formik.values.previewImages.length) {
-      toast.error('At least one image is required');
-      return;
-    }
-    const payload = {
-      productId,
-      imageFiles: formik.values.imageFiles,
-      deletedImages: formik.values.uploadedDeletedImages.map((item) => item.image),
-    };
-
-    const res = await dispatch(updateProductPhotosAction(payload));
-    if (res) dispatch(getSingleProduct(productId));
-  };
-
-  const updateProductThumbnailImage = async (formik) => {
-    const payload = {
-      productId,
-      thumbnailImageFile: formik.values.thumbnailImageFile?.[0],
-      deletedThumbnailImage: formik.values.uploadedDeletedThumbnailImage?.[0]?.image,
-    };
-    const res = await dispatch(updateProductThumbnailPhotoAction(payload));
     if (res) {
       dispatch(getSingleProduct(productId));
     }
   };
 
-  const updateProductVideo = async (formik) => {
+  const updateYellowGoldMedia = async (formik) => {
     const payload = {
       productId,
-      videoFile: formik.values.videoFile?.[0],
-      deletedVideo: formik.values.deleteUploadedVideo?.[0]?.video,
+      yellowGoldThumbnailImageFile: formik?.values?.yellowGoldThumbnailImageFile?.[0],
+      yellowGoldImageFiles: formik?.values?.yellowGoldImageFiles,
+      yellowGoldVideoFile: formik?.values?.yellowGoldVideoFile?.[0],
+      deletedYellowGoldImages: formik?.values?.yellowGoldUploadedDeletedImages?.map(
+        (item) => item?.image
+      ),
+      deletedYellowGoldVideo: formik?.values?.yellowGoldDeleteUploadedVideo?.[0]?.video,
     };
 
-    const res = await dispatch(updateProductVideoAction(payload));
+    const res = await dispatch(updateYellowGoldMediaAction(payload));
+
+    if (res) {
+      dispatch(getSingleProduct(productId));
+    }
+  };
+
+  const updateWhiteGoldMedia = async (formik) => {
+    const payload = {
+      productId,
+      whiteGoldThumbnailImageFile: formik?.values?.whiteGoldThumbnailImageFile?.[0],
+      whiteGoldImageFiles: formik?.values?.whiteGoldImageFiles,
+      whiteGoldVideoFile: formik?.values?.whiteGoldVideoFile?.[0],
+      deletedWhiteGoldImages: formik?.values?.whiteGoldUploadedDeletedImages?.map(
+        (item) => item?.image
+      ),
+      deletedWhiteGoldVideo: formik?.values?.whiteGoldDeleteUploadedVideo?.[0]?.video,
+    };
+
+    const res = await dispatch(updateWhiteGoldMediaAction(payload));
 
     if (res) {
       dispatch(getSingleProduct(productId));
@@ -289,58 +314,53 @@ export default function AddProductPage() {
   };
 
   // set  default variations selected
-  const setInitVariation = ({ customizationTypesList, customizationSubTypesList }) => {
-    const findCustomizationByName = (list, name) =>
-      list.find(
-        (customization) =>
-          customization.title === name || customization.customizationTypeName === name
-      );
-    const foundedGoldType = findCustomizationByName(customizationTypesList, GOLD_TYPE.title);
-    const foundedGoldColor = findCustomizationByName(customizationTypesList, GOLD_COLOR.title);
-    if (foundedGoldType && foundedGoldColor) {
-      const foundedGoldTypeWiseSubTypes = customizationSubTypesList.filter(
-        (subType) => subType.customizationTypeName === GOLD_TYPE.title
-      );
-
-      const foundedGoldColorWiseSubTypes = customizationSubTypesList.filter(
-        (subType) => subType.customizationTypeName === foundedGoldColor.title
-      );
-
-      const matchedGoldTypeSubTypes = INIT_GOLD_TYPE_SUB_TYPES_LIST.map(
-        (goldType) =>
-          customizationSubTypesList.find((subType) => subType.title === goldType.title) || null
-      );
-
-      const matchedGoldColorSubTypes = GOLD_COLOR_SUB_TYPES_LIST.map(
-        (goldType) =>
-          customizationSubTypesList.find((subType) => subType.title === goldType.title) || null
-      );
-
-      const createVariation = (variationId, foundedSubTypes, matchedSubTypes) => ({
-        variationId,
-        subTypes: foundedSubTypes,
-        variationTypes: matchedSubTypes.map((subType) => ({
-          variationTypeId: subType.id,
-        })),
-      });
-
-      const newVariations = [
-        createVariation(foundedGoldType.id, foundedGoldTypeWiseSubTypes, matchedGoldTypeSubTypes),
-        createVariation(
-          foundedGoldColor.id,
-          foundedGoldColorWiseSubTypes,
-          matchedGoldColorSubTypes
-        ),
-      ];
-      const newPayload = {
-        ...selectedProduct,
-        variations: newVariations,
-      };
-      if (JSON.stringify(newPayload) !== JSON.stringify(selectedProduct)) {
-        dispatch(setSelectedProduct(newPayload));
+  const setInitVariation = useCallback(
+    ({ customizationTypesList, customizationSubTypesList }) => {
+      const findCustomizationByName = (list, name) =>
+        list.find(
+          (customization) =>
+            customization.title === name || customization.customizationTypeName === name
+        );
+      const foundedGoldType = findCustomizationByName(customizationTypesList, GOLD_TYPE.title);
+      const foundedGoldColor = findCustomizationByName(customizationTypesList, GOLD_COLOR.title);
+      if (foundedGoldType && foundedGoldColor) {
+        const foundedGoldTypeWiseSubTypes = customizationSubTypesList.filter(
+          (subType) => subType.customizationTypeName === GOLD_TYPE.title
+        );
+        const foundedGoldColorWiseSubTypes = customizationSubTypesList.filter(
+          (subType) => subType.customizationTypeName === foundedGoldColor.title
+        );
+        const matchedGoldTypeSubTypes = INIT_GOLD_TYPE_SUB_TYPES_LIST.map(
+          (goldType) =>
+            customizationSubTypesList.find((subType) => subType.title === goldType.title) || null
+        ).filter(Boolean);
+        const matchedGoldColorSubTypes = GOLD_COLOR_SUB_TYPES_LIST.map(
+          (goldType) =>
+            customizationSubTypesList.find((subType) => subType.title === goldType.title) || null
+        ).filter(Boolean);
+        const createVariation = (variationId, foundedSubTypes, matchedSubTypes) => ({
+          variationId,
+          subTypes: foundedSubTypes,
+          variationTypes: matchedSubTypes.map((subType) => ({
+            variationTypeId: subType.id,
+          })),
+        });
+        const newVariations = [
+          createVariation(foundedGoldType.id, foundedGoldTypeWiseSubTypes, matchedGoldTypeSubTypes),
+          createVariation(
+            foundedGoldColor.id,
+            foundedGoldColorWiseSubTypes,
+            matchedGoldColorSubTypes
+          ),
+        ];
+        const newPayload = { ...selectedProduct, variations: newVariations };
+        if (JSON.stringify(newPayload) !== JSON.stringify(selectedProduct)) {
+          dispatch(setSelectedProduct(newPayload));
+        }
       }
-    }
-  };
+    },
+    [dispatch, selectedProduct]
+  );
 
   return (
     <>
@@ -405,45 +425,6 @@ export default function AddProductPage() {
                     formik.setFieldValue('description', product?.description);
                     formik.setFieldValue('specifications', product?.specifications || []);
                     formik.setFieldValue('active', product?.active);
-                    const imagesArray = product?.images?.map((image) => {
-                      return {
-                        type: 'old',
-                        image: image.image,
-                      };
-                    });
-                    formik.setFieldValue('imageFiles', []);
-                    formik.setFieldValue('previewImages', imagesArray);
-                    formik.setFieldValue('uploadedDeletedImages', []);
-
-                    const thumbnailImageUrl = product?.thumbnailImage;
-                    if (thumbnailImageUrl) {
-                      const url = new URL(thumbnailImageUrl);
-                      const fileExtension = url.pathname.split('.').pop();
-
-                      const previewImageObj = {
-                        type: 'old',
-                        mimeType: `image/${fileExtension}`,
-                        image: thumbnailImageUrl,
-                      };
-                      formik.setFieldValue('previewThumbnailImage', [previewImageObj]);
-                    }
-                    formik.setFieldValue('thumbnailImageFile', []);
-                    formik.setFieldValue('uploadedDeletedThumbnailImage', []);
-
-                    const videoUrl = product?.video;
-                    if (videoUrl) {
-                      const url = new URL(videoUrl);
-                      const fileExtension = url.pathname.split('.').pop();
-
-                      const previewVideoObj = {
-                        type: 'old',
-                        mimeType: `video/${fileExtension}`,
-                        video: videoUrl,
-                      };
-                      formik.setFieldValue('previewVideo', [previewVideoObj]);
-                    }
-                    formik.setFieldValue('videoFile', []);
-                    formik.setFieldValue('deleteUploadedVideo', []);
                   }
                 }, [productId]);
 
@@ -536,53 +517,41 @@ export default function AddProductPage() {
                     setFieldValue('settingStyleIds', selectedProduct.settingStyleIds);
                   }
                 }, [selectedProduct, settingStyleList]);
-
                 return (
                   <>
                     <Form onSubmit={handleSubmit}>
                       <Grid container spacing={3}>
                         <Grid xs={12} sm={4} md={4}>
                           <Typography variant="h6">Details</Typography>
-
                           <Typography variant="body2">
-                            Title, Short Description, image...
+                            Title, Short Description, images...
                           </Typography>
                         </Grid>
                         <Grid xs={12} sm={8} md={8}>
                           <Card
                             component={Stack}
                             spacing={2}
-                            sx={{
-                              p: 1,
-                              borderRadius: 2,
-                              overflow: 'initial !important',
-                            }}
+                            sx={{ p: 1, borderRadius: 2, overflow: 'initial !important' }}
                           >
                             <Grid xs={12} sm={12} md={12}>
                               <TextField
-                                sx={{
-                                  mb: 2,
-                                  width: '100%',
-                                }}
+                                sx={{ mb: 2, width: '100%' }}
                                 name="productName"
                                 onBlur={handleBlur}
                                 label="Product Name"
                                 onChange={handleChange}
                                 value={values.productName || ''}
-                                error={!!(touched.productName && errors.productName)}
+                                error={!!(touched?.productName && errors?.productName)}
                                 helperText={
-                                  touched.productName && errors.productName
-                                    ? errors.productName
+                                  touched?.productName && errors?.productName
+                                    ? errors?.productName
                                     : ''
                                 }
                               />
                               <TextField
                                 rows={4}
                                 multiline
-                                sx={{
-                                  mb: 2,
-                                  width: '100%',
-                                }}
+                                sx={{ mb: 2, width: '100%' }}
                                 onBlur={handleBlur}
                                 name="shortDescription"
                                 label="Short Description"
@@ -595,16 +564,15 @@ export default function AddProductPage() {
                                     : ''
                                 }
                               />
-
                               <Stack sx={{ my: 1, mb: 3 }}>
                                 <Typography variant="subtitle2" sx={{ mb: 1 }}>
                                   Description
                                 </Typography>
                                 <Editor
-                                  name={'description'}
+                                  name="description"
                                   onChange={(e, editor) => {
                                     const data = editor.getData();
-                                    formik.setFieldValue('description', data);
+                                    setFieldValue('description', data);
                                   }}
                                   data={values?.description}
                                   className={
@@ -616,99 +584,6 @@ export default function AddProductPage() {
                                     {errors?.description}
                                   </FormHelperText>
                                 ) : null}
-                              </Stack>
-
-                              <Stack sx={{ my: 1 }}>
-                                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                  Thumbnail Images
-                                </Typography>
-                                <FileDrop
-                                  mediaLimit={1}
-                                  formik={formik}
-                                  productId={productId}
-                                  fileKey={'thumbnailImageFile'}
-                                  previewKey={'previewThumbnailImage'}
-                                  deleteKey={'uploadedDeletedThumbnailImage'}
-                                  loading={crudProductLoading || productLoading}
-                                />
-                                {productId && (
-                                  <Stack sx={{ my: 0 }} justifyContent={'end'} direction={'row'}>
-                                    <LoadingButton
-                                      variant="contained"
-                                      loading={crudProductLoading}
-                                      disabled={
-                                        formik.values?.thumbnailImageFile?.length === 0 ||
-                                        crudProductLoading
-                                      }
-                                      onClick={() => {
-                                        updateProductThumbnailImage(formik);
-                                      }}
-                                      startIcon={<Iconify icon="line-md:upload-loop" />}
-                                    >
-                                      Upload
-                                    </LoadingButton>
-                                  </Stack>
-                                )}
-                              </Stack>
-                              <Stack sx={{ my: 1 }}>
-                                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                  Images
-                                </Typography>
-                                <FileDrop
-                                  mediaLimit={8}
-                                  formik={formik}
-                                  productId={productId}
-                                  fileKey={'imageFiles'}
-                                  previewKey={'previewImages'}
-                                  deleteKey={'uploadedDeletedImages'}
-                                  loading={crudProductLoading || productLoading}
-                                />
-                                {productId && (
-                                  <Stack sx={{ my: 0 }} justifyContent={'end'} direction={'row'}>
-                                    <LoadingButton
-                                      variant="contained"
-                                      loading={crudProductLoading}
-                                      disabled={crudProductLoading}
-                                      onClick={() => updateProductPhotos(formik)}
-                                      startIcon={<Iconify icon="line-md:upload-loop" />}
-                                    >
-                                      Upload
-                                    </LoadingButton>
-                                  </Stack>
-                                )}
-                              </Stack>
-
-                              <Stack sx={{ my: 1 }}>
-                                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                  Video
-                                </Typography>
-                                <FileDrop
-                                  mediaLimit={1}
-                                  formik={formik}
-                                  mediaType={'video'}
-                                  fileKey={'videoFile'}
-                                  productId={productId}
-                                  previewKey={'previewVideo'}
-                                  deleteKey={'deleteUploadedVideo'}
-                                  loading={crudProductLoading || productLoading}
-                                />
-                                {productId && (
-                                  <Stack sx={{ my: 0 }} justifyContent={'end'} direction={'row'}>
-                                    <LoadingButton
-                                      variant="contained"
-                                      loading={crudProductLoading}
-                                      disabled={
-                                        formik.values?.videoFile?.length === 0 || crudProductLoading
-                                      }
-                                      onClick={() => {
-                                        updateProductVideo(formik);
-                                      }}
-                                      startIcon={<Iconify icon="line-md:upload-loop" />}
-                                    >
-                                      Upload
-                                    </LoadingButton>
-                                  </Stack>
-                                )}
                               </Stack>
                             </Grid>
                           </Card>
@@ -722,27 +597,20 @@ export default function AddProductPage() {
                           </Typography>
                         </Grid>
                         <Grid xs={12} sm={8} md={8}>
-                          <Card
-                            component={Stack}
-                            spacing={2}
-                            sx={{
-                              p: 1.5,
-                              borderRadius: 2,
-                            }}
-                          >
+                          <Card component={Stack} spacing={2} sx={{ p: 1.5, borderRadius: 2 }}>
                             <Grid container spacing={2}>
                               <Grid xs={12} sm={6} md={6}>
                                 <TextField
-                                  sx={{
-                                    width: '100%',
-                                  }}
+                                  sx={{ width: '100%' }}
                                   name="sku"
                                   label="Product SKU"
                                   onBlur={handleBlur}
-                                  onChange={(e) => skuChangeHandler(e.target.value, formik)}
+                                  onChange={(e) =>
+                                    skuChangeHandler(e.target.value, { values, setFieldValue })
+                                  }
                                   value={values.sku || ''}
-                                  error={!!(touched.sku && errors.sku)}
-                                  helperText={touched.sku && errors.sku ? errors.sku : ''}
+                                  error={!!(touched?.sku && errors?.sku)}
+                                  helperText={touched?.sku && errors?.sku ? errors?.sku : ''}
                                 />
                                 {values.sku ? (
                                   <Typography
@@ -761,29 +629,27 @@ export default function AddProductPage() {
                                   onBlur={handleBlur}
                                   onChange={handleChange}
                                   value={values.discount || ''}
-                                  error={!!(touched.discount && errors.discount)}
+                                  error={!!(touched?.discount && errors?.discount)}
                                   helperText={
-                                    touched.discount && errors.discount ? errors.discount : ''
+                                    touched?.discount && errors?.discount ? errors?.discount : ''
                                   }
-                                  sx={{
-                                    width: '100%',
-                                  }}
+                                  sx={{ width: '100%' }}
                                 />
                               </Grid>
                             </Grid>
                             <Grid container spacing={2} sx={{ mb: 1, marginTop: '0 !important' }}>
                               <Grid xs={12} sm={6} md={6}>
                                 <FormControl sx={{ width: '100%' }}>
-                                  <InputLabel id="connectionName">Collection Name</InputLabel>
+                                  <InputLabel id="collectionName">Collection Name</InputLabel>
                                   <Select
                                     sx={{ width: '100%' }}
                                     multiple
                                     MenuProps={MenuProps}
-                                    labelId="connectionName"
+                                    labelId="collectionName"
                                     name="collectionIds"
                                     onBlur={handleBlur}
                                     onChange={handleChange}
-                                    value={values?.collectionIds || []}
+                                    value={values.collectionIds || []}
                                     input={<OutlinedInput label="Collection Name" />}
                                     renderValue={(selected) => {
                                       let updated = selected?.map((x) => {
@@ -792,7 +658,6 @@ export default function AddProductPage() {
                                         );
                                         return selectedItem ? selectedItem?.title : x;
                                       });
-
                                       if (updated?.length > 1) return updated?.join(', ');
                                       return updated;
                                     }}
@@ -820,7 +685,7 @@ export default function AddProductPage() {
                                     name="settingStyleIds"
                                     onBlur={handleBlur}
                                     onChange={handleChange}
-                                    value={values?.settingStyleIds || []}
+                                    value={values.settingStyleIds || []}
                                     input={<OutlinedInput label="Setting Style" />}
                                     renderValue={(selected) => {
                                       let updated = selected?.map((x) => {
@@ -829,7 +694,6 @@ export default function AddProductPage() {
                                         );
                                         return selectedItem ? selectedItem?.title : x;
                                       });
-
                                       if (updated?.length > 1) return updated?.join(', ');
                                       return updated;
                                     }}
@@ -851,21 +715,23 @@ export default function AddProductPage() {
                               <Grid xs={12} sm={6} md={6}>
                                 <TextField
                                   select
-                                  sx={{
-                                    width: '100%',
-                                  }}
+                                  sx={{ width: '100%' }}
                                   label="Category"
                                   name="categoryId"
                                   onBlur={handleBlur}
-                                  onChange={(e) => categoryChangeHandler(e.target.value, formik)}
-                                  value={values.categoryId}
-                                  error={!!(touched.categoryId && errors.categoryId)}
+                                  onChange={(e) =>
+                                    categoryChangeHandler(e.target.value, { values, setFieldValue })
+                                  }
+                                  value={values.categoryId || ''}
+                                  error={!!(touched?.categoryId && errors?.categoryId)}
                                   helperText={
-                                    touched.categoryId && errors.categoryId ? errors.categoryId : ''
+                                    touched?.categoryId && errors?.categoryId
+                                      ? errors?.categoryId
+                                      : ''
                                   }
                                 >
                                   {categoriesList?.length > 0 ? (
-                                    categoriesList?.map((option) => (
+                                    categoriesList.map((option) => (
                                       <MenuItem key={option?.id} value={option?.id}>
                                         {option?.title}
                                       </MenuItem>
@@ -878,23 +744,26 @@ export default function AddProductPage() {
                               <Grid xs={12} sm={6} md={6}>
                                 <TextField
                                   select
-                                  sx={{
-                                    width: '100%',
-                                  }}
+                                  sx={{ width: '100%' }}
                                   onBlur={handleBlur}
                                   name="subCategoryId"
                                   label="Sub category"
-                                  value={values?.subCategoryId}
-                                  onChange={(e) => subCategoryChangeHandler(e.target.value, formik)}
-                                  error={!!(touched.subCategoryId && errors.subCategoryId)}
+                                  value={values?.subCategoryId || ''}
+                                  onChange={(e) =>
+                                    subCategoryChangeHandler(e.target.value, {
+                                      values,
+                                      setFieldValue,
+                                    })
+                                  }
+                                  error={!!(touched?.subCategoryId && errors?.subCategoryId)}
                                   helperText={
-                                    touched.subCategoryId && errors.subCategoryId
-                                      ? errors.subCategoryId
+                                    touched?.subCategoryId && errors?.subCategoryId
+                                      ? errors?.subCategoryId
                                       : ''
                                   }
                                 >
                                   {subCategoriesList?.length > 0 ? (
-                                    subCategoriesList?.map((option) => (
+                                    subCategoriesList.map((option) => (
                                       <MenuItem key={option?.id} value={option?.id}>
                                         {option?.title}
                                       </MenuItem>
@@ -924,7 +793,6 @@ export default function AddProductPage() {
                                         );
                                         return selectedItem ? selectedItem?.title : x;
                                       });
-
                                       if (updated?.length > 1) return updated?.join(', ');
                                       return updated;
                                     }}
@@ -939,7 +807,7 @@ export default function AddProductPage() {
                                       <MenuItem disabled>No Item</MenuItem>
                                     )}
                                   </Select>
-                                  {touched.productTypeIds && errors.productTypeIds ? (
+                                  {touched?.productTypeIds && errors?.productTypeIds ? (
                                     <Typography
                                       variant="subtitle2"
                                       sx={{
@@ -949,10 +817,46 @@ export default function AddProductPage() {
                                         margin: '3px 14px 0 14px',
                                       }}
                                     >
-                                      {errors.productTypeIds}
+                                      {errors?.productTypeIds}
                                     </Typography>
                                   ) : null}
                                 </FormControl>
+                              </Grid>
+                              <Grid xs={12} sm={6} md={6}>
+                                <TextField
+                                  select
+                                  sx={{ width: '100%' }}
+                                  label="Gender"
+                                  name="gender"
+                                  onBlur={handleBlur}
+                                  onChange={handleChange}
+                                  value={values?.gender || ''}
+                                  InputProps={{
+                                    endAdornment: values?.gender && (
+                                      <InputAdornment position="end" sx={{ marginRight: '24px' }}>
+                                        <IconButton
+                                          aria-label="clear selection"
+                                          onClick={() =>
+                                            handleChange({ target: { name: 'gender', value: '' } })
+                                          }
+                                          edge="end"
+                                        >
+                                          <ClearIcon sx={{ fontSize: '20px' }} />
+                                        </IconButton>
+                                      </InputAdornment>
+                                    ),
+                                  }}
+                                >
+                                  {GENDER_LIST?.length > 0 ? (
+                                    GENDER_LIST?.map((option) => (
+                                      <MenuItem key={option?.value} value={option?.value}>
+                                        {option?.title}
+                                      </MenuItem>
+                                    ))
+                                  ) : (
+                                    <MenuItem disabled>No Item</MenuItem>
+                                  )}
+                                </TextField>
                               </Grid>
                               <Grid xs={12} sm={6} md={6}>
                                 <TextField
@@ -968,33 +872,265 @@ export default function AddProductPage() {
                                     setFieldValue('netWeight', roundedValue);
                                   }}
                                   value={values.netWeight || ''}
-                                  error={!!(touched.netWeight && errors.netWeight)}
+                                  error={!!(touched?.netWeight && errors?.netWeight)}
                                   helperText={
-                                    touched.netWeight && errors.netWeight ? errors.netWeight : ''
+                                    touched?.netWeight && errors?.netWeight ? errors?.netWeight : ''
                                   }
-                                  sx={{
-                                    width: '100%',
+                                  sx={{ width: '100%' }}
+                                />
+                              </Grid>
+                              <Grid xs={12} sm={6} md={6}>
+                                <TextField
+                                  type="number"
+                                  name="sideDiamondWeight"
+                                  label="Side Diamond Weight"
+                                  onBlur={handleBlur}
+                                  onChange={(event) => {
+                                    const value = event?.target?.value;
+                                    const roundedValue = value
+                                      ? Math.round(parseFloat(value) * 100) / 100
+                                      : '';
+                                    setFieldValue('sideDiamondWeight', roundedValue);
                                   }}
+                                  value={values.sideDiamondWeight || ''}
+                                  error={
+                                    !!(touched?.sideDiamondWeight && errors?.sideDiamondWeight)
+                                  }
+                                  helperText={
+                                    touched?.sideDiamondWeight && errors?.sideDiamondWeight
+                                      ? errors?.sideDiamondWeight
+                                      : ''
+                                  }
+                                  sx={{ width: '100%' }}
                                 />
                               </Grid>
                             </Grid>
                           </Card>
                         </Grid>
                       </Grid>
+                      {/* Rose Gold Media */}
+                      <Grid container spacing={3}>
+                        <Grid xs={12} sm={4} md={4}>
+                          <Typography variant="h6">Rose Gold Media</Typography>
+                          <Typography variant="body2">
+                            Add thumbnails, images, or videos.
+                          </Typography>
+                        </Grid>
+                        <Grid xs={12} sm={8} md={8}>
+                          <Card component={Stack} spacing={2} sx={{ p: 1.5, borderRadius: 2 }}>
+                            <Grid container spacing={2}>
+                              <Grid xs={12} sm={6} md={6}>
+                                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                                  Rose Gold Thumbnail Image
+                                </Typography>
+                                <FileDrop
+                                  mediaLimit={1}
+                                  formik={formik}
+                                  productId={productId}
+                                  fileKey="roseGoldThumbnailImageFile"
+                                  previewKey="roseGoldPreviewThumbnailImage"
+                                  deleteKey="roseGoldUploadedDeletedThumbnailImage"
+                                  loading={crudProductLoading || productLoading}
+                                />
+                              </Grid>
+                              <Grid xs={12} sm={6} md={6}>
+                                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                                  Rose Gold Video
+                                </Typography>
+                                <FileDrop
+                                  mediaLimit={1}
+                                  formik={formik}
+                                  mediaType="video"
+                                  fileKey="roseGoldVideoFile"
+                                  productId={productId}
+                                  previewKey="roseGoldPreviewVideo"
+                                  deleteKey="roseGoldDeleteUploadedVideo"
+                                  loading={crudProductLoading || productLoading}
+                                />
+                              </Grid>
+                            </Grid>
+                            <Grid xs={12} sm={12} md={12} sx={{ marginTop: '0 !important' }}>
+                              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                                Rose Gold Images
+                              </Typography>
+                              <FileDrop
+                                mediaLimit={8}
+                                formik={formik}
+                                productId={productId}
+                                fileKey="roseGoldImageFiles"
+                                previewKey="roseGoldPreviewImages"
+                                deleteKey="roseGoldUploadedDeletedImages"
+                                loading={crudProductLoading || productLoading}
+                              />
+                            </Grid>
+                            {productId && (
+                              <Stack sx={{ my: 0 }} justifyContent="end" direction="row">
+                                <LoadingButton
+                                  variant="contained"
+                                  loading={crudProductLoading}
+                                  disabled={crudProductLoading}
+                                  onClick={() => updateRoseGoldMedia(formik)}
+                                  startIcon={<Iconify icon="line-md:upload-loop" />}
+                                >
+                                  Upload Rose Gold Media
+                                </LoadingButton>
+                              </Stack>
+                            )}
+                          </Card>
+                        </Grid>
+                      </Grid>
+
+                      {/* Yellow Gold Media */}
+                      <Grid container spacing={3}>
+                        <Grid xs={12} sm={4} md={4}>
+                          <Typography variant="h6">Yellow Gold Media</Typography>
+                          <Typography variant="body2">
+                            Add thumbnails, images, or videos.
+                          </Typography>
+                        </Grid>
+                        <Grid xs={12} sm={8} md={8}>
+                          <Card component={Stack} spacing={2} sx={{ p: 1.5, borderRadius: 2 }}>
+                            <Grid container spacing={2}>
+                              <Grid xs={12} sm={6} md={6}>
+                                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                                  Yellow Gold Thumbnail Image
+                                </Typography>
+                                <FileDrop
+                                  mediaLimit={1}
+                                  formik={formik}
+                                  productId={productId}
+                                  fileKey="yellowGoldThumbnailImageFile"
+                                  previewKey="yellowGoldPreviewThumbnailImage"
+                                  deleteKey="yellowGoldUploadedDeletedThumbnailImage"
+                                  loading={crudProductLoading || productLoading}
+                                />
+                              </Grid>
+                              <Grid xs={12} sm={6} md={6}>
+                                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                                  Yellow Gold Video
+                                </Typography>
+                                <FileDrop
+                                  mediaLimit={1}
+                                  formik={formik}
+                                  mediaType="video"
+                                  fileKey="yellowGoldVideoFile"
+                                  productId={productId}
+                                  previewKey="yellowGoldPreviewVideo"
+                                  deleteKey="yellowGoldDeleteUploadedVideo"
+                                  loading={crudProductLoading || productLoading}
+                                />
+                              </Grid>
+                            </Grid>
+                            <Grid xs={12} sm={12} md={12} sx={{ marginTop: '0 !important' }}>
+                              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                                Yellow Gold Images
+                              </Typography>
+                              <FileDrop
+                                mediaLimit={8}
+                                formik={formik}
+                                productId={productId}
+                                fileKey="yellowGoldImageFiles"
+                                previewKey="yellowGoldPreviewImages"
+                                deleteKey="yellowGoldUploadedDeletedImages"
+                                loading={crudProductLoading || productLoading}
+                              />
+                            </Grid>
+                            {productId && (
+                              <Stack sx={{ my: 0 }} justifyContent="end" direction="row">
+                                <LoadingButton
+                                  variant="contained"
+                                  loading={crudProductLoading}
+                                  disabled={crudProductLoading}
+                                  onClick={() => updateYellowGoldMedia(formik)}
+                                  startIcon={<Iconify icon="line-md:upload-loop" />}
+                                >
+                                  Upload Yellow Gold Media
+                                </LoadingButton>
+                              </Stack>
+                            )}
+                          </Card>
+                        </Grid>
+                      </Grid>
+
+                      {/* White Gold Media */}
+                      <Grid container spacing={3}>
+                        <Grid xs={12} sm={4} md={4}>
+                          <Typography variant="h6">White Gold Media</Typography>
+                          <Typography variant="body2">
+                            Add thumbnails, images, or videos.
+                          </Typography>
+                        </Grid>
+                        <Grid xs={12} sm={8} md={8}>
+                          <Card component={Stack} spacing={2} sx={{ p: 1.5, borderRadius: 2 }}>
+                            <Grid container spacing={2}>
+                              <Grid xs={12} sm={6} md={6}>
+                                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                                  White Gold Thumbnail Image
+                                </Typography>
+                                <FileDrop
+                                  mediaLimit={1}
+                                  formik={formik}
+                                  productId={productId}
+                                  fileKey="whiteGoldThumbnailImageFile"
+                                  previewKey="whiteGoldPreviewThumbnailImage"
+                                  deleteKey="whiteGoldUploadedDeletedThumbnailImage"
+                                  loading={crudProductLoading || productLoading}
+                                />
+                              </Grid>
+                              <Grid xs={12} sm={6} md={6}>
+                                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                                  White Gold Video
+                                </Typography>
+                                <FileDrop
+                                  mediaLimit={1}
+                                  formik={formik}
+                                  mediaType="video"
+                                  fileKey="whiteGoldVideoFile"
+                                  productId={productId}
+                                  previewKey="whiteGoldPreviewVideo"
+                                  deleteKey="whiteGoldDeleteUploadedVideo"
+                                  loading={crudProductLoading || productLoading}
+                                />
+                              </Grid>
+                            </Grid>
+                            <Grid xs={12} sm={12} md={12} sx={{ marginTop: '0 !important' }}>
+                              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                                White Gold Images
+                              </Typography>
+                              <FileDrop
+                                mediaLimit={8}
+                                formik={formik}
+                                productId={productId}
+                                fileKey="whiteGoldImageFiles"
+                                previewKey="whiteGoldPreviewImages"
+                                deleteKey="whiteGoldUploadedDeletedImages"
+                                loading={crudProductLoading || productLoading}
+                              />
+                            </Grid>
+                            {productId && (
+                              <Stack sx={{ my: 0 }} justifyContent="end" direction="row">
+                                <LoadingButton
+                                  variant="contained"
+                                  loading={crudProductLoading}
+                                  disabled={crudProductLoading}
+                                  onClick={() => updateWhiteGoldMedia(formik)}
+                                  startIcon={<Iconify icon="line-md:upload-loop" />}
+                                >
+                                  Upload White Gold Media
+                                </LoadingButton>
+                              </Stack>
+                            )}
+                          </Card>
+                        </Grid>
+                      </Grid>
+
                       <Grid container spacing={3}>
                         <Grid xs={12} sm={4} md={4}>
                           <Typography variant="h6">Variations</Typography>
-                          <Typography variant="body2">Add custom varirations</Typography>
+                          <Typography variant="body2">Add custom variations</Typography>
                         </Grid>
                         <Grid xs={12} sm={8} md={8}>
-                          <Card
-                            sx={{
-                              p: 1.5,
-                              borderRadius: 2,
-                            }}
-                            spacing={2}
-                            component={Stack}
-                          >
+                          <Card sx={{ p: 1.5, borderRadius: 2 }} spacing={2} component={Stack}>
                             <Variations formik={formik} />
                           </Card>
                         </Grid>
@@ -1005,24 +1141,17 @@ export default function AddProductPage() {
                           <Typography variant="body2">Add Diamond Filters</Typography>
                         </Grid>
                         <Grid xs={12} sm={8} md={8}>
-                          <Card
-                            sx={{
-                              p: 1,
-                              borderRadius: 2,
-                            }}
-                            spacing={2}
-                            component={Stack}
-                          >
+                          <Card sx={{ p: 1, borderRadius: 2 }} spacing={2} component={Stack}>
                             <FormGroup>
                               <FormControlLabel
                                 control={
                                   <Switch
                                     name="isDiamondFilter"
                                     sx={{ mx: 1 }}
-                                    checked={values?.isDiamondFilter}
+                                    checked={values.isDiamondFilter}
                                     onBlur={handleBlur}
                                     onChange={() => {
-                                      setFieldValue('isDiamondFilter', !values?.isDiamondFilter);
+                                      setFieldValue('isDiamondFilter', !values.isDiamondFilter);
                                       setFieldValue('diamondFilters', initDiamondFilters);
                                     }}
                                   />
@@ -1040,21 +1169,14 @@ export default function AddProductPage() {
                           <Typography variant="body2">Extra details</Typography>
                         </Grid>
                         <Grid xs={12} sm={8} md={8}>
-                          <Card
-                            sx={{
-                              p: 1,
-                              borderRadius: 2,
-                            }}
-                            spacing={2}
-                            component={Stack}
-                          >
+                          <Card sx={{ p: 1, borderRadius: 2 }} spacing={2} component={Stack}>
                             <Specifications formik={formik} />
                           </Card>
                           <Stack
                             gap={2}
                             sx={{ mt: 2 }}
-                            direction={'row'}
-                            justifyContent={'space-between'}
+                            direction="row"
+                            justifyContent="space-between"
                           >
                             <FormGroup>
                               <FormControlLabel
@@ -1099,7 +1221,7 @@ export default function AddProductPage() {
                       >
                         <StyledDialogTitle>Confirmation</StyledDialogTitle>
                         <StyledDialogContent>
-                          Do you want to {values?.active ? 'DEACTIVE' : 'ACTIVE'} this product?
+                          Do you want to {values.active ? 'DEACTIVATE' : 'ACTIVATE'} this product?
                         </StyledDialogContent>
                         <StyledDialogActions>
                           <Button
@@ -1126,26 +1248,18 @@ export default function AddProductPage() {
                         </StyledDialogActions>
                       </Dialog>
                     )}
-                    {duplicateDialog ? (
+                    {duplicateDialog && (
                       <DuplicateProductDialog
                         open={duplicateDialog}
                         setOpen={setDuplicateDialog}
                         loading={duplicateProductLoading}
                       />
-                    ) : null}
+                    )}
                   </>
                 );
               }}
             </Formik>
           )}
-
-          {/* {(productList?.length === 0 || currentPageData?.length === 0) && !productLoading && (
-          <NoData>
-            {productList?.length === 0
-              ? `Click the "New Product" button to get started.`
-              : 'Product Does not exist'}
-          </NoData>
-        )} */}
         </Stack>
       </Container>
     </>

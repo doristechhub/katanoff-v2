@@ -36,7 +36,7 @@ const primaryBtn = `
 `;
 
 const containedPrimaryBtn =
-  "!bg-primary !h-12 lg:!h-[2.8rem] 2xl:!h-[4rem] !rounded-none font-semibold !tracking-wider hover:border-primary hover:!bg-transparent hover:!text-primary";
+  "!bg-primary !h-12 lg:!h-[2.8rem] 2xl:!h-[3.5rem] !rounded-none font-semibold !tracking-wider hover:border-primary hover:!bg-transparent hover:!text-primary";
 
 /**
  *
@@ -59,7 +59,7 @@ export const HeaderLinkButton = ({
     <Link
       href={href}
       rel="noopener noreferrer"
-      className={`uppercase text-[13px] 2xl:text-base  px-5 2xl:px-6 hover:text-primary transition-all duration-300 ${isActive} ${className}`}
+      className={`uppercase text-[15px] lg:text-[14px] 2xl:text-base leading-[1em] font-extralight text-[#2B2B2B] px-6 2xl:px-12 hover:text-primary transition-all duration-300 ${isActive} ${className}`}
       {...rest}
     >
       {rest.children}

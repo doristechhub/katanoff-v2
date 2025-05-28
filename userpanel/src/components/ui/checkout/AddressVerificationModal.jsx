@@ -10,15 +10,17 @@ import {
 } from "@/store/slices/commonSlice";
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { setStandardizedAddress } from "@/store/slices/checkoutSlice";
+import {
+  setSelectedAddressType,
+  setStandardizedAddress,
+} from "@/store/slices/checkoutSlice";
 import { setAddressLoader } from "@/store/slices/addressSlice";
 
 const AddressVerificationModal = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { standardizedAddress, selectedShippingAddress } = useSelector(
-    ({ checkout }) => checkout
-  );
+  const { standardizedAddress, selectedShippingAddress, selectedAddressType } =
+    useSelector(({ checkout }) => checkout);
   const { isHovered, isSubmitted, isChecked } = useSelector(
     ({ common }) => common
   );
@@ -37,28 +39,47 @@ const AddressVerificationModal = () => {
 
   const handleConfirm = useCallback(() => {
     dispatch(setIsSubmitted(true));
-    if (!selectedShippingAddress || !isChecked) return;
+
+    if (!selectedAddressType || !selectedShippingAddress) {
+      console.warn("Missing required values");
+      return;
+    }
+
     dispatch(setAddressLoader(true));
+
+    const isVerified = selectedAddressType === "verified";
+
     const formsValue = {
       email: selectedShippingAddress?.email,
       countryName: selectedShippingAddress?.country,
       firstName: selectedShippingAddress?.firstName,
       lastName: selectedShippingAddress?.lastName,
-      address: selectedShippingAddress?.address,
-      city: selectedShippingAddress?.city,
-      state: selectedShippingAddress?.state,
+      address: isVerified
+        ? standardizedAddress?.firstAddressLine
+        : selectedShippingAddress?.address,
+      city: isVerified
+        ? standardizedAddress?.city
+        : selectedShippingAddress?.city,
+      state: isVerified
+        ? standardizedAddress?.state
+        : selectedShippingAddress?.state,
       stateCode: selectedShippingAddress?.stateCode,
-      pinCode: selectedShippingAddress?.pinCode,
+      pinCode: isVerified
+        ? standardizedAddress?.zipCode
+        : selectedShippingAddress?.pinCode,
       mobile: selectedShippingAddress?.mobile,
       companyName: selectedShippingAddress?.company,
-      apartment: selectedShippingAddress?.apartment,
+      apartment: isVerified
+        ? standardizedAddress?.apartment
+        : selectedShippingAddress?.apartment,
     };
+
     localStorage.setItem("address", JSON.stringify(formsValue));
     dispatch(setAddressLoader(false));
     router.push("/shipping");
     localStorage.removeItem("selectedShippingMethod");
     checkoutModalClose();
-  }, [selectedShippingAddress, isChecked]);
+  }, [selectedShippingAddress, selectedAddressType, standardizedAddress]);
 
   const checkoutModalClose = () => {
     resetValues();
@@ -81,9 +102,9 @@ const AddressVerificationModal = () => {
 
   const formatAddressViaResponse = (addr) => {
     if (!addr) return "";
-    const { firstAddressLine, apartment, city, state, pinCode } = addr;
+    const { firstAddressLine, apartment, city, state, zipCode } = addr;
 
-    return [firstAddressLine, apartment, city, state, pinCode]
+    return [firstAddressLine, apartment, city, state, zipCode]
       .filter(Boolean)
       .join(", ");
   };
@@ -140,22 +161,44 @@ const AddressVerificationModal = () => {
             </p>
           </div>
         </div>
-        <div className="flex items-start gap-2 text-base md:text-lg text-baseblack">
-          <input
-            type="checkbox"
-            id="addreess-confirm"
-            className={`mt-2 cursor-pointer accent-primary rounded-sm ring-1 ring-transparent ${
-              isSubmitted && !isChecked
-                ? " !ring-red-500 appearance-none p-1.5"
-                : ""
-            }`}
-            checked={isChecked}
-            onChange={(e) => dispatch(setIsChecked(e.target.checked))}
-          />
-          <label htmlFor="addreess-confirm">
-            I understand that my address is verified, and I want to proceed with
-            this entered address.
-          </label>
+        <div className="flex flex-col gap-4 text-base md:text-lg text-baseblack">
+          {/* Entered Address Option */}
+          <div className="flex items-start gap-2">
+            <input
+              type="radio"
+              id="entered-address"
+              name="address-option"
+              value="entered"
+              className={`mt-1.5 cursor-pointer accent-primary ring-1 ring-transparent rounded-full w-5 h-5 ${
+                isSubmitted && !selectedAddressType ? "!ring-red-500" : ""
+              }`}
+              checked={selectedAddressType === "entered"}
+              onChange={() => {
+                dispatch(setSelectedAddressType("entered"));
+              }}
+            />
+            <label htmlFor="entered-address" className="cursor-pointer">
+              Yes, I want to proceed with the entered address.
+            </label>
+          </div>
+
+          {/* Verified Address Option */}
+          <div className="flex items-start gap-2">
+            <input
+              type="radio"
+              id="verified-address"
+              name="address-option"
+              value="verified"
+              className={`mt-1.5 cursor-pointer accent-primary ring-1 ring-transparent rounded-full w-5 h-5 ${
+                isSubmitted && !selectedAddressType ? "!ring-red-500" : ""
+              }`}
+              checked={selectedAddressType === "verified"}
+              onChange={() => dispatch(setSelectedAddressType("verified"))}
+            />
+            <label htmlFor="verified-address" className="cursor-pointer">
+              Yes, I want to proceed with the Verified Address.
+            </label>
+          </div>
         </div>
       </div>
     </Modal>

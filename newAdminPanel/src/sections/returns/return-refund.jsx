@@ -226,7 +226,6 @@ const ReturnRefund = () => {
     setSearchedValue('');
     setFilterByPaymentStatus('all');
   }, []);
-
   return (
     <>
       {returnRefundLoader ? (
@@ -319,11 +318,10 @@ const ReturnRefund = () => {
                     <TableCell>Id</TableCell>
                     <TableCell>Order Number</TableCell>
                     <TableCell>Date & Time</TableCell>
+                    <TableCell>Payment Method</TableCell>
                     <TableCell>Payment Status</TableCell>
                     <TableCell>Order Status</TableCell>
                     <TableCell>Refund Failure Reason</TableCell>
-                    <TableCell>ARN Number</TableCell>
-                    <TableCell>Refund ID</TableCell>
                     <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
@@ -336,6 +334,9 @@ const ReturnRefund = () => {
                           <TableCell>{x?.orderNumber}</TableCell>
                           <TableCell sx={{ minWidth: '180px' }}>
                             {moment(x?.createdDate).format('MM-DD-YYYY hh:mm a')}
+                          </TableCell>
+                          <TableCell>
+                            {helperFunctions?.capitalizeCamelCase(x?.paymentMethod)}
                           </TableCell>
                           <TableCell>
                             <Label
@@ -367,16 +368,7 @@ const ReturnRefund = () => {
                               )}
                             </Box>
                           </TableCell>
-                          <TableCell>
-                            {x?.stripeARNNumber || (
-                              <p style={{ textAlign: 'center', width: '100%' }}>-</p>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {x?.stripeRefundId || (
-                              <p style={{ textAlign: 'center', width: '100%' }}>-</p>
-                            )}
-                          </TableCell>
+
                           <TableCell sx={{ width: '40px' }}>
                             <Iconify
                               className={'cursor-pointer'}

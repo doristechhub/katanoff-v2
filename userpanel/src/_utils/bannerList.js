@@ -26,6 +26,12 @@ import necklaces from "@/assets/images/banners/necklaces.webp"
 export const bannerList = [
     {
         collection: {
+            title: "Wedding Rings",
+            banner: wedding,
+        }
+    },
+    {
+        collection: {
             title: "Flash Deals",
             banner: flashDeals,
         }

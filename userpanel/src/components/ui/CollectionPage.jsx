@@ -100,7 +100,7 @@ export default function CollectionPage() {
 
       {/* Setting Style Swiper */}
       <section className="container pt-10 md:pt-14 lg:pt-20 2xl:pt-20">
-        <h2 className="text-center text-2xl md:text-3xl lg:text-4xl 2xl:text-5xl font-chong-modern capitalize">
+        <h2 className="text-center text-[20px] leading-6 md:text-3xl lg:text-[26px] lg:leading-[33px] 2xl:text-5xl font-castoro capitalize">
           {collectionTitle}
         </h2>
 
@@ -117,7 +117,7 @@ export default function CollectionPage() {
           isLoading={productLoading}
         />
       </section>
-      <section className="pt-16 lg:pt-20 2xl:pt-20">
+      <section className="container pt-16 lg:pt-20 2xl:pt-20">
         <SwipperHomePageBig navigation={true} />
       </section>
       <section className="container pt-16 lg:pt-20 2xl:pt-20">

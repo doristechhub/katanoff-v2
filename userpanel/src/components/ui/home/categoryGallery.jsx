@@ -6,58 +6,39 @@ import diamora from "@/assets/images/home/diamora.webp";
 import glowState from "@/assets/images/home/glow-state.webp";
 import nuvana from "@/assets/images/home/nuvana.webp";
 import veloura from "@/assets/images/home/veloura.webp";
+import tennis from "@/assets/images/home/tennis.webp";
+import newArrival from "@/assets/images/home/newArrival.webp";
+import fashion from "@/assets/images/home/fashion.webp";
+import bangle from "@/assets/images/home/bangle.webp";
+
 import CustomImg from "../custom-img";
 import Link from "next/link";
 import { helperFunctions } from "@/_helper";
 
 const categories = [
   {
-    img: lustera,
-    title: "Lustera",
+    img: tennis,
+    title: "Tennis",
     altAttr: "",
     titleAttr: "",
   },
   {
-    img: diamora,
-    title: "Diamora",
-    altAttr: "",
-
-    titleAttr: "",
-  },
-  {
-    img: veloura,
-    title: "Veloura",
+    img: fashion,
+    title: "Fashion",
     altAttr: "",
 
     titleAttr: "",
   },
   {
-    img: glowState,
-    title: "Glow State",
+    img: bangle,
+    title: "Bangle",
     altAttr: "",
+
     titleAttr: "",
   },
   {
-    img: brightborn,
-    title: "Brightborn",
-    altAttr: "",
-    titleAttr: "",
-  },
-  {
-    img: auralis,
-    title: "Auralis",
-    altAttr: "",
-    titleAttr: "",
-  },
-  {
-    img: nuvana,
-    title: "Nuvana",
-    altAttr: "",
-    titleAttr: "",
-  },
-  {
-    img: gemora,
-    title: "Gemora",
+    img: newArrival,
+    title: "New Arrival",
     altAttr: "",
     titleAttr: "",
   },
@@ -79,7 +60,9 @@ export default function CategoryGallery() {
               titleAttr={category?.titleAttr}
               altAttr={category?.altAttr}
             />
-            <p className="uppercase mt-2 font-medium">{category?.title}</p>
+            <p className="uppercase mt-4 text-sm font-medium text-baseblack">
+              {category?.title}
+            </p>
           </Link>
         );
       })}

@@ -26,11 +26,12 @@ const Checkout = () => {
             title="Secure Checkout"
             backText="Back to Cart"
             backHref="/cart"
+            bgColor={false}
           />
-          <div className="px-4 container mt-8 lg:mt-12">
+          <div className="px-4 container md:mt-6 lg:mt-12">
             <CheckoutBreadCrumbs currentStep={0} />
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-[55%_auto] lg:gap-6 container mx-auto h-full">
+          <div className="grid grid-cols-1 lg:grid-cols-[55%_auto] lg:gap-16 4xl:gap-36 container mx-auto h-full">
             {cartList?.length ? (
               <div className="lg:hidden pt-8">
                 <CheckoutCommonComponent />

@@ -18,7 +18,7 @@ export default function CommonNotFound({
       />
       <div>
         {" "}
-        <h3 className="text-2xl md:text-3xl 2xl:text-4xl font-chong-modern capitalize">
+        <h3 className="text-2xl md:text-3xl 2xl:text-4xl font-castoro capitalize">
           {message}
         </h3>
         <p className="text-base mt-2 font-semibold">{subMessage}</p>

@@ -133,13 +133,13 @@ export default function ProductsView() {
 
       const matchesCollection =
         filterByCollection === 'all' ||
-        item.collectionIds.some((id) => String(id) === String(filterByCollection));
+        item?.collectionIds?.some((id) => String(id) === String(filterByCollection));
       const matchesSettingStyle =
         filterBySettingStyle === 'all' ||
         item?.settingStyleIds?.some((id) => String(id) === String(filterBySettingStyle));
       const matchesProductType =
         filterByProductType === 'all' ||
-        item.productTypeIds.some((id) => String(id) === String(filterByProductType));
+        item.productTypeIds?.some((id) => String(id) === String(filterByProductType));
 
       const matchesStatus =
         selectedProductStatus === 'all' || String(item.active) === String(selectedProductStatus);
@@ -474,7 +474,7 @@ export default function ProductsView() {
                       openDialog={openDialog}
                       setOpenDialog={setOpenDialog}
                       setActiveProduct={setActiveProduct}
-                      imagePath={product?.thumbnailImage}
+                      imagePath={product?.roseGoldThumbnailImage}
                     />
                   </Grid>
                 ))}

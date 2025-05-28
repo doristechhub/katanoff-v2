@@ -9,6 +9,7 @@ import {
   rightToLeftAnimation,
 } from "@/_utils/common";
 import { CustomImg } from "../dynamiComponents";
+import Link from "next/link";
 
 const AnimatedSection = ({
   description = [],
@@ -23,6 +24,9 @@ const AnimatedSection = ({
   imgClassName = "",
   titleClassName = "",
   pointsDescription = "",
+  descriptionClassName = "",
+  btnText = "",
+  btnLink = "",
 }) => {
   const controls = useAnimation();
   const [ref, inView] = useInView({ threshold: 0.2 });
@@ -47,7 +51,7 @@ const AnimatedSection = ({
         initial="hidden"
         animate={controls}
         variants={cardAnimation}
-        className="lg:h-[90vh] w-full xxs:w-full lg:w-1/2 aspect-square relative"
+        className={`lg:h-[85vh]  w-full xxs:w-full lg:w-1/2 aspect-square relative ${imgClassName}`}
       >
         <CustomImg
           fill
@@ -55,7 +59,7 @@ const AnimatedSection = ({
           src={img}
           alt={altAttr}
           title={titleAttr}
-          className={`object-cover  ${imgClassName}`}
+          className={`object-cover `}
           // sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
       </motion.div>
@@ -65,11 +69,15 @@ const AnimatedSection = ({
         initial="hidden"
         animate={controls}
         variants={contentAnimation}
-        className="w-full lg:w-1/2 flex flex-col text-center lg:justify-center lg:items-center lg:text-left gap-3 xxs:gap-4 sm:gap-7 p-8 md:p-14 lg:p-0"
+        className="w-full lg:w-1/2 flex flex-col text-center lg:text-left gap-3 xxs:gap-4 sm:gap-7 p-4 pt-6 md:pt-10 lg:p-0"
       >
-        <div className="lg:w-[75%]">
+        <div
+          className={`lg:w-[85%] ${
+            direction === "LTR" ? "lg:ml-auto" : "lg:mr-auto"
+          }`}
+        >
           <h2
-            className={`text-2xl md:text-4xl mb-4 2xl:text-5xl lg:leading-[50px] font-chong-modern 2xl:leading-[60px] ${titleClassName}`}
+            className={`text-2xl md:text-4xl mb-4 2xl:text-5xl lg:leading-[50px] font-castoro 2xl:leading-[60px] ${titleClassName}`}
           >
             {title}
           </h2>
@@ -79,7 +87,7 @@ const AnimatedSection = ({
                   return (
                     <p
                       key={`description-${i}`}
-                      className="text-[14px] font-medium md:text-sm 2xl:text-lg leading-relaxed"
+                      className={`text-[14px] font-medium md:text-sm 2xl:text-lg leading-relaxed ${descriptionClassName}`}
                     >
                       {desc}
                     </p>
@@ -104,6 +112,14 @@ const AnimatedSection = ({
                   );
                 })
               : null}
+          </div>
+          <div className="pt-6">
+            <Link
+              href={btnLink}
+              className="py-1 text-sm md:text-sm xl:text-sm font-medium border-b border-black text-black tracking-wide hover:border-primary hover:text-primary transition-all justify-start text-start"
+            >
+              {btnText}
+            </Link>
           </div>
         </div>
         {children}

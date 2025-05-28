@@ -21,7 +21,7 @@ const ProgressiveVed = ({
 
   const customClass = useMemo(() => {
     return isVideoLoading
-      ? "w-1/2 h-1/2 animate-fade-in"
+      ? "w-full h-full animate-fade-in"
       : "opacity-100 w-full h-full object-contain transition-all duration-500";
   }, [isVideoLoading]);
 

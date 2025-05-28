@@ -11,15 +11,55 @@ import { helperFunctions } from '../_helpers/helperFunctions';
 import { refundStatuses, setOrderRefundLoader } from '../store/slices/refundSlice';
 import { diamondShapeService } from './diamondShape.service';
 import { returnService } from './return.service';
+import { GOLD_COLOR_MAP } from 'src/_helpers/constants';
+
+// const getAllOrderList = () => {
+//   return new Promise(async (resolve, reject) => {
+//     try {
+//       const respData = await fetchWrapperService.getAll(ordersUrl);
+//       const orderData = respData ? Object.values(respData) : [];
+//       const finalOrderData = orderData.filter((item) => item.paymentStatus !== 'pending');
+//       const userReturnsData = await returnService.getAllReturnsList();
+//       const updatedOrderData = finalOrderData.map((order) => {
+//         const matchedReturns = userReturnsData.filter(
+//           (returnOrder) => returnOrder.orderId === order.id
+//         );
+//         const isPendingOrApprovedOrReceivedReturnsCount = matchedReturns.filter((returnOrder) =>
+//           ['pending', 'approved', 'received'].includes(returnOrder.status)
+//         ).length;
+
+//         const rejectedCount = matchedReturns.filter(
+//           (returnOrder) => returnOrder.status === 'rejected'
+//         ).length;
+//         const hasActiveReturns =
+//           isPendingOrApprovedOrReceivedReturnsCount || (rejectedCount > 0 && rejectedCount > 2)
+//             ? false
+//             : true;
+//         return {
+//           ...order,
+//           hasActiveReturns: hasActiveReturns,
+//         };
+//       });
+//       resolve(helperFunctions.sortByField(updatedOrderData));
+//       resolve(orderData);
+//     } catch (e) {
+//       reject(e);
+//     }
+//   });
+// };
 
 const getAllOrderList = () => {
   return new Promise(async (resolve, reject) => {
     try {
       const respData = await fetchWrapperService.getAll(ordersUrl);
       const orderData = respData ? Object.values(respData) : [];
-      const finalOrderData = orderData.filter((item) => item.paymentStatus !== 'pending');
+
+      // Remove the filtering of 'paymentStatus: pending'
+      // If you still want to apply some filter, adjust the logic accordingly
+
       const userReturnsData = await returnService.getAllReturnsList();
-      const updatedOrderData = finalOrderData.map((order) => {
+
+      const updatedOrderData = orderData.map((order) => {
         const matchedReturns = userReturnsData.filter(
           (returnOrder) => returnOrder.orderId === order.id
         );
@@ -30,17 +70,19 @@ const getAllOrderList = () => {
         const rejectedCount = matchedReturns.filter(
           (returnOrder) => returnOrder.status === 'rejected'
         ).length;
+
         const hasActiveReturns =
           isPendingOrApprovedOrReceivedReturnsCount || (rejectedCount > 0 && rejectedCount > 2)
             ? false
             : true;
+
         return {
           ...order,
           hasActiveReturns: hasActiveReturns,
         };
       });
+
       resolve(helperFunctions.sortByField(updatedOrderData));
-      resolve(orderData);
     } catch (e) {
       reject(e);
     }
@@ -50,74 +92,59 @@ const getAllOrderList = () => {
 const getOrderDetailByOrderId = (orderId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      orderId = sanitizeValue(orderId) ? orderId.trim() : null;
-      if (orderId) {
-        const orderDetail = await fetchWrapperService.findOne(ordersUrl, {
-          id: orderId,
-        });
+      const trimmedOrderId = sanitizeValue(orderId)?.trim();
+      if (!trimmedOrderId) return reject(new Error('Invalid data'));
 
-        if (orderDetail) {
-          const allActiveProductsData = await productService.getAllActiveProducts();
-          const customizationType = await customizationTypeService.getAllCustomizationTypes();
-          const customizationSubType =
-            await customizationSubTypeService.getAllCustomizationSubTypes();
-          const allDiamondShapeList = await diamondShapeService.getAllDiamondShape();
+      const orderDetail = await fetchWrapperService.findOne(ordersUrl, { id: trimmedOrderId });
+      if (!orderDetail) return reject(new Error('Order does not exist'));
 
-          const customizations = {
-            customizationType,
-            customizationSubType,
-          };
-          if (orderDetail?.cancelledBy) {
-            const adminAndUsersData = await authenticationService.getAllUserAndAdmin();
-            const findedUserData = adminAndUsersData.find(
-              (item) => item.id === orderDetail.cancelledBy
-            );
-            if (findedUserData) {
-              orderDetail.cancelledByName = findedUserData.name;
-            }
-          }
-          orderDetail.products = orderDetail.products.map((orderProductItem) => {
-            const findedProduct = allActiveProductsData.find(
-              (product) => product.id === orderProductItem.productId
-            );
-            if (findedProduct) {
-              const variationArray = orderProductItem.variations.map((variItem) => {
-                const findedCustomizationType = customizations.customizationSubType.find(
-                  (x) => x.id === variItem.variationTypeId
-                );
-                return {
-                  ...variItem,
-                  variationName: customizations.customizationType.find(
-                    (x) => x.id === variItem.variationId
-                  ).title,
-                  variationTypeName: findedCustomizationType.title,
-                };
-              });
-              const foundedShape = allDiamondShapeList?.find(
-                (shape) => shape.id === orderProductItem?.diamondDetail?.shapeId
-              );
-              return {
-                ...orderProductItem,
-                productName: findedProduct.productName,
-                productImage: findedProduct.images[0].image,
-                variations: variationArray,
-                diamondDetail: orderProductItem?.diamondDetail
-                  ? {
-                      ...orderProductItem?.diamondDetail,
-                      shapeName: foundedShape?.title,
-                    }
-                  : undefined,
-              };
-            }
-            return orderProductItem;
-          });
-          resolve(orderDetail);
-        } else {
-          reject(new Error('Order does not exist'));
-        }
-      } else {
-        reject(new Error('Invalid data'));
+      const [allActiveProductsData, customizationTypes, customizationSubTypes, diamondShapes] =
+        await Promise.all([
+          productService.getAllActiveProducts(),
+          customizationTypeService.getAllCustomizationTypes(),
+          customizationSubTypeService.getAllCustomizationSubTypes(),
+          diamondShapeService.getAllDiamondShape(),
+        ]);
+
+      if (orderDetail.cancelledBy) {
+        const users = await authenticationService.getAllUserAndAdmin();
+        const user = users.find((u) => u.id === orderDetail.cancelledBy);
+        if (user) orderDetail.cancelledByName = user.name;
       }
+
+      orderDetail.products = orderDetail.products.map((orderProductItem) => {
+        const product = allActiveProductsData.find((p) => p.id === orderProductItem.productId);
+        if (!product) return orderProductItem;
+
+        const variations = orderProductItem.variations.map((v) => ({
+          ...v,
+          variationName: customizationTypes.find((t) => t.id === v.variationId)?.title,
+          variationTypeName: customizationSubTypes.find((s) => s.id === v.variationTypeId)?.title,
+        }));
+
+        const goldColor = variations
+          .find((v) => v.variationName === 'Gold Color')
+          ?.variationTypeName?.toLowerCase();
+        const thumbnailField = GOLD_COLOR_MAP[goldColor] || 'yellowGoldThumbnailImage';
+        const thumbnailImage = product[thumbnailField];
+
+        return {
+          ...orderProductItem,
+          productName: product.productName,
+          productImage: thumbnailImage,
+          variations,
+          diamondDetail: orderProductItem.diamondDetail
+            ? {
+                ...orderProductItem.diamondDetail,
+                shapeName: diamondShapes.find(
+                  (s) => s.id === orderProductItem.diamondDetail.shapeId
+                )?.title,
+              }
+            : undefined,
+        };
+      });
+
+      resolve(orderDetail);
     } catch (e) {
       reject(e);
     }
@@ -667,10 +694,17 @@ const getTopSellingProducts = (params) => {
             findedProduct.variComboWithQuantity,
             sellingProductItem.variations
           );
+          const goldColor = variationArray
+            .find((v) => v.variationName === 'Gold Color')
+            ?.variationTypeName?.toLowerCase();
+
+          const thumbnailField = GOLD_COLOR_MAP[goldColor] || 'yellowGoldThumbnailImage';
+          const thumbnailImage = findedProduct[thumbnailField];
+
           return {
             ...sellingProductItem,
             productName: findedProduct.productName,
-            productImage: findedProduct.images[0].image,
+            productImage: thumbnailImage,
             variations: variationArray,
             availableQuantity,
             sku: findedProduct.sku,

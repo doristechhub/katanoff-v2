@@ -170,7 +170,7 @@ const getAllProductsByProductTypeId = (productTypeId) => {
     try {
       const productData = await productService.getAllProductsWithPagging();
       const foundProducts = productData.filter((product) =>
-        product.productTypeIds.some((id) => id === productTypeId)
+        product?.productTypeIds?.some((id) => id === productTypeId)
       );
       resolve(foundProducts);
     } catch (e) {

@@ -47,7 +47,7 @@ const VerifyOTPForm = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const [email, setEmail] = useState("");
-
+  const [redirectingPostLogin, setRedirectingPostLogin] = useState(false);
   const { verifyOTPLoading, sendOtpMessage, sendOtpLoading, loginMessage } =
     useSelector(({ user }) => user);
   const { isHovered } = useSelector(({ common }) => common);
@@ -74,11 +74,25 @@ const VerifyOTPForm = () => {
   }, []);
 
   const currentUser = helperFunctions.getCurrentUser();
+  // useEffect(() => {
+  //   if (currentUser) {
+  //     const postLoginRedirect = localStorage.getItem("postLoginRedirect");
+  //     if (postLoginRedirect) {
+  //       localStorage.removeItem("postLoginRedirect");
+  //       router.replace(postLoginRedirect);
+  //     } else {
+  //       router.replace("/");
+  //     }
+  //   }
+  // }, [currentUser, router]);
   useEffect(() => {
-    if (currentUser) {
-      router.push("/");
+    if (currentUser && !redirectingPostLogin) {
+      const postLoginRedirect = localStorage.getItem("postLoginRedirect");
+      if (!postLoginRedirect) {
+        router.replace("/");
+      }
     }
-  }, [currentUser, router]);
+  }, [currentUser, router, redirectingPostLogin]);
 
   useEffect(() => {
     return () => {
@@ -117,9 +131,18 @@ const VerifyOTPForm = () => {
         removeEmailFromStorage();
         localStorage.setItem("currentUser", JSON.stringify(response?.userData));
         Cookies.set("token", response?.userData?.token);
-        router.push("/");
         addToCartFromLocalStorage();
         setAuthToken();
+
+        const postLoginRedirect = localStorage.getItem("postLoginRedirect");
+        if (postLoginRedirect) {
+          setRedirectingPostLogin(true); // Set flag before redirect
+          router.push(postLoginRedirect);
+          localStorage.removeItem("postLoginRedirect");
+          return;
+        } else {
+          router.push("/");
+        }
       }
     },
     [dispatch, router, email]
@@ -203,8 +226,8 @@ const VerifyOTPForm = () => {
   }, [email]);
 
   return (
-    <div className="w-full 2xl:w-[90%] flex flex-col items-center justify-center h-full">
-      <h2 className="text-3xl md:text-4xl text-baseblack font-chong-modern">
+    <div className="w-full 2xl:w-[100%] flex flex-col items-center justify-center h-full">
+      <h2 className="text-3xl md:text-4xl text-baseblack font-castoro">
         OTP Verification
       </h2>
       <p className="text-sm sm:text-base 2xl:text-lg text-basegray mt-2">

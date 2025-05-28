@@ -5,7 +5,7 @@ const LabGrownDiamondCare = () => {
   return (
     <div className="container py-8 lg:py-12 2xl:py-20 ">
       <div className="text-center mb-10">
-        <h2 className="text-2xl xss:text-3xl md:text-4xl font-medium mb-3 font-chong-modern text-baseblack">
+        <h2 className="text-2xl xss:text-3xl md:text-4xl font-medium mb-3 font-castoro text-baseblack">
           How to Care for Lab-Grown Diamonds
         </h2>
         <p className="text-sm sm:text-base md:text-lg text-baseblack font-medium max-w-3xl mx-auto">
