@@ -12,7 +12,7 @@ import {
 } from "@/store/slices/productSlice";
 import SkeletonLoader from "../ui/skeletonLoader";
 import { VscSettings } from "react-icons/vsc";
-import { ProductFilter, ProductFilterSidebar } from "../dynamiComponents";
+import { ProductFilterSidebar } from "../dynamiComponents";
 import ProductNotFound from "./productNotFound";
 import { ITEMS_PER_PAGE } from "@/_utils/common";
 import Pagination from "../ui/Pagination";
@@ -138,8 +138,8 @@ const ProductGrid = memo(
             ))}
           </div>
         ) : (
-          <div>
-            {/* {filteredItemsList.length && showFilter ? (
+          <div className="relative">
+            {filteredItemsList.length && showFilter ? (
               <div
                 className={`flex ${
                   showFilterSidebar ? "justify-end" : "justify-between"
@@ -157,46 +157,43 @@ const ProductGrid = memo(
                   <span>{filteredItemsList.length} items</span>
                 ) : null}
               </div>
-            ) : null} */}
-            {/* {showFilter ? (
+            ) : null}
+            <div className={`flex gap-6`}>
+              {showFilter ? (
                 <ProductFilterSidebar
                   uniqueVariations={uniqueFilterOptions.uniqueVariations}
                 />
-              ) : null} */}
-            {showFilter && filteredItemsList ? (
-              <ProductFilter
-                totalItems={filteredItemsList?.length}
-                uniqueVariations={uniqueFilterOptions.uniqueVariations}
-              />
-            ) : null}
-            {/* Product Grid */}
-            <div
-              className={`w-full grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4
-                 6xl:grid-cols-6 gap-x-4 gap-y-6`}
-            >
-              {currentProducts.map((product) => (
-                <ProductCard
-                  isDiamondSettingPage={isDiamondSettingPage}
-                  key={`product-key-${product?.productName}`}
-                  title={product?.productName}
-                  discount={product?.discount}
-                  basePrice={product?.basePrice}
-                  price={product?.baseSellingPrice}
-                  goldColorVariations={product?.goldColorVariations}
-                  goldTypeVariations={product?.goldTypeVariations}
-                  whiteGoldThumbnailImage={product?.whiteGoldThumbnailImage}
-                  yellowGoldThumbnailImage={product?.yellowGoldThumbnailImage}
-                  roseGoldThumbnailImage={product?.roseGoldThumbnailImage}
-                  hoveredWhiteGoldImage={product?.whiteGoldImages[0]?.image}
-                  hoveredYellowGoldImage={product?.yellowGoldImages[0]?.image}
-                  hoveredRoseGoldImage={product?.roseGoldImages[0]?.image}
-                  productLink={getProductLink({
-                    queryParams,
-                    isDiamondSettingPage,
-                    product,
-                  })}
-                />
-              ))}
+              ) : null}
+              {/* Product Grid */}
+              <div
+                className={`w-full grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 ${
+                  showFilterSidebar ? "lg:grid-cols-3" : "lg:grid-cols-4"
+                } 6xl:grid-cols-6 gap-x-4 gap-y-6`}
+              >
+                {currentProducts.map((product) => (
+                  <ProductCard
+                    isDiamondSettingPage={isDiamondSettingPage}
+                    key={`product-key-${product?.productName}`}
+                    title={product?.productName}
+                    discount={product?.discount}
+                    basePrice={product?.basePrice}
+                    price={product?.baseSellingPrice}
+                    goldColorVariations={product?.goldColorVariations}
+                    goldTypeVariations={product?.goldTypeVariations}
+                    whiteGoldThumbnailImage={product?.whiteGoldThumbnailImage}
+                    yellowGoldThumbnailImage={product?.yellowGoldThumbnailImage}
+                    roseGoldThumbnailImage={product?.roseGoldThumbnailImage}
+                    hoveredWhiteGoldImage={product?.whiteGoldImages[0]?.image}
+                    hoveredYellowGoldImage={product?.yellowGoldImages[0]?.image}
+                    hoveredRoseGoldImage={product?.roseGoldImages[0]?.image}
+                    productLink={getProductLink({
+                      queryParams,
+                      isDiamondSettingPage,
+                      product,
+                    })}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         )}
