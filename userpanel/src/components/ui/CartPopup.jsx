@@ -130,12 +130,6 @@ const CartPopup = () => {
   const handleCartQuantityChange = (item, newQty) => {
     handleCartQuantity("set", { ...item, quantity: newQty });
   };
-  useEffect(() => {
-    if (isSubmitted && isChecked) {
-      router.push("/checkout");
-      setTimeout(() => closeCartPopup(), 100);
-    }
-  }, [isSubmitted, isChecked]);
 
   return (
     <>
@@ -491,7 +485,10 @@ const CartPopup = () => {
                     <LinkButton
                       className="!bg-transparent !text-baseblack hover:!bg-primary hover:!text-white !border-black !font-semibold !rounded-none"
                       title="CHECKOUT"
-                      onClick={() => dispatch(setIsSubmitted(true))}
+                      href="/checkout"
+                      onClick={() => {
+                        closeCartPopup();
+                      }}
                     >
                       CHECKOUT
                     </LinkButton>

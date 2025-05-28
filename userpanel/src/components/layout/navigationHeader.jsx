@@ -407,11 +407,18 @@ export default function NavigationHeader() {
                             </div>
                           ) : null}
                         </div>
-                        {engagementHeaderUniqueFilterOptions ? (
+                        {engagementHeaderUniqueFilterOptions
+                          ?.uniqueSettingStyles?.length ||
+                        engagementHeaderUniqueFilterOptions?.uniqueVariations
+                          ?.length ? (
                           <HeaderLinkButton
                             href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
                               ENGAGEMENT_RINGS
                             )}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              closeAllDropdown();
+                            }}
                             className={`transition-all !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
                           >
                             View All
@@ -683,6 +690,10 @@ export default function NavigationHeader() {
                           href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
                             WEDDING_RINGS
                           )}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            closeAllDropdown();
+                          }}
                           className={`transition-all !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
                         >
                           View All
@@ -719,6 +730,10 @@ export default function NavigationHeader() {
                             ) : null}
                             <HeaderLinkButton
                               href={"/customize/start-with-setting"}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                closeAllDropdown();
+                              }}
                               className={`transition-all !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
                             >
                               View All
@@ -734,6 +749,10 @@ export default function NavigationHeader() {
                                 href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
                                   FLASH_DEALS
                                 )}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  closeAllDropdown();
+                                }}
                                 className={`transition-all w-fit !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
                               >
                                 View All
@@ -781,7 +800,7 @@ export default function NavigationHeader() {
                       } bg-white shadow-lg z-50 border-t-[0.5px] border-primary`}
                     >
                       <div className="px-[100px] flex justify-between p-6 w-full">
-                        <div className="w-[70%] flex justify-between flex-wrap h-fit">
+                        <div className="w-[70%] flex justify-start flex-wrap gap-14 2xl:gap-20 h-fit">
                           {item?.subCategories?.length > 0 &&
                             item.subCategories.map((subItem, index) => (
                               <div
@@ -805,7 +824,7 @@ export default function NavigationHeader() {
                                           <HeaderLinkButton
                                             key={`${productType.title}-${index}`}
                                             href={productType.href}
-                                            className="!text-[12px]  2xl:!text-[13px] font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
+                                            className="!text-[12px] 2xl:!text-[13px] !leading-[1em] font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
                                             onClick={(e) => {
                                               e.stopPropagation();
                                               closeAllDropdown();
@@ -818,6 +837,10 @@ export default function NavigationHeader() {
                                     : null}
                                   <HeaderLinkButton
                                     href={subItem.href}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      closeAllDropdown();
+                                    }}
                                     className={`transition-all duration-300 w-full capitalize mt-2 !px-3 !py-1.5 hover:text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
                                   >
                                     View All
@@ -846,7 +869,10 @@ export default function NavigationHeader() {
                           <div className="text-sm flex justify-center pt-5">
                             <Link
                               href={item.href}
-                              onClick={() => dispatch(setOpenDropdown(null))}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                closeAllDropdown();
+                              }}
                               className="px-4 py-1.5 w-fit flex justify-center items-center border border-baseblack hover:text-white hover:bg-[#393939] transition-all duration-300"
                             >
                               View All
@@ -1078,11 +1104,18 @@ export default function NavigationHeader() {
                             </>
                           ) : (
                             <>
-                              {engagementHeaderUniqueFilterOptions ? (
+                              {engagementHeaderUniqueFilterOptions
+                                ?.uniqueSettingStyles?.length ||
+                              engagementHeaderUniqueFilterOptions
+                                ?.uniqueVariations?.length ? (
                                 <Link
                                   href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
                                     ENGAGEMENT_RINGS
                                   )}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    closeAllDropdown();
+                                  }}
                                   className="border-b border-baseblack hover:border-b-primary text-[0.875em] mx-3"
                                 >
                                   View All
@@ -1256,6 +1289,10 @@ export default function NavigationHeader() {
                             {" "}
                             <HeaderLinkButton
                               href={"/customize/start-with-setting"}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                closeAllDropdown();
+                              }}
                               className={` transition-all !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
                             >
                               DESIGN WITH DIAMOND
@@ -1375,6 +1412,10 @@ export default function NavigationHeader() {
                             {" "}
                             <Link
                               href={item.href}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                closeAllDropdown();
+                              }}
                               className="border-b w-fit border-baseblack hover:border-b-primary text-[0.875em] mx-3"
                             >
                               View All

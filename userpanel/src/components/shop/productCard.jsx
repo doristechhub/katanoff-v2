@@ -2,6 +2,7 @@ import { helperFunctions } from "@/_helper";
 import Link from "next/link";
 import { ProgressiveImg } from "../dynamiComponents";
 import { useState, useEffect } from "react";
+import logo from "@/assets/images/logo.webp";
 
 export default function ProductCard({
   goldColorVariations = [],
@@ -63,7 +64,7 @@ export default function ProductCard({
     (selectedGoldColor && goldColorImageMap[selectedGoldColor]?.thumbnail) ||
     (goldColorVariations?.length > 0 &&
       goldColorImageMap[goldColorVariations[0].variationTypeName]?.thumbnail) ||
-    "";
+    logo;
 
   return (
     <div className="flex flex-col">

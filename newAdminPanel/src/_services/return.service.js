@@ -22,20 +22,6 @@ import { refundStatuses } from 'src/store/slices/refundSlice';
 import { diamondShapeService } from './diamondShape.service';
 import { GOLD_COLOR_MAP } from 'src/_helpers/constants';
 
-// const getAllReturnsList = () => {
-//   return new Promise(async (resolve, reject) => {
-//     try {
-//       const respData = await fetchWrapperService.getAll(returnsUrl);
-//       const orderData = await fetchWrapperService.getAll(ordersUrl);
-//       console.log('orderData, respData', orderData, respData);
-//       const returnsData = respData ? Object.values(respData) : [];
-//       resolve(returnsData);
-//     } catch (e) {
-//       reject(e);
-//     }
-//   });
-// };
-
 const getAllReturnsList = () => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -44,23 +30,22 @@ const getAllReturnsList = () => {
         fetchWrapperService.getAll(returnsUrl),
         fetchWrapperService.getAll(ordersUrl),
       ]);
-      if (!returnsResp || !ordersResp) {
-        reject(new Error('Failed to fetch returns or orders data'));
-        return;
-      }
+      const returnsData = returnsResp ? Object.values(returnsResp) : [];
+      const ordersData = ordersResp ? Object.values(ordersResp) : [];
+
       // Create Map for O(1) lookup
       const ordersByOrderNumber = new Map(
-        Object.values(ordersResp)
-          .map((order) => [order.orderNumber, order.paymentMethod])
-          .filter(([orderNumber]) => orderNumber)
+        ordersData
+          ?.map((order) => [order.orderNumber, order.paymentMethod])
+          ?.filter(([orderNumber]) => orderNumber)
       );
 
       // Transform returns with payment method
-      const returnsData = Object.values(returnsResp).map((returnItem) => ({
+      const convertedReturnsData = returnsData?.map((returnItem) => ({
         ...returnItem,
         paymentMethod: ordersByOrderNumber.get(returnItem.orderNumber) ?? null,
       }));
-      resolve(returnsData);
+      resolve(convertedReturnsData);
     } catch (e) {
       reject(e);
     }
