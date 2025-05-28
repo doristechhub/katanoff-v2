@@ -91,6 +91,13 @@ export const GOLD_COLOR_SUB_TYPES_LIST = [
   { title: 'Rose Gold', type: 'color', hexCode: '#E7BA9A' },
 ];
 
+// Object map for gold color to thumbnail field
+export const GOLD_COLOR_MAP = {
+  'rose gold': 'roseGoldThumbnailImage',
+  'yellow gold': 'yellowGoldThumbnailImage',
+  'white gold': 'whiteGoldThumbnailImage',
+};
+
 export const ALLOWED_DIA_TYPES = [
   {
     title: 'Natural',
@@ -302,5 +309,20 @@ export const ALLOWED_DIA_CERTIFICATES = [
   },
 ];
 
-export const ALLOW_MIN_CARAT_WEIGHT = 0.1;
-export const ALLOW_MAX_CARAT_WEIGHT = 10;
+export const ALLOW_MIN_CARAT_WEIGHT = 1.5;
+export const ALLOW_MAX_CARAT_WEIGHT = 7;
+
+export const GENDER_LIST = [
+  {
+    title: 'Male',
+    value: 'male',
+  },
+  {
+    title: 'Female',
+    value: 'female',
+  },
+  {
+    title: 'Unisex',
+    value: 'unisex',
+  },
+];

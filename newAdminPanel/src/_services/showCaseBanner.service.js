@@ -35,7 +35,7 @@ const getAllShowCaseBannersWithProduct = () => {
               baseSellingPrice: findedProduct.baseSellingPrice,
               productName: findedProduct.productName,
               active: findedProduct.active,
-              productImage: findedProduct.images[0].image,
+              productImage: findedProduct?.yellowGoldThumbnailImage,
             };
             showCaseBannerWithProduct.push(obj);
           }

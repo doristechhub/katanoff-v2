@@ -9,31 +9,69 @@ export const productModel = {
     type: String,
     unique: true,
   },
-  thumbnailImage: {
+  // New fields for Rose Gold media
+  roseGoldThumbnailImage: {
     type: String,
     required: true,
   },
-  images: {
+  roseGoldImages: {
     type: [
       {
         image: {
           type: String,
-          require: true,
+          required: true,
         },
       },
     ],
   },
-  video: {
+  roseGoldVideo: {
     type: String,
   },
+  // New fields for Yellow Gold media
+  yellowGoldThumbnailImage: {
+    type: String,
+    required: true,
+  },
+  yellowGoldImages: {
+    type: [
+      {
+        image: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
+  },
+  yellowGoldVideo: {
+    type: String,
+  },
+  // New fields for White Gold media
+  whiteGoldThumbnailImage: {
+    type: String,
+    required: true,
+  },
+  whiteGoldImages: {
+    type: [
+      {
+        image: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
+  },
+  whiteGoldVideo: {
+    type: String,
+  },
+
   sku: {
     type: String,
-    require: true,
+    required: true,
     unique: true,
   },
   saltSKU: {
     type: String,
-    require: true,
+    required: true,
     unique: true,
   },
   discount: {
@@ -50,19 +88,26 @@ export const productModel = {
   categoryId: {
     type: String,
     ref: 'categories',
-    require: true,
+    required: true,
   },
   subCategoryId: {
     type: String,
     ref: 'subCategories',
-    // require: true,
+    // required: true,
   },
   productTypeIds: {
     type: Array,
     ref: 'productType',
-    // require: true,
+    // required: true,
+  },
+  gender: {
+    type: String,
+    enum: ['male', 'female', 'unisex'],
   },
   netWeight: {
+    type: Number,
+  },
+  sideDiamondWeight: {
     type: Number,
   },
   shortDescription: {
@@ -70,21 +115,21 @@ export const productModel = {
   },
   description: {
     type: String,
-    require: true,
+    required: true,
   },
   variations: {
     type: [
       {
         variationId: {
           type: String,
-          require: true,
+          required: true,
         },
         variationTypes: {
           type: [
             {
               variationTypeId: {
                 type: String,
-                require: true,
+                required: true,
               },
             },
           ],
@@ -100,11 +145,11 @@ export const productModel = {
             {
               variationId: {
                 type: String,
-                require: true,
+                required: true,
               },
               variationTypeId: {
                 type: String,
-                require: true,
+                required: true,
               },
             },
           ],
@@ -148,7 +193,7 @@ export const productModel = {
   },
   active: {
     type: Boolean,
-    require: true,
+    required: true,
     default: true,
   },
   salesTaxPercentage: {

@@ -273,7 +273,7 @@ const FileDrop = forwardRef(
           </Box>
           <Stack
             sx={{
-              py: 1,
+              py: formik.values?.[previewKey]?.length ? 1 : 0,
               gap: 0.8,
               flexWrap: 'wrap',
               flexDirection: 'row',

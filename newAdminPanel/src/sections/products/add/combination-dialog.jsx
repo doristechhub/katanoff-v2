@@ -31,18 +31,18 @@ const validationSchema = Yup.object({
     Yup.object().shape({
       combination: Yup.array().of(
         Yup.object().shape({
-          variationId: Yup.string().required('variationId is required'),
-          variationName: Yup.string().required('variationName is required'),
-          variationTypeId: Yup.string().required('variationTypeId is required'),
-          variationTypeName: Yup.string().required('variationTypeName is required'),
+          variationId: Yup.string().required('Variation ID is required'),
+          variationName: Yup.string().required('Variation name is required'),
+          variationTypeId: Yup.string().required('Variation type ID is required'),
+          variationTypeName: Yup.string().required('Variation type name is required'),
         })
       ),
       price: Yup.number()
-        .min(0, 'Price must be a zero or positive number')
+        .min(0, 'Price must be zero or positive')
         .integer('Price must be an integer')
         .required('Price is required'),
       quantity: Yup.number()
-        .min(0, 'Quantity must be a zero or positive number')
+        .min(0, 'Quantity must be zero or positive')
         .integer('Quantity must be an integer')
         .required('Quantity is required'),
     })
@@ -116,9 +116,7 @@ function sortArrays(arr1, arr2) {
 }
 
 function areArraysEqual(arr1, arr2) {
-  if (arr1.length !== arr2.length) {
-    return false;
-  }
+  if (arr1.length !== arr2.length) return false;
 
   sortArrays(arr1, arr2);
 
@@ -130,7 +128,6 @@ function areArraysEqual(arr1, arr2) {
       return false;
     }
   }
-
   return true;
 }
 
@@ -145,17 +142,22 @@ const CombinationDialog = ({
 }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
   const { combinations, crudProductLoading } = useSelector(({ product }) => product);
 
   const onSubmit = async (values, { setStatus }) => {
-    let payload = {
+    const payload = {
       saltSKU: fields?.saltSKU,
       sku: fields?.sku,
       discount: fields?.discount,
-      videoFile: fields?.videoFile?.[0],
-      imageFiles: fields?.imageFiles,
-      thumbnailImageFile: fields?.thumbnailImageFile?.[0],
+      roseGoldImageFiles: fields?.roseGoldImageFiles,
+      roseGoldThumbnailImageFile: fields?.roseGoldThumbnailImageFile?.[0],
+      roseGoldVideoFile: fields?.roseGoldVideoFile?.[0],
+      yellowGoldImageFiles: fields?.yellowGoldImageFiles,
+      yellowGoldThumbnailImageFile: fields?.yellowGoldThumbnailImageFile?.[0],
+      yellowGoldVideoFile: fields?.yellowGoldVideoFile?.[0],
+      whiteGoldImageFiles: fields?.whiteGoldImageFiles,
+      whiteGoldThumbnailImageFile: fields?.whiteGoldThumbnailImageFile?.[0],
+      whiteGoldVideoFile: fields?.whiteGoldVideoFile?.[0],
       variations: fields?.variations,
       categoryId: fields?.categoryId,
       productName: fields?.productName,
@@ -163,7 +165,9 @@ const CombinationDialog = ({
       collectionIds: fields?.collectionIds,
       settingStyleIds: fields?.settingStyleIds,
       productTypeIds: fields?.productTypeIds,
+      gender: fields?.gender,
       netWeight: fields?.netWeight,
+      sideDiamondWeight: fields?.sideDiamondWeight,
       subCategoryId: fields?.subCategoryId,
       specifications: fields?.specifications,
       shortDescription: fields?.shortDescription,
@@ -171,6 +175,13 @@ const CombinationDialog = ({
       active: fields?.active,
       isDiamondFilter: fields?.isDiamondFilter,
       diamondFilters: fields?.diamondFilters,
+      // Below fields use for update
+      deletedRoseGoldImages: fields?.roseGoldUploadedDeletedImages?.map((item) => item?.image),
+      deletedRoseGoldVideo: fields?.roseGoldDeleteUploadedVideo?.[0]?.video,
+      deletedYellowGoldImages: fields?.yellowGoldUploadedDeletedImages?.map((item) => item?.image),
+      deletedYellowGoldVideo: fields?.yellowGoldDeleteUploadedVideo?.[0]?.video,
+      deletedWhiteGoldImages: fields?.whiteGoldUploadedDeletedImages?.map((item) => item?.image),
+      deletedWhiteGoldVideo: fields?.whiteGoldDeleteUploadedVideo?.[0]?.video,
     };
     setStatus();
 
@@ -179,9 +190,6 @@ const CombinationDialog = ({
       res = await dispatch(createProduct(payload));
     } else {
       payload.productId = productId;
-      payload.deletedImages = fields?.uploadedDeletedImages?.map((item) => item?.image);
-      payload.deletedVideo = fields?.deleteUploadedVideo?.[0]?.video;
-      // payload.active = fields?.active;
       res = await dispatch(updateProduct(payload));
     }
     if (res) {
@@ -192,18 +200,16 @@ const CombinationDialog = ({
 
   const { values, errors, touched, handleChange, handleBlur, handleSubmit, setFieldValue } =
     useFormik({
-      initialValues: combinations,
+      initialValues: combinations || [],
       validationSchema,
       onSubmit,
     });
 
-  const getArrayWithoutIds = (arrayWithIds) => {
-    const arrayWithoutIds = arrayWithIds?.map((obj) => {
-      const { id, ...rest } = obj; // Using destructuring to exclude 'id'
-      return rest; // Return the object without the 'id' field
+  const getArrayWithoutIds = (arrayWithIds) =>
+    arrayWithIds?.map((obj) => {
+      const { id, ...rest } = obj;
+      return rest;
     });
-    return arrayWithoutIds;
-  };
 
   const getCombiDetailWithQty = (arrayOfCombinations) => {
     const tempArray = arrayOfCombinations.map((mainItem) => {
@@ -214,8 +220,8 @@ const CombinationDialog = ({
       });
       return {
         ...mainItem,
-        price: findedCombination?.price ? findedCombination?.price : 0,
-        quantity: findedCombination?.quantity ? findedCombination?.quantity : 0,
+        price: findedCombination?.price || 0,
+        quantity: findedCombination?.quantity || 0,
       };
     });
     return tempArray;
@@ -225,86 +231,49 @@ const CombinationDialog = ({
     const finalCombinationDetail = productId
       ? getCombiDetailWithQty(combinationsDetail)
       : combinationsDetail;
-
     setFieldValue('variComboWithQuantity', finalCombinationDetail);
-  }, [combinationsDetail]);
+  }, [combinationsDetail, productId, setFieldValue]);
 
   return (
-    <>
-      <Dialog
-        handleOpen={() => onCloseDialog(true)}
-        open={openDialog}
-        handleClose={onCloseDialog}
-        fullWidth
-        maxWidth={'md'}
-      >
-        <StyledDialogTitle>Combinations</StyledDialogTitle>
-        <StyledDialogContent>
-          <CombinationTable
-            values={values}
-            errors={errors}
-            touched={touched}
-            handleBlur={handleBlur}
-            handleChange={handleChange}
-          />
-        </StyledDialogContent>
-        <StyledDialogActions>
-          <Button
-            variant="outlined"
-            disabled={crudProductLoading}
-            onClick={() => onCloseDialog(false)}
-          >
-            Cancel
-          </Button>
-          <LoadingButton loading={crudProductLoading} onClick={handleSubmit} variant="contained">
-            Confirm
-          </LoadingButton>
-        </StyledDialogActions>
-      </Dialog>
-    </>
-  );
-};
-
-export default memo(CombinationDialog);
-
-const CombinationTable = memo(({ values, errors, touched, handleBlur, handleChange }) => {
-  return (
-    <>
-      <TableContainer sx={{ overflow: 'unset' }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              {getCulumnList(values?.variComboWithQuantity)?.map((column, index) => (
-                <TableCell key={`column-${index}`}>{column}</TableCell>
-              ))}
-              <TableCell key={`column-9998`}>Price</TableCell>
-              <TableCell key={`column-9999`}>Quantity</TableCell>
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            <FieldArray name="variComboWithQuantity">
-              {({ remove, push }) => (
-                <>
-                  {values?.variComboWithQuantity?.length > 0 ? (
-                    values?.variComboWithQuantity?.map((variCombiItem, index) => {
-                      return (
+    <Dialog
+      handleOpen={() => onCloseDialog(true)}
+      open={openDialog}
+      handleClose={() => onCloseDialog(false)}
+      fullWidth
+      maxWidth="md"
+    >
+      <StyledDialogTitle>Combinations</StyledDialogTitle>
+      <StyledDialogContent>
+        <TableContainer sx={{ overflow: 'unset' }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                {getCulumnList(values?.variComboWithQuantity)?.map((column, index) => (
+                  <TableCell key={`column-${index}`}>{column}</TableCell>
+                ))}
+                <TableCell key="column-9998">Price</TableCell>
+                <TableCell key="column-9999">Quantity</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <FieldArray name="variComboWithQuantity">
+                {() => (
+                  <>
+                    {values?.variComboWithQuantity?.length > 0 ? (
+                      values.variComboWithQuantity.map((variCombiItem, index) => (
                         <TableRow key={`combination-${variCombiItem?.id}`}>
-                          {/* combinaiton array */}
                           {variCombiItem?.combination?.map((combiItem) => (
                             <TableCell key={`combiItem-${combiItem?.id}`}>
                               {combiItem?.variationTypeName}
                             </TableCell>
                           ))}
                           <TableCell style={{ width: '160px' }}>
-                            {/* price */}
                             <TextField
                               size="small"
                               type="number"
                               label="Price"
                               onBlur={handleBlur}
                               onChange={handleChange}
-                              id={`variComboWithQuantity.${index}.price`}
                               name={`variComboWithQuantity.${index}.price`}
                               value={getIn(values, `variComboWithQuantity.${index}.price`)}
                               error={
@@ -322,7 +291,6 @@ const CombinationTable = memo(({ values, errors, touched, handleBlur, handleChan
                             />
                           </TableCell>
                           <TableCell style={{ width: '160px' }}>
-                            {/* quantity */}
                             <TextField
                               size="small"
                               type="number"
@@ -347,21 +315,35 @@ const CombinationTable = memo(({ values, errors, touched, handleBlur, handleChan
                             />
                           </TableCell>
                         </TableRow>
-                      );
-                    })
-                  ) : (
-                    <TableRow sx={{ color: 'error.main', px: 2, fontSize: 'small' }}>
-                      <TableCell style={{ width: '160px' }}>
-                        Combination Details is required
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </>
-              )}
-            </FieldArray>
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </>
+                      ))
+                    ) : (
+                      <TableRow sx={{ color: 'error.main', px: 2, fontSize: 'small' }}>
+                        <TableCell style={{ width: '160px' }}>
+                          Combination Details is required
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </>
+                )}
+              </FieldArray>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </StyledDialogContent>
+      <StyledDialogActions>
+        <Button
+          variant="outlined"
+          disabled={crudProductLoading}
+          onClick={() => onCloseDialog(false)}
+        >
+          Cancel
+        </Button>
+        <LoadingButton loading={crudProductLoading} onClick={handleSubmit} variant="contained">
+          Confirm
+        </LoadingButton>
+      </StyledDialogActions>
+    </Dialog>
   );
-});
+};
+
+export default memo(CombinationDialog);

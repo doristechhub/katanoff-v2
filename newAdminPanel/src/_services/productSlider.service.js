@@ -30,7 +30,7 @@ const getAllProductSlidersWithProduct = () => {
             const obj = {
               ...sliderItem,
               productName: findedProduct.productName,
-              productImage: findedProduct.images[0].image,
+              productImage: findedProduct?.yellowGoldThumbnailImage,
               shortDescription: findedProduct?.shortDescription,
             };
             productSliderWithProduct.push(obj);

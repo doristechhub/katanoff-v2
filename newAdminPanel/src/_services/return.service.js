@@ -20,12 +20,46 @@ import { productService } from './product.service';
 import fileSettings from '../_utils/fileSettings';
 import { refundStatuses } from 'src/store/slices/refundSlice';
 import { diamondShapeService } from './diamondShape.service';
+import { GOLD_COLOR_MAP } from 'src/_helpers/constants';
+
+// const getAllReturnsList = () => {
+//   return new Promise(async (resolve, reject) => {
+//     try {
+//       const respData = await fetchWrapperService.getAll(returnsUrl);
+//       const orderData = await fetchWrapperService.getAll(ordersUrl);
+//       console.log('orderData, respData', orderData, respData);
+//       const returnsData = respData ? Object.values(respData) : [];
+//       resolve(returnsData);
+//     } catch (e) {
+//       reject(e);
+//     }
+//   });
+// };
 
 const getAllReturnsList = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const respData = await fetchWrapperService.getAll(returnsUrl);
-      const returnsData = respData ? Object.values(respData) : [];
+      // Fetch data concurrently
+      const [returnsResp, ordersResp] = await Promise.all([
+        fetchWrapperService.getAll(returnsUrl),
+        fetchWrapperService.getAll(ordersUrl),
+      ]);
+      if (!returnsResp || !ordersResp) {
+        reject(new Error('Failed to fetch returns or orders data'));
+        return;
+      }
+      // Create Map for O(1) lookup
+      const ordersByOrderNumber = new Map(
+        Object.values(ordersResp)
+          .map((order) => [order.orderNumber, order.paymentMethod])
+          .filter(([orderNumber]) => orderNumber)
+      );
+
+      // Transform returns with payment method
+      const returnsData = Object.values(returnsResp).map((returnItem) => ({
+        ...returnItem,
+        paymentMethod: ordersByOrderNumber.get(returnItem.orderNumber) ?? null,
+      }));
       resolve(returnsData);
     } catch (e) {
       reject(e);
@@ -51,77 +85,80 @@ const getAllReturnRefundList = async () => {
 const getReturnDetailByReturnId = (returnId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      returnId = sanitizeValue(returnId) ? returnId.trim() : null;
-      if (returnId) {
-        const returnDetail = await fetchWrapperService.findOne(returnsUrl, {
-          id: returnId,
-        });
+      const trimmedReturnId = sanitizeValue(returnId)?.trim();
+      if (!trimmedReturnId) return reject(new Error('Invalid return ID'));
 
-        if (returnDetail) {
-          const allActiveProductsData = await productService.getAllActiveProducts();
-          const customizationType = await customizationTypeService.getAllCustomizationTypes();
-          const customizationSubType =
-            await customizationSubTypeService.getAllCustomizationSubTypes();
-          const allDiamondShapeList = await diamondShapeService.getAllDiamondShape();
+      const returnDetail = await fetchWrapperService.findOne(returnsUrl, { id: trimmedReturnId });
+      if (!returnDetail) return reject(new Error('Return does not exist'));
 
-          const customizations = {
-            customizationType,
-            customizationSubType,
-          };
-          if (returnDetail?.userId) {
-            const adminAndUsersData = await authenticationService.getAllUserAndAdmin();
-            const findedUserData = adminAndUsersData.find(
-              (item) => item.id === returnDetail.userId
-            );
-            if (findedUserData) {
-              returnDetail.createdBy = findedUserData.name;
-            }
-          }
-          returnDetail.products = returnDetail.products.map((returnProductItem) => {
-            const findedProduct = allActiveProductsData.find(
-              (product) => product.id === returnProductItem.productId
-            );
-            if (findedProduct) {
-              const variationArray = returnProductItem.variations.map((variItem) => {
-                const findedCustomizationType = customizations.customizationSubType.find(
-                  (x) => x.id === variItem.variationTypeId
-                );
-                return {
-                  ...variItem,
-                  variationName: customizations.customizationType.find(
-                    (x) => x.id === variItem.variationId
-                  ).title,
-                  variationTypeName: findedCustomizationType.title,
-                };
-              });
-              const foundedShape = allDiamondShapeList?.find(
-                (shape) => shape.id === returnProductItem?.diamondDetail?.shapeId
-              );
+      const [orders, products, customizationTypes, customizationSubTypes, diamondShapes, users] =
+        await Promise.all([
+          fetchWrapperService.getAll(ordersUrl).catch(() => ({})),
+          productService.getAllActiveProducts().catch(() => []),
+          customizationTypeService.getAllCustomizationTypes().catch(() => []),
+          customizationSubTypeService.getAllCustomizationSubTypes().catch(() => []),
+          diamondShapeService.getAllDiamondShape().catch(() => []),
+          authenticationService.getAllUserAndAdmin().catch(() => []),
+        ]);
 
-              return {
-                ...returnProductItem,
-                productName: findedProduct.productName,
-                productImage: findedProduct.images[0].image,
-                variations: variationArray,
-                diamondDetail: returnProductItem?.diamondDetail
-                  ? {
-                      ...returnProductItem?.diamondDetail,
-                      shapeName: foundedShape?.title,
-                    }
-                  : undefined,
-              };
-            }
-            return orderProductItem;
-          });
-          resolve(returnDetail);
-        } else {
-          reject(new Error('Return does not exist'));
-        }
-      } else {
-        reject(new Error('Invalid data'));
+      // Match order and set payment method
+      const matchedOrder = Object.values(orders).find(
+        (order) => order?.orderNumber === returnDetail?.orderNumber
+      );
+      if (matchedOrder) {
+        returnDetail.paymentMethod = matchedOrder.paymentMethod || null;
       }
+
+      // Set createdBy from user data
+      if (returnDetail?.userId) {
+        const user = users.find((u) => u?.id === returnDetail.userId);
+        if (user) returnDetail.createdBy = user.name || 'Unknown';
+      }
+
+      // Process products
+      returnDetail.products = (returnDetail.products || []).map((item) => {
+        const product = products.find((p) => p?.id === item?.productId);
+        if (!product)
+          return {
+            ...item,
+            productName: null,
+            productImage: null,
+            variations: item.variations || [],
+          };
+
+        const variations = (item.variations || []).map((v) => ({
+          ...v,
+          variationName:
+            customizationTypes.find((t) => t?.id === v?.variationId)?.title || 'Unknown',
+          variationTypeName:
+            customizationSubTypes.find((s) => s?.id === v?.variationTypeId)?.title || 'Unknown',
+        }));
+
+        const goldColor = variations
+          .find((v) => v.variationName === 'Gold Color')
+          ?.variationTypeName?.toLowerCase();
+        const thumbnailField = GOLD_COLOR_MAP[goldColor] || 'yellowGoldThumbnailImage';
+        const thumbnailImage = product[thumbnailField];
+
+        return {
+          ...item,
+          productName: product.productName || 'Unknown',
+          productImage: thumbnailImage,
+          variations,
+          diamondDetail: item?.diamondDetail
+            ? {
+                ...item.diamondDetail,
+                shapeName:
+                  diamondShapes.find((s) => s?.id === item.diamondDetail?.shapeId)?.title ||
+                  'Unknown',
+              }
+            : undefined,
+        };
+      });
+
+      resolve(returnDetail);
     } catch (e) {
-      reject(e);
+      reject(new Error(`Failed to fetch return details: ${e.message}`));
     }
   });
 };
