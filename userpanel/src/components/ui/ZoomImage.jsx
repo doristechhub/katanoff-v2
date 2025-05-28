@@ -41,7 +41,9 @@ export default function ZoomImage({ src, alt, placeholderSrc }) {
 
   return (
     <div
-      className="zoom-container w-full h-full relative overflow-hidden cursor-pointer"
+      className={`zoom-container w-full h-full relative overflow-hidden ${
+        isZoomed ? "cursor-zoom-out" : "cursor-zoom-in"
+      }`}
       onMouseMove={handleMouseMove}
       onClick={handleClick}
     >

@@ -4,6 +4,7 @@ import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { CustomImg } from "../dynamiComponents";
 
 export default function ReviewSlider({ reviews = [], totalCount = 0 }) {
   return (
@@ -49,8 +50,15 @@ export default function ReviewSlider({ reviews = [], totalCount = 0 }) {
       >
         {reviews.map((review, index) => (
           <SwiperSlide key={index}>
-            <div className="text-sm space-y-2">
-              <p className="text-xs text-gray-500">{review.date}</p>
+            <div className="text-sm gap-2 flex flex-col">
+              <div className="flex items-center gap-2">
+                <CustomImg
+                  srcAttr={review.starImage}
+                  altAttr="Star"
+                  className="w-16 h-auto"
+                />
+                <p className="text-xs text-gray-500">{review.date}</p>
+              </div>
               <p className="font-semibold">{review.title}</p>
               <p className=" w-[70%]">{review.content}</p>
               <p className="font-bold">{review.author}</p>

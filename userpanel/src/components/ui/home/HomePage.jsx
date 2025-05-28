@@ -33,10 +33,8 @@ import {
   DiamondShapeSwipper,
   GetToKnowUsSection,
   LatestProduct,
-  ProgressiveImg,
   ReviewSlider,
   SwipperHomePageBig,
-  TestimonialSlider,
 } from "@/components/dynamiComponents";
 
 import Link from "next/link";
@@ -55,7 +53,9 @@ import { setCustomJewelryMessage } from "@/store/slices/customjewelrySlice";
 import { fetchCustomizeProductsVariation } from "@/_actions/customize.action";
 import GiftCollections from "../GiftCollections";
 import Marquee from "../Marquee";
-
+import fiveStar from "@/assets/icons/fiveStar.svg";
+import fourStar from "@/assets/icons/fourStar.svg";
+import fourAndHalfStar from "@/assets/icons/fourAndHalfStar.svg";
 const categoryData = [
   {
     title: "Quick Ship Gifts",
@@ -87,21 +87,6 @@ const discoverOurWorld = [
     thumbnailImage: home22,
     titleAttr: "",
     altAttr: "",
-  },
-];
-
-const testimonials = [
-  {
-    name: "David Gahan",
-    location: "Detroit, Michigan",
-    quote:
-      "In an emergency situation, I was amazed by how quickly they accommodated me. The dentist’s skill and compassion were evident. I'm grateful for their prompt care.",
-  },
-  {
-    name: "Sarah Jones",
-    location: "Austin, Texas",
-    quote:
-      "Amazing experience from start to finish. Friendly staff and very professional team.",
   },
 ];
 
@@ -152,6 +137,7 @@ const mockReviews = [
     content:
       "Love my heart shaped ring. The band is nice and thick very comfortable. The diamond is spectacular.",
     author: "Anamaria M.",
+    starImage: fiveStar,
   },
   {
     date: "10/25/24",
@@ -159,6 +145,7 @@ const mockReviews = [
     content:
       "Best purchase ever! Fast shipping got it to my door in time even after a last minute decision. The diamonds are dazzling and brilliant.",
     author: "Mark T.",
+    starImage: fourStar,
   },
   {
     date: "11/04/24",
@@ -166,24 +153,28 @@ const mockReviews = [
     content:
       "The ring was everything and more. My fiancé loves it 💍. Cheapest price and best quality. I shopped around multiple stores who weren’t even close.",
     author: "Evan B.",
+    starImage: fourAndHalfStar,
   },
   {
     date: "10/21/24",
     title: "Love my heart shaped ring.",
     content: "Love my ",
     author: "Anamaria M.",
+    starImage: fiveStar,
   },
   {
     date: "10/25/24",
     title: "Best purchase ever! Fast shipping",
     content: "Best purchase ever! Fast shipping got it to my door in ",
     author: "Mark T.",
+    starImage: fourStar,
   },
   {
     date: "11/04/24",
     title: "Best site out there",
     content: "The ring was everything and more. My fiancé loves it 💍",
     author: "Evan B.",
+    starImage: fourAndHalfStar,
   },
   // Add more reviews as needed
 ];
@@ -323,7 +314,7 @@ const Home = () => {
       <section className="pt-10 lg:pt-12 2xl:pt-12">
         <CustomImg
           srcAttr={freeGiftBanner}
-          className="h-[20vh] lg:h-auto"
+          className="h-[20vh] lg:h-auto w-full"
           altAttr=""
           titleAttr=""
         />
@@ -343,7 +334,7 @@ const Home = () => {
         <GiftCollections />
       </section>
       <section className="bg-[#f1eee7] mt-8">
-        <ReviewSlider reviews={mockReviews} totalCount={5483} />
+        <ReviewSlider reviews={mockReviews} totalCount={120} />
       </section>
       <section className="mx-auto pt-10 lg:pt-12 2xl:pt-12 container">
         <SwipperHomePageBig />
@@ -375,23 +366,6 @@ const Home = () => {
       <section className="pt-10 lg:pt-12 2xl:pt-12 container">
         <LatestProduct />
       </section>
-      {/* <section className="pt-10 lg:pt-12 2xl:pt-12">
-        <div className="text-center">
-          <h3 className="text-sm lg:text-base font-medium">
-            DISCOVER OUR WORLD
-          </h3>
-          <h2 className="text-2xl lg:text-4xl font-normal font-castoro mt-2">
-            Diamonds as Exceptional as You
-          </h2>
-        </div>
-        <div className="pt-6 lg:pt-10 2xl:pt-18">
-          <TextAboveImage categoryData={discoverOurWorld} />
-        </div>
-      </section> */}
-
-      {/* <section className="mx-auto pt-10 lg:pt-12 2xl:pt-12">
-        <TestimonialSlider testimonials={testimonials} />
-      </section> */}
 
       <section className="container pt-10 lg:pt-12 2xl:pt-16">
         <AccordionDropdown items={faqData} />

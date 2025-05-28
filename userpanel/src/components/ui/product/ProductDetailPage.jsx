@@ -529,57 +529,6 @@ const ProductDetailPage = ({ customizePage }) => {
 
               <div className="border-t border-grayborder" />
 
-              {/* {!isCustomizePage && (
-                <div className="mt-6 lg:mt-6 flex flex-col gap-2">
-                  <p className="font-semibold text-baseblack text-sm  3xl:text-sm">
-                    Qty:
-                  </p>
-                  <div className="flex w-fit py-2 border-grayborder border-[0.5px] rounded-sm">
-                    <button
-                      className={`px-2 text-sm font-semibold text-baseblack ${
-                        productQuantity <= minProductQuantity || !availableQty
-                          ? "opacity-50 cursor-not-allowed"
-                          : ""
-                      }`}
-                      onClick={() =>
-                        dispatch(
-                          setProductQuantity(Math.max(1, productQuantity - 1))
-                        )
-                      }
-                      disabled={
-                        productQuantity <= minProductQuantity || !availableQty
-                      }
-                    >
-                      −
-                    </button>
-
-                    <span className="px-2 3xl:px-3 text-sm font-semibold text-baseblack">
-                      {productQuantity}
-                    </span>
-                    <button
-                      className={`px-2 text-sm font-semibold text-baseblack ${
-                        productQuantity >= maxProductQuantity ||
-                        productQuantity >= availableQty
-                          ? "opacity-50 cursor-not-allowed"
-                          : ""
-                      }`}
-                      onClick={() =>
-                        dispatch(
-                          setProductQuantity(
-                            Math.min(maxProductQuantity, productQuantity + 1)
-                          )
-                        )
-                      }
-                      disabled={
-                        productQuantity >= maxProductQuantity ||
-                        productQuantity >= availableQty
-                      }
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              )} */}
               {!isCustomizePage && (
                 <div className="mt-6 lg:mt-6 flex flex-col gap-2">
                   <p className="font-semibold text-baseblack text-sm 3xl:text-sm">
@@ -632,6 +581,7 @@ const ProductDetailPage = ({ customizePage }) => {
                 selectedVariations={selectedVariations}
                 handleSelect={handleSelect}
                 setHoveredColor={setHoveredColor}
+                hoveredColor={hoveredColor}
               />
 
               {customizePage === "completeRing" &&
@@ -714,11 +664,8 @@ const ProductDetailPage = ({ customizePage }) => {
 
               <section className="pt-8 lg:pt-12">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-8 gap-x-4 md:gap-x-8 max-w-6xl mx-auto">
-                  {supportItems.map((item, idx) => (
-                    <Link
-                      href={item.link}
-                      key={helperFunctions?.getRandomValue()}
-                    >
+                  {supportItems.map((item) => (
+                    <Link href={item.link} key={item.label}>
                       <div className="flex items-center gap-3">
                         <CustomImg
                           srcAttr={item.icon}
@@ -913,18 +860,25 @@ const StickyAddToBag = (props) => {
   const [isAtBottom, setIsAtBottom] = useState(false);
 
   useEffect(() => {
+    let timeout;
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const fullHeight = document.body.scrollHeight;
-      const offset = 260;
-      const isBottom = scrollY + windowHeight >= fullHeight - offset;
-      setIsAtBottom(isBottom);
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        const scrollY = window.scrollY;
+        const windowHeight = window.innerHeight;
+        const fullHeight = document.body.scrollHeight;
+        const offset = 260;
+        const isBottom = scrollY + windowHeight >= fullHeight - offset;
+        setIsAtBottom(isBottom);
+      }, 100);
     };
 
     window.addEventListener("scroll", handleScroll);
     handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(timeout);
+    };
   }, []);
 
   return (
@@ -1031,17 +985,10 @@ const ProductDetailTabs = ({ selectedVariations = [] }) => {
               )
             )}
             {renderInfoRow(
-              "Average Color",
+              "Diamond Quality",
               helperFunctions?.getVariationValue(
                 selectedVariations,
-                "Diamond Color"
-              )
-            )}
-            {renderInfoRow(
-              "Diamond Clarity",
-              helperFunctions?.getVariationValue(
-                selectedVariations,
-                "Average Clarity"
+                "Diamond Quality"
               )
             )}
 
