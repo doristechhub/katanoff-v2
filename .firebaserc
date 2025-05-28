@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "katanoff-534f9"
+  },
+  "targets": {
+    "katanoff-534f9": {
+      "hosting": {
+        "admin": [
+          "admin-katanoff"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

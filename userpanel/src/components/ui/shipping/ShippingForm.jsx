@@ -1,0 +1,405 @@
+"use client";
+import {
+  createOrderForPaypal,
+  createPaymentIntent,
+  handleCreatePaymentIntentError,
+} from "@/_actions/payment.action";
+import amazonPay from "@/assets/images/payment/amazon-pay.webp";
+import applePay from "@/assets/images/payment/applepay.webp";
+import gpay from "@/assets/images/payment/gpay.webp";
+import klarna from "@/assets/images/payment/klarna.webp";
+import paypal from "@/assets/images/payment/paypal.webp";
+import link from "@/assets/images/payment/link.webp";
+
+import mastercard from "@/assets/images/payment/mastercard.webp";
+import visa from "@/assets/images/payment/visa.webp";
+import samsungPay from "@/assets/images/payment/samsung-pay.webp";
+import americanExpress from "@/assets/images/payment/american-express.webp";
+import discover from "@/assets/images/payment/discover.webp";
+import { helperFunctions, PAYPAL, STRIPE } from "@/_helper";
+import {
+  setActiveIndex,
+  setSelectedShippingAddress,
+  setSelectedShippingCharge,
+} from "@/store/slices/checkoutSlice";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { LoadingPrimaryButton } from "../button";
+import { setIsHovered, setIsSubmitted } from "@/store/slices/commonSlice";
+import ErrorMessage from "../ErrorMessage";
+import {
+  setPaymentIntentMessage,
+  setPaypalPaymentMessage,
+} from "@/store/slices/paymentSlice";
+import { CustomImg } from "@/components/dynamiComponents";
+
+const paymentOptions = [
+  {
+    value: STRIPE,
+    label: "Credit/Debit Card",
+    logos: [americanExpress, visa, mastercard, discover],
+  },
+  {
+    value: STRIPE,
+    label: "Apple Pay, Google Pay, Amazon Pay, Link, Klarna",
+    logos: [applePay, gpay, amazonPay, link, klarna, samsungPay],
+  },
+  {
+    value: PAYPAL,
+    label: "PayPal",
+    logos: [paypal],
+  },
+];
+
+// Handle image load error by showing a placeholder
+const handleImageError = (e) => {
+  e.target.src = "https://via.placeholder.com/24?text=Logo"; // Fallback placeholder
+};
+
+const shippingForm = () => {
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  const { isHovered, isSubmitted } = useSelector(({ common }) => common);
+  const { selectedShippingCharge, activeIndex, selectedShippingAddress } =
+    useSelector(({ checkout }) => checkout);
+
+  const { cartList } = useSelector(({ cart }) => cart);
+  const {
+    paymentIntentLoader,
+    paymentIntentMessage,
+    paypalPaymentLoader,
+    paypalPaymentMessage,
+  } = useSelector(({ payment }) => payment);
+
+  const [selectedMethod, setSelectedMethod] = useState("");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(STRIPE);
+  const [selectedOption, setSelectedOption] = useState(
+    `${STRIPE}-Credit/Debit Card`
+  );
+  const abortControllerRef = useRef(null);
+  const clearAbortController = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = null;
+  }, []);
+
+  const renderTotalAmount = useMemo(() => {
+    const subTotal = helperFunctions.getSubTotal(cartList);
+    return subTotal < 199 ? subTotal + selectedShippingCharge : subTotal;
+  }, [cartList, selectedShippingCharge]);
+
+  useEffect(() => {
+    dispatch(handleCreatePaymentIntentError(""));
+    dispatch(setIsSubmitted(false));
+    const address = localStorage.getItem("address");
+    const getParsedAddress = address ? JSON.parse(address) : null;
+    const subTotal = helperFunctions.getSubTotal(cartList);
+    const savedShippingMethod = localStorage.getItem("selectedShippingMethod");
+    const parsedSavedMethod = savedShippingMethod
+      ? JSON.parse(savedShippingMethod)
+      : null;
+    if (!getParsedAddress) {
+      router.push("/checkout");
+      return;
+    }
+    dispatch(setSelectedShippingAddress(getParsedAddress));
+    if (subTotal > 199) {
+      dispatch(setSelectedShippingCharge(0));
+    } else {
+      const matchedIndex = shippingOptions.findIndex(
+        (option) => option.name === parsedSavedMethod?.name
+      );
+      if (matchedIndex !== -1) {
+        setSelectedMethod(parsedSavedMethod.name);
+        dispatch(setSelectedShippingCharge(parsedSavedMethod.price));
+        dispatch(setActiveIndex(matchedIndex));
+      } else {
+        setSelectedMethod(shippingOptions?.[0]?.name);
+        dispatch(setSelectedShippingCharge(shippingOptions?.[0]?.price));
+        dispatch(setActiveIndex(0));
+      }
+    }
+
+    return () => {
+      clearAbortController();
+    };
+  }, [dispatch, router, cartList, clearAbortController]);
+
+  const processPayment = useCallback(
+    async (paymentAction, payload) => {
+      dispatch(setPaymentIntentMessage({ message: "", type: "" }));
+      dispatch(setPaypalPaymentMessage({ message: "", type: "" }));
+      const res = await dispatch(
+        paymentAction(payload, abortControllerRef.current)
+      );
+      const subTotal = helperFunctions.getSubTotal(cartList);
+      if (res) {
+        if (subTotal < 199) {
+          localStorage.setItem(
+            "selectedShippingMethod",
+            JSON.stringify(shippingOptions?.[activeIndex])
+          );
+        }
+        dispatch(setIsSubmitted(false));
+        router.push(`/payment/${res}`);
+      }
+    },
+    [dispatch, cartList, activeIndex, router]
+  );
+
+  const submitShippingMethod = useCallback(async () => {
+    try {
+      if (!abortControllerRef.current) {
+        abortControllerRef.current = new AbortController();
+      }
+      dispatch(handleCreatePaymentIntentError(""));
+      dispatch(setIsSubmitted(true));
+
+      const subTotal = helperFunctions.getSubTotal(cartList);
+      let payload = {
+        countryName: selectedShippingAddress?.countryName,
+        firstName: selectedShippingAddress?.firstName,
+        lastName: selectedShippingAddress?.lastName,
+        address: selectedShippingAddress?.address,
+        city: selectedShippingAddress?.city,
+        state: selectedShippingAddress?.state,
+        stateCode: selectedShippingAddress?.stateCode,
+        pinCode: selectedShippingAddress?.pinCode,
+        mobile: Number(selectedShippingAddress?.mobile),
+        email: selectedShippingAddress?.email,
+        companyName: selectedShippingAddress?.companyName,
+        apartment: selectedShippingAddress?.apartment,
+        shippingCharge: subTotal < 199 ? selectedShippingCharge : 0,
+      };
+
+      if (!cartList.length) {
+        dispatch(handleCreatePaymentIntentError("Cart is empty"));
+        return;
+      }
+
+      const userData = helperFunctions.getCurrentUser();
+      if (!userData) {
+        payload.cartList = cartList;
+      }
+
+      if (selectedPaymentMethod === STRIPE) {
+        await processPayment(createPaymentIntent, {
+          ...payload,
+          paymentMethod: STRIPE,
+        });
+      } else if (selectedPaymentMethod === PAYPAL) {
+        await processPayment(createOrderForPaypal, {
+          ...payload,
+          paymentMethod: PAYPAL,
+        });
+      }
+    } catch (error) {
+      console.error("Error occurred during payment:", error);
+    } finally {
+      clearAbortController();
+    }
+  }, [
+    dispatch,
+    cartList,
+    selectedShippingAddress,
+    selectedShippingCharge,
+    selectedPaymentMethod,
+    processPayment,
+    clearAbortController,
+  ]);
+
+  const shippingOptions = [
+    {
+      id: helperFunctions.getRandomValue(),
+      name: "Priority",
+      // price: 19.99,
+      price: 0.0,
+    },
+    {
+      id: helperFunctions.getRandomValue(),
+      name: "Overnight",
+      // price: 39.99,
+      price: 0.0,
+    },
+  ];
+
+  return (
+    <div className="flex flex-col gap-6 lg:gap-10 pt-8 lg:pt-12">
+      <div className="bg-white px-4 lg:px-6 flex flex-col">
+        <div className="flex justify-between items-center border-b py-4">
+          <div>
+            <p className="text-baseblack text-lg md:text-xl font-semibold">
+              Contact
+            </p>
+            <p className="text-basegray text-base md:text-lg">
+              {selectedShippingAddress?.email}
+            </p>
+          </div>
+          <Link href={"/checkout"}>
+            <span className="text-primary md:text-xl font-semibold text-lg underline">
+              Change
+            </span>
+          </Link>
+        </div>
+        <div className="flex justify-between items-center py-4">
+          <div>
+            <p className="text-baseblack text-lg md:text-xl font-semibold">
+              Ship To:
+            </p>
+            <div>
+              {selectedShippingAddress &&
+                Object.keys(selectedShippingAddress)?.length && (
+                  <span className="text-basegray text-base md:text-lg">
+                    {selectedShippingAddress?.address}{" "}
+                    {selectedShippingAddress?.apartment},{" "}
+                    {selectedShippingAddress?.city},{" "}
+                    {selectedShippingAddress?.state},{" "}
+                    {selectedShippingAddress?.countryName} -{" "}
+                    {selectedShippingAddress?.pinCode}
+                  </span>
+                )}
+            </div>
+          </div>
+          <Link href={"/checkout"}>
+            <span className="text-primary md:text-xl font-semibold text-lg underline">
+              Change
+            </span>
+          </Link>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="font-semibold text-lg mb-3">Shipping Method:</h3>
+        <div className="flex flex-col gap-2 md:gap-4">
+          {shippingOptions.map((option, index) => (
+            <div
+              key={option.name}
+              className={`flex justify-between items-center px-4 py-4 cursor-pointer ${
+                selectedMethod === option.name
+                  ? "border border-[#0C1D3D]"
+                  : "bg-white"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <input
+                  type="radio"
+                  name="shippingMethod"
+                  value={option.name}
+                  id={option?.id}
+                  checked={selectedMethod === option.name}
+                  onChange={() => {
+                    setSelectedMethod(option.name);
+                    dispatch(setSelectedShippingCharge(option.price));
+                    dispatch(setActiveIndex(index));
+                  }}
+                  className="form-radio w-6 h-5 accent-primary"
+                  disabled={renderTotalAmount > 199}
+                />
+                <span className="md:text-xl text-lg text-baseblack font-semibold">
+                  {option.name}
+                </span>
+              </div>
+              <span className="md:text-xl text-lg text-baseblack font-semibold">
+                ${option.price.toLocaleString()}
+              </span>
+            </div>
+          ))}
+        </div>
+        <span className="mt-5 font-normal text-gray-500">
+          <b className="text-baseblack">Note :</b> Free shipping over 199
+        </span>
+      </div>
+
+      <div>
+        <h3 className="font-semibold text-lg mb-3">Payment Method:</h3>
+        <div className="flex flex-col gap-3">
+          {paymentOptions?.map(({ value, label, logos }) => {
+            const isChecked = selectedOption === `${value}-${label}`;
+            return (
+              <label
+                key={`${value}-${label}`}
+                className={`flex flex-wrap items-center justify-between gap-3 p-3 border rounded cursor-pointer transition-all duration-200 ${
+                  isChecked
+                    ? "border-primary bg-primary/10"
+                    : "border-gray-300 hover:bg-gray-50"
+                }`}
+                aria-checked={isChecked}
+              >
+                <div className="flex items-center gap-3">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value={value}
+                    checked={isChecked}
+                    disabled={paymentIntentLoader || paypalPaymentLoader}
+                    onChange={() => {
+                      dispatch(
+                        setPaymentIntentMessage({ message: "", type: "" })
+                      );
+                      dispatch(
+                        setPaypalPaymentMessage({ message: "", type: "" })
+                      );
+                      setSelectedOption(`${value}-${label}`);
+                      setSelectedPaymentMethod(value);
+                    }}
+                    className="form-radio w-5 h-5 text-primary accent-primary"
+                    aria-label={`Select ${label} as payment method`}
+                  />
+                  <span className="text-base font-medium">{label}</span>
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {logos && (
+                    <div className="flex gap-2">
+                      {logos.map((logoUrl, index) => (
+                        <CustomImg
+                          key={index}
+                          src={logoUrl}
+                          alt={`${label} logo ${index + 1}`}
+                          className="h-8 w-auto"
+                          onError={handleImageError}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </label>
+            );
+          })}
+        </div>
+      </div>
+
+      <div
+        className="mt-5 2xl:mt-8 w-full"
+        onMouseEnter={() => dispatch(setIsHovered(true))}
+        onMouseLeave={() => dispatch(setIsHovered(false))}
+      >
+        <LoadingPrimaryButton
+          className="w-full uppercase"
+          loading={paymentIntentLoader || paypalPaymentLoader}
+          loaderType={isHovered ? "" : "white"}
+          onClick={submitShippingMethod}
+        >
+          CONTINUE PAYMENT
+        </LoadingPrimaryButton>
+        {isSubmitted && paymentIntentMessage?.message ? (
+          <ErrorMessage message={paymentIntentMessage?.message} />
+        ) : null}
+        {isSubmitted && paypalPaymentMessage?.message ? (
+          <ErrorMessage message={paypalPaymentMessage?.message} />
+        ) : null}
+      </div>
+    </div>
+  );
+};
+
+export default shippingForm;
