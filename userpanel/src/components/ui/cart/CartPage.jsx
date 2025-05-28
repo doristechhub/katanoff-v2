@@ -1,13 +1,13 @@
 "use client";
 import { useCallback, useEffect } from "react";
-import deleteIcon from "@/assets/icons/delete.svg";
+import crossIcon from "@/assets/icons/cross.svg";
+import dropdownArrow from "@/assets/icons/dropdownArrow.svg";
+
 import {
   CartNotFound,
   CustomImg,
   ProgressiveImg,
 } from "@/components/dynamiComponents";
-import stripe from "@/assets/images/cart/stripe.webp";
-import paypal from "@/assets/images/cart/paypal.webp";
 import SkeletonLoader from "@/components/ui/skeletonLoader";
 import KeyFeatures from "@/components/ui/KeyFeatures";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,7 +20,6 @@ import {
 import { helperFunctions } from "@/_helper";
 import Link from "next/link";
 import { LinkButton, PrimaryButton } from "@/components/ui/button";
-import CommonBgHeading from "@/components/ui/CommonBgHeading";
 import { setDeleteLoader } from "@/store/slices/cartSlice";
 import {
   setIsChecked,
@@ -68,23 +67,27 @@ const CartPage = () => {
     (type, cartItem) => {
       dispatch(handleSelectCartItem({ selectedCartItem: cartItem }));
       if (
-        type === "increase" &&
-        (cartItem.quantity < minQuantity ||
-          cartItem.quantity >= maxQuantity ||
-          cartItem.quantity >= cartItem.productQuantity)
-      ) {
-        return;
-      }
-
-      if (
-        type === "decrease" &&
-        (cartItem.quantity < minQuantity || cartItem.quantity > maxQuantity)
+        (type === "increase" &&
+          (cartItem.quantity < minQuantity ||
+            cartItem.quantity >= maxQuantity ||
+            cartItem.quantity >= cartItem.productQuantity)) ||
+        (type === "decrease" &&
+          (cartItem.quantity <= minQuantity ||
+            cartItem.quantity > maxQuantity)) ||
+        (type === "set" &&
+          (cartItem.quantity < minQuantity ||
+            cartItem.quantity > maxQuantity ||
+            cartItem.quantity > cartItem.productQuantity))
       ) {
         return;
       }
 
       const quantity =
-        type === "increase" ? cartItem.quantity + 1 : cartItem.quantity - 1;
+        type === "increase"
+          ? cartItem.quantity + 1
+          : type === "decrease"
+          ? cartItem.quantity - 1
+          : cartItem.quantity;
       const payload = {
         type: type,
         quantity: quantity,
@@ -176,19 +179,29 @@ const CartPage = () => {
     localStorage.setItem("customProduct", JSON.stringify(customProduct));
   };
 
+  const handleCartQuantityChange = (item, newQty) => {
+    handleCartQuantity("set", { ...item, quantity: newQty });
+  };
   return (
-    <div className="mx-auto pt-10  2xl:pt-12">
+    <div className="mx-auto pt-12 2xl:pt-16">
       {cartLoading ? (
         <CartSkeleton />
       ) : cartList?.length ? (
         <>
-          <CommonBgHeading title="Shopping Cart" />
-
-          <div className="flex flex-col lg:flex-row gap-6 container mx-auto">
+          <div className="mx-auto w-fit pt-4">
+            <h1 className="text-2xl xl:text-3xl 4xl:text-4xl font-medium font-castoro text-baseblack">
+              My Bag
+            </h1>
+          </div>
+          <div className="flex flex-col lg:flex-row gap-6 container mx-auto pt-8 lg:pt-12">
             <div className="w-full lg:w-2/3">
-              {cartList?.map((cartItem) => (
+              {cartList?.map((cartItem, index) => (
                 <div
-                  className="bg-white mb-6 py-4 md:py-6 px-2  xs:px-6"
+                  className={`py-6 md:py-8 px-2 xs:px-6 ${
+                    index !== cartList.length - 1
+                      ? "border-b border-grayborder"
+                      : ""
+                  }`}
                   key={cartItem.id}
                 >
                   <div className="flex gap-2 md:gap-6">
@@ -196,74 +209,11 @@ const CartPage = () => {
                       <ProgressiveImg
                         src={cartItem?.productImage}
                         alt={cartItem?.productName}
-                        className="w-28 md:w-40 border border-alabaster"
+                        className="w-28 md:w-40 xl:w-48 border border-alabaster"
                       />
-                      <div className="flex lg:hidden items-center gap-x-1 pt-1 md:pt-2 w-fit">
-                        <h3 className="text-[12px] md:text-base lg:text-lg font-medium">
-                          Qty:
-                        </h3>
-                        <div className="flex items-center bg-alabaster px-2 lg:px-2">
-                          <button
-                            className={`lg:px-1 lg:py-1 text-base md:text-lg lg:text-xl font-medium text-black ${
-                              cartItem?.quantity <= minQuantity
-                                ? "opacity-50 cursor-not-allowed"
-                                : ""
-                            }`}
-                            onClick={() =>
-                              handleCartQuantity("decrease", cartItem)
-                            }
-                            disabled={cartItem?.quantity <= minQuantity}
-                          >
-                            −
-                          </button>
-                          {selectedCartItem?.id === cartItem?.id &&
-                          updateCartQtyErrorMessage ? (
-                            <ErrorMessage message={updateCartQtyErrorMessage} />
-                          ) : null}
-                          <span className="px-2 md:px-4 text-base md:text-lg lg:text-xl font-medium text-black">
-                            {cartItem?.quantity}
-                          </span>
-                          <button
-                            className={`md:px-1 py-1 text-base md:text-lg lg:text-xl font-medium text-black ${
-                              cartItem?.quantity >= maxQuantity ||
-                              cartItem?.quantity >= cartItem?.productQuantity
-                                ? "opacity-50 cursor-not-allowed"
-                                : ""
-                            }`}
-                            onClick={() =>
-                              handleCartQuantity("increase", cartItem)
-                            }
-                            disabled={
-                              cartItem?.quantity >= maxQuantity ||
-                              cartItem?.quantity >= cartItem?.productQuantity
-                            }
-                          >
-                            +
-                          </button>
-                        </div>
-
-                        <button
-                          className="font-medium px-3  cursor-pointer flex items-center justify-center transition-all duration-200"
-                          onClick={() => removeFromCart(cartItem)}
-                          disabled={deleteLoader}
-                        >
-                          <CustomImg
-                            srcAttr={deleteIcon}
-                            altAttr=""
-                            titleAttr=""
-                            className="md:w-6 md:h-6 h-4 w-4 transition-transform duration-200 hover:scale-110"
-                          />
-                        </button>
-
-                        {selectedCartItem.id === cartItem.id &&
-                        removeCartErrorMessage ? (
-                          <ErrorMessage message={removeCartErrorMessage} />
-                        ) : null}
-                      </div>
                     </div>
                     <div className="flex-1 w-full">
-                      {/* <div className="grid grid-cols-2 xs:flex-row xs:justify-between"> */}
-                      <div className="lg:flex lg:justify-between lg:items-center">
+                      <div className="flex justify-between items-center">
                         <Link
                           href={
                             cartItem?.diamondDetail
@@ -275,43 +225,122 @@ const CartPage = () => {
                           onClick={() =>
                             setCustomProductInLocalStorage(cartItem)
                           }
-                          className="text-sm md:text-base lg:text-lg font-medium flex-wrap"
+                          className="text-sm md:text-base lg:text-xl font-semibold flex-wrap hover:border-b hover:border-baseblack"
                         >
                           {cartItem?.productName}
                         </Link>
-                        <p className="text-base md:text-xl lg:text-2xl font-medium font-chong-modern">
-                          {cartItem?.productDiscount &&
-                          !cartItem?.diamondDetail ? (
-                            <span className="text-lg text-gray-500 line-through mr-2">
-                              $
-                              {helperFunctions.toFixedNumber(
-                                cartItem?.quantityWisePrice
-                              )}
-                            </span>
-                          ) : null}
-                          $
-                          {helperFunctions.toFixedNumber(
-                            cartItem?.quantityWiseSellingPrice
-                          )}
-                        </p>
-                      </div>
-
-                      <div className="text-baseblack flex flex-wrap gap-1 md:gap-x-4 md:gap-y-2 pt-1 md:pt-2">
-                        {cartItem?.variations?.map((variItem) => (
-                          <div
-                            className="border md:border-2 border-black_opacity_10  text-xs lg:text-base p-1 md:px-2 font-medium"
-                            key={variItem?.variationId}
+                        <div className="flex xss:gap-4 xss:flex-row flex-col items-center gap-2">
+                          <p className="text-base md:text-lg font-bold">
+                            {cartItem?.productDiscount &&
+                            !cartItem?.diamondDetail ? (
+                              <span className="text-lg text-gray-500 line-through mr-2">
+                                $
+                                {helperFunctions.toFixedNumber(
+                                  cartItem?.quantityWisePrice
+                                )}
+                              </span>
+                            ) : null}
+                            $
+                            {helperFunctions.toFixedNumber(
+                              cartItem?.quantityWiseSellingPrice
+                            )}
+                          </p>
+                          <button
+                            className="font-medium px-1 sm:px-3 cursor-pointer flex items-center justify-center transition-all duration-200 -mt-2"
+                            onClick={() => removeFromCart(cartItem)}
+                            disabled={deleteLoader}
                           >
-                            <span className="font-bold">
-                              {variItem?.variationName}:{" "}
-                            </span>{" "}
-                            {variItem?.variationTypeName}
-                          </div>
-                        ))}
+                            <CustomImg
+                              srcAttr={crossIcon}
+                              altAttr=""
+                              titleAttr=""
+                              className="h-3 w-3 xss:h-4 xss:w-4 transition-transform duration-200 hover:scale-110"
+                            />
+                          </button>
+                        </div>
                       </div>
+                      <div className="flex flex-col sm:flex-row justify-between mt-2">
+                        <div className="flex flex-col gap-1">
+                          <div className="text-baseblack font-medium text-sm md:text-base  flex flex-wrap gap-1">
+                            {helperFunctions?.displayVariationsLabel(
+                              cartItem?.variations
+                            )}
+                          </div>
+                          <div className="text-baseblack font-medium text-sm md:text-base flex flex-wrap gap-1">
+                            Product SKU: {cartItem?.productSku}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm md:text-base font-medium">
+                            Qty
+                          </p>
+                          <div className="relative w-fit">
+                            <select
+                              value={cartItem.quantity} // <-- this sets selected value correctly
+                              onChange={(e) =>
+                                handleCartQuantityChange(
+                                  cartItem,
+                                  parseInt(e.target.value)
+                                )
+                              }
+                              className={`appearance-none px-4 py-2 pr-10 border border-grayborder rounded-sm text-sm font-medium bg-transparent cursor-pointer`}
+                            >
+                              {Array.from(
+                                {
+                                  length:
+                                    Math.min(
+                                      10,
+                                      maxQuantity,
+                                      cartItem.productQuantity || 10
+                                    ) -
+                                    minQuantity +
+                                    1,
+                                },
+                                (_, i) => i + minQuantity
+                              ).map((qty) => {
+                                const isDisabled =
+                                  qty < minQuantity ||
+                                  qty > maxQuantity ||
+                                  qty > cartItem.productQuantity;
 
+                                return (
+                                  <option
+                                    key={qty}
+                                    value={qty}
+                                    disabled={isDisabled}
+                                  >
+                                    {qty}
+                                  </option>
+                                );
+                              })}
+                            </select>
+
+                            <div className="pointer-events-none absolute inset-y-0 right-1 flex items-center px-2 text-black">
+                              <CustomImg
+                                srcAttr={dropdownArrow}
+                                altAttr="Arrow"
+                                titleAttr="Arrow"
+                                className="w-4 h-4"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Show error messages only for selected cart item */}
+                          {selectedCartItem?.id === cartItem.id &&
+                            updateCartQtyErrorMessage && (
+                              <ErrorMessage
+                                message={updateCartQtyErrorMessage}
+                              />
+                            )}
+
+                          {selectedCartItem?.id === cartItem.id &&
+                            removeCartErrorMessage && (
+                              <ErrorMessage message={removeCartErrorMessage} />
+                            )}
+                        </div>
+                      </div>
                       {cartItem?.diamondDetail && (
-                        <p className="font-chong-modern text-base md:text-xl lg:text-2xl font-medium text-baseblack  md:pt-4 pt-2">
+                        <p className="text-sm md:text-base font-medium text-baseblack">
                           $
                           {(
                             helperFunctions.calculateCustomProductPrice({
@@ -321,69 +350,74 @@ const CartPage = () => {
                           ).toFixed(2)}
                         </p>
                       )}
-
-                      <div className="hidden lg:flex items-center gap-x-1 pt-1 md:pt-2">
-                        <h3 className="text-[12px] md:text-base lg:text-lg font-medium">
+                      {/* <div className="flex items-center gap-x-2 pt-1 md:pt-4">
+                        <h3 className="text-sm md:text-base font-medium">
                           Qty:
                         </h3>
-                        <div className="flex items-center bg-alabaster px-1 lg:px-2">
-                          <button
-                            className={`lg:px-1 lg:py-1 text-[12px] md:text-lg lg:text-xl font-medium text-black ${
-                              cartItem?.quantity <= minQuantity
-                                ? "opacity-50 cursor-not-allowed"
-                                : ""
-                            }`}
-                            onClick={() =>
-                              handleCartQuantity("decrease", cartItem)
-                            }
-                            disabled={cartItem?.quantity <= minQuantity}
-                          >
-                            −
-                          </button>
-                          {selectedCartItem?.id === cartItem?.id &&
-                          updateCartQtyErrorMessage ? (
-                            <ErrorMessage message={updateCartQtyErrorMessage} />
-                          ) : null}
-                          <span className="px-2 md:px-4 text-[12px] md:text-lg lg:text-xl font-medium text-black">
-                            {cartItem?.quantity}
-                          </span>
-                          <button
-                            className={`md:px-1 py-1 text-[12px] md:text-lg lg:text-xl font-medium text-black ${
-                              cartItem?.quantity >= maxQuantity ||
-                              cartItem?.quantity >= cartItem?.productQuantity
-                                ? "opacity-50 cursor-not-allowed"
-                                : ""
-                            }`}
-                            onClick={() =>
-                              handleCartQuantity("increase", cartItem)
+
+                        <div className="flex items-center border border-black rounded-[4px] px-1 lg:px-1">
+                          <select
+                            value={cartItem?.quantity}
+                            onChange={(e) =>
+                              handleCartQuantity("select", {
+                                ...cartItem,
+                                quantity: Number(e.target.value),
+                              })
                             }
                             disabled={
                               cartItem?.quantity >= maxQuantity ||
                               cartItem?.quantity >= cartItem?.productQuantity
                             }
+                            className={`px-2 py-1 text-sm md:text-base font-medium text-black bg-white appearance-none ${
+                              cartItem?.quantity >= maxQuantity ||
+                              cartItem?.quantity >= cartItem?.productQuantity
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
+                            }`}
                           >
-                            +
-                          </button>
+                            {Array.from({
+                              length: Math.max(
+                                0,
+                                Math.min(
+                                  10,
+                                  maxQuantity,
+                                  cartItem?.productQuantity
+                                ) -
+                                  minQuantity +
+                                  1
+                              ),
+                            }).map((_, i) => {
+                              const qty = i + minQuantity;
+                              return (
+                                <option key={qty} value={qty}>
+                                  {qty}
+                                </option>
+                              );
+                            })}
+                          </select>
                         </div>
 
-                        <button
-                          className="font-medium px-3  cursor-pointer flex items-center justify-center transition-all duration-200"
-                          onClick={() => removeFromCart(cartItem)}
-                          disabled={deleteLoader}
-                        >
-                          <CustomImg
-                            srcAttr={deleteIcon}
-                            altAttr=""
-                            titleAttr=""
-                            className="md:w-6 md:h-6 h-4 w-4 transition-transform duration-200 hover:scale-110"
-                          />
-                        </button>
+                        {selectedCartItem?.id === cartItem?.id &&
+                        updateCartQtyErrorMessage ? (
+                          <ErrorMessage message={updateCartQtyErrorMessage} />
+                        ) : null}
 
-                        {selectedCartItem.id === cartItem.id &&
+                        {selectedCartItem?.id === cartItem?.id &&
                         removeCartErrorMessage ? (
                           <ErrorMessage message={removeCartErrorMessage} />
                         ) : null}
+                      </div> */}
+                      <div className="flex justify-between mt-2">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm items-center md:text-base font-medium text-baseblack">
+                            Size:{" "}
+                            {cartItem?.variations?.find(
+                              (v) => v.variationName === "Size"
+                            )?.variationTypeName || "N/A"}
+                          </p>
+                        </div>
                       </div>
+
                       <div className="hidden xs:block mt-4">
                         <DiamondDetailDrawer
                           cartItem={cartItem}
@@ -411,29 +445,29 @@ const CartPage = () => {
               <div className="mt-4 flex flex-col md:flex-row gap-6">
                 <LinkButton
                   href="/"
-                  className="!text-white !font-medium  w-fit !py-6 !bg-[#202A4E] !text-lg hover:!border-[#202A4E] hover:!bg-transparent hover:!text-[#202A4E] !border-black_opacity_10 !border !rounded-none"
+                  className="!text-baseblack !font-medium  w-fit !py-6 !bg-offwhite !text-lg hover:!border-[#202A4E] hover:!bg-primary hover:!text-white !border-black !border !rounded-none"
                 >
                   Continue Shopping
                 </LinkButton>
               </div>
             </div>
 
-            <div className="w-full lg:w-1/3 bg-white py-6 lg:py-10 px-2 xs:px-6  self-start">
-              <p className="xs:text-lg 2xl:text-xl text-baseblack flex justify-between font-semibold">
+            <div className="w-full lg:w-1/3 border border-baseblack rounded py-6 lg:py-10 px-2 xs:px-8  self-start">
+              <p className="xs:text-lg text-baseblack flex justify-between">
                 Order Total: <span className="">${getOrderTotal()}</span>
               </p>
-              <p className="xs:text-lg 2xl:text-xl text-baseblack flex justify-between font-semibold pt-4">
+              <p className="xs:text-lg text-baseblack flex justify-between pt-4">
                 Discount Offer: <span className="">-${getDiscountTotal()}</span>
               </p>
-              <p className="xs:text-lg 2xl:text-xl text-baseblack flex justify-between font-semibold pt-4">
+              <p className="xs:text-lg text-baseblack flex justify-between pt-4">
                 Subtotal: <span className="">${getSubTotal()}</span>
               </p>
               <p className="my-4 border-t-2 border-black_opacity_10" />
-              <p className="xs:text-lg 2xl:text-xl text-baseblack flex justify-between font-semibold pt-2">
+              <p className="xs:text-lg text-baseblack flex justify-between font-bold pt-2">
                 Grand Total: <span>${grandTotal}</span>
               </p>
 
-              <div className="flex items-start gap-2 mt-3 text-sm">
+              <div className="flex items-start gap-2 mt-3 lg:mt-6 text-sm">
                 <input
                   type="checkbox"
                   id="terms"
@@ -449,7 +483,7 @@ const CartPage = () => {
                   htmlFor="terms"
                   className="leading-tight text-baseblack text-sm md:text-base font-medium"
                 >
-                  I have read, understood, and agree to the{" "}
+                  I Have Read, Understood, And Agree To The{" "}
                   <Link
                     href="/terms-and-conditions"
                     className="text-primary underline"
@@ -497,21 +531,17 @@ const CartPage = () => {
               >
                 SECURE CHECKOUT
               </PrimaryButton>
-
-              <p className="text-sm font-medium text-baseblack mt-4">
-                Made-To-Order. Estimated Ship Date: Wednesday, April 9th
-              </p>
-              <div className="mt-10">
+              <div className="mt-8">
                 <div className="flex items-center justify-center gap-4 mb-4">
                   <div className="flex-grow h-px bg-gray-300" />
-                  <p className="text-sm md:text-lg font-medium text-baseblack uppercase whitespace-nowrap">
+                  <p className="text-sm font-semibold text-baseblack uppercase whitespace-nowrap">
                     We Accept Payment
                   </p>
                   <div className="flex-grow h-px bg-gray-300" />
                 </div>
 
                 <div className="flex items-center gap-3 ">
-                  <p className="font-medium text-base 2xl:text-lg text-gray-500">
+                  <p className="font-medium text-base text-gray-500">
                     Pay With:
                   </p>
                   <div className="flex gap-2 gap2xl:gap-6 flex-wrap">
@@ -521,7 +551,7 @@ const CartPage = () => {
                         srcAttr={option?.img}
                         titleAttr={option?.titleAttr}
                         altAttr={option?.altAttr}
-                        className="object-contain  w-12  lg:w-10 2xl:w-auto 2xl:h-12"
+                        className="object-contain w-12 lg:w-8 2xl:w-auto 2xl:h-8"
                       />
                     ))}
                   </div>

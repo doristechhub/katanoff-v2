@@ -31,6 +31,10 @@ export const GOLD_COLOR = "Gold Color";
 
 export const TOP_SELLING_PRODUCTS = "Top Selling Products";
 export const FLASH_DEALS = "Flash Deals";
+export const CUSTOM = "Custom";
+export const WEDDING = "Wedding";
+export const WEDDING_RINGS = "Wedding Rings";
+export const ENGAGEMENT_RINGS = "Engagement Rings";
 export const Start_WITH_SETTING = "Start With Setting";
 
 export const ALLOWED_DIA_COLORS = [

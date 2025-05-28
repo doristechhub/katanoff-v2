@@ -331,7 +331,7 @@ const PaymentForm = ({ orderId }) => {
   };
 
   return (
-    <div className="bg-white p-5 mt-5">
+    <div className="border border-grayborder rounded-md p-5 mt-5">
       <p className="text-baseblack text-lg md:text-xl font-semibold">Payment</p>
       <h6 className="mb-2 text-basegray">
         All transactions are secure and encrypted.

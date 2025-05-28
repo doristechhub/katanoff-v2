@@ -11,7 +11,7 @@ const OrderSuccessfulPage = () => {
   const currentUser = helperFunctions.getCurrentUser();
   return (
     <div className="min-h-[70vh] lg:min-h-[60vh] flex items-center justify-center bg-offwhite px-4">
-      <div className="bg-white border border-gray-e2 p-8 max-w-xl xl:max-w-3xl w-full text-center py-8 xl:py-16">
+      <div className="p-8 max-w-xl xl:max-w-3xl w-full text-center py-8 xl:py-16">
         {/* Check Icon */}
         <div className="flex justify-center mb-6">
           <div className="w-12 h-12 md:w-20 md:h-20 2xl:w-24 2xl:h-20 bg-green-500 rounded-full flex items-center justify-center">
@@ -20,7 +20,7 @@ const OrderSuccessfulPage = () => {
         </div>
 
         {/* Heading */}
-        <h2 className="text-3xl md:text-4xl 2xl:text-5xl font-medium font-chong-modern mt-10 mb-6 text-gray-900">
+        <h2 className="text-3xl md:text-4xl 2xl:text-5xl font-medium font-castoro mt-10 mb-6 text-gray-900">
           Order Successfully
         </h2>
 

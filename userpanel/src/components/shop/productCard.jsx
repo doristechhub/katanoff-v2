@@ -1,79 +1,144 @@
 import { helperFunctions } from "@/_helper";
 import Link from "next/link";
 import { ProgressiveImg } from "../dynamiComponents";
+import { useState, useEffect } from "react";
 
 export default function ProductCard({
-  goldColorVariations,
-  goldTypeVariations,
-  // key,
+  goldColorVariations = [],
+  goldTypeVariations = [],
   title,
   discount,
   basePrice,
-  img,
   price,
   productLink = "",
-  video,
   isDiamondSettingPage = false,
+  whiteGoldThumbnailImage,
+  yellowGoldThumbnailImage,
+  roseGoldThumbnailImage,
+  hoveredWhiteGoldImage,
+  hoveredYellowGoldImage,
+  hoveredRoseGoldImage,
 }) {
   productLink =
     productLink ||
     `/products/${helperFunctions.stringReplacedWithUnderScore(title)}`;
 
+  // State for selected and hovered gold color, and image hover
+  const [selectedGoldColor, setSelectedGoldColor] = useState(null);
+  const [hoveredGoldColor, setHoveredGoldColor] = useState(null);
+  const [isImageHovered, setIsImageHovered] = useState(false);
+  const goldTypes = goldTypeVariations
+    .map((item) => item.variationTypeName)
+    .join(",");
+
+  // Map gold color variation names to their thumbnail and hovered images
+  const goldColorImageMap = {
+    "White Gold": {
+      thumbnail: whiteGoldThumbnailImage,
+      hovered: hoveredWhiteGoldImage,
+    },
+    "Yellow Gold": {
+      thumbnail: yellowGoldThumbnailImage,
+      hovered: hoveredYellowGoldImage,
+    },
+    "Rose Gold": {
+      thumbnail: roseGoldThumbnailImage,
+      hovered: hoveredRoseGoldImage,
+    },
+  };
+
+  // Set the first gold color as default on mount
+  useEffect(() => {
+    if (goldColorVariations?.length > 0 && !selectedGoldColor) {
+      setSelectedGoldColor(goldColorVariations[0].variationTypeName);
+    }
+  }, [goldColorVariations, selectedGoldColor]);
+
+  // Determine the current image to display
+  const currentImage =
+    (isImageHovered &&
+      selectedGoldColor &&
+      goldColorImageMap[selectedGoldColor]?.hovered) ||
+    (hoveredGoldColor && goldColorImageMap[hoveredGoldColor]?.thumbnail) ||
+    (selectedGoldColor && goldColorImageMap[selectedGoldColor]?.thumbnail) ||
+    (goldColorVariations?.length > 0 &&
+      goldColorImageMap[goldColorVariations[0].variationTypeName]?.thumbnail) ||
+    "";
+
   return (
-    <Link href={productLink} aria-label={title}>
-      <div className="relative group w-full h-[200px] md:h-[300px] 2xl:h-[400px] ">
-        {" "}
-        <ProgressiveImg
-          className="w-full h-[200px] md:w-[300px] md:h-[300px] 2xl:w-[400px] 2xl:h-[400px] !object-cover"
-          src={img}
-          alt={title}
-          title={title}
-        />
-        {video && (
-          <video
-            className="absolute top-0 left-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            src={video}
-            autoPlay
-            loop
-            playsInline
-            muted
+    <div className="flex flex-col">
+      <Link
+        href={productLink}
+        className="relative group aspect-[1/1]"
+        onMouseEnter={() => setIsImageHovered(true)}
+        onMouseLeave={() => setIsImageHovered(false)}
+      >
+        {currentImage ? (
+          <ProgressiveImg
+            className="max-w-full h-auto"
+            src={currentImage}
+            alt={title}
+            title={title}
+            width={700}
+            height={700}
           />
-        )}
+        ) : null}
+
         {!isDiamondSettingPage && discount ? (
           <div className="bg-primary absolute top-3 left-3 text-xs md:text-sm text-white px-2 py-1 md:px-3 md:py-1.5">
             {discount}% Off
           </div>
         ) : null}
-      </div>
+      </Link>
 
       <div className="mt-3">
-        <p className="text-black text-base font-medium line-clamp-2 h-[48px]">
+        <Link
+          href={productLink}
+          className="text-base leading-5 mb-[15px] line-clamp-1"
+        >
           {title}
-        </p>
-        <div className="flex items-center gap-2 font-chong-modern">
-          <p className="my-1 tracking-wider text-lg md:text-xl">${price}</p>
-
+        </Link>
+        <div className="flex items-center gap-2 font-castoro text-base font-bold leading-4 pb-[10px]">
+          <p>${price}</p>
           {!isDiamondSettingPage && discount ? (
-            <p className="text-sm md:text-base text-gray-500 line-through">
-              ${basePrice}
-            </p>
+            <p className="text-gray-500 line-through">${basePrice}</p>
           ) : null}
         </div>
-
-        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center w-full mt-3 gap-2 lg:gap-0">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center w-full gap-1 lg:gap-0">
           {goldColorVariations?.length ? (
             <div className="flex items-center gap-2">
               {goldColorVariations?.map((x, i) => (
                 <div
                   key={`gold-color-${i}-${title}`}
-                  style={{ background: x?.variationTypeHexCode }}
-                  className="w-8 h-[16px] lg:w-11 lg:h-[22px]"
-                ></div>
+                  className={`p-[2px] group border cursor-pointer ${
+                    selectedGoldColor === x.variationTypeName
+                      ? "border-primary"
+                      : "border-transparent hover:border-primary"
+                  }`}
+                  onMouseEnter={() => setHoveredGoldColor(x.variationTypeName)}
+                  onMouseLeave={() => setHoveredGoldColor(null)}
+                  onClick={() => setSelectedGoldColor(x.variationTypeName)}
+                >
+                  <div
+                    style={{ background: x?.variationTypeHexCode }}
+                    className="min-w-[35px] h-[18px] lg:min-w-[44px] lg:h-[22px] relative flex items-center justify-center text-[12px] text-baseblack font-bold"
+                  >
+                    <span
+                      className={`opacity-0 ${
+                        selectedGoldColor === x.variationTypeName
+                          ? "opacity-100"
+                          : "group-hover:opacity-100"
+                      } transition duration-200 absolute inset-0 flex items-center justify-center`}
+                    >
+                      {goldTypes}
+                    </span>
+                  </div>
+                </div>
               ))}
             </div>
           ) : null}
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

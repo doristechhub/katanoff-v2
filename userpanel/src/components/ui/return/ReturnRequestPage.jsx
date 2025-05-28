@@ -222,7 +222,7 @@ const ReturnRequestPage = () => {
                         {cartItem?.productName}
                       </h2>
 
-                      <p className="text-base md:text-xl lg:text-2xl font-medium font-chong-modern text-end">
+                      <p className="text-base md:text-xl lg:text-2xl font-medium font-castoro text-end">
                         $
                         {helperFunctions.toFixedNumber(
                           cartItem?.diamondDetail
@@ -249,7 +249,7 @@ const ReturnRequestPage = () => {
                     </div>
 
                     {cartItem?.diamondDetail && (
-                      <p className="font-chong-modern text-base md:text-xl lg:text-2xl font-medium text-baseblack  md:pt-4 pt-2">
+                      <p className="font-castoro text-base md:text-xl lg:text-2xl font-medium text-baseblack  md:pt-4 pt-2">
                         ${(cartItem?.productPrice).toFixed(2)}{" "}
                         {` × ${cartItem?.returnQuantity} `}
                       </p>

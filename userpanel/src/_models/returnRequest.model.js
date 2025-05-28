@@ -43,7 +43,6 @@ export const returnRequestModel = {
           // - For non-customized products: this is the standard variation price.
           // - For customized products: this is the custom product price excluding any diamond-related pricing.
         },
-
         unitAmount: {
           type: Number,
           // Final total price after multiplying with quantity:
@@ -113,7 +112,8 @@ export const returnRequestModel = {
     ],
   },
   refundAmount: {
-    require: true,
+    type: Number,
+    required: true,
   },
   stripeRefundId: {
     type: String,
@@ -124,5 +124,11 @@ export const returnRequestModel = {
   stripeARNNumber: {
     type: String,
     default: "",
+  },
+  paypalRefundId: {
+    type: String,
+  },
+  paypalRefundFailureReason: {
+    type: String,
   },
 };

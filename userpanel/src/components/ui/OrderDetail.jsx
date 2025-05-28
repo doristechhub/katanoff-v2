@@ -268,9 +268,7 @@ const OrderDetails = ({
 
           {/* Shipping Info Section */}
           <div className="bg-white p-4 lg:p-6">
-            <h3 className="font-chong-modern text-2xl lg:text-3xl">
-              Order Summary
-            </h3>
+            <h3 className="font-castoro text-2xl lg:text-3xl">Order Summary</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 mt-4">
               {shippingFields.map(
                 ({ label, key, default: defaultValue = "" }) => (

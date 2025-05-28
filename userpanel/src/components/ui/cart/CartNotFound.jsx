@@ -14,11 +14,11 @@ const CartNotFound = ({ textClassName = "" }) => {
         srcAttr={cartImage}
         altAttr=""
         titleAttr=""
-        className="lg:w-70"
+        className="lg:w-60"
       />
 
       <p
-        className={`text-lg md:text-xl 2xl:text-2xl font-medium font-chong-modern text-baseblack mt-4 md:mt-6 text-center ${textClassName}`}
+        className={`text-lg md:text-xl 2xl:text-2xl font-medium font-castoro text-baseblack mt-4 md:mt-6 text-center ${textClassName}`}
       >
         Oops! Your cart is empty. Let’s fix that with some stunning jewelry
       </p>

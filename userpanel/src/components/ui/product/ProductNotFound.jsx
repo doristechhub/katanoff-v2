@@ -18,7 +18,7 @@ const ProductNotFound = ({ textClassName = "" }) => {
       />
 
       <p
-        className={`text-lg md:text-xl 2xl:text-3xl font-medium font-chong-modern text-baseblack mt-4 md:mt-6 text-center ${textClassName}`}
+        className={`text-lg md:text-xl 2xl:text-3xl font-medium font-castoro text-baseblack mt-4 md:mt-6 text-center ${textClassName}`}
       >
         Sorry, No product Found
       </p>

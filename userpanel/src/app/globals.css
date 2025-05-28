@@ -3,58 +3,58 @@
 @import "tailwindcss/utilities";
 
 @font-face {
-  font-family: "Chong Modern W01";
-  src: url("/fonts/Chong Modern W01/Chong Modern W01.ttf") format("woff2"),
-    url("/fonts/Chong Modern W01/Chong Modern W01.ttf") format("woff");
+  font-family: "Figtree";
+  src: url("/fonts/Figtree/static/Figtree-Medium.ttf") format("woff2"),
+    url("/fonts/Figtree/static/Figtree-Medium.ttf") format("woff");
+  font-weight: 500;
+  font-style: medium;
+}
+
+@font-face {
+  font-family: "Figtree";
+  src: url("/fonts/Figtree/static/Figtree-Regular.ttf") format("woff2"),
+    url("/fonts/Figtree/static/Figtree-Regular.ttf") format("woff");
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "New Aeonik Trials";
-  src: url("/fonts/New Aeonik Trials/AeonikTRIAL-Regular.ttf") format("woff2"),
-    url("/fonts/New Aeonik Trials/AeonikTRIAL-Regular.ttf") format("woff");
+  font-family: "Figtree";
+  src: url("/fonts/Figtree/static/Figtree-SemiBold.ttf") format("woff2"),
+    url("/fonts/Figtree/static/Figtree-SemiBold.ttf") format("woff");
+  font-weight: 600;
+  font-style: semi-bold;
+}
+
+@font-face {
+  font-family: "Castoro";
+  src: url("/fonts/Castoro/Castoro-Regular.ttf") format("woff2"),
+    url("/fonts/Castoro/Castoro-Regular.ttf") format("woff");
   font-weight: 400;
   font-style: normal;
 }
 
-/* @font-face {
-  font-family: "New Aeonik Trials";
-  src: url("/fonts/New Aeonik Trials/static/AeonikTRIAL-Regular.ttf")
-      format("woff2"),
-    url("/fonts/New Aeonik Trials/static/AeonikTRIAL-Regular.ttf")
-      format("woff");
-  font-weight: 600;
-  font-style: normal;
-} */
-
-/* @font-face {
-  font-family: "New Aeonik Trials";
-  src: url("/fonts/New Aeonik Trials/Figtree-Semibold.ttf") format("woff2"),
-    url("/fonts/New Aeonik Trials/Figtree-SemiBold.ttf") format("woff");
-  font-weight: 600;
-  font-style: normal;
-} */
-
 @font-face {
-  font-family: "New Aeonik Trials";
-  src: url("/fonts/New Aeonik Trials/AeonikTRIAL-Bold.ttf") format("woff2"),
-    url("/fonts/New Aeonik Trials/AeonikTRIAL-Bold.ttf") format("woff");
-  font-weight: 700;
-  font-style: normal;
+  font-family: "Figtree";
+  src: url("/fonts/Figtree/static/Figtree-LightItalic.ttf") format("woff2"),
+    url("/fonts/Figtree/static/Figtree-LightItalic.ttf") format("woff");
+  font-weight: 300;
+  font-style: italic;
 }
 
 :root {
   --primary: #202a4e;
   --offwhite: #fafaf8;
-  --baseblack: #111111;
+  --baseblack: #2b2b2b;
   --basegray: #828282;
-  --alabaster: #f3f2ed;
+  --alabaster: #fcf9f0;
   --black_opacity_10: #0000001a;
   --gray-66: #666666;
   --gray-c8: #c8c8c6;
   --gray-lightest: #dbdbdb;
   --gray-e2: #e2e2e2;
+  --grayborder: #d4d4d4;
+  --isabelline: #f3f2ed;
 }
 
 html,
@@ -62,7 +62,7 @@ body {
   font-size: 16px;
   color: var(--baseblack);
   background-color: var(--offwhite);
-  font-family: "New Aeonik Trials", sans-serif;
+  font-family: "Figtree", sans-serif;
   height: 100%;
   scroll-behavior: smooth;
 }
@@ -145,9 +145,6 @@ ul {
   height: 100% !important;
 }
 
-
-
-
 .flatpickr-calendar {
   font-family: inherit;
   border: 1px solid #e5e7eb;
@@ -162,7 +159,6 @@ ul {
 .flatpickr-days {
   background: #ffffff;
   font-size: 0.875rem;
-
 }
 
 .flatpickr-current-month,
@@ -188,7 +184,6 @@ ul {
 .flatpickr-day.today {
   border: 1px solid #3b82f6;
   background: #dbeafe;
-
 }
 
 .flatpickr-prev-month,
@@ -225,8 +220,6 @@ ul {
   border: none;
 }
 
-
-
 /* ZoomImage styles */
 .zoom-lens {
   border-radius: 4px;
@@ -235,6 +228,21 @@ ul {
 
 .magnified-area {
   border-radius: 4px;
+}
+
+.animate-marquee {
+  display: flex;
+  animation: marquee 15s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 @keyframes fade-in {
@@ -255,4 +263,151 @@ ul {
   100% {
     transform: rotatey(360deg);
   }
+}
+
+/* globals.css */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  content: none !important;
+}
+
+/*==================================================
+  Container
+==================================================*/
+.container {
+  max-width: 88%;
+  padding-right: 1rem !important;
+  padding-left: 1rem !important;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.row {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  margin-right: -10px;
+  margin-left: -10px;
+}
+
+.no-gutters {
+  margin-right: 0;
+  margin-left: 0;
+}
+
+.no-gutters > .col,
+.no-gutters > [class*="col-"] {
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.container1400 {
+  max-width: 75%;
+  padding-right: 10px !important;
+  padding-left: 10px !important;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.container1300 {
+  max-width: 72%;
+  padding-right: 10px !important;
+  padding-left: 10px !important;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+@media (min-width: 1920px) {
+  .container {
+    width: 88%;
+    max-width: 100%;
+  }
+
+  .container1400 {
+    width: 75%;
+    max-width: 100%;
+  }
+
+  .container1300 {
+    width: 72%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 1600px) {
+  .container1400 {
+    max-width: 88%;
+  }
+
+  .container1300 {
+    max-width: 85%;
+  }
+}
+
+@media (max-width: 1366px) {
+  .container {
+    max-width: 94%;
+  }
+}
+
+@media (max-width: 1199px) {
+  .container1400 {
+    max-width: 93%;
+  }
+
+  .container1300 {
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 991px) {
+  .container {
+    max-width: 98%;
+  }
+}
+
+@media (max-width: 767px) {
+  .container,
+  .container1400,
+  .container1300 {
+    max-width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  main .container,
+  main .container1400,
+  main .container1300 {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+
+/* For Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #000;
+  border-radius: 6px;
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #000 transparent;
 }

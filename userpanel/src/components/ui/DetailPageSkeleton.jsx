@@ -9,13 +9,10 @@ export default function DetailPageSkeleton() {
   ];
   return (
     <div
-      className={`container grid grid-cols-1 lg:grid-cols-[55%_auto] gap-12`}
+      className={`container grid grid-cols-1 md:grid-cols-[55%_auto] gap-12 pb-10`}
     >
-      <div className="grid grid-cols-2 gap-4 auto-rows-min">
-        <SkeletonLoader height="w-full h-[200px] md:h-[300px]  2xl:h-[400px]" />
-        <SkeletonLoader height="w-full h-[200px] md:h-[300px]  2xl:h-[400px]" />
-        <SkeletonLoader height="w-full h-[200px] md:h-[300px]  2xl:h-[400px]" />
-        <SkeletonLoader height="w-full h-[200px] md:h-[300px]  2xl:h-[400px]" />
+      <div className=" auto-rows-min pt-6">
+        <SkeletonLoader height="w-full h-[300px] md:h-[400px]  2xl:h-[500px]" />
       </div>
       <div>
         {Array(4)

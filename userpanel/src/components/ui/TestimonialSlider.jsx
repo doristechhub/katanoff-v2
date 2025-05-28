@@ -29,7 +29,7 @@ export default function TestimonialSlider({ testimonials }) {
     <section className="bg-[#DFE9F7B2] text-[#1E1E1E] text-center py-10 2xl:py-16 md:h-auto">
       {" "}
       <p className="text-base lg:text-lg 2xl:text-xl">Testimonials</p>
-      <h2 className="text-2xl md:text-4xl 2xl:text-5xl font-chong-modern font-normal mt-2 mb-8">
+      <h2 className="text-2xl md:text-4xl 2xl:text-5xl font-castoro font-normal mt-2 mb-8">
         What People Say About Us
       </h2>
       <div className="relative">

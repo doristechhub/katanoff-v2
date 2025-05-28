@@ -52,6 +52,7 @@ const Layout = ({ children }) => {
         sizes="180x180"
         href="/favicon/apple-touch-icon.png"
       />
+      <title>Katanoff | Jewelry</title>
       <meta name="apple-mobile-web-app-title" content="KatanOff" />
       <link rel="manifest" href="/favicon/site.webmanifest" />
       <main className="h-full">{children}</main>

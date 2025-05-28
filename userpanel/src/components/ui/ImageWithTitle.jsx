@@ -6,7 +6,7 @@ const ImageWithTitle = ({ imageSrc }) => {
       <div className="text-center">
         <div className="flex items-center justify-center mb-1">
           <div className="border-t border-gray-200 w-1/6"></div>
-          <h2 className="text-center text-3xl sm:text-4xl font-chong-modern text-baseblack px-4 sm:px-8 py-8">
+          <h2 className="text-center text-3xl sm:text-4xl font-castoro text-baseblack px-4 sm:px-8 py-8">
             Carat relates to weight, not size
           </h2>
           <div className="border-t border-gray-200 w-1/6"></div>

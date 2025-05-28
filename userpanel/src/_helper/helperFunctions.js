@@ -459,6 +459,49 @@ const capitalizeCamelCase = (status) => {
   return status.charAt(0).toUpperCase() + status.slice(1);
 };
 
+const getVariationValue = (selectedVariations, key) => {
+  if (!selectedVariations?.length) null;
+  const variation = selectedVariations?.find(
+    (v) => v.variationName?.trim().toLowerCase() === key.trim().toLowerCase()
+  );
+  return variation ? variation?.variationTypeName : null;
+};
+
+export const displayVariationsLabel = (variations) => {
+  if (!Array.isArray(variations)) return "";
+
+  const desiredOrder = ["Gold Type", "Gold Color", "Diamond Shape"];
+  const variationMap = {};
+  const remaining = [];
+
+  variations.forEach((item) => {
+    const { variationName, variationTypeName } = item;
+
+    if (variationName === "Size") return;
+
+    if (desiredOrder.includes(variationName)) {
+      variationMap[variationName] = variationTypeName;
+    } else if (variationTypeName) {
+      remaining.push(variationTypeName);
+    }
+  });
+
+  const orderedValues = desiredOrder
+    .map((key) => variationMap[key])
+    .filter(Boolean);
+
+  return [...orderedValues, ...remaining].join(", ");
+};
+
+const shouldHideCartPopup = (pathname) => {
+  return (
+    pathname === "/checkout" ||
+    pathname === "/shipping" ||
+    pathname.startsWith("/payment") ||
+    pathname.startsWith("/products/")
+  );
+};
+
 export const helperFunctions = {
   generateUniqueId,
   stringReplacedWithUnderScore,
@@ -491,4 +534,7 @@ export const helperFunctions = {
   getStatusColor,
   formatDate,
   capitalizeCamelCase,
+  getVariationValue,
+  displayVariationsLabel,
+  shouldHideCartPopup,
 };

@@ -63,11 +63,11 @@ export default function SettingStyleCategorySwiper({
     <div>
       {loading ? (
         <div
-          className={`pt-10 md:pt-14 lg:pt-20 2xl:pt-20 mx-10 lg:mx-20 2xl:mx-28 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 6xl:grid-cols-7 gap-4 ${className}`}
+          className={`pt-10 md:pt-10 lg:pt-18 2xl:pt-20 mx-8 lg:mx-20 2xl:mx-28 grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 6xl:grid-cols-7 gap-4 ${className}`}
         >
           {Array.from({ length: diamondColumnCount }).map((_, index) => (
             <div key={index}>
-              <SkeletonLoader height="h-32 lg:h-36 2xl:h-48 aspect-square" />
+              <SkeletonLoader height="h-24 lg:h-36 2xl:h-48 aspect-square" />
               <div className="flex justify-center">
                 <SkeletonLoader width="w-[70%]" height="h-5" className="mt-2" />
               </div>
@@ -76,7 +76,7 @@ export default function SettingStyleCategorySwiper({
         </div>
       ) : settingStyleCategories?.length ? (
         <div
-          className={`pt-10 md:pt-14 lg:pt-20 2xl:pt-20 mx-10 lg:mx-20 2xl:mx-28 ${className}`}
+          className={`pt-10 md:pt-10 lg:pt-18 2xl:pt-20 mx-8 lg:mx-20 2xl:mx-28 ${className}`}
         >
           <div className="relative">
             {showNavigationButtons && (
@@ -87,7 +87,7 @@ export default function SettingStyleCategorySwiper({
                 onClick={() => swiperRef.current?.slidePrev()}
                 disabled={isBeginning}
               >
-                <SlArrowLeft className="text-lg lg:text-xl" />
+                <SlArrowLeft className="text-sm md:text-lg lg:text-xl" />
               </button>
             )}
             {showNavigationButtons && (
@@ -98,7 +98,7 @@ export default function SettingStyleCategorySwiper({
                 onClick={() => swiperRef.current?.slideNext()}
                 disabled={isEnd}
               >
-                <SlArrowRight className="text-lg lg:text-xl" />
+                <SlArrowRight className="text-sm md:text-lg lg:text-xl" />
               </button>
             )}
             <Swiper
@@ -107,7 +107,7 @@ export default function SettingStyleCategorySwiper({
               slidesPerView={7}
               breakpoints={{
                 320: {
-                  slidesPerView: 2,
+                  slidesPerView: 3,
                   spaceBetween: 10,
                 },
                 480: {
@@ -146,7 +146,7 @@ export default function SettingStyleCategorySwiper({
                     >
                       {settingStyle?.image?.trim() ? (
                         <ProgressiveImg
-                          className={`h-28 lg:h-36 2xl:h-48 aspect-square object-cover !transition-none  border-2 border-transparent ${
+                          className={`h-24 lg:h-36 2xl:h-48 aspect-square object-cover !transition-none  border-2 border-transparent ${
                             isSelected ? "border-2 !border-primary" : ""
                           }`}
                           src={settingStyle?.image}
@@ -158,12 +158,12 @@ export default function SettingStyleCategorySwiper({
                           srcAttr={defaultSettingStyle}
                           altAttr=""
                           titleAttr=""
-                          className={`h-28 lg:h-36 2xl:h-48 aspect-square object-cover !transition-none  border-2 border-transparent ${
+                          className={`h-24 md:h-32 lg:h-36 2xl:h-48 aspect-square object-cover !transition-none  border-2 border-transparent ${
                             isSelected ? "border-2 !border-primary" : ""
                           }`}
                         />
                       )}
-                      <h2 className="text-base lg:text-lg font-normal mt-2">
+                      <h2 className="text-sm lg:text-lg font-normal mt-2">
                         {settingStyle?.title}
                       </h2>
                     </div>

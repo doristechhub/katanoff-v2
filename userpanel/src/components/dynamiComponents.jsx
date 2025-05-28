@@ -82,6 +82,9 @@ export const ProductFilterSidebar = dynamic(
     ssr: false,
   }
 );
+export const ProductFilter = dynamic(() => import("./shop/productFilter.jsx"), {
+  ssr: false,
+});
 export const LoginForm = dynamic(() => import("./auth/LoginForm.jsx"), {
   ssr: false,
 });
@@ -290,12 +293,6 @@ export const RangeSlider = dynamic(() => import("./ui/RangeSlider.jsx"), {
   ssr: false,
 });
 
-export const AppointmentCustomJewelryPage = dynamic(
-  () => import("./ui/AppointmentCustomJewelryPage.jsx"),
-  {
-    ssr: false,
-  }
-);
 export const CustomJewelryForm = dynamic(
   () => import("./ui/CustomJewelryForm.jsx"),
   {
@@ -308,28 +305,51 @@ export const AppointmentForm = dynamic(
     ssr: false,
   }
 );
-export const CustomTabs = dynamic(
-  () => import("./ui/CustomTabs.jsx"),
-  {
-    ssr: false,
-  }
-);
+export const CustomTabs = dynamic(() => import("./ui/CustomTabs.jsx"), {
+  ssr: false,
+});
 export const CustomJewelryPage = dynamic(
   () => import("./ui/CustomJewelry.jsx"),
   {
     ssr: false,
   }
 );
-export const FileUpload = dynamic(
-  () => import("./ui/FileUpload.jsx"),
+export const FileUpload = dynamic(() => import("./ui/FileUpload.jsx"), {
+  ssr: false,
+});
+
+export const ContactForm = dynamic(() => import("./ui/ContactForm.jsx"), {
+  ssr: false,
+});
+
+export const DiamondShapeSwipper = dynamic(
+  () => import("./ui/DiamondShapeSwipper.jsx"),
   {
     ssr: false,
   }
 );
 
-export const ContactForm = dynamic(
-  () => import("./ui/ContactForm.jsx"),
+export const ReviewSlider = dynamic(() => import("./ui/ReviewSlider.jsx"), {
+  ssr: false,
+});
+
+export const GetToKnowUsSection = dynamic(
+  () => import("./ui/home/GetToKnowUsSection.jsx"),
   {
     ssr: false,
   }
 );
+export const SearchBar = dynamic(() => import("./ui/SearchBar.jsx"), {
+  ssr: false,
+});
+
+export const ProductDetailPageImage = dynamic(
+  () => import("./ui/ProductDetailPageImage.jsx"),
+  {
+    ssr: false,
+  }
+);
+
+export const AccordionTabs = dynamic(() => import("./ui/AccordianTabs.jsx"), {
+  ssr: false,
+});

@@ -68,7 +68,7 @@ const ClaritySection = () => {
     <section className="w-full mx-auto py-8 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24">
       <div className="flex items-center justify-center mb-4 sm:mb-6 md:mb-8">
         <div className="border-t border-gray-200 w-1/6"></div>
-        <h2 className="text-center text-xl xxs:text-2xl sm:text-3xl md:text-4xl font-chong-modern text-baseblack px-4">
+        <h2 className="text-center text-xl xxs:text-2xl sm:text-3xl md:text-4xl font-castoro text-baseblack px-4">
           Diamond clarity chart
         </h2>
         <div className="border-t border-gray-200 w-1/6"></div>
@@ -86,7 +86,7 @@ const ClaritySection = () => {
               key={grade}
               onClick={() => setSelected(grade)}
               className={`
-          text-[10px] xxs:text-xs sm:text-sm md:text-base font-medium font-chong-modern
+          text-[10px] xxs:text-xs sm:text-sm md:text-base font-medium font-castoro
           transition-transform duration-300 ease-in-out transform
           w-full flex items-center justify-center text-center
           aspect-[6/4] sm:aspect-[5/4] md:aspect-square px-2 sm:px-3 md:px-4
@@ -108,7 +108,7 @@ const ClaritySection = () => {
       <div className="w-full flex justify-center">
         <div className="w-full max-w-[1000px] flex flex-col md:flex-row items-start md:items-center gap-8 sm:gap-10 px-2 sm:px-4 md:px-6">
           <div className="w-full md:w-1/2 text-left pt-4 sm:pt-8">
-            <h3 className="text-lg xxs:text-xl sm:text-xl md:text-xl lg:text-2xl 2xl:text-3xl font-chong-modern mb-3 sm:mb-4">
+            <h3 className="text-lg xxs:text-xl sm:text-xl md:text-xl lg:text-2xl 2xl:text-3xl font-castoro mb-3 sm:mb-4">
               {info.title}
             </h3>
             <p className="text-sm xxs:text-base sm:text-lg font-medium text-baseblack leading-relaxed">

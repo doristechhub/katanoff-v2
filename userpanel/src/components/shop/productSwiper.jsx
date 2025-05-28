@@ -5,7 +5,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import useQueryParams from "@/hooks/useQueryParams";
-import { Autoplay, Navigation } from "swiper/modules";
+import { Navigation } from "swiper/modules";
 import { useState, useRef } from "react";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import SkeletonLoader from "../ui/skeletonLoader";
@@ -26,11 +26,7 @@ export default function ProductSwiper({
 
   const getProductLink = ({ queryParams, isDiamondSettingPage, product }) => {
     if (!isDiamondSettingPage) return null;
-    const { dId, format } = queryParams || {};
     const basePath = `/customize/start-with-setting/${product?.id}`;
-    // const queryString = dId
-    //   ? `?dId=${dId}&format=${format}`
-    //   : `?format=${format}`;
     return `${basePath}`;
   };
 
@@ -38,7 +34,7 @@ export default function ProductSwiper({
     <div>
       <div className="flex justify-between items-center mb-5 2xl:mb-8">
         {title ? (
-          <h3 className="font-chong-modern text-2xl md:text-3xl 2xl:text-4xl capitalize">
+          <h3 className="font-castoro text-2xl md:text-3xl 2xl:text-3xl capitalize">
             {title}
           </h3>
         ) : null}
@@ -73,8 +69,7 @@ export default function ProductSwiper({
         </div>
       ) : (
         <Swiper
-          // spaceBetween={10}
-          modules={[Autoplay, Navigation]}
+          modules={[Navigation]}
           autoplay={{
             delay: 3000,
             disableOnInteraction: false,
@@ -95,7 +90,6 @@ export default function ProductSwiper({
             setIsBeginning(swiper.isBeginning);
             setIsEnd(swiper.isEnd);
           }}
-          className="container"
         >
           {productList &&
             productList.map((product) => (
@@ -106,7 +100,9 @@ export default function ProductSwiper({
                   title={product?.productName}
                   discount={product?.discount}
                   basePrice={product?.basePrice}
-                  img={product?.thumbnailImage || product?.images[0]?.image}
+                  whiteGoldThumbnailImage={product?.whiteGoldThumbnailImage}
+                  yellowGoldThumbnailImage={product?.yellowGoldThumbnailImage}
+                  roseGoldThumbnailImage={product?.roseGoldThumbnailImage}
                   price={product?.baseSellingPrice}
                   video={product?.video}
                   productLink={getProductLink({

@@ -4,7 +4,7 @@ import {
   setIsMenuOpen,
   setOpenProfileDropdown,
 } from "@/store/slices/commonSlice";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { HiOutlineUser } from "react-icons/hi2";
 import { IoIosArrowDown } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,6 +14,13 @@ import { useEffect } from "react";
 export default function ProfileDropdown({ className = "", uniqueId }) {
   const dispatch = useDispatch();
   const router = useRouter();
+  const pathname = usePathname();
+
+  const handleLoginClick = () => {
+    if (pathname === "/checkout") {
+      localStorage.setItem("postLoginRedirect", "/checkout");
+    }
+  };
   const { openProfileDropdown, lastScrollY } = useSelector(
     ({ common }) => common
   );
@@ -30,7 +37,7 @@ export default function ProfileDropdown({ className = "", uniqueId }) {
   };
 
   const logOutHandler = () => {
-    localStorage.clear();
+    localStorage.removeItem("currentUser");
     Cookies.remove("token");
     dispatch(fetchCart());
     router.push("/");
@@ -65,10 +72,10 @@ export default function ProfileDropdown({ className = "", uniqueId }) {
               Profile
             </p>
             <HeaderLinkButton
-              className="text-gray-700 px-0 hover:text-black flex justify-between items-center w-full py-2.5"
+              className="text-baseblack !px-[10px] hover:text-primary flex justify-between items-center w-full py-2.5"
               onClick={toggleDropdown}
             >
-              <div className="flex items-center gap-5">
+              <div className="flex items-center gap-4">
                 <div className="h-7 w-7 rounded-full bg-primary text-white text-xs font-semibold flex justify-center items-center">
                   {helperFunctions.getNameInitials(
                     currentUser.firstName,
@@ -93,7 +100,7 @@ export default function ProfileDropdown({ className = "", uniqueId }) {
                   : "max-h-0 opacity-0 -translate-y-2"
               }`}
             >
-              <div className="ms-6 my-1 flex flex-col">
+              <div className="ms-6 flex flex-col">
                 {profileDropDown.map((link, index) => (
                   <HeaderLinkButton
                     key={`mobile-dropdown-${index}`}
@@ -103,7 +110,7 @@ export default function ProfileDropdown({ className = "", uniqueId }) {
                       dispatch(setOpenProfileDropdown(null));
                       dispatch(setIsMenuOpen(false));
                     }}
-                    className="py-1 hover:!text-primary"
+                    className="py-1 !p-[10px] text-[0.875em] hover:!text-primary"
                   >
                     {link.title}
                   </HeaderLinkButton>
@@ -136,13 +143,13 @@ export default function ProfileDropdown({ className = "", uniqueId }) {
                   : "max-h-0 opacity-0 -translate-y-2"
               }`}
             >
-              <div className="py-2">
+              <div className="py-1">
                 {profileDropDown.map((link, index) => (
                   <HeaderLinkButton
                     key={`desktop-dropdown-${index}`}
                     href={link.href || "#"}
                     onClick={link.onClick || undefined}
-                    className="block py-2 px-4 text-baseblack hover:!text-primary border-b hover:bg-gray-200 last:border-b-0"
+                    className="block py-2.5 px-4 text-baseblack hover:!text-primary hover:!font-semibold border-b hover:bg-gray-200 last:border-b-0"
                   >
                     {link.title}
                   </HeaderLinkButton>
@@ -156,11 +163,16 @@ export default function ProfileDropdown({ className = "", uniqueId }) {
           <HeaderLinkButton
             href={"/auth/login"}
             className="hidden lg:block !px-0"
+            onClick={handleLoginClick}
           >
             <HiOutlineUser className="text-xl" />
           </HeaderLinkButton>
           <div className="lg:hidden w-full h-[1px] bg-gray-e2 mb-2.5"></div>
-          <HeaderLinkButton className="lg:hidden" href={"/auth/login"}>
+          <HeaderLinkButton
+            className="!p-[10px] lg:hidden"
+            href={"/auth/login"}
+            onClick={handleLoginClick}
+          >
             Login
           </HeaderLinkButton>
         </>

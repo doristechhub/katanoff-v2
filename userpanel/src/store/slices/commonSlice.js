@@ -21,6 +21,15 @@ const initialState = {
   customizeOptionLoading: false,
   diamondShapeList: [],
   transparenHeadertBg: false,
+  isSearchOpen: false,
+  isMobileSearchOpen: false,
+  isShowingResults: false,
+  searchQuery: "",
+  weddingHeaderUniqueFilterOptions: [],
+  weddingHeaderLoader: false,
+  engagementHeaderUniqueFilterOptions: [],
+  engagementHeaderLoader: false,
+  uniqueDiamondShapesForHomePage: {},
 };
 
 const commonSlice = createSlice({
@@ -47,9 +56,34 @@ const commonSlice = createSlice({
       state.openDropdownMobile = action.payload;
     },
     setTransparentHeaderBg: (state, action) => {
-      state.transparenHeadertBg = action.payload
+      state.transparenHeadertBg = action.payload;
+    },
+    setWeddingHeaderUniqueFilterOptions: (state, action) => {
+      state.weddingHeaderUniqueFilterOptions = action.payload;
+    },
+    setWeddingHeaderLoader: (state, action) => {
+      state.weddingHeaderLoader = action.payload;
+    },
+    setEngagementHeaderUniqueFilterOptions: (state, action) => {
+      state.engagementHeaderUniqueFilterOptions = action.payload;
+    },
+    setEngagementHeaderLoader: (state, action) => {
+      state.engagementHeaderLoader = action.payload;
+    },
+    // Search
+    setIsSearchOpen: (state, action) => {
+      state.isSearchOpen = action.payload;
     },
 
+    setIsMobileSearchOpen: (state, action) => {
+      state.isMobileSearchOpen = action.payload;
+    },
+    setIsShowingResults: (state, action) => {
+      state.isShowingResults = action.payload;
+    },
+    setSearchQuery: (state, action) => {
+      state.searchQuery = action.payload;
+    },
     // Others
     setIsHovered: (state, action) => {
       state.isHovered = action.payload;
@@ -91,7 +125,10 @@ const commonSlice = createSlice({
     },
     setDiamonShapeList: (state, action) => {
       state.diamondShapeList = action.payload;
-    }
+    },
+    setUniqueDiamondShapesForHomePage: (state, action) => {
+      state.uniqueDiamondShapesForHomePage = action.payload;
+    },
   },
 });
 
@@ -103,6 +140,7 @@ export const {
   setOpenDropdown,
   setOpenDropdownMobile,
   setLastScrollY,
+  setSearchQuery,
   setIsHovered,
   setIsCartOpen,
   setTransparentHeaderBg,
@@ -115,7 +153,15 @@ export const {
   setOpenDiamondDetailDrawer,
   setOpenDiamondDetailProductId,
   setUniqueFilterOptionsForHeader,
-  setCustomizeOptionLoading
+  setCustomizeOptionLoading,
+  setIsSearchOpen,
+  setIsMobileSearchOpen,
+  setIsShowingResults,
+  setWeddingHeaderLoader,
+  setWeddingHeaderUniqueFilterOptions,
+  setEngagementHeaderUniqueFilterOptions,
+  setEngagementHeaderLoader,
+  setUniqueDiamondShapesForHomePage
 } = commonSlice.actions;
 
 export default commonSlice.reducer;

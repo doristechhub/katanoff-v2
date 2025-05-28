@@ -35,7 +35,7 @@ const AddressSummary = () => {
 
   return (
     <div className="flex flex-col gap-6 lg:gap-10 pt-8 lg:pt-12">
-      <div className="bg-white px-4 lg:px-6 flex flex-col">
+      <div className="border border-grayborder rounded-md px-4 lg:px-6 flex flex-col">
         <div className="flex justify-between items-center border-b py-4">
           <div>
             <p className="text-baseblack text-lg md:text-xl font-semibold">
@@ -46,7 +46,7 @@ const AddressSummary = () => {
             </p>
           </div>
           <Link href="/checkout">
-            <span className="text-primary md:text-xl font-semibold text-lg underline">
+            <span className="text-baseblack md:text-xl font-semibold text-lg underline">
               Change
             </span>
           </Link>
@@ -57,8 +57,8 @@ const AddressSummary = () => {
               Ship To
             </p>
             <div>
-              {(selectedShippingAddress &&
-                Object.keys(selectedShippingAddress)?.length > 0) ? (
+              {selectedShippingAddress &&
+              Object.keys(selectedShippingAddress)?.length > 0 ? (
                 <span className="text-basegray text-base md:text-lg">
                   {selectedShippingAddress?.address}{" "}
                   {selectedShippingAddress?.apartment},{" "}
@@ -71,7 +71,7 @@ const AddressSummary = () => {
             </div>
           </div>
           <Link href="/checkout">
-            <span className="text-primary md:text-xl font-semibold text-lg underline">
+            <span className="text-baseblack md:text-xl font-semibold text-lg underline">
               Change
             </span>
           </Link>

@@ -2,6 +2,10 @@
 import "swiper/css";
 import "swiper/css/navigation";
 import banner from "@/assets/images/home/banner.webp";
+import banner400px from "@/assets/images/home/banner-400px.webp";
+import banner576px from "@/assets/images/home/banner-576px.webp";
+import banner768px from "@/assets/images/home/banner-768px.webp";
+import banner1024px from "@/assets/images/home/banner-1024px.webp";
 import freeGiftBanner from "@/assets/images/home/free-gift-banner.webp";
 import ring1 from "@/assets/images/home/ring-1.webp";
 import ring2 from "@/assets/images/home/ring-2.webp";
@@ -12,15 +16,29 @@ import home19 from "@/assets/images/home/home-19.webp";
 import home20 from "@/assets/images/home/home-20.webp";
 import home21 from "@/assets/images/home/home-21.webp";
 import home22 from "@/assets/images/home/home-22.webp";
+import home36 from "@/assets/images/home/home-36.webp";
+
+import marquee1 from "@/assets/images/home/marquee-1.webp";
+import marquee2 from "@/assets/images/home/marquee-2.webp";
+import marquee3 from "@/assets/images/home/marquee-3.webp";
+import marquee4 from "@/assets/images/home/marquee-4.webp";
+import marquee5 from "@/assets/images/home/marquee-5.webp";
+import marquee6 from "@/assets/images/home/marquee-6.webp";
+import marquee7 from "@/assets/images/home/marquee-7.webp";
 
 import {
   AccordionDropdown,
+  AnimatedSection,
   CustomImg,
+  DiamondShapeSwipper,
+  GetToKnowUsSection,
   LatestProduct,
   ProgressiveImg,
+  ReviewSlider,
   SwipperHomePageBig,
   TestimonialSlider,
 } from "@/components/dynamiComponents";
+
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import TextAboveImage from "@/components/ui/TextAboveImage";
@@ -36,21 +54,22 @@ import { setAppointmentMessage } from "@/store/slices/appointmentSlice";
 import { setCustomJewelryMessage } from "@/store/slices/customjewelrySlice";
 import { fetchCustomizeProductsVariation } from "@/_actions/customize.action";
 import GiftCollections from "../GiftCollections";
+import Marquee from "../Marquee";
 
 const categoryData = [
   {
-    title: "New Aura",
-    image: home18,
+    title: "Quick Ship Gifts",
+    image: home19,
     titleAttr: "",
     altAttr: "",
     btnText: "SHOP NOW",
   },
   {
-    title: "The Real Illusion",
-    image: home19,
+    title: "Gifts for Her",
+    image: home18,
     titleAttr: "",
     altAttr: "",
-    btnText: "SHOP HOOPS",
+    btnText: "SHOP NOW",
   },
 ];
 
@@ -95,12 +114,101 @@ const faqData = [
 ];
 
 const images = [ring1, ring2, ring3];
+const marqueeItems = [
+  {
+    id: 1,
+    image: marquee1,
+  },
+  {
+    id: 2,
+    image: marquee2,
+  },
+  {
+    id: 3,
+    image: marquee3,
+  },
+  {
+    id: 4,
+    image: marquee4,
+  },
+  {
+    id: 5,
+    image: marquee5,
+  },
+  {
+    id: 6,
+    image: marquee6,
+  },
+  {
+    id: 7,
+    image: marquee7,
+  },
+];
 
+const mockReviews = [
+  {
+    date: "10/21/24",
+    title: "Love my heart shaped ring.",
+    content:
+      "Love my heart shaped ring. The band is nice and thick very comfortable. The diamond is spectacular.",
+    author: "Anamaria M.",
+  },
+  {
+    date: "10/25/24",
+    title: "Best purchase ever! Fast shipping",
+    content:
+      "Best purchase ever! Fast shipping got it to my door in time even after a last minute decision. The diamonds are dazzling and brilliant.",
+    author: "Mark T.",
+  },
+  {
+    date: "11/04/24",
+    title: "Best site out there",
+    content:
+      "The ring was everything and more. My fiancé loves it 💍. Cheapest price and best quality. I shopped around multiple stores who weren’t even close.",
+    author: "Evan B.",
+  },
+  {
+    date: "10/21/24",
+    title: "Love my heart shaped ring.",
+    content: "Love my ",
+    author: "Anamaria M.",
+  },
+  {
+    date: "10/25/24",
+    title: "Best purchase ever! Fast shipping",
+    content: "Best purchase ever! Fast shipping got it to my door in ",
+    author: "Mark T.",
+  },
+  {
+    date: "11/04/24",
+    title: "Best site out there",
+    content: "The ring was everything and more. My fiancé loves it 💍",
+    author: "Evan B.",
+  },
+  // Add more reviews as needed
+];
+
+const animatedContent = [
+  {
+    img: home36,
+    titleAttr: "",
+    direction: "RTF",
+    altAttr: "",
+    title: "Meet our jewelry specialists",
+    description: [
+      "Book a Complimentary Virtual or In-Person appointment at one of our stores, and let our jewelry specialists guide you every step of the way.",
+    ],
+    btnText: "Book an Appointment",
+    btnLink: "/book-appointment",
+  },
+];
 const Home = () => {
   const dispatch = useDispatch();
   const [currentIndex, setCurrentIndex] = useState(0);
   const { loginMessage } = useSelector(({ user }) => user);
-  const { uniqueFilterOptionsForHeader } = useSelector(({ common }) => common);
+  const { uniqueDiamondShapesForHomePage } = useSelector(
+    ({ common }) => common
+  );
   const { appointmentMessage } = useSelector(({ appointment }) => appointment);
   const { customJewelryMessage } = useSelector(
     ({ customJewelry }) => customJewelry
@@ -113,9 +221,9 @@ const Home = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 3000); // Change image every 3 seconds
+    }, 3000);
 
-    return () => clearInterval(interval); // Cleanup on unmount
+    return () => clearInterval(interval);
   }, []);
 
   useAlertTimeout(appointmentMessage, () =>
@@ -126,62 +234,93 @@ const Home = () => {
   );
 
   const loadData = useCallback(async () => {
-    await fetchCustomizeProductsVariation();
-  }, []);
+    await dispatch(fetchCustomizeProductsVariation());
+  }, [dispatch]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
+
   return (
     <>
-      {/* Hero Banner */}
-      <HeroBanner isHomePage={true} imageSrc={banner} titleAttr="" altAttr="" />
+      <HeroBanner
+        isHomePage={true}
+        imageSrc={banner}
+        banner400px={banner400px}
+        banner576px={banner576px}
+        banner768px={banner768px}
+        banner1024px={banner1024px}
+        titleAttr=""
+        altAttr="Hero Banner"
+      />
 
-      {/* SHOP FOR LAB GROWN DIAMOND PRODUCTS */}
-      {uniqueFilterOptionsForHeader?.uniqueDiamondShapes?.length ? (
-        <section className="pt-16 lg:pt-20 2xl:pt-40 grid grid-cols-1 lg:grid-cols-[0.7fr_1fr] items-center justify-center gap-10 container">
-          <div className="flex flex-col items-center text-center bg-transparent">
-            <CustomImg
-              srcAttr={home20}
-              altAttr=""
-              className="w-40 md:w-48 2xl:w-64"
-            />
-            <h2 className="text-2xl 2xl:text-3xl font-chong-modern mt-4 text-center">
-              SHOP FOR LAB GROWN
-              <span className="lg:hidden"> </span>
-              <br className="hidden lg:block" />
-              DIAMOND PRODUCTS
-            </h2>
-
-            <div className="w-12 h-[2px] bg-black mt-4"></div>
-          </div>
-
-          <div className="grid grid-cols-3 md:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-12 text-center">
-            {uniqueFilterOptionsForHeader?.uniqueDiamondShapes?.map(
-              (shape, idx) => (
-                <Link
-                  href={`/customize/start-with-setting?diamondShape=${shape?.id}`}
-                  key={shape?.title || idx}
-                  className="flex flex-col items-center justify-center h-32 rounded-md transition-colors duration-200"
-                >
-                  <ProgressiveImg
-                    src={shape?.image}
-                    alt={shape?.title}
-                    title={shape?.title}
-                    className="w-16 h-16 object-contain"
-                  />
-                  <span className="text-base pt-4 transition-colors duration-200 text-baseblack">
-                    {shape?.title}
-                  </span>
-                </Link>
-              )
-            )}
-          </div>
+      {uniqueDiamondShapesForHomePage?.uniqueDiamondShapes ? (
+        <section className="mt-10 lg:mt-12 2xl:mt-12 lg:container">
+          <DiamondShapeSwipper
+            shapes={uniqueDiamondShapesForHomePage?.uniqueDiamondShapes || []}
+            title="Shop for Lab Grown Diamonds"
+          />
         </section>
       ) : null}
 
-      {/* Free Gift With Purchase */}
-      <section className="pt-16 lg:pt-20 2xl:pt-40">
+      <section className="bg-alabaster mt-10 lg:mt-12 2xl:mt-12 container">
+        <div className="container grid grid-cols-1 lg:grid-cols-[40%_60%] items-center py-6 md:py-16 lg:py-0 lg:h-[100vh]">
+          {/* Left Image */}
+          <div className="relative w-full h-auto lg:h-full flex justify-center items-center">
+            <CustomImg
+              srcAttr={home20}
+              altAttr="Complimentary Ring"
+              className="object-contain w-full h-auto max-h-[400px] md:max-h-[500px] lg:max-h-[650px]"
+            />
+          </div>
+
+          <div className="flex flex-col justify-center items-center text-center px-4">
+            <h2 className="text-2xl lg:text-2xl 2xl:text-3xl 4xl:text-4xl font-castoro mb-6">
+              Complimentary Ring Setting
+            </h2>
+
+            <div className="flex items-center justify-center gap-6 text-sm md:text-base mb-6 pt-8 4xl:pt-20">
+              <div className="flex flex-col items-center">
+                <span className=" text-lg 3xl:text-2xl">1</span>
+                <span className="text-xs md:text-lg xl:text-xl mt-1">
+                  Pick your diamond
+                </span>
+              </div>
+              <div className="w-16 md:w-20 lg:w-24 2xl:w-28 4xl:w-32 h-px bg-black/40" />
+              <div className="flex flex-col items-center">
+                <span className="text-lg 3xl:text-2xl">2</span>
+                <span className="text-xs md:text-lg xl:text-xl mt-1">
+                  Add your unique touch
+                </span>
+              </div>
+              <div className="w-16 md:w-20 lg:w-24 2xl:w-28 4xl:w-32 h-px bg-black/40" />
+
+              <div className="flex flex-col items-center">
+                <span className="text-lg 3xl:text-2xl">3</span>
+                <span className="text-xs md:text-lg xl:text-xl mt-1">
+                  Find your setting
+                </span>
+              </div>
+            </div>
+
+            {/* Description */}
+            <p className="text-sm md:text-base mb-6 pt-8 md:pt-12 xl:pt-16">
+              Design your engagement ring. Receive a free setting with the
+              purchase of a 3.0 ct or larger diamond.
+            </p>
+
+            {/* Button */}
+            <Link
+              href="/customize/start-with-setting"
+              className="py-2 text-sm md:text-base xl:text-lg font-semibold border-b border-black text-black tracking-wide hover:border-primary hover:text-primary transition-all"
+            >
+              START DESIGNING
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="pt-10 lg:pt-12 2xl:pt-12">
         <CustomImg
           srcAttr={freeGiftBanner}
           className="h-[20vh] lg:h-auto"
@@ -190,83 +329,71 @@ const Home = () => {
         />
       </section>
 
-      {/* Category Gallery */}
-      <section className="container pt-16 lg:pt-20 2xl:pt-40 ">
+      <section className="container pt-10 lg:pt-12 2xl:pt-12 ">
         <CategoryGallery />
       </section>
-
-      {/* Complimentary Matching Wedding Band */}
-      <section className="bg-alabaster mt-16 lg:mt-20 2xl:mt-40">
-        <div className="container grid grid-cols-1 lg:grid-cols-2 py-10 md:py-16 lg:py-0 relative h-[80vh] md:h-[60vh] place-items-center">
-          <div className="relative w-full h-44">
-            {images.map((img, index) => (
-              <CustomImg
-                key={index}
-                srcAttr={img}
-                altAttr=""
-                className={`absolute top-0 left-0 w-full h-full object-contain transition-opacity duration-1000 ease-in-out ${
-                  index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
-                }`}
-              />
-            ))}
-          </div>
-
-          <div className="flex flex-col items-center justify-center text-center px-4">
-            <p className="pt-2 text-base md:text-lg lg:text-xl 2xl:text-2xl font-chong-modern">
-              Get a Complimentary Matching Wedding Band
-            </p>
-            <p className="pt-6 text-base 2xl:text-lg mb-6">
-              Our intuitive ring design feature lets you craft the perfect
-              engagement ring effortlessly.
-            </p>
-            <Link
-              href="/customize/start-with-setting"
-              className="pt-2 text-base 2xl:text-lg font-semibold tracking-wide border-b transition-all duration-300 
-              border-baseblack text-baseblack 
-              hover:text-primary hover:border-primary"
-            >
-              START WITH A SETTING
-            </Link>
-          </div>
-        </div>
+      <section className="pt-12 xl:pt-24 container">
+        <Marquee items={marqueeItems} />
       </section>
 
-      <section className="pt-16 lg:pt-20 2xl:pt-40">
-        <TextAboveImage
-          categoryData={categoryData}
-          textClassName={"chong-modern"}
-        />
+      <section className="container pt-10 lg:pt-16 2xl:pt-20">
+        <TextAboveImage categoryData={categoryData} textClassName={"castoro"} />
       </section>
-      <GiftCollections />
-
-      <section className="mx-auto pt-16 lg:pt-20 2xl:pt-40">
+      <section className="container mx-auto pt-8 lg:pt-6 2xl:pt-6">
+        <GiftCollections />
+      </section>
+      <section className="bg-[#f1eee7] mt-8">
+        <ReviewSlider reviews={mockReviews} totalCount={5483} />
+      </section>
+      <section className="mx-auto pt-10 lg:pt-12 2xl:pt-12 container">
         <SwipperHomePageBig />
       </section>
-      <section className="pt-16 lg:pt-20 2xl:pt-40 container">
+      <section className="container pt-10">
+        <GetToKnowUsSection />
+      </section>
+      <section className="container pt-8 lg:pt-10 2xl:pt-12">
+        <KeyFeatures />
+      </section>
+
+      <section className="mt-16 lg:mt-28 container">
+        {animatedContent.map((content, index) => (
+          <AnimatedSection
+            key={index}
+            img={content.img}
+            titleAttr={content.titleAttr}
+            altAttr={content.altAttr}
+            title={content.title}
+            description={content.description}
+            pointsDescription={content.pointsDescription}
+            points={content.points}
+            direction={content.direction}
+            btnText={content.btnText}
+            btnLink={content.btnLink}
+          />
+        ))}
+      </section>
+      <section className="pt-10 lg:pt-12 2xl:pt-12 container">
         <LatestProduct />
       </section>
-      <section className="pt-16 lg:pt-20 2xl:pt-40">
+      {/* <section className="pt-10 lg:pt-12 2xl:pt-12">
         <div className="text-center">
           <h3 className="text-sm lg:text-base font-medium">
             DISCOVER OUR WORLD
           </h3>
-          <h2 className="text-2xl lg:text-4xl font-normal font-chong-modern mt-2">
+          <h2 className="text-2xl lg:text-4xl font-normal font-castoro mt-2">
             Diamonds as Exceptional as You
           </h2>
         </div>
         <div className="pt-6 lg:pt-10 2xl:pt-18">
           <TextAboveImage categoryData={discoverOurWorld} />
         </div>
-      </section>
-      <section className="container pt-16 lg:pt-20 2xl:pt-20">
-        <KeyFeatures />
-      </section>
+      </section> */}
 
-      <section className="mx-auto pt-16 lg:pt-20 2xl:pt-40">
+      {/* <section className="mx-auto pt-10 lg:pt-12 2xl:pt-12">
         <TestimonialSlider testimonials={testimonials} />
-      </section>
+      </section> */}
 
-      <section className="mx-auto pt-16 lg:pt-20 2xl:pt-40">
+      <section className="container pt-10 lg:pt-12 2xl:pt-16">
         <AccordionDropdown items={faqData} />
       </section>
       <Alert message={loginMessage?.message} type={loginMessage?.type} />

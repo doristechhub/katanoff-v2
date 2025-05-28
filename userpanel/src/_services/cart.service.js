@@ -102,9 +102,9 @@ const getAllCartWithProduct = () => {
                 )?.title,
               }
             : null;
-
           return {
             ...cartItem,
+            productSku: findedProduct.sku,
             productName: findedProduct.productName,
             productImage: findedProduct.images[0]?.image || "",
             productQuantity: quantity,
@@ -472,6 +472,7 @@ const insertMultipleProductsIntoCart = (params) => {
             };
             createdOrUpdateCartData.push(updatedData);
           } catch (e) {
+
             // Skip to next item on error
           }
         } else {
@@ -486,7 +487,6 @@ const insertMultipleProductsIntoCart = (params) => {
             createdDate: Date.now(),
             updatedDate: Date.now(),
           };
-
           if (diamondDetail) {
             insertPattern.diamondDetail = diamondDetail;
           }

@@ -111,7 +111,10 @@ const AppointmentForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit}>
+      <h3 className="font-castoro font-normal text-[35px] xxs:mt-12 leading-[46px] tracking-[0.8px] text-left text-baseblack mb-4">
+        Send a message
+      </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label
@@ -125,11 +128,10 @@ const AppointmentForm = () => {
             name="firstName"
             id="firstName"
             placeholder="First name"
-            className={`custom-input w-full  2xl:py-4 ${
-              touched?.firstName && errors?.firstName
+            className={`custom-input 2xl:py-4 bg-transparent border border-grayborder rounded ${touched?.firstName && errors?.firstName
                 ? "border-red-500 border"
                 : ""
-            }`}
+              }`}
             onChange={handleChange}
             onBlur={handleBlur}
             value={values?.firstName}
@@ -151,11 +153,11 @@ const AppointmentForm = () => {
             name="lastName"
             id="lastName"
             placeholder="Last name"
-            className={`custom-input w-full  2xl:py-4 ${
-              touched?.lastName && errors?.lastName
+            className={`custom-input 2xl:py-4 bg-transparent border border-grayborder rounded 
+              ${touched?.lastName && errors?.lastName
                 ? "border-red-500 border"
                 : ""
-            }`}
+              }`}
             onChange={handleChange}
             onBlur={handleBlur}
             value={values?.lastName}
@@ -177,9 +179,8 @@ const AppointmentForm = () => {
             name="email"
             id="email"
             placeholder="Your Email"
-            className={`custom-input w-full  2xl:py-4 ${
-              touched?.email && errors?.email ? "border-red-500 border" : ""
-            }`}
+            className={`custom-input 2xl:py-4 bg-transparent border border-grayborder rounded ${touched?.email && errors?.email ? "border-red-500 border" : ""
+              }`}
             onChange={handleChange}
             onBlur={handleBlur}
             value={values?.email}
@@ -188,29 +189,6 @@ const AppointmentForm = () => {
             <ErrorMessage message={errors?.email} />
           )}
         </div>
-
-        {/* <div>
-          <label
-            htmlFor="date"
-            className="block text-md text-gray-66 uppercase mb-1"
-          >
-            Date
-          </label>
-          <input
-            type="date"
-            name="date"
-            id="date"
-            className={`custom-input w-full  2xl:py-4${
-              touched?.date && errors?.date ? "border-red-500 border" : ""
-            }`}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            value={values?.date}
-          />
-          {touched?.date && errors?.date && (
-            <ErrorMessage message={errors?.date} />
-          )}
-        </div> */}
 
         <div>
           <label
@@ -226,9 +204,8 @@ const AppointmentForm = () => {
               name="date"
               id="date"
               placeholder="Select a date (dd/mm/yyyy)"
-              className={`custom-input w-full 2xl:py-4 pr-10 ${
-                touched?.date && errors?.date ? "border-red-500 border" : ""
-              }`}
+              className={`custom-input bg-transparent border border-grayborder rounded 2xl:py-4 pr-10 ${touched?.date && errors?.date ? "border-red-500 border" : ""
+                }`}
               options={{
                 dateFormat: "d/m/Y", // Formik-compatible format: DD/MM/YYYY
                 altInput: true,
@@ -270,9 +247,8 @@ const AppointmentForm = () => {
             name="mobile"
             id="mobile"
             placeholder="Phone number"
-            className={`custom-input w-full  2xl:py-4 ${
-              touched?.mobile && errors?.mobile ? "border-red-500 border" : ""
-            }`}
+            className={`custom-input 2xl:py-4 bg-transparent border border-grayborder rounded ${touched?.mobile && errors?.mobile ? "border-red-500 border" : ""
+              }`}
             onChange={handleChange}
             onBlur={handleBlur}
             value={values?.mobile}
@@ -292,9 +268,8 @@ const AppointmentForm = () => {
           <select
             type="time"
             name="time"
-            className={`custom-input w-full  2xl:py-4${
-              errors?.time && touched?.time ? "border-red-500 border" : ""
-            }`}
+            className={`custom-input 2xl:py-4 bg-transparent border border-grayborder rounded${errors?.time && touched?.time ? "border-red-500 border" : ""
+              }`}
             id="time"
             value={values?.time || ""}
             onChange={handleChange}
@@ -319,7 +294,7 @@ const AppointmentForm = () => {
       <div>
         <label
           htmlFor="message"
-          className="block text-md text-gray-66 uppercase mb-1"
+          className="block text-md text-gray-66 uppercase mb-1 mt-4"
         >
           Message
         </label>
@@ -328,9 +303,8 @@ const AppointmentForm = () => {
           id="message"
           placeholder="Type your Message"
           rows={4}
-          className={`custom-input w-full  2xl:py-4 ${
-            touched?.message && errors?.message ? "border-red-500 border" : ""
-          }`}
+          className={`custom-input 2xl:py-4 bg-transparent border border-grayborder rounded${touched?.message && errors?.message ? "border-red-500 border" : ""
+            }`}
           onChange={handleChange}
           onBlur={handleBlur}
           value={values?.message}

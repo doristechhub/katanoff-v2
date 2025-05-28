@@ -90,12 +90,12 @@ const LoginForm = () => {
   }, []);
 
   return (
-    <div className="w-full lg:w-[90%] flex flex-col items-center justify-center h-full">
-      <h2 className="text-3xl md:text-4xl text-baseblack font-chong-modern">
+    <div className="w-full lg:w-[100%] flex flex-col items-center justify-center h-full py-12">
+      <h2 className="text-3xl sm:text-2xl md:text-3xl 2xl:text-4xl text-baseblack font-castoro">
         Login
       </h2>
-      <p className="text-sm sm:text-base 2xl:text-lg text-basegray mt-2">
-        Enter your email address to receive the OTP
+      <p className="text-sm sm:text-base 2xl:text-lg text-basegray mt-2 font-Figtree">
+        Enter your registered email address to receive the OTP
       </p>
 
       {/* Email Input */}
@@ -148,7 +148,7 @@ const LoginForm = () => {
         type={userRegisterMessage?.type}
       />
       {/* Privacy Policy */}
-      <p className="absolute bottom-14 md:bottom-20 lg:bottom-10 2xl:bottom-20 2xl:right-28 md:right-28 right-14 lg:right-14  ">
+      <p className="absolute bottom-14 md:bottom-20 lg:bottom-10 2xl:bottom-20 2xl:right-28 md:right-28 right-14 lg:right-14">
         <Link
           href="/privacy-policy"
           className="underline text-sm sm:text-base 2xl:text-lg text-basegray hover:text-primary transition-all duration-300"

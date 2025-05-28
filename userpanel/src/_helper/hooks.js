@@ -61,7 +61,7 @@ export const useWindowSize = () => {
     if (diamondScreenSize?.isLargeScreen) return 6;
     if (diamondScreenSize?.isLaptop) return 6; // Reflect the changed range here
     if (diamondScreenSize?.isTablet) return 4;
-    if (diamondScreenSize?.isMobile) return 2;
+    if (diamondScreenSize?.isMobile) return 3;
     return 6; // Default for non-matching cases
   }, [
     diamondScreenSize?.isLaptop,
