@@ -31,8 +31,6 @@ const VariationsList = ({
         const selectedType = selectedVariations?.find(
           (v) => v?.variationId === variation?.variationId
         );
-        const isGoldColor =
-          variation?.variationName?.toLowerCase() === "gold color";
 
         const isSizeVariation = variation?.variationName === "Size";
 
@@ -85,7 +83,7 @@ const VariationsList = ({
               </div>
             ) : (
               // 👉 Render buttons/color/image for other types
-              <div className="flex flex-wrap gap-2 md:gap-3 items-start lg:items-center">
+              <div className="flex flex-wrap gap-4 md:gap-6 items-start lg:items-center">
                 {variation?.variationTypes?.map((type) => {
                   const selected = isSelected(
                     variation?.variationId,
@@ -96,7 +94,7 @@ const VariationsList = ({
                     <div key={type?.variationTypeId} className="relative">
                       {type?.type === "color" ? (
                         <div className="relative flex flex-col items-center">
-                          <button
+                          {/* <button
                             className={`
     relative w-16 xs:w-16 3xl:w-20 h-10 p-1 xs:h-8 3xl:h-10  transition-all flex items-center justify-center rounded-sm
     ${
@@ -131,12 +129,50 @@ const VariationsList = ({
                             onMouseLeave={() => {
                               if (setHoveredColor) setHoveredColor("");
                             }}
+                          /> */}
+                          <button
+                            className={`
+    relative w-16 3xl:w-[72px] h-8 transition-all flex items-center justify-center
+    outline-1
+    ${
+      selected || hoveredColor === toCamelCase(type.variationTypeName)
+        ? "outline outline-grayborder"
+        : "outline-none"
+    }
+  `}
+                            style={{
+                              backgroundColor: type?.variationTypeHexCode,
+                              boxShadow:
+                                selected ||
+                                hoveredColor ===
+                                  toCamelCase(type.variationTypeName)
+                                  ? "0 0 5px 2px #fff"
+                                  : "none",
+                              outlineOffset: "4px", // Ensures equal spacing outside the button for the outline
+                            }}
+                            onClick={() =>
+                              handleSelect(
+                                variation?.variationId,
+                                type?.variationTypeId,
+                                variation?.variationName,
+                                type?.variationTypeName
+                              )
+                            }
+                            onMouseEnter={() => {
+                              if (setHoveredColor)
+                                setHoveredColor(
+                                  toCamelCase(type.variationTypeName)
+                                );
+                            }}
+                            onMouseLeave={() => {
+                              if (setHoveredColor) setHoveredColor("");
+                            }}
                           />
                         </div>
                       ) : type?.type === "image" ? (
                         <div className="relative flex flex-col items-center">
                           <button
-                            className={`w-12 xs:w-16 4xl:w-20 h-10 xs:h-8 4xl:h-10 p-1 flex items-center justify-center rounded-sm transition-all ${
+                            className={`w-12 xs:w-16 4xl:w-20 p-1 flex items-center justify-center rounded-sm transition-all ${
                               selected
                                 ? "border-grayborder text-baseblack border"
                                 : "border-transparent border"

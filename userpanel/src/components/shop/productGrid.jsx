@@ -183,9 +183,21 @@ const ProductGrid = memo(
                     whiteGoldThumbnailImage={product?.whiteGoldThumbnailImage}
                     yellowGoldThumbnailImage={product?.yellowGoldThumbnailImage}
                     roseGoldThumbnailImage={product?.roseGoldThumbnailImage}
-                    hoveredWhiteGoldImage={product?.whiteGoldImages[0]?.image}
-                    hoveredYellowGoldImage={product?.yellowGoldImages[0]?.image}
-                    hoveredRoseGoldImage={product?.roseGoldImages[0]?.image}
+                    hoveredWhiteGoldImage={
+                      product?.whiteGoldImages?.length
+                        ? product?.whiteGoldImages[0]?.image
+                        : null
+                    }
+                    hoveredYellowGoldImage={
+                      product?.yellowGoldImages?.length
+                        ? product?.yellowGoldImages[0]?.image
+                        : null
+                    }
+                    hoveredRoseGoldImage={
+                      product?.roseGoldImages?.length
+                        ? product?.roseGoldImages[0]?.image
+                        : null
+                    }
                     productLink={getProductLink({
                       queryParams,
                       isDiamondSettingPage,

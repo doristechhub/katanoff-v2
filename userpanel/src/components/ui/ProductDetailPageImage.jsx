@@ -7,7 +7,7 @@ import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import ZoomImage from "./ZoomImage";
-import { CustomImg, ProgressiveVed } from "../dynamiComponents";
+import { CustomImg, ProgressiveImg, ProgressiveVed } from "../dynamiComponents";
 import { helperFunctions } from "@/_helper";
 import leftArrow from "@/assets/icons/leftArrow.svg";
 import rightArrow from "@/assets/icons/rightArrow.svg";
@@ -118,11 +118,20 @@ const ProductDetailPageImage = ({
             </SwiperSlide>
           ))}
         {currentData.video && (
-          <SwiperSlide className="relative w-full max-h-[750px]">
+          <SwiperSlide className="flex justify-center items-center max-h-[750px]">
             <ProgressiveVed
               key={currentData.video} // force re-render on video change
               src={currentData.video}
               type={helperFunctions?.getVideoType(currentData.video)}
+              className="w-full h-full object-cover"
+            />
+          </SwiperSlide>
+        )}
+        {totalSlides === 0 && (
+          <SwiperSlide className="flex justify-center items-center max-h-[750px]">
+            <ProgressiveImg
+              src={null}
+              alt="Fallback Image"
               className="w-full h-full object-cover"
             />
           </SwiperSlide>

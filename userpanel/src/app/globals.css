@@ -305,8 +305,8 @@ ul {
   margin-left: 0;
 }
 
-.no-gutters > .col,
-.no-gutters > [class*="col-"] {
+.no-gutters>.col,
+.no-gutters>[class*="col-"] {
   padding-right: 0;
   padding-left: 0;
 }
@@ -377,6 +377,7 @@ ul {
 }
 
 @media (max-width: 767px) {
+
   .container,
   .container1400,
   .container1300 {

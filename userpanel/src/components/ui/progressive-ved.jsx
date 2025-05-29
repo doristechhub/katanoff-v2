@@ -7,10 +7,11 @@ import logo from "@/assets/images/logo.webp";
 const ProgressiveVed = ({
   placeholderSrc = logo,
   src,
+
   type = "video/mp4",
   className = "",
-  width = 320,
-  height = 240,
+  width = 200, // default width
+  height = 200, // default height
   ...props
 }) => {
   const [isVideoLoading, setIsVideoLoading] = useState(true);
@@ -26,15 +27,16 @@ const ProgressiveVed = ({
   }, [isVideoLoading]);
 
   return (
-    <div className="relative w-full h-full flex justify-center items-center">
+    <>
       {isVideoLoading && (
         <Image
           src={placeholderSrc}
-          alt="Loading video"
+          alt={"Loading..."}
           width={width}
           height={height}
-          className="opacity-25 absolute  animate-fade-in"
-          style={{ zIndex: 5 }}
+          className={`object-contain image-rendering-optimize ${customClass} ${className}`}
+          priority
+          {...props}
         />
       )}
       <video
@@ -52,7 +54,7 @@ const ProgressiveVed = ({
       >
         <source src={src} type={type} />
       </video>
-    </div>
+    </>
   );
 };
 

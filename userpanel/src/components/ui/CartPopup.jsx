@@ -485,8 +485,12 @@ const CartPopup = () => {
                     <LinkButton
                       className="!bg-transparent !text-baseblack hover:!bg-primary hover:!text-white !border-black !font-semibold !rounded-none"
                       title="CHECKOUT"
-                      href="/checkout"
-                      onClick={() => {
+                      href={isChecked ? "/checkout" : undefined}
+                      onClick={(e) => {
+                        if (!isChecked) {
+                          e.preventDefault();
+                          return;
+                        }
                         closeCartPopup();
                       }}
                     >

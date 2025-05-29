@@ -164,9 +164,11 @@ export default function NavigationHeader() {
 
         {menuLoading ? (
           <div
-            className={`flex justify-center gap-4 bg-white ${
-              lastScrollY > 100 ? "py-2 lg:py-5" : "py-4"
-            }`}
+            className={`flex justify-center gap-12 ${
+              transparenHeadertBg && !isHeaderVisible
+                ? "bg-offwhite"
+                : "bg-white"
+            } ${lastScrollY > 100 ? "py-2 lg:py-5" : "py-4"}`}
           >
             {Array.from({ length: 6 }).map((_, index) => (
               <SkeletonLoader
@@ -800,7 +802,7 @@ export default function NavigationHeader() {
                       } bg-white shadow-lg z-50 border-t-[0.5px] border-primary`}
                     >
                       <div className="px-[100px] flex justify-between p-6 w-full">
-                        <div className="w-[70%] flex justify-start flex-wrap gap-14 2xl:gap-20 h-fit">
+                        <div className="w-[70%] flex justify-start flex-wrap lg:gap-14 2xl:gap-18 h-fit">
                           {item?.subCategories?.length > 0 &&
                             item.subCategories.map((subItem, index) => (
                               <div

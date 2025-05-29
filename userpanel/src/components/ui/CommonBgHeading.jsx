@@ -9,11 +9,7 @@ const CommonBgHeading = ({
   bgColor = true,
 }) => {
   return (
-    <div
-      className={`w-full mt-[90px] lg:mt-4 py-6 ${
-        bgColor ? "bg-isabelline" : ""
-      }`}
-    >
+    <div className={`w-full mt-[90px] lg:mt-4 py-6 `}>
       <div className=" mx-auto px-4 flex items-center justify-center relative container">
         {backText && (
           <Link

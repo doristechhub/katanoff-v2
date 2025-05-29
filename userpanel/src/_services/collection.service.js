@@ -44,7 +44,7 @@ const getCollectionsWithProduct = () => {
             if (findedProduct) {
               return {
                 ...collection,
-                productImage: findedProduct?.images[0]?.image,
+                productImage: findedProduct?.yellowGoldThumbnailImage,
                 productId: findedProduct.id,
               };
             }

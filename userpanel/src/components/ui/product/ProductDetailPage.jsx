@@ -1,6 +1,6 @@
 "use client";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import diamondSvg from "@/assets/icons/3stepsDiamond.svg";
 import { useParams } from "next/navigation";
 import dropdownArrow from "@/assets/icons/dropdownArrow.svg";
@@ -53,54 +53,6 @@ import Link from "next/link";
 export const minProductQuantity = 1;
 export const maxProductQuantity = 5;
 
-const shippingReturnContent = [
-  {
-    label: "Fast & Secure Shipping –",
-    content:
-      "Orders are processed within 1-2 business days and shipped via reliable carriers like UPS, FedEx, or USPS.",
-  },
-  {
-    label: "Delivery Time –",
-    content:
-      "Standard shipping takes 3-7 business days, while expedited options are available for faster delivery.",
-  },
-  {
-    label: "Shipping Fees – ",
-    content:
-      "Free shipping on orders over [Specify Amount], with calculated rates for express or international shipping.",
-  },
-  {
-    label: "Order Tracking – ",
-    content:
-      "A tracking number is provided once your order ships, allowing you to monitor your package in real time.",
-  },
-  {
-    label: "Return Window –",
-    content:
-      "Items can be returned within [Specify Days, e.g., 14-30 days] of delivery for a refund or exchange.",
-  },
-  {
-    label: "Return Condition –",
-    content:
-      "Items must be unworn, in original packaging, and accompanied by proof of purchase.",
-  },
-  {
-    label: "Non-Returnable Items –",
-    content:
-      "Custom or engraved jewelry, final sale items, and used pieces cannot be returned.",
-  },
-  {
-    label: "Refund Processing –",
-    content:
-      "Refunds are issued to the original payment method within [Specify Days] after the return is received and inspected.",
-  },
-  {
-    label: "Damaged or Incorrect Items –",
-    content:
-      "If your order arrives damaged or incorrect, contact us immediately for a resolution.",
-  },
-];
-
 const supportItems = [
   {
     icon: paymentIcon,
@@ -124,6 +76,7 @@ const supportItems = [
 
 const ProductDetailPage = ({ customizePage }) => {
   const params = useParams();
+  const searchParams = useSearchParams();
   const dispatch = useDispatch();
   const router = useRouter();
   let { productName, productId } = params;
@@ -131,6 +84,9 @@ const ProductDetailPage = ({ customizePage }) => {
   const [hoveredColor, setHoveredColor] = useState("");
   const isCustomizePage =
     customizePage === "completeRing" || customizePage === "setting";
+  const goldColor = helperFunctions?.stringReplacedWithSpace(
+    searchParams.get("goldColor")
+  );
   const {
     productDetail,
     productLoading,
@@ -154,12 +110,32 @@ const ProductDetailPage = ({ customizePage }) => {
       );
       if (response) {
         dispatch(addUpdateRecentlyViewedProducts({ productName }));
-        const initialSelections = response?.variations?.map((variation) => ({
-          variationId: variation?.variationId,
-          variationTypeId: variation?.variationTypes[0]?.variationTypeId,
-          variationName: variation?.variationName,
-          variationTypeName: variation?.variationTypes[0]?.variationTypeName,
-        }));
+        const initialSelections = response?.variations?.map((variation) => {
+          if (
+            variation?.variationName?.toLowerCase() === "gold color" &&
+            goldColor
+          ) {
+            const matchedType = variation.variationTypes.find(
+              (vt) =>
+                vt.variationTypeName?.toLowerCase() === goldColor.toLowerCase()
+            );
+
+            if (matchedType) {
+              return {
+                variationId: variation?.variationId,
+                variationTypeId: matchedType.variationTypeId,
+                variationName: variation?.variationName,
+                variationTypeName: matchedType.variationTypeName,
+              };
+            }
+          }
+          return {
+            variationId: variation?.variationId,
+            variationTypeId: variation?.variationTypes[0]?.variationTypeId,
+            variationName: variation?.variationName,
+            variationTypeName: variation?.variationTypes[0]?.variationTypeName,
+          };
+        });
         dispatch(setSelectedVariations(initialSelections));
       }
     } else if (productId || customProductIdFromLocalStorage) {
@@ -172,6 +148,7 @@ const ProductDetailPage = ({ customizePage }) => {
             productName: response?.productName || "",
           })
         );
+
         let initialSelections = [];
         if (customProductDetails?.selectedVariations?.length > 0) {
           initialSelections = customProductDetails?.selectedVariations?.map(
@@ -183,12 +160,36 @@ const ProductDetailPage = ({ customizePage }) => {
             })
           );
         } else {
-          initialSelections = response?.variations?.map((variation) => ({
-            variationId: variation?.variationId,
-            variationTypeId: variation?.variationTypes[0]?.variationTypeId,
-            variationName: variation?.variationName,
-            variationTypeName: variation?.variationTypes[0]?.variationTypeName,
-          }));
+          initialSelections = response?.variations?.map((variation) => {
+            // Handle Gold Color variation with goldColor from search params
+            if (
+              variation?.variationName?.toLowerCase() === "gold color" &&
+              goldColor
+            ) {
+              const matchedType = variation.variationTypes.find(
+                (vt) =>
+                  vt.variationTypeName?.toLowerCase() ===
+                  goldColor.toLowerCase()
+              );
+              if (matchedType) {
+                return {
+                  variationId: variation?.variationId,
+                  variationTypeId: matchedType.variationTypeId,
+                  variationName: variation?.variationName,
+                  variationTypeName: matchedType.variationTypeName,
+                };
+              }
+            }
+
+            // Default to first variation type
+            return {
+              variationId: variation?.variationId,
+              variationTypeId: variation?.variationTypes[0]?.variationTypeId,
+              variationName: variation?.variationName,
+              variationTypeName:
+                variation?.variationTypes[0]?.variationTypeName,
+            };
+          });
         }
 
         dispatch(setSelectedVariations(initialSelections));
@@ -259,25 +260,6 @@ const ProductDetailPage = ({ customizePage }) => {
     );
     availableQty = quantity;
   }
-  // const handleSelect = useCallback(
-  //   (variationId, variationTypeId, variationName, variationTypeName) => {
-  //     dispatch(setCartMessage({ message: "", type: "" }));
-  //     const updated = [
-  //       ...selectedVariations?.filter(
-  //         (item) => item.variationId !== variationId
-  //       ),
-  //       { variationId, variationTypeId, variationName, variationTypeName },
-  //     ];
-  //     dispatch(
-  //       setSelectedVariations({
-  //         ...updated,
-  //         [variationName]: variationTypeName,
-  //       })
-  //     );
-  //     dispatch(setSelectedVariations(updated));
-  //   },
-  //   [selectedVariations]
-  // );
 
   const handleSelect = useCallback(
     (variationId, variationTypeId, variationName, variationTypeName) => {
@@ -295,6 +277,9 @@ const ProductDetailPage = ({ customizePage }) => {
         })
       );
       dispatch(setSelectedVariations(updated));
+      if (variationName?.toLowerCase() === "gold color") {
+        helperFunctions?.updateGoldColorInUrl(variationTypeName);
+      }
     },
     [dispatch, selectedVariations]
   );
@@ -451,12 +436,7 @@ const ProductDetailPage = ({ customizePage }) => {
     });
   }
 
-  const variationLabels = [
-    "Gold Type",
-    "Gold Color",
-    "Diamond Color",
-    "Diamond Clarity",
-  ];
+  const variationLabels = ["Gold Type", "Gold Color", "Diamond Qualitiy"];
 
   const displayValues = variationLabels
     .map((label) =>
@@ -465,7 +445,8 @@ const ProductDetailPage = ({ customizePage }) => {
     .filter(Boolean)
     .join(" ");
 
-  console.log("productDetail", productDetail);
+  //  const productLoading
+
   return (
     <div
       className={` ${
@@ -717,6 +698,7 @@ const ProductDetailPage = ({ customizePage }) => {
             isSubmitted={isSubmitted}
             cartMessage={cartMessage}
             selectedVariations={selectedVariations}
+            isActive={productDetail?.active}
           />
         </>
       ) : (
@@ -742,6 +724,7 @@ const AddToBagBar = ({
   isSubmitted,
   cartMessage,
   selectedVariations,
+  isActive,
 }) => {
   const baseClasses = `w-full bg-[#FFFFFF] shadow-md transition-opacity duration-300 z-50 ${
     position === "bottom" ? "fixed bottom-0 left-0" : "relative mt-4 lg:mt-12"
@@ -769,11 +752,12 @@ const AddToBagBar = ({
             </p>
 
             <p className="text-base pt-1">
-              {" "}
-              {availableQty && availableQty > 0
+              {isActive && availableQty && availableQty > 0
                 ? "Made-to-Order"
-                : "Out of Stock"}
-              &nbsp; | {estimatedDate}
+                : isActive
+                ? "Out of Stock"
+                : "Inactive"}{" "}
+              | {estimatedDate}
             </p>
           </div>
 
@@ -827,14 +811,21 @@ const AddToBagBar = ({
                     cartLoading ||
                     !availableQty ||
                     availableQty < 0 ||
-                    isInValidSelectedVariation
+                    isInValidSelectedVariation ||
+                    !isActive
                   }
                   loaderType={isHovered ? "" : "white"}
                   onClick={onAddToCart}
                 >
-                  {availableQty && availableQty > 0
+                  {/* {isActive && availableQty && availableQty > 0
                     ? "ADD TO BAG"
-                    : "OUT OF STOCK"}
+                    : "OUT OF STOCK"} */}
+
+                  {isActive && availableQty && availableQty > 0
+                    ? "ADD TO BAG"
+                    : isActive
+                    ? "OUT OF STOCK"
+                    : "INACTIVE"}
                 </LoadingPrimaryButton>
               )}
             </div>
@@ -1030,25 +1021,6 @@ const ProductDetailTabs = ({ selectedVariations = [] }) => {
         </div>
       ),
     },
-
-    // {
-    //   label: "Shipping & Returns",
-    //   content: (
-    //     <div className="mt-4 ">
-    //       {shippingReturnContent?.map((item) => (
-    //         <div
-    //           key={helperFunctions?.generateUniqueId()}
-    //           className="flex flex-wrap gap-6 mt-4 lg:mt-8"
-    //         >
-    //           <p className="text-sm md:text-sm 2xl:text-base text-baseblack">
-    //             <span className="font-semibold">{item?.label} </span>
-    //             {item?.content}
-    //           </p>
-    //         </div>
-    //       ))}
-    //     </div>
-    //   ),
-    // },
   ];
 
   return (

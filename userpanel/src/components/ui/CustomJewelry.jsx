@@ -1,8 +1,30 @@
 import CustomJewelryForm from "@/components/ui/CustomJewelryForm";
+import contactus from "@/assets/images/contact-us/contact.webp";
+import HeroBanner from "./HeroBanner";
 
 export default function CustomJewelry() {
   return (
     <>
+      <div className="relative w-full">
+        <HeroBanner
+          imageSrc={contactus}
+          title=""
+          description=""
+          isStaticBanner={true}
+          altAttr=""
+          titleAttr=""
+        />
+
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center">
+          <h1 className="text-2xl md:text-4xl 2xl:text-5xl text-white font-castoro capitalize">
+            Custom Jewelry
+          </h1>
+          <p className="mt-2 text-base md:text-lg font-Figtree">
+            We're here to help – reach out anytime!
+          </p>
+          <div className="mt-4 w-8 h-[1px] bg-white" />
+        </div>
+      </div>
       <section className="container pt-4 md:pt-8 lg:pt-12 2xl:pt-20">
         <div className="space-y-10 max-w-3xl mx-auto font-Figtree">
           <div className="flex items-start gap-4">
@@ -55,7 +77,7 @@ export default function CustomJewelry() {
       <section>
         <div className="container py-12 md:py-16 lg:py-12 2xl:py-20">
           <div className="max-w-3xl mx-auto">
-            <div className="border border-gray-e2 p-6 md:p-8 lg:p-10 xl:p-12 2xl:p-20 shadow-sm">
+            <div className="p-6">
               <CustomJewelryForm />
             </div>
           </div>

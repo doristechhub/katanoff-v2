@@ -353,3 +353,10 @@ export const ProductDetailPageImage = dynamic(
 export const AccordionTabs = dynamic(() => import("./ui/AccordianTabs.jsx"), {
   ssr: false,
 });
+
+export const CustomJewelryDetailPage = dynamic(
+  () => import("./ui/CustomJewelryDetailPage.jsx"),
+  {
+    ssr: false,
+  }
+);

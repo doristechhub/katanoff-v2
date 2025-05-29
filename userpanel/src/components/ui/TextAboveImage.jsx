@@ -7,19 +7,13 @@ const TextAboveImage = ({ categoryData, className, textClassName }) => {
     <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${className}`}>
       {categoryData.map((item, index) => (
         <div key={index} className={`relative`}>
-          {item?.videoSrc ? (
-            <CustomVideo
-              videoSrc={item?.videoSrc}
-              thumbnail={item?.thumbnailImage}
-            />
-          ) : (
-            <CustomImg
-              srcAttr={item?.image}
-              altAttr={item?.altAttr}
-              titleAttr={item?.titleAttr}
-              className="h-[60vh] sm:h-[85vh] object-cover"
-            />
-          )}
+          <CustomImg
+            srcAttr={item?.image}
+            altAttr={item?.altAttr}
+            titleAttr={item?.titleAttr}
+            className="h-[60vh] sm:h-[85vh] object-cover"
+          />
+
           <div className="px-4 md:px-0 absolute bottom-28 left-1/2 -translate-x-1/2 inline-block lg:bottom-[30%] text-center  text-white gap-4 z-40 uppercase">
             <h3
               className={`text-lg md:text-2xl 2xl:text-3xl tracking-wider font-castoro pb-10 ${textClassName}`}
