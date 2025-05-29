@@ -7,7 +7,10 @@ import {
   sanitizeObject,
 } from "../_helper";
 import { productService } from "./product.service";
-import { MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT } from "@/_helper/constants";
+import {
+  GOLD_COLOR_MAP,
+  MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT,
+} from "@/_helper/constants";
 
 const getAllCartWithProduct = () => {
   return new Promise(async (resolve, reject) => {
@@ -102,11 +105,19 @@ const getAllCartWithProduct = () => {
                 )?.title,
               }
             : null;
+
+          const goldColor = variationArray
+            .find((v) => v.variationName === "Gold Color")
+            ?.variationTypeName?.toLowerCase();
+          const thumbnailField =
+            GOLD_COLOR_MAP[goldColor] || "yellowGoldThumbnailImage";
+          const thumbnailImage = findedProduct[thumbnailField];
+
           return {
             ...cartItem,
             productSku: findedProduct.sku,
             productName: findedProduct.productName,
-            productImage: findedProduct?.images[0]?.image || "",
+            productImage: thumbnailImage,
             productQuantity: quantity,
             quantityWisePrice: price * cartItem.quantity,
             quantityWiseSellingPrice: sellingPrice * cartItem.quantity,

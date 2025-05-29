@@ -108,11 +108,12 @@ const getLatestProducts = (length = 8) => {
           );
           return {
             productName: product.productName,
-            images: product?.images?.slice(0, 2),
             whiteGoldThumbnailImage: product?.whiteGoldThumbnailImage,
             yellowGoldThumbnailImage: product?.yellowGoldThumbnailImage,
             roseGoldThumbnailImage: product?.roseGoldThumbnailImage,
-            video: product?.video,
+            whiteGoldImages: product?.whiteGoldImages,
+            yellowGoldImages: product?.yellowGoldImages,
+            roseGoldImages: product?.roseGoldImages,
             id: product.id,
             basePrice: price,
             baseSellingPrice: helperFunctions.getSellingPrice({
@@ -245,14 +246,12 @@ const getCollectionsTypeWiseProduct = (
           return {
             productName: product.productName,
             isDiamondFilter: product?.isDiamondFilter || false,
-            images: product?.images?.slice(0, 2),
             whiteGoldThumbnailImage: product?.whiteGoldThumbnailImage,
             yellowGoldThumbnailImage: product?.yellowGoldThumbnailImage,
             roseGoldThumbnailImage: product?.roseGoldThumbnailImage,
             whiteGoldImages: product?.whiteGoldImages,
             yellowGoldImages: product?.yellowGoldImages,
             roseGoldImages: product?.roseGoldImages,
-            video: product?.video,
             id: product.id,
             gender: product.gender,
             basePrice: price,
@@ -432,7 +431,9 @@ const getReletedProducts = (productName) => {
               );
               return {
                 productName: product.productName,
-                images: product?.images?.slice(0, 2),
+                whiteGoldImages: product?.whiteGoldImages,
+                yellowGoldImages: product?.yellowGoldImages,
+                roseGoldImages: product?.roseGoldImages,
                 whiteGoldThumbnailImage: product?.whiteGoldThumbnailImage,
                 yellowGoldThumbnailImage: product?.yellowGoldThumbnailImage,
                 roseGoldThumbnailImage: product?.roseGoldThumbnailImage,
@@ -654,7 +655,9 @@ const getFilteredDiamondProducts = (params) => {
           );
           return {
             productName: product.productName,
-            images: product?.images?.slice(0, 2),
+            whiteGoldImages: product?.whiteGoldImages,
+            yellowGoldImages: product?.yellowGoldImages,
+            roseGoldImages: product?.roseGoldImages,
             whiteGoldThumbnailImage: product?.whiteGoldThumbnailImage,
             yellowGoldThumbnailImage: product?.yellowGoldThumbnailImage,
             roseGoldThumbnailImage: product?.roseGoldThumbnailImage,
@@ -788,11 +791,12 @@ const getCustomizeProduct = () => {
           return {
             productName: product?.productName,
             isDiamondFilter: product?.isDiamondFilter || false,
-            images: product?.images?.slice(0, 2),
+            whiteGoldImages: product?.whiteGoldImages,
+            yellowGoldImages: product?.yellowGoldImages,
+            roseGoldImages: product?.roseGoldImages,
             whiteGoldThumbnailImage: product?.whiteGoldThumbnailImage,
             yellowGoldThumbnailImage: product?.yellowGoldThumbnailImage,
             roseGoldThumbnailImage: product?.roseGoldThumbnailImage,
-            video: product?.video,
             diamondFilters: product?.diamondFilters,
             id: product.id,
             basePrice: minCustomProductPrice,

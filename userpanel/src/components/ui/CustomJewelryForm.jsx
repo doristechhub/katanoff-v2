@@ -88,7 +88,7 @@ const CustomJewelryForm = () => {
             type="text"
             name="firstName"
             placeholder="First name"
-            className={`custom-input w-full 2xl:py-4${
+            className={`custom-input !bg-transparent !border !rounded-md !border-grayborder w-full 2xl:py-3 ${
               touched?.firstName && errors?.firstName
                 ? "border-red-500 border"
                 : ""
@@ -113,8 +113,10 @@ const CustomJewelryForm = () => {
             type="text"
             name="lastName"
             placeholder="Last name"
-            className={`custom-input w-full 2xl:py-4${
-              touched?.lastName && errors?.lastName ? "border-red-500 border" : ""
+            className={`custom-input !bg-transparent !border !rounded-md !border-grayborder w-full 2xl:py-3 ${
+              touched?.lastName && errors?.lastName
+                ? "border-red-500 border"
+                : ""
             }`}
             onChange={handleChange}
             onBlur={handleBlur}
@@ -136,7 +138,7 @@ const CustomJewelryForm = () => {
             type="email"
             name="email"
             placeholder="Your Email"
-            className={`custom-input w-full 2xl:py-4 ${
+            className={`custom-input !bg-transparent !border !rounded-md !border-grayborder w-full 2xl:py-3 ${
               touched?.email && errors?.email ? "border-red-500 border" : ""
             }`}
             onChange={handleChange}
@@ -160,7 +162,7 @@ const CustomJewelryForm = () => {
             name="phone"
             id="mobile"
             placeholder="Mobile number"
-            className={`custom-input w-full 2xl:py-4${
+            className={`custom-input !bg-transparent !border !rounded-md !border-grayborder w-full 2xl:py-3 ${
               touched?.phone && errors?.phone ? "border-red-500 border" : ""
             }`}
             onChange={handleChange}
@@ -181,7 +183,7 @@ const CustomJewelryForm = () => {
           >
             Attachment
           </label>
-          <div className="custom-input w-full 2xl:py-4 bg-white">
+          <div className="custom-input !bg-transparent !border !rounded-md !border-grayborder w-full 2xl:py-3 bg-white">
             <FileUpload
               values={values}
               setFieldValue={setFieldValue}
@@ -203,7 +205,7 @@ const CustomJewelryForm = () => {
           name="message"
           id="description"
           rows={4}
-          className={`custom-input w-full 2xl:py-4 ${
+          className={`custom-input !bg-transparent !border !rounded-md !border-grayborder w-full 2xl:py-3 ${
             touched?.message && errors?.message ? "border-red-500 border" : ""
           }`}
           onChange={handleChange}

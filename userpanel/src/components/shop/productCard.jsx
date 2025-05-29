@@ -20,10 +20,6 @@ export default function ProductCard({
   hoveredYellowGoldImage,
   hoveredRoseGoldImage,
 }) {
-  productLink =
-    productLink ||
-    `/products/${helperFunctions.stringReplacedWithUnderScore(title)}`;
-
   // State for selected and hovered gold color, and image hover
   const [selectedGoldColor, setSelectedGoldColor] = useState(null);
   const [hoveredGoldColor, setHoveredGoldColor] = useState(null);
@@ -54,6 +50,14 @@ export default function ProductCard({
       setSelectedGoldColor(goldColorVariations[0].variationTypeName);
     }
   }, [goldColorVariations, selectedGoldColor]);
+
+  productLink =
+    productLink ||
+    `/products/${helperFunctions.stringReplacedWithUnderScore(
+      title
+    )}?goldColor=${helperFunctions.stringReplacedWithUnderScore(
+      selectedGoldColor
+    )}`;
 
   // Determine the current image to display
   const currentImage =

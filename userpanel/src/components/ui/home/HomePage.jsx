@@ -65,7 +65,7 @@ const categoryData = [
     btnText: "SHOP NOW",
   },
   {
-    title: "Gifts for Her",
+    title: "Special Buys",
     image: home18,
     titleAttr: "",
     altAttr: "",

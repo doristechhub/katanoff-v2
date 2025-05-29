@@ -1,6 +1,7 @@
 import { uid } from "uid";
 import {
   fetchWrapperService,
+  GOLD_COLOR_MAP,
   helperFunctions,
   ordersUrl,
   productsUrl,
@@ -558,10 +559,17 @@ const processReturnProductItem = ({
       }
     : null;
 
+  const goldColor = variationArray
+    .find((v) => v.variationName === "Gold Color")
+    ?.variationTypeName?.toLowerCase();
+  const thumbnailField =
+    GOLD_COLOR_MAP[goldColor] || "yellowGoldThumbnailImage";
+  const thumbnailImage = findedProduct[thumbnailField];
+
   return {
     ...returnProductItem,
     productName: findedProduct.productName,
-    productImage: findedProduct?.images[0]?.image,
+    productImage: thumbnailImage,
     variations: variationArray,
     diamondDetail,
   };

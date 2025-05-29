@@ -142,5 +142,12 @@ export const CLARITY_COLOR_PRICES = {
 export const MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT = 5;
 export const ENGAGEMENT = "Engagement";
 
-export const PAYPAL = "paypal"
-export const STRIPE = "stripe"
+export const PAYPAL = "paypal";
+export const STRIPE = "stripe";
+
+// Object map for gold color to thumbnail field
+export const GOLD_COLOR_MAP = {
+  "rose gold": "roseGoldThumbnailImage",
+  "yellow gold": "yellowGoldThumbnailImage",
+  "white gold": "whiteGoldThumbnailImage",
+};

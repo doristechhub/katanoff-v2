@@ -103,8 +103,22 @@ export default function ProductSwiper({
                   whiteGoldThumbnailImage={product?.whiteGoldThumbnailImage}
                   yellowGoldThumbnailImage={product?.yellowGoldThumbnailImage}
                   roseGoldThumbnailImage={product?.roseGoldThumbnailImage}
+                  hoveredWhiteGoldImage={
+                    product?.whiteGoldImages?.length
+                      ? product?.whiteGoldImages[0]?.image
+                      : null
+                  }
+                  hoveredYellowGoldImage={
+                    product?.yellowGoldImages?.length
+                      ? product?.yellowGoldImages[0]?.image
+                      : null
+                  }
+                  hoveredRoseGoldImage={
+                    product?.roseGoldImages?.length
+                      ? product?.roseGoldImages[0]?.image
+                      : null
+                  }
                   price={product?.baseSellingPrice}
-                  video={product?.video}
                   productLink={getProductLink({
                     queryParams,
                     isDiamondSettingPage,

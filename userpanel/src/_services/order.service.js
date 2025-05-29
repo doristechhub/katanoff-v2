@@ -1,6 +1,7 @@
 import axios from "axios";
 import {
   fetchWrapperService,
+  GOLD_COLOR_MAP,
   helperFunctions,
   ordersUrl,
   productsUrl,
@@ -350,10 +351,17 @@ const processOrderProductItem = ({
       }
     : null;
 
+  const goldColor = variationArray
+    .find((v) => v.variationName === "Gold Color")
+    ?.variationTypeName?.toLowerCase();
+  const thumbnailField =
+    GOLD_COLOR_MAP[goldColor] || "yellowGoldThumbnailImage";
+  const thumbnailImage = findedProduct[thumbnailField];
+
   return {
     ...orderProductItem,
     productName: findedProduct.productName,
-    productImage: findedProduct?.images[0]?.image,
+    productImage: thumbnailImage,
     variations: variationArray,
     diamondDetail,
   };

@@ -502,6 +502,13 @@ const shouldHideCartPopup = (pathname) => {
   );
 };
 
+const updateGoldColorInUrl = (newGoldColor) => {
+  const url = new URL(window.location);
+  const formattedColor = stringReplacedWithUnderScore(newGoldColor);
+  url.searchParams.set("goldColor", formattedColor);
+  window.history.replaceState(null, "", url.toString());
+};
+
 export const helperFunctions = {
   generateUniqueId,
   stringReplacedWithUnderScore,
@@ -537,4 +544,5 @@ export const helperFunctions = {
   getVariationValue,
   displayVariationsLabel,
   shouldHideCartPopup,
+  updateGoldColorInUrl,
 };

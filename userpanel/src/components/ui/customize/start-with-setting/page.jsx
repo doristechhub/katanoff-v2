@@ -91,7 +91,6 @@ export default function StartWithSettingPage() {
   useEffect(() => {
     applySearchParamsFilters();
   }, [applySearchParamsFilters]);
-
   return (
     <>
       <section className="container pt-10 md:pt-14 lg:pt-10 2xl:pt-12">
