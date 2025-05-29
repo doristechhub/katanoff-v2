@@ -561,7 +561,7 @@ const processReturnProductItem = ({
   return {
     ...returnProductItem,
     productName: findedProduct.productName,
-    productImage: findedProduct.images[0]?.image,
+    productImage: findedProduct?.images[0]?.image,
     variations: variationArray,
     diamondDetail,
   };

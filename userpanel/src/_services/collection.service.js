@@ -1,6 +1,10 @@
-import { collectionUrl, fetchWrapperService, helperFunctions, productsUrl } from "../_helper";
+import {
+  collectionUrl,
+  fetchWrapperService,
+  helperFunctions,
+  productsUrl,
+} from "../_helper";
 import { TOP_SELLING_PRODUCTS } from "../_helper/constants";
-
 
 const getAllCollection = () => {
   return new Promise(async (resolve, reject) => {
@@ -40,7 +44,7 @@ const getCollectionsWithProduct = () => {
             if (findedProduct) {
               return {
                 ...collection,
-                productImage: findedProduct.images[0].image,
+                productImage: findedProduct?.images[0]?.image,
                 productId: findedProduct.id,
               };
             }

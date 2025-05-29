@@ -42,20 +42,20 @@ const getAllActiveProducts = () => {
 
           diamondFilters: product.isDiamondFilter
             ? {
-              ...product?.diamondFilters,
-              diamondShapes: product?.diamondFilters.diamondShapeIds?.map(
-                (shapeId) => {
-                  const foundedShape = diamondShapeList?.find(
-                    (shape) => shape?.id === shapeId
-                  );
-                  return {
-                    title: foundedShape?.title,
-                    image: foundedShape?.image,
-                    id: foundedShape?.id,
-                  };
-                }
-              ),
-            }
+                ...product?.diamondFilters,
+                diamondShapes: product?.diamondFilters.diamondShapeIds?.map(
+                  (shapeId) => {
+                    const foundedShape = diamondShapeList?.find(
+                      (shape) => shape?.id === shapeId
+                    );
+                    return {
+                      title: foundedShape?.title,
+                      image: foundedShape?.image,
+                      id: foundedShape?.id,
+                    };
+                  }
+                ),
+              }
             : product?.diamondFilters,
           categoryName: menuData.categories.find(
             (category) => category.id === product.categoryId
@@ -108,11 +108,11 @@ const getLatestProducts = (length = 8) => {
           );
           return {
             productName: product.productName,
-            images: product.images.slice(0, 2),
+            images: product?.images?.slice(0, 2),
             whiteGoldThumbnailImage: product?.whiteGoldThumbnailImage,
             yellowGoldThumbnailImage: product?.yellowGoldThumbnailImage,
             roseGoldThumbnailImage: product?.roseGoldThumbnailImage,
-            video: product.video,
+            video: product?.video,
             id: product.id,
             basePrice: price,
             baseSellingPrice: helperFunctions.getSellingPrice({
@@ -245,14 +245,14 @@ const getCollectionsTypeWiseProduct = (
           return {
             productName: product.productName,
             isDiamondFilter: product?.isDiamondFilter || false,
-            images: product.images.slice(0, 2),
+            images: product?.images?.slice(0, 2),
             whiteGoldThumbnailImage: product?.whiteGoldThumbnailImage,
             yellowGoldThumbnailImage: product?.yellowGoldThumbnailImage,
             roseGoldThumbnailImage: product?.roseGoldThumbnailImage,
             whiteGoldImages: product?.whiteGoldImages,
             yellowGoldImages: product?.yellowGoldImages,
             roseGoldImages: product?.roseGoldImages,
-            video: product.video,
+            video: product?.video,
             id: product.id,
             gender: product.gender,
             basePrice: price,
@@ -359,10 +359,10 @@ const getProcessProducts = async (singleProductData) => {
             );
             return foundShape
               ? {
-                title: foundShape?.title,
-                image: foundShape?.image,
-                id: foundShape?.id,
-              }
+                  title: foundShape?.title,
+                  image: foundShape?.image,
+                  id: foundShape?.id,
+                }
               : null;
           })
           .filter(Boolean),
@@ -432,7 +432,7 @@ const getReletedProducts = (productName) => {
               );
               return {
                 productName: product.productName,
-                images: product.images.slice(0, 2),
+                images: product?.images?.slice(0, 2),
                 whiteGoldThumbnailImage: product?.whiteGoldThumbnailImage,
                 yellowGoldThumbnailImage: product?.yellowGoldThumbnailImage,
                 roseGoldThumbnailImage: product?.roseGoldThumbnailImage,
@@ -580,15 +580,15 @@ const getFilteredDiamondProducts = (params) => {
           // Filter by product type
           const isProductTypeValid = selectedProductTypes?.length
             ? selectedProductTypes.some((type) =>
-              product?.productTypeNames.includes(type?.value)
-            )
+                product?.productTypeNames.includes(type?.value)
+              )
             : true;
 
           // Filter by collection
           const isCollectionValid = selectedCollections?.length
             ? selectedCollections.some((collection) =>
-              product?.collectionNames?.includes(collection?.value)
-            )
+                product?.collectionNames?.includes(collection?.value)
+              )
             : true;
 
           // Filter by setting style
@@ -597,32 +597,32 @@ const getFilteredDiamondProducts = (params) => {
           );
           const isSettingStyleValid = selectedSettingStyles?.length
             ? selectedSettingStyles.some((style) =>
-              settingStyleNames?.includes(style?.value)
-            )
+                settingStyleNames?.includes(style?.value)
+              )
             : true;
 
           // Filter by variations
           const isVariationValid = selectedVariations?.length
             ? selectedVariations.every((selectedVariation) => {
-              const productVariation = product?.variations?.find(
-                (v) =>
-                  v?.variationName.toLowerCase() ===
-                  selectedVariation.title.toLowerCase()
-              );
+                const productVariation = product?.variations?.find(
+                  (v) =>
+                    v?.variationName.toLowerCase() ===
+                    selectedVariation.title.toLowerCase()
+                );
 
-              if (!productVariation) return false;
+                if (!productVariation) return false;
 
-              // Check if any selected value matches the product's variation types
-              return selectedVariation.selectedValues.length
-                ? selectedVariation.selectedValues.some((selectedValue) =>
-                  productVariation.variationTypes.some(
-                    (variationType) =>
-                      variationType.variationTypeName.toLowerCase() ===
-                      selectedValue.value.toLowerCase()
-                  )
-                )
-                : true;
-            })
+                // Check if any selected value matches the product's variation types
+                return selectedVariation.selectedValues.length
+                  ? selectedVariation.selectedValues.some((selectedValue) =>
+                      productVariation.variationTypes.some(
+                        (variationType) =>
+                          variationType.variationTypeName.toLowerCase() ===
+                          selectedValue.value.toLowerCase()
+                      )
+                    )
+                  : true;
+              })
             : true;
 
           // Filter by price range
@@ -631,10 +631,10 @@ const getFilteredDiamondProducts = (params) => {
           );
           const isPriceValid = priceRangeValues?.length
             ? productPrices.some(
-              (price) =>
-                price >= (priceRangeValues[0] || 0) &&
-                price <= (priceRangeValues[1] || Infinity)
-            )
+                (price) =>
+                  price >= (priceRangeValues[0] || 0) &&
+                  price <= (priceRangeValues[1] || Infinity)
+              )
             : true;
 
           return (
@@ -654,7 +654,7 @@ const getFilteredDiamondProducts = (params) => {
           );
           return {
             productName: product.productName,
-            images: product.images.slice(0, 2),
+            images: product?.images?.slice(0, 2),
             whiteGoldThumbnailImage: product?.whiteGoldThumbnailImage,
             yellowGoldThumbnailImage: product?.yellowGoldThumbnailImage,
             roseGoldThumbnailImage: product?.roseGoldThumbnailImage,

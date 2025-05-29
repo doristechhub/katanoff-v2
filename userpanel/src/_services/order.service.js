@@ -238,7 +238,7 @@ const verifyOrder = async (orderId) => {
       reject(e);
     }
   });
-}
+};
 
 // const getTopSellingProducts = () => {
 //   return new Promise(async (resolve, reject) => {
@@ -353,7 +353,7 @@ const processOrderProductItem = ({
   return {
     ...orderProductItem,
     productName: findedProduct.productName,
-    productImage: findedProduct.images[0]?.image,
+    productImage: findedProduct?.images[0]?.image,
     variations: variationArray,
     diamondDetail,
   };
