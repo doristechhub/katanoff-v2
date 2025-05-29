@@ -46,7 +46,7 @@ const getAllRecentlyViewedWithProduct = () => {
             id: recentlyViewedItem.id,
             productId: recentlyViewedItem.productId,
             productName: foundProduct.productName,
-            images: foundProduct.images.slice(0, 2),
+            images: foundProduct?.images?.slice(0, 2),
             basePrice: price,
             baseSellingPrice: helperFunctions.getSellingPrice({
               price,
