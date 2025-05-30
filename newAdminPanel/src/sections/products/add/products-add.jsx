@@ -862,7 +862,7 @@ export default function AddProductPage() {
                                 <TextField
                                   type="number"
                                   name="netWeight"
-                                  label="Net Weight"
+                                  label="Net Weight (g)"
                                   onBlur={handleBlur}
                                   onChange={(event) => {
                                     const value = event?.target?.value;
@@ -877,13 +877,14 @@ export default function AddProductPage() {
                                     touched?.netWeight && errors?.netWeight ? errors?.netWeight : ''
                                   }
                                   sx={{ width: '100%' }}
+                                  inputProps={{ min: 0 }}
                                 />
                               </Grid>
                               <Grid xs={12} sm={6} md={6}>
                                 <TextField
                                   type="number"
                                   name="sideDiamondWeight"
-                                  label="Side Diamond Weight"
+                                  label="Side Diamond Weight (Ct.)"
                                   onBlur={handleBlur}
                                   onChange={(event) => {
                                     const value = event?.target?.value;
@@ -902,6 +903,7 @@ export default function AddProductPage() {
                                       : ''
                                   }
                                   sx={{ width: '100%' }}
+                                  inputProps={{ min: 0 }}
                                 />
                               </Grid>
                             </Grid>

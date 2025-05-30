@@ -9,17 +9,6 @@ import {
   InputAdornment,
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
-import {
-  ALLOWED_DIA_CERTIFICATES,
-  ALLOWED_DIA_CLARITIES,
-  ALLOWED_DIA_COLORS,
-  ALLOWED_DIA_CUTS,
-  ALLOWED_DIA_FLUORESCENCE,
-  ALLOWED_DIA_POLISH,
-  ALLOWED_DIA_SYMMETRIES,
-  ALLOWED_DIA_TYPES,
-  ALLOWED_SHAPES,
-} from 'src/_helpers/constants';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import ClearIcon from '@mui/icons-material/Clear';

@@ -269,7 +269,16 @@ const insertProduct = (params) => {
           }
         }
 
-        // Validate netWeight for isDiamondFilter
+        if (netWeight && netWeight <= 0) {
+          reject(new Error('Invalid Net Weight: Must be a positive number'));
+          return;
+        }
+
+        if (sideDiamondWeight && sideDiamondWeight <= 0) {
+          reject(new Error('Invalid Side Diamond Weight: Must be a positive number'));
+          return;
+        }
+
         if (isDiamondFilter) {
           const diamondFilterErrorMsg = validateDiamondFilters(diamondFilters);
           if (diamondFilterErrorMsg) {
@@ -1749,6 +1758,16 @@ const updateProduct = (params) => {
           const shortDescErrorMsg = validateShortDescription(shortDescription);
           if (shortDescErrorMsg) {
             reject(new Error(shortDescErrorMsg));
+            return;
+          }
+
+          if (netWeight && netWeight <= 0) {
+            reject(new Error('Invalid Net Weight: Must be a positive number'));
+            return;
+          }
+
+          if (sideDiamondWeight && sideDiamondWeight <= 0) {
+            reject(new Error('Invalid Side Diamond Weight: Must be a positive number'));
             return;
           }
 
