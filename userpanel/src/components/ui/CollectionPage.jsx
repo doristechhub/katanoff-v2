@@ -1,7 +1,11 @@
 "use client";
 import { fetchCollectionsTypeWiseProduct } from "@/_actions/product.actions";
 import { helperFunctions } from "@/_helper";
-import { ProductGrid, SwipperHomePageBig } from "@/components/dynamiComponents";
+import {
+  ProductFilter,
+  ProductGrid,
+  SwipperHomePageBig,
+} from "@/components/dynamiComponents";
 import { useParams, useSearchParams } from "next/navigation";
 import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -98,19 +102,27 @@ export default function CollectionPage() {
         titleAttr=""
       />
 
-      {/* Setting Style Swiper */}
-      <section className="container pt-10 md:pt-14 lg:pt-20 2xl:pt-20">
-        <h2 className="text-center text-[20px] leading-6 md:text-3xl lg:text-[26px] lg:leading-[33px] 2xl:text-5xl font-castoro capitalize">
-          {collectionTitle}
-        </h2>
+      <h2 className="text-center text-[20px] leading-6 md:text-3xl lg:text-[26px] lg:leading-[33px] 2xl:text-5xl font-castoro capitalize pt-6 lg:pt-10 2xl:pt-12">
+        {collectionTitle}
+      </h2>
+      <section className="pt-6 lg:pt-10 2xl:pt-12">
+        {collectionTypeProductList?.length ? (
+          <ProductFilter
+            uniqueVariations={uniqueFilterOptions}
+            productList={collectionTypeProductList}
+          />
+        ) : null}
+      </section>
 
+      {/* Setting Style Swiper */}
+      <section className="container">
         <SettingStyleCategorySwiper
           settingStyleCategories={uniqueFilterOptions.uniqueSettingStyles}
           loading={productLoading}
         />
       </section>
       {/* Product Grid Section */}
-      <section className="container pt-10 md:pt-14 lg:pt-20 2xl:pt-20">
+      <section className="container pt-6 lg:pt-10 2xl:pt-12">
         <ProductGrid
           productList={collectionTypeProductList}
           pagination={true}

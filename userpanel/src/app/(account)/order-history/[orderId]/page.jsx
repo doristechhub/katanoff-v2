@@ -21,19 +21,23 @@ export default function OrderDetailPage() {
   }, [orderId]);
   return (
     <>
-      <CommonBgHeading title="Order Summary" />
+      <div className="pt-12">
+        <CommonBgHeading title="Order Summary" />
+      </div>
 
       {!orderDetail && !orderDetailLoading ? (
         <ProductNotFound message="Sorry, no order found." />
       ) : (
-        <OrderDetails
-          orderLoading={orderDetailLoading}
-          orderDetail={orderDetail}
-          invoiceLoading={invoiceLoading}
-          selectedOrder={selectedOrder}
-          showInvoice={true}
-          showCancel={true}
-        />
+        <div className="container">
+          <OrderDetails
+            orderLoading={orderDetailLoading}
+            orderDetail={orderDetail}
+            invoiceLoading={invoiceLoading}
+            selectedOrder={selectedOrder}
+            showInvoice={true}
+            showCancel={true}
+          />
+        </div>
       )}
     </>
   );

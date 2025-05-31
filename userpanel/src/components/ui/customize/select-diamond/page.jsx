@@ -148,26 +148,6 @@ export default function SelectDiamondPage() {
     }
   };
 
-  const calculatePrice = () => {
-    try {
-      if (
-        !diamondSelection.caratWeight ||
-        !diamondSelection.clarity?.value ||
-        !diamondSelection.color?.value
-      ) {
-        return 0;
-      }
-
-      return helperFunctions?.calculateDiamondPrice({
-        caratWeight: diamondSelection.caratWeight,
-        clarity: diamondSelection.clarity.value,
-        color: diamondSelection.color.value,
-      });
-    } catch (error) {
-      console.error("Error calculating diamond price:", error);
-      return 0;
-    }
-  };
   const formik = useFormik({
     initialValues: {
       caratWeight: 0.1,
@@ -464,10 +444,6 @@ export default function SelectDiamondPage() {
                 Diamond: LABGROWN
               </p>
             </div>
-
-            <h3 className="font-semibold text-lg">
-              Final Price: ${calculatePrice().toFixed(2)}
-            </h3>
           </div>
 
           <div className="flex justify-center pt-5">

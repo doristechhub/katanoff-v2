@@ -6,7 +6,7 @@ const HeroBanner = ({
   description,
   imageSrc,
   videoSrc,
-  textAlignment = "left",
+  textAlignment = "center",
   banner400px,
   banner576px,
   banner768px,
@@ -15,11 +15,12 @@ const HeroBanner = ({
   isStaticBanner = false,
   titleAttr = "",
   altAttr = "",
+  customClass = " justify-center",
 }) => {
   return (
     <section
       className={`relative overflow-hidden ${
-        isHomePage ? "h-screen" : "mt-20 lg:mt-0 h-auto"
+        isHomePage ? "h-screen" : "h-auto"
       }`}
     >
       {imageSrc ? (
@@ -145,21 +146,23 @@ const HeroBanner = ({
         </>
       ) : (
         <>
-          <div className="absolute inset-0 flex  items-center p-4 pl-12">
+          <div
+            className={`absolute inset-0 flex items-center p-4 ${customClass}`}
+          >
             <div
-              className={`flex flex-col justify-center items-${textAlignment} w-full 
+              className={`flex flex-col items-${textAlignment} w-full 
     max-w-[90%] sm:max-w-[70%] lg:max-w-[60%] text-${textAlignment}  md:gap-3`}
             >
               {title && description ? (
                 <>
+                  <h1 className="text-3xl md:text-5xl  2xl:text-6xl text-white font-castoro capitalize">
+                    {title}
+                  </h1>
                   {description && (
                     <p className="text-base md:text-lg text-white">
                       {description}
                     </p>
                   )}
-                  <h1 className="text-3xl md:text-5xl  2xl:text-6xl text-white font-castoro capitalize">
-                    {title}
-                  </h1>
                 </>
               ) : null}
             </div>

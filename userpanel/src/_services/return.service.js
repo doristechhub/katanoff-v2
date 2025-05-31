@@ -48,8 +48,7 @@ const hasInvalidProductsKey = (products) => {
 export const getProductsArray = (products) =>
   products.map((product) => {
     const { productPrice, returnQuantity, diamondDetail } = product;
-    const diamondPrice = diamondDetail?.price || 0;
-    const unitAmount = (productPrice + diamondPrice) * returnQuantity;
+    const unitAmount = productPrice * returnQuantity;
 
     const mappedProduct = {
       productId: product.productId,
@@ -70,7 +69,6 @@ export const getProductsArray = (products) =>
         caratWeight: diamondDetail.caratWeight,
         clarity: diamondDetail.clarity,
         color: diamondDetail.color,
-        price: diamondPrice,
       };
     }
 

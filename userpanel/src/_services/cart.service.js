@@ -60,19 +60,21 @@ const getAllCartWithProduct = () => {
           const cartItemDiamondDetail = cartItem?.diamondDetail;
           if (cartItemDiamondDetail && findedProduct?.isDiamondFilter) {
             try {
-              const customProductPrice =
-                helperFunctions.calculateCustomProductPrice({
-                  netWeight: findedProduct?.netWeight,
-                  variations: variationArray,
-                });
+              const customProductDetail = {
+                netWeight: findedProduct?.netWeight,
+                sideDiamondWeight: findedProduct?.sideDiamondWeight,
+              };
 
-              const diamondPrice = helperFunctions.calculateDiamondPrice({
+              const centerDiamondDetail = {
                 caratWeight: cartItemDiamondDetail?.caratWeight,
                 clarity: cartItemDiamondDetail?.clarity,
                 color: cartItemDiamondDetail?.color,
-              });
+              };
 
-              price = customProductPrice + diamondPrice;
+              price = helperFunctions.calculateCustomizedProductPrice({
+                centerDiamondDetail,
+                productDetail: customProductDetail,
+              });
               quantity = MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT;
             } catch (err) {
               console.error(
@@ -119,6 +121,7 @@ const getAllCartWithProduct = () => {
             productName: findedProduct.productName,
             productImage: thumbnailImage,
             productQuantity: quantity,
+            productSellingPrice: sellingPrice,
             quantityWisePrice: price * cartItem.quantity,
             quantityWiseSellingPrice: sellingPrice * cartItem.quantity,
             productDiscount: findedProduct.discount || 0,
@@ -191,8 +194,8 @@ const insertProductIntoCart = (params) => {
       // Handle customized product (diamondDetail present)
       if (diamondDetail) {
         // Validate diamondDetail structure
-        const { shapeId, caratWeight, clarity, color, price } = diamondDetail;
-        if (!shapeId || !caratWeight || !clarity || !color || !price) {
+        const { shapeId, caratWeight, clarity, color } = diamondDetail;
+        if (!shapeId || !caratWeight || !clarity || !color) {
           reject(new Error("Invalid diamond detail parameters"));
           return;
         }
@@ -217,20 +220,6 @@ const insertProductIntoCart = (params) => {
           return;
         }
 
-        // Validate diamond price (assuming you have a function to calculate/verify it)
-        const calculatedDiamondPrice =
-          await helperFunctions.calculateDiamondPrice({
-            caratWeight,
-            clarity,
-            color,
-          }); // Implement this function based on your formula
-        if (calculatedDiamondPrice !== price) {
-          reject(new Error("Invalid diamond price"));
-          return;
-        }
-
-        // For customized products, quantity validation may depend on diamond availability
-        // Assuming quantity is valid if diamond price is provided (adjust as needed)
         if (quantity <= 0) {
           reject(new Error("Invalid cart quantity!"));
           return;

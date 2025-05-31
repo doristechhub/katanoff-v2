@@ -9,12 +9,16 @@ const initialState = {
   collectionTypeProductList: [],
   currentPage: 0,
   selectedVariations: [],
+  selectedFilterVariations: {},
   productQuantity: 1,
   selectedSortByValue: "date_new_to_old",
+  shortByValue: "date_new_to_old",
   openKeys: defaultOpenKeys,
   showFilterSidebar: false,
   uniqueFilterOptions: {},
-  selectedSettingStyles: "",
+  selectedSettingStyles: [],
+  selectedSettingStyle: "",
+  selectedDiamondShapes: [],
   selectedDiamondShape: "",
   selectedPrices: [],
   customizeProductList: [],
@@ -25,6 +29,8 @@ const initialState = {
   resultCount: 0,
   hasSearched: false,
   productsPerPage: 8,
+  filteredProducts: [],
+  visibleItemCount: 10,
 };
 
 const productSlice = createSlice({
@@ -55,6 +61,9 @@ const productSlice = createSlice({
     setSelectedVariations: (state, action) => {
       state.selectedVariations = action.payload;
     },
+    setSelectedFilterVariations: (state, action) => {
+      state.selectedFilterVariations = action.payload;
+    },
     setProductQuantity: (state, action) => {
       state.productQuantity = action.payload;
     },
@@ -64,7 +73,7 @@ const productSlice = createSlice({
     },
 
     // Filter Sidebar States
-    setSortByValue: (state, action) => {
+    setSelectedSortByValue: (state, action) => {
       state.selectedSortByValue = action.payload;
     },
     setOpenKeys: (state, action) => {
@@ -81,13 +90,17 @@ const productSlice = createSlice({
     setShowFilterSidebar: (state, action) => {
       state.showFilterSidebar = action.payload;
     },
+    setVisibleItemCount: (state, action) => {
+      state.visibleItemCount = action.payload;
+    },
     resetFilters: (state) => {
       state.selectedSortByValue = "date_new_to_old";
-      state.selectedVariations = [];
+      state.selectedFilterVariations = {};
       state.openKeys = defaultOpenKeys;
-      state.selectedSettingStyles = "";
-      state.selectedDiamondShape = "";
-      state.selectedPrices = [];
+      state.selectedSettingStyles = [];
+      state.selectedDiamondShapes = [];
+      // state.selectedPrices = [];
+
     },
     setSelectedPrices: (state, action) => {
       state.selectedPrices = action.payload;
@@ -95,10 +108,16 @@ const productSlice = createSlice({
     setUniqueFilterOptions: (state, action) => {
       state.uniqueFilterOptions = action.payload;
     },
-    setSelectedSettingStyle: (state, action) => {
+    setSelectedSettingStyles: (state, action) => {
       state.selectedSettingStyles = action.payload;
     },
-
+    setSelectedSettingStyle: (state, action) => {
+      state.selectedSettingStyle = action.payload;
+    },
+    // Remove that 
+    setSortByValue: (state, action) => {
+      state.shortByValue = action.payload;
+    },
     // Customize Product List States
     setCustomizeProductList: (state, action) => {
       state.customizeProductList = action.payload;
@@ -121,8 +140,14 @@ const productSlice = createSlice({
     setProductsPerPage: (state, action) => {
       state.productsPerPage = action.payload;
     },
+    setSelectedDiamondShapes: (state, action) => {
+      state.selectedDiamondShapes = action.payload;
+    },
     setSelectedDiamondShape: (state, action) => {
       state.selectedDiamondShape = action.payload;
+    },
+    setFilteredProducts: (state, action) => {
+      state.filteredProducts = action.payload;
     },
   },
 });
@@ -136,15 +161,17 @@ export const {
   setProductDetail,
   setCurrentPage,
   setSelectedVariations,
+  setSelectedFilterVariations,
   setProductQuantity,
   setProductMessage,
-  setSortByValue,
+  setSelectedSortByValue,
   setShowFilterSidebar,
   resetFilters,
   setOpenKeys,
   setSelectedPrices,
   toggleOpenKey,
   setUniqueFilterOptions,
+  setSelectedSettingStyles,
   setSelectedSettingStyle,
   setCustomizeProductList,
   setCustomizeProductLoading,
@@ -153,7 +180,11 @@ export const {
   setResultCount,
   setHasSearched,
   setProductsPerPage,
+  setSelectedDiamondShapes,
   setSelectedDiamondShape,
+  setSortByValue,
+  setVisibleItemCount,
+  setFilteredProducts
 } = productSlice.actions;
 
 export default productSlice.reducer;

@@ -36,7 +36,6 @@ const ReturnAccordion = ({
   );
 
   if (!returnItem?.id) {
-    console.warn("Invalid returnItem?.id:", returnItem);
     return null;
   }
 
@@ -73,13 +72,16 @@ const ReturnAccordion = ({
       {isExpanded && (
         <div
           id={`return-panel-${returnItem?.id}`}
-          className="p-6 bg-offwhite w-full"
+          className="bg-offwhite w-full"
         >
           {returnItem ? (
-            <ReturnDetails
-              returnLoading={returnLoading}
-              returnDetail={returnItem}
-            />
+            <div className="">
+              <ReturnDetails
+                returnLoading={returnLoading}
+                returnDetail={returnItem}
+                isShadow={false}
+              />
+            </div>
           ) : (
             <CommonNotFound message="Return Not Found!" />
           )}
@@ -157,11 +159,11 @@ export default function CheckYourReturnPage() {
   };
 
   return (
-    <div>
+    <div className="pt-12">
       <CommonBgHeading title="Return Tracking" />
 
-      <section className="my-28 flex justify-center">
-        <div className="container w-full max-w-xl">
+      <section className="pt-8 flex mx-auto justify-center max-w-4xl">
+        <div className="container w-full">
           <div className="flex justify-end mb-2">
             <p className="block text-sm font-semibold mb-2">
               <span className="text-red-500">*</span>Required Fields
@@ -237,7 +239,7 @@ export default function CheckYourReturnPage() {
                 <p className="text-center text-gray-600">Loading...</p>
               ) : Array.isArray(sortedReturnDetail) &&
                 sortedReturnDetail?.length > 0 ? (
-                <div className="bg-white p-6 rounded-lg shadow">
+                <div>
                   <h2 className="text-lg font-semibold mb-4">Return Details</h2>
                   {sortedReturnDetail?.map((returnItem) => (
                     <ReturnAccordion

@@ -196,7 +196,7 @@ const AddressVerificationModal = () => {
               onChange={() => dispatch(setSelectedAddressType("verified"))}
             />
             <label htmlFor="verified-address" className="cursor-pointer">
-              Yes, I want to proceed with the Verified Address.
+              Yes, I want to proceed with the verified address.
             </label>
           </div>
         </div>

@@ -10,7 +10,7 @@ import { HiChevronUp, HiChevronDown } from "react-icons/hi";
 import { setOpenDiamondDetailDrawer } from "@/store/slices/commonSlice";
 import DiamondDetailDrawer from "../customize/DiamondDetailDrawer";
 import { paymentOptions } from "@/_utils/paymentOptions";
-
+import effect from "@/assets/icons/effect.png";
 const salesTaxPerc = 0.08;
 
 const CheckoutCommonComponent = () => {
@@ -104,12 +104,12 @@ const CheckoutCommonComponent = () => {
               <p className="text-lg lg:text-xl font-bold"> Order Summary</p>
             </div>
             <section
-              className=" px-2 xs:px-6 flex-1 overflow-y-auto max-h-[65vh] custom-scrollbar"
+              className=" px-2 xs:px-6 flex-1 overflow-y-auto max-h-[65vh] custom-scrollbar relative"
               ref={cartContentRef}
             >
               {cartList?.map((cartItem) => (
                 <div
-                  className="py-6  border-b-2 border-grayborder last:border-b-0"
+                  className="py-6  border-b border-grayborder last:border-b-0"
                   key={cartItem?.id}
                 >
                   <div className="flex flex-col md:flex-row justify-between gap-4">
@@ -129,36 +129,32 @@ const CheckoutCommonComponent = () => {
                       <p className="text-base font-medium">
                         {cartItem?.productName}
                       </p>
-                      <p className="text-baseblack font-medium flex flex-wrap text-bse">
+                      <p className="text-baseblack font-medium flex flex-wrap text-sm xs:text-base">
                         {helperFunctions?.displayVariationsLabel(
                           cartItem?.variations
                         )}
                       </p>
-
-                      {cartItem?.diamondDetail && (
-                        <p className="text-sm font-semibold xs:text-base w-fit mt-2">
-                          $
-                          {helperFunctions
-                            .calculateCustomProductPrice({
-                              netWeight: cartItem?.netWeight,
-                              variations: cartItem?.variations,
-                            })
-                            .toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                            })}
-                          {` × ${cartItem?.quantity}`}
+                      {cartItem?.variations?.some(
+                        (v) => v.variationName === "Size"
+                      ) && (
+                        <p className="text-baseblack font-medium flex flex-wrap text-sm xs:text-base">
+                          Size:{" "}
+                          {cartItem.variations.find(
+                            (v) => v.variationName === "Size"
+                          )?.variationTypeName || "N/A"}
                         </p>
                       )}
-                      {!cartItem?.diamondDetail && (
-                        <div className="text-sm font-semibold xs:text-base w-fit mt-2">
-                          $
-                          {helperFunctions.toFixedNumber(
-                            cartItem?.quantityWiseSellingPrice /
-                              cartItem?.quantity
-                          )}{" "}
-                          X {cartItem?.quantity}
-                        </div>
-                      )}
+
+                      <p className="text-sm font-semibold xs:text-base w-fit mt-2">
+                        $
+                        {cartItem?.productSellingPrice?.toLocaleString(
+                          "en-US",
+                          {
+                            minimumFractionDigits: 2,
+                          }
+                        )}
+                        {` × ${cartItem?.quantity}`}
+                      </p>
                       <p className="text-base text-baseblack font-medium pt-1">
                         Total Price: &nbsp;
                         <span className="font-bold">
@@ -192,6 +188,15 @@ const CheckoutCommonComponent = () => {
                   </div>
                 </div>
               ))}
+              {cartList?.length > 3 && (
+                <div className="sticky bottom-0 w-full h-24 pointer-events-none">
+                  <CustomImg
+                    src={effect}
+                    alt="Effect"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
             </section>
             <section className="px-2 xs:px-10 pt-6">
               <p className="text-lg text-baseblack flex justify-between font-semibold pt-4">
@@ -296,7 +301,7 @@ const CheckoutCommonComponent = () => {
               {cartList?.map((cartItem) => (
                 <div
                   key={helperFunctions?.getRandomValue()}
-                  className="bg-white py-6  border-b-2 border-alabaster last:border-b-0"
+                  className="bg-white py-6  border-b border-alabaster last:border-b-0"
                 >
                   <div className="flex flex-row  gap-4">
                     <div className="relative flex-shrink-0 h-fit border border-alabaster">
@@ -320,31 +325,16 @@ const CheckoutCommonComponent = () => {
                           cartItem?.variations
                         )}
                       </p>
-                      {cartItem?.diamondDetail && (
-                        <p className="text-sm font-semibold xs:text-base w-fit mt-2">
-                          $
-                          {helperFunctions
-                            .calculateCustomProductPrice({
-                              netWeight: cartItem?.netWeight,
-                              variations: cartItem?.variations,
-                            })
-                            .toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                            })}
-                          {` × ${cartItem?.quantity}`}
-                        </p>
-                      )}
-
-                      {!cartItem?.diamondDetail && (
-                        <div className="text-sm font-semibold xs:text-base w-fit mt-2">
-                          $
-                          {helperFunctions.toFixedNumber(
-                            cartItem?.quantityWiseSellingPrice /
-                              cartItem?.quantity
-                          )}{" "}
-                          X {cartItem?.quantity}
-                        </div>
-                      )}
+                      <p className="text-sm font-semibold xs:text-base w-fit mt-2">
+                        $
+                        {cartItem?.productSellingPrice?.toLocaleString(
+                          "en-US",
+                          {
+                            minimumFractionDigits: 2,
+                          }
+                        )}
+                        {` × ${cartItem?.quantity}`}
+                      </p>
                       <p className="text-base text-baseblack font-medium pt-1">
                         Total Price: &nbsp;
                         <span className="font-bold">
@@ -419,7 +409,7 @@ const CheckoutCommonComponent = () => {
                 </div>
               )}
 
-              <p className="my-4 border-t-2 border-grayborder" />
+              <p className="my-4 border-t border-grayborder" />
 
               {pathname === "/checkout" ? (
                 <p className="text-base lg:text-lg 2xl:text-xl text-baseblack flex justify-between font-semibold pt-4">

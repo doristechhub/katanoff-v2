@@ -41,13 +41,12 @@ export const returnRequestModel = {
           type: Number,
           // Base price of the product variation:
           // - For non-customized products: this is the standard variation price.
-          // - For customized products: this is the custom product price excluding any diamond-related pricing.
+          // - For customized products: this is the custom product price using formula.
         },
         unitAmount: {
           type: Number,
           // Final total price after multiplying with quantity:
-          // - For non-customized products: productPrice * quantity.
-          // - For customized products: (productPrice + diamond price) * quantity.
+          // - For customized and non-customized products: productPrice * quantity.
         },
         returnQuantity: {
           // Quantity specifically for this return request
@@ -67,9 +66,6 @@ export const returnRequestModel = {
             },
             color: {
               type: String,
-            },
-            price: {
-              type: Number, // Diamond price
             },
           },
           required: false, // Optional for non-customized products

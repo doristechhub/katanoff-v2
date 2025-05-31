@@ -1,4 +1,5 @@
-import { ProgressiveImg } from "@/components/dynamiComponents";
+"use client";
+import { CustomImg, ProgressiveImg } from "@/components/dynamiComponents";
 import CustomBadge from "@/components/ui/CustomBadge";
 import { helperFunctions } from "@/_helper";
 import DownloadInvoice from "@/components/ui/order-history/downloadInvoice";
@@ -9,18 +10,17 @@ import moment from "moment";
 import DiamondDetailDrawer from "@/components/ui/customize/DiamondDetailDrawer";
 import { setOpenDiamondDetailDrawer } from "@/store/slices/commonSlice";
 import { useDispatch, useSelector } from "react-redux";
-
+import { useEffect, useRef } from "react";
+import effect from "@/assets/icons/effect.png";
 const shippingFields = [
   { label: "Name", key: "name" },
   { label: "Email", key: "email" },
   { label: "Mobile", key: "mobile" },
   { label: "Company Name", key: "companyName", default: "Not available" },
-  { label: "Address", key: "address" },
-  { label: "Apartment", key: "apartment", default: "Not available" },
-  { label: "City", key: "city" },
-  { label: "State", key: "state" },
-  { label: "Country", key: "country" },
-  { label: "Zipcode", key: "pinCode" },
+  {
+    label: "Address",
+    key: "fullAddress",
+  },
 ];
 
 const OrderDetails = ({
@@ -50,12 +50,10 @@ const OrderDetails = ({
     {
       label: "Payment Status",
       value: orderDetail?.paymentStatus,
-      render: (val) => <CustomBadge status={val}>{val}</CustomBadge>,
     },
     {
       label: "Order Status",
       value: orderDetail?.orderStatus,
-      render: (val) => <CustomBadge status={val}>{val}</CustomBadge>,
     },
     {
       label: "Admin Note",
@@ -89,6 +87,33 @@ const OrderDetails = ({
     },
   ];
 
+  useEffect(() => {
+    const contentElement = cartContentRef.current;
+    if (!contentElement) return;
+
+    const handleWheel = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const scrollAmount = event.deltaY;
+      const maxScroll =
+        contentElement?.scrollHeight - contentElement?.clientHeight;
+      const currentScroll = contentElement?.scrollTop + scrollAmount;
+
+      contentElement.scrollTop = Math.max(
+        0,
+        Math.min(currentScroll, maxScroll)
+      );
+    };
+
+    contentElement.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      contentElement.removeEventListener("wheel", handleWheel);
+    };
+  }, []);
+  const cartContentRef = useRef(null);
+  
   return orderLoading ? (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 container my-8">
       {/* Left Panel Skeleton */}
@@ -104,7 +129,7 @@ const OrderDetails = ({
       </div>
     </div>
   ) : (
-    <div className="container my-8">
+    <div className="px-6 shadow-lg pt-4">
       <div className="flex justify-end">
         <div className="flex gap-4 mb-2">
           {showInvoice &&
@@ -123,23 +148,26 @@ const OrderDetails = ({
       </div>
 
       {/* Left Panel: Products */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="flex flex-col gap-4">
-          <div className="bg-white p-4 lg:p-6 min-h-[300px] lg:min-h-[400px] flex flex-col gap-6">
+      <div className="relative flex flex-col lg:flex-row">
+        <div className="flex flex-col gap-4 pr-6 w-full lg:w-1/2">
+          <section
+            className="px-4 flex-1 overflow-y-auto max-h-[55vh] custom-scrollbar relative pt-6"
+            ref={cartContentRef}
+          >
             {orderDetail?.products?.map((product, index) => {
               return (
-                <div key={index}>
+                <div key={index} className="pt-6">
                   <div className="flex gap-4">
                     <div className="relative">
+                      <div className="absolute -top-2 -left-2 bg-baseblack text-white text-xs xs:text-sm lg:text-base font-semibold rounded-full px-2  z-10">
+                        {product?.cartQuantity}
+                      </div>
                       <ProgressiveImg
                         src={product.productImage}
                         alt={product.productName}
                         title={product.productName}
                         className={"w-60 md:w-44 border border-alabaster"}
                       />
-                      <div className="absolute top-0 left-0 bg-primary text-white text-xs font-semibold px-2 py-1 z-10">
-                        Qty: {product?.cartQuantity}
-                      </div>
                     </div>
 
                     <div className="w-full">
@@ -150,28 +178,14 @@ const OrderDetails = ({
                         </h3>
                       </div>
 
-                      <div className="flex flex-wrap gap-0.5 sm:gap-1 lg:gap-2 my-1 sm:my-1.5 lg:my-3">
-                        {product?.variations?.map((variItem) => (
-                          <span
-                            className="flex p-1 md:p-1.5 w-fit border border-alabaster text-xs sm:text-xs lg:text-sm 2xl:text-base"
-                            key={helperFunctions.getRandomValue()}
-                          >
-                            <p className="font-bold">
-                              {variItem.variationName}:
-                            </p>
-                            <p className="mb-0 text-capitalize pl-1">
-                              {variItem.variationTypeName}
-                            </p>
-                          </span>
-                        ))}
+                      <div className="flex flex-wrap gap-0.5 sm:gap-1 lg:gap-2 my-1 sm:my-1.5">
+                        <p className="text-baseblack font-medium  flex flex-wrap text-sm md:text-base">
+                          {helperFunctions?.displayVariationsLabel(
+                            product?.variations
+                          )}
+                        </p>
                       </div>
-                      <h3 className="font-medium text-sm md:text-base">
-                        ${helperFunctions.toFixedNumber(product?.productPrice)}{" "}
-                        <span className="pl-1">
-                          {" "}
-                          x {product?.cartQuantity}{" "}
-                        </span>
-                      </h3>
+
                       {product.diamondDetail && (
                         <div className="hidden xs:block">
                           <DiamondDetailDrawer
@@ -190,6 +204,13 @@ const OrderDetails = ({
                           />
                         </div>
                       )}
+                      <h3 className="font-medium text-sm md:text-base pt-1">
+                        ${helperFunctions.toFixedNumber(product?.productPrice)}{" "}
+                        <span className="pl-1">
+                          {" "}
+                          x {product?.cartQuantity}{" "}
+                        </span>
+                      </h3>
                     </div>
                   </div>
                   {product.diamondDetail && (
@@ -211,10 +232,19 @@ const OrderDetails = ({
                 </div>
               );
             })}
-          </div>
+            {orderDetail?.products?.length > 3 && (
+              <div className="sticky bottom-0 w-full h-24 pointer-events-none">
+                <CustomImg
+                  src={effect}
+                  alt="Effect"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+          </section>
 
           {/* Billing Section */}
-          <div className="bg-white p-4 lg:p-6 flex flex-col gap-2 text-sm md:text-base">
+          <div className="p-4 lg:p-6 flex flex-col gap-2 text-sm md:text-base">
             {[
               { label: "Sub Total", value: `$${orderDetail?.subTotal}` },
               {
@@ -238,7 +268,13 @@ const OrderDetails = ({
                 key={`billing-${item.label}`}
                 className="flex justify-between"
               >
-                <h4 className="font-medium">{item.label}</h4>
+                <h4
+                  className={`${
+                    item.label === "Total Amount" ? "font-bold" : "font-medium"
+                  }`}
+                >
+                  {item.label}
+                </h4>
                 <p className="font-semibold">{item.value}</p>
               </div>
             ))}
@@ -248,9 +284,13 @@ const OrderDetails = ({
             </p>
           </div>
         </div>
-        <div className="flex flex-col gap-4">
+        <div className="flex justify-center items-center px-2 my-4 lg:my-0">
+          <div className="w-full h-px bg-grayborder lg:w-px lg:h-[80%]"></div>
+        </div>
+
+        <div className="flex flex-col gap-4 lg:pl-6 w-full lg:w-1/2">
           {/* Order Info Section */}
-          <div className="bg-white p-4 lg:p-6">
+          <div className="p-4 lg:p-6">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 text-sm md:text-base">
               {orderMetaFields.map(
                 ({ label, value, render, isOptional }) =>
@@ -267,18 +307,43 @@ const OrderDetails = ({
           </div>
 
           {/* Shipping Info Section */}
-          <div className="bg-white p-4 lg:p-6">
+          <div className="p-4 lg:p-6">
             <h3 className="font-castoro text-2xl lg:text-3xl">Order Summary</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 mt-4">
               {shippingFields.map(
-                ({ label, key, default: defaultValue = "" }) => (
-                  <div key={`shipping-${key}`} className="text-sm md:text-base">
-                    <p className="text-basegray">{label}</p>
-                    <span className="font-medium break-words mt-1">
-                      {orderDetail?.shippingAddress?.[key] || defaultValue}
-                    </span>
-                  </div>
-                )
+                ({ label, key, default: defaultValue = "" }) => {
+                  let value;
+
+                  if (key === "fullAddress") {
+                    const addressParts = [
+                      orderDetail?.shippingAddress?.address,
+                      orderDetail?.shippingAddress?.apartment,
+                      orderDetail?.shippingAddress?.city,
+                      orderDetail?.shippingAddress?.state,
+                      orderDetail?.shippingAddress?.country,
+                      orderDetail?.shippingAddress?.pinCode,
+                    ].filter(Boolean); // Remove undefined/null/empty parts
+
+                    value =
+                      addressParts.length > 0
+                        ? addressParts.join(", ")
+                        : "Not available";
+                  } else {
+                    value = orderDetail?.shippingAddress?.[key] || defaultValue;
+                  }
+
+                  return (
+                    <div
+                      key={`shipping-${key}`}
+                      className="text-sm md:text-base"
+                    >
+                      <p className="text-basegray">{label}</p>
+                      <span className="font-medium break-words mt-1">
+                        {value}
+                      </span>
+                    </div>
+                  );
+                }
               )}
             </div>
           </div>

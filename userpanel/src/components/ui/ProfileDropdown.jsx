@@ -121,7 +121,7 @@ export default function ProfileDropdown({ className = "", uniqueId }) {
 
           {/* Desktop */}
           <div
-            className="hidden lg:flex items-center justify-between gap-1 cursor-pointer relative"
+            className="hidden lg:flex items-center justify-between gap-0.5 cursor-pointer relative"
             onMouseEnter={() => dispatch(setOpenProfileDropdown(uniqueId))}
             onMouseLeave={() => dispatch(setOpenProfileDropdown(null))}
           >
@@ -149,7 +149,7 @@ export default function ProfileDropdown({ className = "", uniqueId }) {
                     key={`desktop-dropdown-${index}`}
                     href={link.href || "#"}
                     onClick={link.onClick || undefined}
-                    className="block py-2.5 px-4 text-baseblack hover:!text-primary hover:!font-semibold border-b hover:bg-gray-200 last:border-b-0"
+                    className="block py-2.5 !px-4 2xl:!px-6 text-baseblack hover:!text-primary hover:!font-semibold border-b hover:bg-gray-200 last:border-b-0"
                   >
                     {link.title}
                   </HeaderLinkButton>

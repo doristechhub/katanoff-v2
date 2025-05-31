@@ -19,8 +19,16 @@ const ReturnDetailPage = () => {
   }, [returnId]);
   return (
     <>
-      <CommonBgHeading title="Return Summary" />
-      <ReturnDetails returnDetail={returnDetail} returnLoader={returnLoader} />;
+      <div className="pt-12">
+        <CommonBgHeading title="Return Summary" />
+      </div>
+      <div className="container">
+        <ReturnDetails
+          returnDetail={returnDetail}
+          returnLoader={returnLoader}
+        />
+        ;
+      </div>
     </>
   );
 };

@@ -8,7 +8,7 @@ import Pagination from "@/components/ui/Pagination";
 import SkeletonLoader from "@/components/ui/skeletonLoader";
 import moment from "moment";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { IoEyeSharp } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import CancelOrder from "@/components/ui/order-history/CancelOrder";
@@ -22,8 +22,15 @@ import {
   setReturnMessage,
 } from "@/store/slices/returnSlice";
 import CancelReturnRequest from "./CancelReturnRequest";
-
+import { CustomImg } from "@/components/dynamiComponents";
+import threeDots from "@/assets/icons/3dots.svg";
+import deleteRed from "@/assets/icons/deleteRed.svg";
+import eye from "@/assets/icons/eye.svg";
+import download from "@/assets/icons/download.svg";
 export default function ReturnHistoryPage() {
+  const [openId, setOpenId] = useState(null);
+  const dropdownRef = useRef(null);
+
   const router = useRouter();
   const dispatch = useDispatch();
   const { orderList, orderLoading, selectedOrder, orderMessage } = useSelector(
@@ -61,9 +68,19 @@ export default function ReturnHistoryPage() {
     };
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpenId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const renderTableHeading = () => {
     return (
-      <thead className="text-xs text-gray-700 uppercase bg-[#0000000D] dark:text-gray-400">
+      <thead className="text-xs text-basegray uppercase bg-[#0000000D] dark:text-gray-400">
         <tr>
           <th scope="col" className="px-6 py-3.5">
             Request Date
@@ -90,7 +107,7 @@ export default function ReturnHistoryPage() {
         <Alert message={returnMessage.message} type={returnMessage.type} />
       )}
 
-      <div className="container my-10 relative overflow-x-auto">
+      <div className="container my-10 relative">
         {returnLoader ? (
           <div className={`w-full h-[300px] animate-pulse`}>
             <table className="w-full text-sm text-left rtl:text-right">
@@ -133,34 +150,52 @@ export default function ReturnHistoryPage() {
                       : null}
                   </th>
                   <td className="px-6 py-4">{order.orderNumber}</td>
-
-                  <td className="px-6 py-4">
-                    <CustomBadge status={order?.returnPaymentStatus}>
-                      {order?.returnPaymentStatus}
-                    </CustomBadge>
-                  </td>
-                  <td className="px-6 py-4">
-                    <CustomBadge status={order?.status}>
-                      {order?.status}
-                    </CustomBadge>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-3">
-                      <IoEyeSharp
-                        title="Return Detail"
-                        className="cursor-pointer text-xl text-basegray"
-                        onClick={() =>
-                          router.push(`/return-history/${order.id}`)
-                        }
+                  <td className="px-6 py-4">{order?.returnPaymentStatus}</td>
+                  <td className="px-6 py-4">{order?.status}</td>
+                  <td className="px-6 py-4 relative">
+                    <button
+                      onClick={() =>
+                        setOpenId(openId === order.id ? null : order.id)
+                      }
+                      className="p-2 rounded hover:bg-gray-100"
+                      aria-haspopup="true"
+                      title="More Actions"
+                    >
+                      <CustomImg
+                        srcAttr={threeDots}
+                        altAttr="More"
+                        className="w-4 h-4"
                       />
+                    </button>
 
-                      {order.status === "pending" &&
-                      order.returnPaymentStatus === "pending" ? (
-                        <>
-                          <CancelReturnRequest returnId={order.id} />
-                        </>
-                      ) : null}
-                    </div>
+                    {openId === order.id && (
+                      <div
+                        ref={dropdownRef}
+                        className="absolute right-0 z-50 mt-2 w-44 bg-white border border-gray-300 rounded shadow-lg"
+                      >
+                        <button
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4"
+                          onClick={() =>
+                            router.push(`/return-history/${order.id}`)
+                          }
+                        >
+                          <CustomImg
+                            srcAttr={eye}
+                            altAttr="View"
+                            className="w-6 h-6"
+                          />
+                          <p className="text-base text-basegray">View</p>
+                        </button>
+
+                        {order.status === "pending" &&
+                          order.returnPaymentStatus === "pending" && (
+                            <div className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray">
+                              <CancelReturnRequest returnId={order.id} />
+                              Delete
+                            </div>
+                          )}
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
