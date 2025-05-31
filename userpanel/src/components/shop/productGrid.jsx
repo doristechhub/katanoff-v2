@@ -1,22 +1,21 @@
 "use client";
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useEffect } from "react";
 import useQueryParams from "@/hooks/useQueryParams";
 import ProductCard from "./productCard";
 import { useWindowSize } from "@/_helper/hooks";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  setCurrentPage,
-  setSelectedVariations,
   setSortByValue,
+  setVisibleItemCount,
 } from "@/store/slices/productSlice";
 import SkeletonLoader from "../ui/skeletonLoader";
 import ProductNotFound from "./productNotFound";
 import { ITEMS_PER_PAGE } from "@/_utils/common";
-import Pagination from "../ui/Pagination";
+import { HeaderLinkButton } from "../ui/button";
 
 const ProductGrid = memo(
   ({
-    productList = [],
+    productsList = [],
     isLoading,
     pagination = false,
     isDiamondSettingPage,
@@ -25,22 +24,16 @@ const ProductGrid = memo(
     const queryParams = useQueryParams();
     const dispatch = useDispatch();
     const { columnCount } = useWindowSize();
-    const { currentPage, selectedSortByValue, filteredProducts } = useSelector(
-      ({ product }) => product
-    );
+    const {
+      selectedSortByValue,
+      selectedFilterVariations,
+      selectedSettingStyles,
+      selectedPrices,
+      selectedGenders,
+      visibleItemCount,
+    } = useSelector(({ product }) => product);
 
-    const handlePageClick = ({ selected }) => {
-      dispatch(setCurrentPage(selected));
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    };
-    const pageCount = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-    const currentProducts = filteredProducts.slice(
-      currentPage * ITEMS_PER_PAGE,
-      (currentPage + 1) * ITEMS_PER_PAGE
-    );
+    const currentProducts = productsList.slice(0, visibleItemCount);
 
     const getProductLink = ({ isDiamondSettingPage, product }) => {
       if (!isDiamondSettingPage) return null;
@@ -53,8 +46,14 @@ const ProductGrid = memo(
     }, [selectedSortByValue]);
 
     useEffect(() => {
-      dispatch(setSelectedVariations([]));
-    }, []);
+      dispatch(setVisibleItemCount(ITEMS_PER_PAGE));
+    }, [
+      selectedSortByValue,
+      selectedFilterVariations,
+      selectedSettingStyles,
+      selectedPrices,
+      selectedGenders,
+    ]);
 
     return (
       <>
@@ -120,15 +119,22 @@ const ProductGrid = memo(
             </div>
           </div>
         )}
-        {!isLoading && !filteredProducts.length && <ProductNotFound />}
-
+        {!isLoading && !productsList.length && <ProductNotFound />}
         {pagination &&
           !isLoading &&
-          filteredProducts.length > ITEMS_PER_PAGE && (
-            <Pagination
-              handlePageClick={handlePageClick}
-              pageCount={pageCount}
-            />
+          currentProducts.length < productsList.length && (
+            <div className="mt-12 md:mt-16 lg:mt-24 justify-center flex">
+              <HeaderLinkButton
+                onClick={() =>
+                  dispatch(
+                    setVisibleItemCount(visibleItemCount + ITEMS_PER_PAGE)
+                  )
+                }
+                className=" transition-all w-fit !font-semibold !text-baseblack duration-300 uppercase !py-4 !px-20 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack"
+              >
+                View More
+              </HeaderLinkButton>
+            </div>
           )}
       </>
     );

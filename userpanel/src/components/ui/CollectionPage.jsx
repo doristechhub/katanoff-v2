@@ -19,8 +19,12 @@ export default function CollectionPage() {
   const params = useParams();
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
-  const { collectionTypeProductList, productLoading, uniqueFilterOptions } =
-    useSelector(({ product }) => product);
+  const {
+    collectionTypeProductList,
+    productLoading,
+    uniqueFilterOptions,
+    filteredProducts,
+  } = useSelector(({ product }) => product);
   let { collectionType, collectionTitle } = params;
   const parentCategory = searchParams.get("parentCategory");
   const parentMainCategory = searchParams.get("parentMainCategory");
@@ -124,7 +128,7 @@ export default function CollectionPage() {
       {/* Product Grid Section */}
       <section className="container pt-6 lg:pt-10 2xl:pt-12">
         <ProductGrid
-          productList={collectionTypeProductList}
+          productsList={filteredProducts}
           pagination={true}
           isLoading={productLoading}
         />

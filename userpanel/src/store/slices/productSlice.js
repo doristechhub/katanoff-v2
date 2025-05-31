@@ -21,6 +21,7 @@ const initialState = {
   selectedDiamondShapes: [],
   selectedDiamondShape: "",
   selectedPrices: [],
+  selectedGenders: [],
   customizeProductList: [],
   customizeProductLoading: false,
   productMessage: { message: "", type: "" },
@@ -93,14 +94,16 @@ const productSlice = createSlice({
     setVisibleItemCount: (state, action) => {
       state.visibleItemCount = action.payload;
     },
+    setSelectedGenders: (state, action) => {
+      state.selectedGenders = action.payload;
+    },
     resetFilters: (state) => {
       state.selectedSortByValue = "date_new_to_old";
       state.selectedFilterVariations = {};
       state.openKeys = defaultOpenKeys;
       state.selectedSettingStyles = [];
       state.selectedDiamondShapes = [];
-      // state.selectedPrices = [];
-
+      state.selectedGenders = [];
     },
     setSelectedPrices: (state, action) => {
       state.selectedPrices = action.payload;
@@ -160,6 +163,7 @@ export const {
   setCollectionTypeProductList,
   setProductDetail,
   setCurrentPage,
+  setSelectedGenders,
   setSelectedVariations,
   setSelectedFilterVariations,
   setProductQuantity,
