@@ -115,7 +115,7 @@ export default function Header() {
         <CustomImg srcAttr={flagUs} className="rounded-full w-6" />
       </div>
       <header
-        className={` fixed ${
+        className={`fixed ${
           isHeaderVisible ? "left-0 shadow-lg lg:static lg:top-0 lg:left-0" : ""
         } ${lastScrollY > 50 ? "top-0" : "top-10"} lg:static w-full ${
           transparenHeadertBg && !isHeaderVisible

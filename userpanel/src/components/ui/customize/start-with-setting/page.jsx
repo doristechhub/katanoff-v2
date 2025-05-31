@@ -103,7 +103,7 @@ export default function StartWithSettingPage() {
           />
         </div>
         <ProductGrid
-          productList={customizeProductList}
+          productsList={customizeProductList}
           pagination={true}
           isDiamondSettingPage={true}
           isLoading={customizeProductLoading}

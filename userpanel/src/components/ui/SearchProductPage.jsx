@@ -41,7 +41,7 @@ const SearchProductPage = () => {
               </p>
             )}
             <ProductGrid
-              productList={searchedProductList}
+              productsList={searchedProductList}
               pagination={true}
               isLoading={productLoading}
               showFilter={false}

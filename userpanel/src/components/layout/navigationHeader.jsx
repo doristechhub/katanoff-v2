@@ -364,7 +364,9 @@ export default function NavigationHeader() {
                                             <ProgressiveImg
                                               src={item?.variationTypeImage}
                                               alt={item?.variationTypeName}
-                                              className="w-5 h-5 inline-block"
+                                              className="w-7 h-7 inline-block"
+                                              width={28}
+                                              height={28}
                                             />
                                           ) : null}
                                           {item.variationTypeName}
@@ -570,18 +572,6 @@ export default function NavigationHeader() {
                               className="mt-4"
                             />
                           </div>
-                          {/* <SkeletonLoader
-                            width="w-1/3"
-                            height="h-5"
-                            className="mb-5"
-                          />
-                          <SkeletonLoader
-                            height="h-[180px]"
-                            className="mb-5 w-full"
-                          />
-                          <div className="flex justify-center">
-                            <SkeletonLoader width="w-1/3" height="h-10" />
-                          </div> */}
                         </div>
                       </div>
                     </div>
@@ -601,7 +591,11 @@ export default function NavigationHeader() {
                                   (item, index) => (
                                     <HeaderLinkButton
                                       key={`variation-${index}4`}
-                                      href={`/customize/start-with-setting?settingStyle=${item.value}`}
+                                      href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
+                                        WEDDING_RINGS
+                                      )}?setting_style=${helperFunctions?.stringReplacedWithUnderScore(
+                                        item.title
+                                      )}&gender=female`}
                                       className="!text-[12px]  2xl:!text-[13px] font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
                                       onClick={(e) => {
                                         e.stopPropagation();
@@ -634,7 +628,11 @@ export default function NavigationHeader() {
                                       (item, index) => (
                                         <HeaderLinkButton
                                           key={`diamond-shape-${index}`}
-                                          href={`/customize/start-with-setting?diamondShape=${item.variationTypeId}`}
+                                          href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
+                                            WEDDING_RINGS
+                                          )}?Diamond_Shape=${helperFunctions?.stringReplacedWithUnderScore(
+                                            item?.variationTypeName
+                                          )}&gender=female`}
                                           className="flex !capitalize !text-[12px] 2xl:!text-[13px] font-medium items-center gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300"
                                           onClick={(e) => {
                                             e.stopPropagation();
@@ -646,7 +644,9 @@ export default function NavigationHeader() {
                                             <ProgressiveImg
                                               src={item?.variationTypeImage}
                                               alt={item?.variationTypeName}
-                                              className="w-5 h-5 inline-block"
+                                              className="w-7 h-7 inline-block"
+                                              width={28}
+                                              height={28}
                                             />
                                           ) : null}
                                           {item.variationTypeName}
@@ -677,7 +677,11 @@ export default function NavigationHeader() {
                                         (item, index) => (
                                           <HeaderLinkButton
                                             key={`variation-${index}2`}
-                                            href={`/customize/start-with-setting?variationName=${variation?.variationName}&variationTypeName=${item?.variationTypeName}`}
+                                            href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
+                                              WEDDING_RINGS
+                                            )}?Gold_Color=${helperFunctions?.stringReplacedWithUnderScore(
+                                              item?.variationTypeName
+                                            )}&gender=female`}
                                             className="flex !text-[12px]  2xl:!text-[13px] font-medium items-center gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
                                             onClick={(e) => {
                                               e.stopPropagation();
@@ -702,9 +706,9 @@ export default function NavigationHeader() {
                             : null}
                         </div>
                         <HeaderLinkButton
-                          href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                          href={`/collections/collection/${helperFunctions?.stringReplacedWithSpace(
                             WEDDING_RINGS
-                          )}`}
+                          )}?gender=female`}
                           onClick={(e) => {
                             e.stopPropagation();
                             closeAllDropdown();
@@ -729,7 +733,11 @@ export default function NavigationHeader() {
                                     (item, index) => (
                                       <HeaderLinkButton
                                         key={`variation-${index}4`}
-                                        href={`/customize/start-with-setting?settingStyle=${item.value}`}
+                                        href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
+                                          WEDDING_RINGS
+                                        )}?setting_style=${helperFunctions?.stringReplacedWithUnderScore(
+                                          item.title
+                                        )}&gender=male`}
                                         className="!text-[12px]  2xl:!text-[13px] font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
                                         onClick={(e) => {
                                           e.stopPropagation();
@@ -744,7 +752,9 @@ export default function NavigationHeader() {
                               </div>
                             ) : null}
                             <HeaderLinkButton
-                              href={"/customize/start-with-setting"}
+                              href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
+                                WEDDING_RINGS
+                              )}?gender=male`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 closeAllDropdown();
@@ -1382,7 +1392,9 @@ export default function NavigationHeader() {
                   >
                     <div className="flex flex-col mt-2 ps-3">
                       <HeaderLinkButton
-                        href={"#"}
+                        href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
+                          WEDDING_RINGS
+                        )}?gender=female`}
                         className="!font-semibold !p-[10px] !text-[0.875em] leading-[1em] text-baseblack capitalize"
                         onClick={() => {
                           dispatch(setIsMenuOpen(false));
@@ -1392,7 +1404,9 @@ export default function NavigationHeader() {
                         WOMEN
                       </HeaderLinkButton>
                       <HeaderLinkButton
-                        href={"#"}
+                        href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
+                          WEDDING_RINGS
+                        )}?gender=male`}
                         className="!font-semibold !p-[10px] !text-[0.875em] leading-[1em] text-baseblack capitalize"
                         onClick={() => {
                           dispatch(setIsMenuOpen(false));

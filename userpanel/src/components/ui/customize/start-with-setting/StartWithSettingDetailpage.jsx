@@ -1,13 +1,12 @@
 "use client";
 import { fetchCustomizeProducts } from "@/_actions/customize.action";
-import { ProductDetailPage, ProductGrid } from "@/components/dynamiComponents";
+import { ProductDetailPage } from "@/components/dynamiComponents";
 import { useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import StepsGrid from "../StepsGrid";
 import ring from "@/assets/images/customize/customize-ring-black.svg";
 import diamond from "@/assets/images/customize/customize-diamond-black.svg";
 import ringWithDiamondBlack from "@/assets/images/customize/customize-ringWithDiamond-black.svg";
-import { useSearchParams } from "next/navigation";
 import { helperFunctions } from "@/_helper";
 import { setCustomProductDetails } from "@/store/slices/commonSlice";
 const StartWithSettingDetailpage = () => {

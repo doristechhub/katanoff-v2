@@ -194,32 +194,38 @@ export const fetchProductDetailByProductName = (productName) => {
 // };
 
 
+const getUniqueSettingStyles = (styles) => {
+  return Array.from(
+    new Set(styles.map((item) => item.title))
+  ).map((title) => {
+    const { image, id } = styles.find((item) => item.title === title) || {};
+    return { title, value: id, image };
+  });
+};
+
+
 // export const getUniqueFilterOptions = (productList) => {
-//   const uniqueVariations = new Map(); // Use Map for O(1) lookups
+//   const uniqueVariations = new Map();
 //   const tempSettingStyles = [];
-//   const uniqueShapeIds = new Set(); // For unique diamond shapes
-//   const uniqueDiamondShapes = []; // To store unique diamond shapes
+//   const uniqueShapeIds = new Set();
+//   const uniqueDiamondShapes = [];
 //   const tempPriceRange = [];
 
-//   // Process each product
-//   productList.forEach((product) => {
-//     // Handle setting styles
-//     const settingStyles = product?.settingStyleNamesWithImg;
-//     if (settingStyles?.length) {
-//       tempSettingStyles.push(...settingStyles);
-//     }
+//   // For gender-based filtering
+//   const maleVariations = new Map();
+//   const femaleVariations = new Map();
+//   const tempMaleSettingStyles = [];
+//   const tempFemaleSettingStyles = [];
 
-//     // Handle variations
-//     product.variations.forEach((variation) => {
-//       const { variationId, variationName, variationTypes } = variation;
-
-//       if (!uniqueVariations.has(variationId)) {
-//         // New variation: initialize with mapped variation types
-//         uniqueVariations.set(variationId, {
+//   // Helper to add variations to a map (deduplication)
+//   const addVariationsToMap = (variations, map) => {
+//     variations.forEach(({ variationId, variationName, variationTypes }) => {
+//       if (!map.has(variationId)) {
+//         map.set(variationId, {
 //           variationName,
 //           variationId,
 //           variationTypes: new Map(
-//             variationTypes?.map((type) => [
+//             variationTypes.map((type) => [
 //               type.variationTypeId,
 //               {
 //                 variationTypeName: type.variationTypeName,
@@ -231,7 +237,58 @@ export const fetchProductDetailByProductName = (productName) => {
 //           ),
 //         });
 //       } else {
-//         // Existing variation: add new variation types
+//         const existingVariation = map.get(variationId);
+//         variationTypes.forEach((type) => {
+//           if (!existingVariation.variationTypes.has(type.variationTypeId)) {
+//             existingVariation.variationTypes.set(type.variationTypeId, {
+//               variationTypeName: type.variationTypeName,
+//               variationTypeId: type.variationTypeId,
+//               variationTypeHexCode: type.variationTypeHexCode ?? undefined,
+//               variationTypeImage: type.variationTypeImage ?? undefined,
+//             });
+//           }
+//         });
+//       }
+//     });
+//   };
+
+//   // Helper to add setting styles uniquely to an array (by title)
+//   const addSettingStyles = (stylesArray, targetArray) => {
+//     stylesArray.forEach((style) => {
+//       if (!targetArray.find((s) => s.title === style.title)) {
+//         targetArray.push(style);
+//       }
+//     });
+//   };
+
+//   productList.forEach((product) => {
+//     // Collect all setting styles for global filters
+//     const settingStyles = product?.settingStyleNamesWithImg;
+//     if (settingStyles?.length) {
+//       tempSettingStyles.push(...settingStyles);
+//     }
+
+//     // Collect variations for global filters
+//     product.variations.forEach((variation) => {
+//       const { variationId, variationName, variationTypes } = variation;
+
+//       if (!uniqueVariations.has(variationId)) {
+//         uniqueVariations.set(variationId, {
+//           variationName,
+//           variationId,
+//           variationTypes: new Map(
+//             variationTypes.map((type) => [
+//               type.variationTypeId,
+//               {
+//                 variationTypeName: type.variationTypeName,
+//                 variationTypeId: type.variationTypeId,
+//                 variationTypeHexCode: type.variationTypeHexCode ?? undefined,
+//                 variationTypeImage: type.variationTypeImage ?? undefined,
+//               },
+//             ])
+//           ),
+//         });
+//       } else {
 //         const existingVariation = uniqueVariations.get(variationId);
 //         variationTypes.forEach((type) => {
 //           if (!existingVariation.variationTypes.has(type.variationTypeId)) {
@@ -246,7 +303,7 @@ export const fetchProductDetailByProductName = (productName) => {
 //       }
 //     });
 
-//     // Handle diamond shapes (if present in product)
+//     // Handle diamond shapes
 //     if (product.isDiamondFilter && product.diamondFilters?.diamondShapes?.length) {
 //       product.diamondFilters.diamondShapes.forEach((shape) => {
 //         if (!uniqueShapeIds.has(shape.id)) {
@@ -255,47 +312,60 @@ export const fetchProductDetailByProductName = (productName) => {
 //         }
 //       });
 //     }
-//     tempPriceRange.push(product?.baseSellingPrice || 0)
+//     tempPriceRange.push(product?.baseSellingPrice || 0);
+
+//     // Now handle gender-based splitting
+//     // Assuming product.gender can be "male", "female", or "unisex"
+//     const gender = product.gender?.toLowerCase() || "";
+
+//     if (gender === 'male' || gender === 'unisex') {
+//       addVariationsToMap(product.variations, maleVariations);
+//       if (settingStyles?.length) addSettingStyles(settingStyles, tempMaleSettingStyles);
+//     }
+//     if (gender === 'female' || gender === 'unisex') {
+//       addVariationsToMap(product.variations, femaleVariations);
+//       if (settingStyles?.length) addSettingStyles(settingStyles, tempFemaleSettingStyles);
+//     }
 //   });
 
-//   // Convert uniqueVariations Map to array
-//   const variationsArray = Array.from(uniqueVariations.values()).map(
-//     (variation) => ({
-//       ...variation,
-//       variationTypes: Array.from(variation.variationTypes.values()),
-//     })
-//   );
+//   // Convert maps to arrays for global filters
+//   const variationsArray = Array.from(uniqueVariations.values()).map((variation) => ({
+//     ...variation,
+//     variationTypes: Array.from(variation.variationTypes.values()),
+//   }));
 
-//   // Process unique setting styles with Set for uniqueness
-//   const uniqueSettingStyles = Array.from(
-//     new Set(tempSettingStyles.map((item) => item.title))
-//   ).map((title) => {
-//     const { image, id } =
-//       tempSettingStyles.find((item) => item.title === title) || {};
-//     return { title, value: id, image };
-//   });
+//   // Convert male/female variations maps to arrays
+//   const maleVariationsArray = Array.from(maleVariations.values()).map((variation) => ({
+//     ...variation,
+//     variationTypes: Array.from(variation.variationTypes.values()),
+//   }));
+//   const femaleVariationsArray = Array.from(femaleVariations.values()).map((variation) => ({
+//     ...variation,
+//     variationTypes: Array.from(variation.variationTypes.values()),
+//   }));
 
-//   // Get the minimum and maximum price for the availablePriceRange
 
-//   const minPrice = tempPriceRange?.length ? Math.min(...tempPriceRange) : 0;
-//   const maxPrice = tempPriceRange?.length ? Math.max(...tempPriceRange) : 0;
+//   // Price range
+//   const minPrice = tempPriceRange.length ? Math.min(...tempPriceRange) : 0;
+//   const maxPrice = tempPriceRange.length ? Math.max(...tempPriceRange) : 0;
 
 //   return {
 //     uniqueVariations: variationsArray,
-//     uniqueSettingStyles,
-//     uniqueDiamondShapes, // Include unique diamond shapes
+//     uniqueSettingStyles: getUniqueSettingStyles(tempSettingStyles),
+//     uniqueDiamondShapes,
 //     availablePriceRange: [minPrice, maxPrice],
+
+//     // New fields for gender-separated filters
+//     maleFilters: {
+//       variations: maleVariationsArray,
+//       settingStyles: getUniqueSettingStyles(tempMaleSettingStyles),
+//     },
+//     femaleFilters: {
+//       variations: femaleVariationsArray,
+//       settingStyles: getUniqueSettingStyles(tempFemaleSettingStyles),
+//     },
 //   };
 // };
-
-const getUniqueSettingStyles = (styles) => {
-  return Array.from(
-    new Set(styles.map((item) => item.title))
-  ).map((title) => {
-    const { image, id } = styles.find((item) => item.title === title) || {};
-    return { title, value: id, image };
-  });
-};
 
 
 export const getUniqueFilterOptions = (productList) => {
@@ -304,6 +374,7 @@ export const getUniqueFilterOptions = (productList) => {
   const uniqueShapeIds = new Set();
   const uniqueDiamondShapes = [];
   const tempPriceRange = [];
+  const uniqueGenders = new Set();
 
   // For gender-based filtering
   const maleVariations = new Map();
@@ -363,39 +434,7 @@ export const getUniqueFilterOptions = (productList) => {
     }
 
     // Collect variations for global filters
-    product.variations.forEach((variation) => {
-      const { variationId, variationName, variationTypes } = variation;
-
-      if (!uniqueVariations.has(variationId)) {
-        uniqueVariations.set(variationId, {
-          variationName,
-          variationId,
-          variationTypes: new Map(
-            variationTypes.map((type) => [
-              type.variationTypeId,
-              {
-                variationTypeName: type.variationTypeName,
-                variationTypeId: type.variationTypeId,
-                variationTypeHexCode: type.variationTypeHexCode ?? undefined,
-                variationTypeImage: type.variationTypeImage ?? undefined,
-              },
-            ])
-          ),
-        });
-      } else {
-        const existingVariation = uniqueVariations.get(variationId);
-        variationTypes.forEach((type) => {
-          if (!existingVariation.variationTypes.has(type.variationTypeId)) {
-            existingVariation.variationTypes.set(type.variationTypeId, {
-              variationTypeName: type.variationTypeName,
-              variationTypeId: type.variationTypeId,
-              variationTypeHexCode: type.variationTypeHexCode ?? undefined,
-              variationTypeImage: type.variationTypeImage ?? undefined,
-            });
-          }
-        });
-      }
-    });
+    addVariationsToMap(product.variations, uniqueVariations);
 
     // Handle diamond shapes
     if (product.isDiamondFilter && product.diamondFilters?.diamondShapes?.length) {
@@ -408,10 +447,13 @@ export const getUniqueFilterOptions = (productList) => {
     }
     tempPriceRange.push(product?.baseSellingPrice || 0);
 
-    // Now handle gender-based splitting
-    // Assuming product.gender can be "male", "female", or "unisex"
+    // Collect unique genders
     const gender = product.gender?.toLowerCase() || "";
+    if (gender) {
+      uniqueGenders.add(gender);
+    }
 
+    // Handle gender-based splitting
     if (gender === 'male' || gender === 'unisex') {
       addVariationsToMap(product.variations, maleVariations);
       if (settingStyles?.length) addSettingStyles(settingStyles, tempMaleSettingStyles);
@@ -438,7 +480,6 @@ export const getUniqueFilterOptions = (productList) => {
     variationTypes: Array.from(variation.variationTypes.values()),
   }));
 
-
   // Price range
   const minPrice = tempPriceRange.length ? Math.min(...tempPriceRange) : 0;
   const maxPrice = tempPriceRange.length ? Math.max(...tempPriceRange) : 0;
@@ -448,8 +489,7 @@ export const getUniqueFilterOptions = (productList) => {
     uniqueSettingStyles: getUniqueSettingStyles(tempSettingStyles),
     uniqueDiamondShapes,
     availablePriceRange: [minPrice, maxPrice],
-
-    // New fields for gender-separated filters
+    uniqueGenders: Array.from(uniqueGenders), // Add unique genders
     maleFilters: {
       variations: maleVariationsArray,
       settingStyles: getUniqueSettingStyles(tempMaleSettingStyles),
@@ -460,7 +500,6 @@ export const getUniqueFilterOptions = (productList) => {
     },
   };
 };
-
 
 export const fetchRecentlyViewedProducts = () => {
   return async (dispatch, getState) => {
