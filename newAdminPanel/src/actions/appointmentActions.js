@@ -59,7 +59,7 @@ export const updateStatusAppointment = (payload, abortController) => async (disp
     toastError(e);
     return false;
   } finally {
-    if (payload?.appointmentStatus === 'rejected') dispatch(setRejectAppointmentLoading(true));
-    else dispatch(setCrudAppointmentLoading(true));
+    if (payload?.appointmentStatus === 'rejected') dispatch(setRejectAppointmentLoading(false));
+    else dispatch(setCrudAppointmentLoading(false));
   }
 };

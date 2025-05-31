@@ -331,11 +331,6 @@ const getDiamondDetailArray = (diamondDetail) => {
       value: diamondDetail?.shapeName || 'N/A',
     },
     {
-      key: 'price',
-      label: 'Diamond Price',
-      value: diamondDetail.price ? `$${diamondDetail.price.toFixed(2)}` : 'N/A',
-    },
-    {
       key: 'caratWeight',
       label: 'Carat Weight',
       value: diamondDetail.caratWeight ? `${diamondDetail.caratWeight} ct` : 'N/A',

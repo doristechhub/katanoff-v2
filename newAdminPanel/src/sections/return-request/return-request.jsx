@@ -179,9 +179,7 @@ const ReturnRequestPage = () => {
         const product = selectedOrder?.products?.find(
           (p, idx) => generateProductConfigId(p, idx) === item?.configId
         );
-        const unitPrice = product?.diamondDetail
-          ? (product?.productPrice || 0) + (product?.diamondDetail?.price || 0)
-          : product?.productPrice || 0;
+        const unitPrice = product?.productPrice || 0;
         return total + unitPrice * item?.returnQuantity;
       }
       return total;
@@ -226,9 +224,7 @@ const ReturnRequestPage = () => {
                           itemIndex !== -1
                             ? values.returnItems[itemIndex]?.returnQuantity || 1
                             : product?.cartQuantity;
-                        const unitPrice = product?.diamondDetail
-                          ? (product?.productPrice || 0) + (product?.diamondDetail?.price || 0)
-                          : product?.productPrice || 0;
+                        const unitPrice = product?.productPrice || 0;
                         const totalPrice = unitPrice * returnQuantity;
 
                         return (
@@ -340,19 +336,11 @@ const ReturnRequestPage = () => {
                                   </Stack>
                                 </Stack>
 
-                                {!product?.diamondDetail ? (
-                                  <Box sx={{ fontSize: '12px' }}>
-                                    {fCurrency(product?.productPrice)} per item
-                                  </Box>
-                                ) : (
+                                <Box sx={{ fontSize: '12px' }}>
+                                  {fCurrency(product?.productPrice)} per item
+                                </Box>
+                                {product?.diamondDetail ? (
                                   <>
-                                    <Box sx={{ fontSize: '12px' }}>
-                                      {fCurrency(product?.productPrice)} Product Price per item
-                                    </Box>
-                                    <Box sx={{ fontSize: '12px' }}>
-                                      {fCurrency(product?.diamondDetail?.price)} Diamond Price per
-                                      item
-                                    </Box>
                                     <Typography variant="subtitle2" mt={2}>
                                       Diamond Detail
                                     </Typography>
@@ -372,7 +360,7 @@ const ReturnRequestPage = () => {
                                         ))}
                                     </Stack>
                                   </>
-                                )}
+                                ) : null}
                               </Stack>
                             </Stack>
                             <Divider sx={{ borderStyle: 'dashed', my: 1 }} />

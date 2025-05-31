@@ -212,7 +212,10 @@ const CombinationDialog = ({
     });
 
   const getCombiDetailWithQty = (arrayOfCombinations) => {
-    const tempArray = arrayOfCombinations.map((mainItem) => {
+    if (!fields?.tempVariComboWithQuantity) {
+      return arrayOfCombinations; // Return original combinations if no previous data
+    }
+    return arrayOfCombinations.map((mainItem) => {
       const array1 = getArrayWithoutIds(mainItem.combination);
       const findedCombination = fields?.tempVariComboWithQuantity?.find((tempMainCombiItem) => {
         const array2 = getArrayWithoutIds(tempMainCombiItem?.combination);
@@ -220,11 +223,10 @@ const CombinationDialog = ({
       });
       return {
         ...mainItem,
-        price: findedCombination?.price || 0,
-        quantity: findedCombination?.quantity || 0,
+        price: findedCombination ? findedCombination?.price : 0,
+        quantity: findedCombination ? findedCombination?.quantity : 0,
       };
     });
-    return tempArray;
   };
 
   useEffect(() => {
