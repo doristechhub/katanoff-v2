@@ -11,10 +11,9 @@ const message = require("../utils/messages");
 const Stripe = require("stripe");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const {
-  calculateCustomProductPrice,
-  calculateDiamondPrice,
   getSellingPrice,
   calculateSubTotal,
+  calculateCustomizedProductPrice,
 } = require("../helpers/calculateAmount");
 const { areArraysEqual } = require("../helpers/areArraysEqual");
 const { updateProductQty } = require("../services/product");
@@ -341,8 +340,6 @@ const createOrder = async (payload, activeProductsList, res) => {
 
       let adjustedQuantity = Number(quantity);
       let productPrice = 0; // To store productPrice as per orderModel
-      let diamondPrice = 0;
-      let price = 0;
       let isCustomized = !!diamondDetail;
 
       // Validate variations (ensure they exist in product.variations)
@@ -413,17 +410,21 @@ const createOrder = async (payload, activeProductsList, res) => {
 
         // Calculate price for customized product
         try {
-          const customProductPrice = calculateCustomProductPrice({
-            netWeight: product.netWeight,
-            variations: enrichedVariations,
-          });
-          diamondPrice = calculateDiamondPrice({
+          const customProductDetail = {
+            netWeight: product?.netWeight,
+            sideDiamondWeight: product?.sideDiamondWeight,
+          };
+
+          const centerDiamondDetail = {
             caratWeight,
             clarity,
             color,
+          };
+
+          productPrice = calculateCustomizedProductPrice({
+            centerDiamondDetail,
+            productDetail: customProductDetail,
           });
-          productPrice = customProductPrice; // productPrice excludes diamond price
-          price = customProductPrice + diamondPrice;
         } catch (e) {
           continue; // Skip if price calculation fails
         }
@@ -446,27 +447,21 @@ const createOrder = async (payload, activeProductsList, res) => {
           adjustedQuantity = Math.min(quantity, variCombo.quantity);
         }
         productPrice = variCombo.price || 0; // productPrice is the variation price
-        price = variCombo.price || 0;
       }
 
       // Calculate selling price with discount
       const sellingPrice = getSellingPrice({
-        price,
+        price: productPrice,
         discount: product?.discount || 0,
         isCustomized,
       });
 
       availableCartItems.push({
         ...cartItem,
-        diamondDetail: isCustomized
-          ? {
-              ...diamondDetail,
-              price: diamondPrice, // Reuse the calculated diamond price
-            }
-          : undefined, // Set to undefined for non-customized products
+        diamondDetail: isCustomized ? diamondDetail : undefined, // Set to undefined for non-customized products
         quantity: adjustedQuantity,
         quantityWiseSellingPrice: sellingPrice * adjustedQuantity,
-        productPrice, // Price per unit
+        productPrice: sellingPrice, // Price per unit
       });
     }
 
