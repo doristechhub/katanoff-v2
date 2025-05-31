@@ -42,9 +42,6 @@ export const cartModel = {
       color: {
         type: String,
       },
-      // price: {
-      //   type: Number, // Store the calculated diamond price
-      // },
     },
     required: false, // Optional for non-customized products
   },

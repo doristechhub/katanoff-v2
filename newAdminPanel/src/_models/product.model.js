@@ -105,10 +105,10 @@ export const productModel = {
     enum: ['male', 'female', 'unisex'],
   },
   netWeight: {
-    type: Number,
+    type: Number, // in gram
   },
   sideDiamondWeight: {
-    type: Number,
+    type: Number, // in carat
   },
   shortDescription: {
     type: String,

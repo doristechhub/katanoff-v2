@@ -339,76 +339,15 @@ const CartPage = () => {
                             )}
                         </div>
                       </div>
-                      {cartItem?.diamondDetail && (
-                        <p className="text-sm md:text-base font-medium text-baseblack">
-                          $
-                          {(
-                            helperFunctions.calculateCustomProductPrice({
-                              netWeight: cartItem?.netWeight,
-                              variations: cartItem?.variations,
-                            }) * (cartItem?.quantity || 1)
-                          ).toFixed(2)}
-                        </p>
-                      )}
-                      {/* <div className="flex items-center gap-x-2 pt-1 md:pt-4">
-                        <h3 className="text-sm md:text-base font-medium">
-                          Qty:
-                        </h3>
+                      <p className="text-sm md:text-base font-medium text-baseblack">
+                        ${cartItem?.productSellingPrice}
+                        {` × ${cartItem?.quantity}`}
+                      </p>
 
-                        <div className="flex items-center border border-black rounded-[4px] px-1 lg:px-1">
-                          <select
-                            value={cartItem?.quantity}
-                            onChange={(e) =>
-                              handleCartQuantity("select", {
-                                ...cartItem,
-                                quantity: Number(e.target.value),
-                              })
-                            }
-                            disabled={
-                              cartItem?.quantity >= maxQuantity ||
-                              cartItem?.quantity >= cartItem?.productQuantity
-                            }
-                            className={`px-2 py-1 text-sm md:text-base font-medium text-black bg-white appearance-none ${
-                              cartItem?.quantity >= maxQuantity ||
-                              cartItem?.quantity >= cartItem?.productQuantity
-                                ? "opacity-50 cursor-not-allowed"
-                                : ""
-                            }`}
-                          >
-                            {Array.from({
-                              length: Math.max(
-                                0,
-                                Math.min(
-                                  10,
-                                  maxQuantity,
-                                  cartItem?.productQuantity
-                                ) -
-                                  minQuantity +
-                                  1
-                              ),
-                            }).map((_, i) => {
-                              const qty = i + minQuantity;
-                              return (
-                                <option key={qty} value={qty}>
-                                  {qty}
-                                </option>
-                              );
-                            })}
-                          </select>
-                        </div>
-
-                        {selectedCartItem?.id === cartItem?.id &&
-                        updateCartQtyErrorMessage ? (
-                          <ErrorMessage message={updateCartQtyErrorMessage} />
-                        ) : null}
-
-                        {selectedCartItem?.id === cartItem?.id &&
-                        removeCartErrorMessage ? (
-                          <ErrorMessage message={removeCartErrorMessage} />
-                        ) : null}
-                      </div> */}
-                      <div className="flex justify-between mt-2">
-                        <div className="flex items-center gap-2">
+                      {cartItem?.variations?.some(
+                        (v) => v.variationName === "Size"
+                      ) && (
+                        <div className="flex items-center gap-2 mt-2">
                           <p className="text-sm items-center md:text-base font-medium text-baseblack">
                             Size:{" "}
                             {cartItem?.variations?.find(
@@ -416,7 +355,7 @@ const CartPage = () => {
                             )?.variationTypeName || "N/A"}
                           </p>
                         </div>
-                      </div>
+                      )}
 
                       <div className="hidden xs:block mt-4">
                         <DiamondDetailDrawer

@@ -154,7 +154,7 @@ const validateKeys = (objects, keys) =>
 const hasInvalidProductsKey = (products) => {
   const requiredProductKeys = ['productId', 'unitAmount', 'returnQuantity', 'variations'];
   const requiredVariationKeys = ['variationId', 'variationTypeId'];
-  const requiredDiamondKeys = ['shapeId', 'caratWeight', 'clarity', 'color', 'price'];
+  const requiredDiamondKeys = ['shapeId', 'caratWeight', 'clarity', 'color'];
 
   const isInvalidProduct = !validateKeys(products, requiredProductKeys);
   const isInvalidVariation = !validateKeys(products[0]?.variations || [], requiredVariationKeys);
@@ -168,8 +168,7 @@ const hasInvalidProductsKey = (products) => {
 export const getProductsArray = (products) =>
   products.map((product) => {
     const { productPrice, returnQuantity, diamondDetail } = product;
-    const diamondPrice = diamondDetail?.price || 0;
-    const unitAmount = (productPrice + diamondPrice) * returnQuantity;
+    const unitAmount = productPrice * returnQuantity;
 
     const mappedProduct = {
       productId: product.productId,
@@ -188,7 +187,6 @@ export const getProductsArray = (products) =>
         caratWeight: diamondDetail.caratWeight,
         clarity: diamondDetail.clarity,
         color: diamondDetail.color,
-        price: diamondPrice,
       };
     }
 
@@ -211,8 +209,7 @@ const validateProducts = (products, orderProducts) =>
           orderProduct.diamondDetail.shapeId === product.diamondDetail.shapeId &&
           orderProduct.diamondDetail.caratWeight === product.diamondDetail.caratWeight &&
           orderProduct.diamondDetail.clarity === product.diamondDetail.clarity &&
-          orderProduct.diamondDetail.color === product.diamondDetail.color &&
-          orderProduct.diamondDetail.price === product.diamondDetail.price
+          orderProduct.diamondDetail.color === product.diamondDetail.color
         );
       }
 

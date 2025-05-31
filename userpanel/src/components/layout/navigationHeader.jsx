@@ -137,7 +137,7 @@ export default function NavigationHeader() {
 
   return (
     <header
-      className={`w-full  ${
+      className={`w-full ${
         transparenHeadertBg && !isHeaderVisible ? "bg-offwhite" : "bg-white"
       } ${
         lastScrollY > 100 ? "bg-white shadow-lg" : ""
@@ -310,7 +310,12 @@ export default function NavigationHeader() {
                                   (item, index) => (
                                     <HeaderLinkButton
                                       key={`variation-${index}4`}
-                                      href={`/customize/start-with-setting?settingStyle=${item.value}`}
+                                      href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                                        ENGAGEMENT_RINGS
+                                      )}?setting_style=${helperFunctions.stringReplacedWithUnderScore(
+                                        item.title
+                                      )}`}
+                                      // href={`/customize/start-with-setting?settingStyle=${item.value}`}
                                       className="!text-[12px] 2xl:!text-[13px] font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
                                       onClick={(e) => {
                                         e.stopPropagation();
@@ -343,7 +348,11 @@ export default function NavigationHeader() {
                                       (item, index) => (
                                         <HeaderLinkButton
                                           key={`diamond-shape-${index}`}
-                                          href={`/customize/start-with-setting?diamondShape=${item.variationTypeId}`}
+                                          href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                                            ENGAGEMENT_RINGS
+                                          )}?Diamond_Shape=${helperFunctions.stringReplacedWithUnderScore(
+                                            item.variationTypeName
+                                          )}`}
                                           className="flex !text-[12px] 2xl:!text-[13px] font-medium items-center gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
                                           onClick={(e) => {
                                             e.stopPropagation();
@@ -384,7 +393,11 @@ export default function NavigationHeader() {
                                           (item, index) => (
                                             <HeaderLinkButton
                                               key={`variation-${index}2`}
-                                              href={`/customize/start-with-setting?variationName=${variation?.variationName}&variationTypeName=${item?.variationTypeName}`}
+                                              href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                                                ENGAGEMENT_RINGS
+                                              )}?Gold_Color=${helperFunctions.stringReplacedWithUnderScore(
+                                                item.variationTypeName
+                                              )}`}
                                               className="flex !text-[12px]  2xl:!text-[13px] font-medium items-center gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
                                               onClick={(e) => {
                                                 e.stopPropagation();
@@ -742,7 +755,9 @@ export default function NavigationHeader() {
                             </HeaderLinkButton>
                           </div>
                           <div className="col-span-7">
-                            <h3 className={`${headingClass} !border-0`}>
+                            <h3
+                              className={`${headingClass} uppercase !border-0`}
+                            >
                               {FLASH_DEALS}
                             </h3>
                             <CustomImg srcAttr={flashDeal} />{" "}
@@ -976,7 +991,9 @@ export default function NavigationHeader() {
                     }
                   >
                     <HeaderLinkButton
-                      href={"#"}
+                      href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                        ENGAGEMENT_RINGS
+                      )}`}
                       className="text-baseblack px-[10px] hover:text-primary py-0.5"
                       onClick={() => dispatch(setIsMenuOpen(false))}
                     >
@@ -1117,6 +1134,7 @@ export default function NavigationHeader() {
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     closeAllDropdown();
+                                    dispatch(setIsMenuOpen(false));
                                   }}
                                   className="border-b border-baseblack hover:border-b-primary text-[0.875em] mx-3"
                                 >
@@ -1135,11 +1153,16 @@ export default function NavigationHeader() {
                                       (item, index) => (
                                         <HeaderLinkButton
                                           key={`variation-${index}4`}
-                                          href={`/customize/start-with-setting?settingStyle=${item.value}`}
+                                          href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                                            ENGAGEMENT_RINGS
+                                          )}?setting_style=${helperFunctions.stringReplacedWithUnderScore(
+                                            item.title
+                                          )}`}
                                           className="!text-[14px] font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             closeAllDropdown();
+                                            dispatch(setIsMenuOpen(false));
                                           }}
                                         >
                                           {item.title}
@@ -1169,11 +1192,16 @@ export default function NavigationHeader() {
                                           (item, index) => (
                                             <HeaderLinkButton
                                               key={`mobile-variation-${index}`}
-                                              href={`/customize/start-with-setting?settingStyle=${item.value}`}
+                                              href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                                                ENGAGEMENT_RINGS
+                                              )}?Diamond_Shape=${helperFunctions.stringReplacedWithUnderScore(
+                                                item.variationTypeName
+                                              )}`}
                                               className="!text-[14px] font-medium flex items-center !gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
                                               onClick={(e) => {
                                                 e.stopPropagation();
                                                 closeAllDropdown();
+                                                dispatch(setIsMenuOpen(false));
                                               }}
                                             >
                                               {" "}
@@ -1213,11 +1241,18 @@ export default function NavigationHeader() {
                                                 (item, index) => (
                                                   <HeaderLinkButton
                                                     key={`sm-variation-${index}-child`}
-                                                    href={`/customize/start-with-setting?settingStyle=${item.value}`}
+                                                    href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                                                      ENGAGEMENT_RINGS
+                                                    )}?Gold_Color=${helperFunctions.stringReplacedWithUnderScore(
+                                                      item.variationTypeName
+                                                    )}`}
                                                     className="!text-[14px] flex items-center font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
                                                     onClick={(e) => {
                                                       e.stopPropagation();
                                                       closeAllDropdown();
+                                                      dispatch(
+                                                        setIsMenuOpen(false)
+                                                      );
                                                     }}
                                                   >
                                                     <div
@@ -1309,7 +1344,13 @@ export default function NavigationHeader() {
                 <div className="flex flex-col border-t py-3.5">
                   <div
                     className="flex justify-between"
-                    onClick={() => dispatch(setOpenDropdownMobile(WEDDING))}
+                    onClick={() =>
+                      dispatch(
+                        setOpenDropdownMobile(
+                          openDropdownMobile === WEDDING ? null : WEDDING
+                        )
+                      )
+                    }
                   >
                     <HeaderLinkButton
                       href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
@@ -1470,7 +1511,7 @@ export default function NavigationHeader() {
                       <HeaderLinkButton
                         key={`variation-${index}4`}
                         href={item.href}
-                        className="!text-[14px] flex items-center font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !px-[10px] !p-0 duration-300 capitalize"
+                        className="!text-[14px] !uppercase flex items-center font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !px-[10px] !p-0 duration-300"
                         onClick={(e) => {
                           e.stopPropagation();
                           closeAllDropdown();

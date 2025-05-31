@@ -10,7 +10,7 @@ import SkeletonLoader from "./skeletonLoader";
 import { useWindowSize } from "@/_helper/hooks";
 import { SlArrowLeft, SlArrowRight } from "react-icons/sl";
 import { useDispatch, useSelector } from "react-redux";
-import { setSelectedSettingStyle } from "@/store/slices/productSlice";
+import { setSelectedSettingStyles } from "@/store/slices/productSlice";
 import defaultSettingStyle from "@/assets/images/default-setting-style.webp";
 
 export default function SettingStyleCategorySwiper({
@@ -52,13 +52,20 @@ export default function SettingStyleCategorySwiper({
 
     setShowNavigationButtons(totalSlides > slidesPerView);
   };
+
   const handleStyleSelect = (style) => {
-    const isSelected = selectedSettingStyles === style;
+    const currentStyles = selectedSettingStyles || [];
+    let updatedStyles;
 
-    const updatedStyles = isSelected ? "" : style;
+    if (currentStyles.includes(style)) {
+      updatedStyles = currentStyles.filter((s) => s !== style);
+    } else {
+      updatedStyles = [...currentStyles, style];
+    }
 
-    dispatch(setSelectedSettingStyle(updatedStyles));
+    dispatch(setSelectedSettingStyles(updatedStyles));
   };
+
   return (
     <div>
       {loading ? (
@@ -67,7 +74,10 @@ export default function SettingStyleCategorySwiper({
         >
           {Array.from({ length: diamondColumnCount }).map((_, index) => (
             <div key={index}>
-              <SkeletonLoader height="h-24 lg:h-36 2xl:h-48 aspect-square" />
+              <SkeletonLoader
+                width="max-w-[170px]"
+                height="w-full aspect-square"
+              />
               <div className="flex justify-center">
                 <SkeletonLoader width="w-[70%]" height="h-5" className="mt-2" />
               </div>
@@ -135,35 +145,38 @@ export default function SettingStyleCategorySwiper({
               onSlideChange={handleSlideChange}
             >
               {settingStyleCategories?.map((settingStyle) => {
-                const isSelected =
-                  selectedSettingStyles === settingStyle?.value;
+                const isSelected = selectedSettingStyles?.includes(
+                  settingStyle?.title
+                );
 
                 return (
                   <SwiperSlide key={`setting-style-key-${settingStyle?.value}`}>
                     <div
                       className={`text-center cursor-pointer `}
-                      onClick={() => handleStyleSelect(settingStyle?.value)}
+                      onClick={() => handleStyleSelect(settingStyle?.title)}
                     >
                       {settingStyle?.image?.trim() ? (
                         <ProgressiveImg
-                          className={`h-24 lg:h-36 2xl:h-48 aspect-square object-cover !transition-none  border-2 border-transparent ${
+                          className={`max-w-[170px] w-full aspect-square object-cover !transition-none border-2 border-transparent ${
                             isSelected ? "border-2 !border-primary" : ""
                           }`}
                           src={settingStyle?.image}
                           alt={settingStyle?.title}
                           title={settingStyle?.title}
+                          width={24}
+                          height={24}
                         />
                       ) : (
                         <CustomImg
                           srcAttr={defaultSettingStyle}
                           altAttr=""
                           titleAttr=""
-                          className={`h-24 md:h-32 lg:h-36 2xl:h-48 aspect-square object-cover !transition-none  border-2 border-transparent ${
+                          className={`max-w-[170px] w-full aspect-square object-cover !transition-none border-2 border-transparent ${
                             isSelected ? "border-2 !border-primary" : ""
                           }`}
                         />
                       )}
-                      <h2 className="text-sm lg:text-lg font-normal mt-2">
+                      <h2 className="text-sm lg:text-[15px] leading-4 font-normal mt-2">
                         {settingStyle?.title}
                       </h2>
                     </div>

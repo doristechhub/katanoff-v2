@@ -10,7 +10,7 @@ import Spinner from "@/components/ui/spinner";
 import { setCurrentPage, setOrderMessage } from "@/store/slices/orderSlice";
 import moment from "moment";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { IoEyeSharp } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { setOrderLoading } from "../../../store/slices/orderSlice";
@@ -22,7 +22,25 @@ import { useAlertTimeout } from "@/hooks/use-alert-timeout";
 import { TbTruckReturn } from "react-icons/tb";
 import returnRequestSvg from "@/assets/icons/returnRequest.svg";
 import { CustomImg } from "@/components/dynamiComponents";
+import threeDots from "@/assets/icons/3dots.svg";
+import deleteRed from "@/assets/icons/deleteRed.svg";
+import eye from "@/assets/icons/eye.svg";
+import download from "@/assets/icons/download.svg";
 export default function OrderHistoryPage() {
+  // In your main file (above the return)
+  const [openId, setOpenId] = useState(null);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpenId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const router = useRouter();
   const dispatch = useDispatch();
   const {
@@ -65,7 +83,7 @@ export default function OrderHistoryPage() {
 
   const renderTableHeading = () => {
     return (
-      <thead className="text-xs text-gray-700 uppercase bg-[#0000000D] dark:text-gray-400">
+      <thead className="text-xs text-basegray uppercase bg-[#0000000D]">
         <tr>
           <th scope="col" className="px-6 py-3.5">
             Order Date
@@ -76,9 +94,9 @@ export default function OrderHistoryPage() {
           <th scope="col" className="px-6 py-3.5">
             Total
           </th>
-          <th scope="col" className="px-6 py-3.5">
+          {/* <th scope="col" className="px-6 py-3.5">
             Payment Status
-          </th>
+          </th> */}
           <th scope="col" className="px-6 py-3.5">
             Order Status
           </th>
@@ -94,9 +112,10 @@ export default function OrderHistoryPage() {
       {orderMessage?.type === messageType.SUCCESS && (
         <Alert message={orderMessage.message} type={orderMessage.type} />
       )}
-      <CommonBgHeading title="Order History" />
-
-      <div className="container my-10 relative overflow-x-auto">
+      <div className="pt-12">
+        <CommonBgHeading title="Order History" />
+      </div>
+      <div className="container my-10 relative">
         {orderLoading ? (
           <div className={`w-full h-[300px] animate-pulse`}>
             <table className="w-full text-sm text-left rtl:text-right">
@@ -108,7 +127,7 @@ export default function OrderHistoryPage() {
                     key={`row-${rowIndex}`}
                     className="bg-white border-b border-gray-200"
                   >
-                    {[...Array(6)].map((_, colIndex) => (
+                    {[...Array(5)].map((_, colIndex) => (
                       <td
                         key={`cell-${rowIndex}-${colIndex}`}
                         className="px-6 py-4"
@@ -142,18 +161,9 @@ export default function OrderHistoryPage() {
                   <td className="px-6 py-4">
                     $ {helperFunctions?.toFixedNumber(order?.total)}
                   </td>
-                  <td className="px-6 py-4">
-                    <CustomBadge status={order?.paymentStatus}>
-                      {order?.paymentStatus}
-                    </CustomBadge>
-                  </td>
-                  <td className="px-6 py-4">
-                    <CustomBadge status={order?.orderStatus}>
-                      {order?.orderStatus}
-                    </CustomBadge>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-3">
+                  <td className="px-6 py-4">{order?.orderStatus}</td>
+
+                  {/* <div className="flex gap-3">
                       <IoEyeSharp
                         title="Order Detail"
                         className="cursor-pointer text-xl text-basegray"
@@ -186,7 +196,79 @@ export default function OrderHistoryPage() {
                       ) : (
                         <DownloadInvoice orderId={order?.id} />
                       )}
-                    </div>
+                    </div> */}
+                  <td className="px-6 py-4 relative">
+                    <button
+                      onClick={() =>
+                        setOpenId(openId === order.id ? null : order.id)
+                      }
+                      className="p-2 rounded hover:bg-gray-100"
+                      aria-haspopup="true"
+                      title="More Actions"
+                    >
+                      <CustomImg
+                        srcAttr={threeDots}
+                        altAttr="More"
+                        className="w-4 h-4"
+                      />
+                    </button>
+
+                    {openId === order.id && (
+                      <div
+                        ref={dropdownRef}
+                        className="absolute right-0 z-50 mt-2 w-44 bg-white border border-gray-300 rounded shadow-lg"
+                      >
+                        <button
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4"
+                          onClick={() =>
+                            router.push(`/order-history/${order.id}`)
+                          }
+                        >
+                          <CustomImg
+                            srcAttr={eye}
+                            altAttr="View"
+                            className="w-6 h-6"
+                          />
+                          <p className="text-base text-basegray">View</p>
+                        </button>
+
+                        {["pending", "confirmed"].includes(order.orderStatus) &&
+                          order.paymentStatus === "success" && (
+                            <div className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray">
+                              <CancelOrder orderId={order.id} /> Delete
+                            </div>
+                          )}
+
+                        {order.orderStatus === "delivered" &&
+                          helperFunctions.isReturnValid(order.deliveryDate) &&
+                          order.hasActiveReturns && (
+                            <button
+                              className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4"
+                              onClick={() =>
+                                router.push(`/return-request/${order.id}`)
+                              }
+                            >
+                              <CustomImg
+                                srcAttr={returnRequestSvg}
+                                altAttr="View"
+                                className="w-6 h-6"
+                              />
+                              <p className="text-base text-basegray">
+                                {" "}
+                                Return Order
+                              </p>
+                            </button>
+                          )}
+
+                        {invoiceLoading && order.id === selectedOrder ? (
+                          <div className="px-4 py-2">Loading invoice...</div>
+                        ) : (
+                          <div className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray">
+                            <DownloadInvoice orderId={order?.id} /> Download
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

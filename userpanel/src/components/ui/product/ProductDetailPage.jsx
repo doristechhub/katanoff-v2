@@ -321,11 +321,6 @@ const ProductDetailPage = ({ customizePage }) => {
       caratWeight,
       clarity,
       color,
-      price: helperFunctions?.calculateDiamondPrice({
-        caratWeight: Number(caratWeight),
-        clarity,
-        color,
-      }),
     };
   }
   const addToCartHandler = useCallback(async () => {
@@ -410,29 +405,22 @@ const ProductDetailPage = ({ customizePage }) => {
     }
   }, [isInValidSelectedVariation, productDetail?.id, selectedVariations]);
 
-  const enrichedVariations =
-    selectedVariations?.length &&
-    selectedVariations?.map((selectedVar) => {
-      const matchedVariation = productDetail?.variations?.find(
-        (v) => v.variationId === selectedVar?.variationId
-      );
-
-      const matchedType = matchedVariation?.variationTypes?.find(
-        (vt) => vt.variationTypeId === selectedVar?.variationTypeId
-      );
-
-      return {
-        ...selectedVar,
-        variationName: matchedVariation?.variationName,
-        variationTypeName: matchedType?.variationTypeName,
-      };
-    });
-
   let customProductPrice = 0;
-  if (productDetail?.netWeight && selectedVariations?.length) {
-    customProductPrice = helperFunctions?.calculateCustomProductPrice({
+  if (productDetail?.netWeight && productDetail?.sideDiamondWeight) {
+    const customProductDetail = {
       netWeight: Number(productDetail?.netWeight),
-      variations: enrichedVariations,
+      sideDiamondWeight: Number(productDetail?.sideDiamondWeight),
+    };
+
+    const centerDiamondDetail = {
+      caratWeight: customProductDetails?.diamondDetails?.caratWeight,
+      clarity: customProductDetails?.diamondDetails?.clarity,
+      color: customProductDetails?.diamondDetails?.color,
+    };
+
+    customProductPrice = helperFunctions?.calculateCustomizedProductPrice({
+      centerDiamondDetail,
+      productDetail: customProductDetail,
     });
   }
 
@@ -583,12 +571,6 @@ const ProductDetailPage = ({ customizePage }) => {
                           <p className="font-semibold text-xl">
                             Diamond Detail:
                           </p>
-                          <p className="pt-2  text-sm  3xl:text-base font-medium text-baseblack">
-                            Diamond Price:{" "}
-                            <span className="font-bold">
-                              ${diamondDetail?.price}
-                            </span>
-                          </p>
 
                           <div className="mb-4  text-sm  3xl:text-base font-medium text-baseblack">
                             <div className="flex flex-col xs:flex-row xs:items-stretch">
@@ -635,8 +617,7 @@ const ProductDetailPage = ({ customizePage }) => {
                       </div>
 
                       <p className="font-medium  text-lg 3xl:text-xl">
-                        Final Price: $
-                        {(customProductPrice + diamondDetail?.price).toFixed(2)}
+                        Final Price: ${customProductPrice.toFixed(2)}
                         <span className="font-semibold font-castoro"></span>
                       </p>
                     </div>
@@ -742,7 +723,7 @@ const AddToBagBar = ({
 
   return (
     <>
-      <div className={`${baseClasses} ${visibility}`}>
+      <div className={`${baseClasses} ${visibility} !z-10`}>
         <div
           className={`mx-auto py-4 px-4 grid lg:grid-cols-3 justify-center  items-center gap-4  container`}
         >

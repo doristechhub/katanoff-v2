@@ -233,21 +233,12 @@ const OrderDetail = () => {
                                     </Stack>
                                   ))}
                                 </Stack>
-                                {!x?.diamondDetail ? (
-                                  <Box sx={{ fontSize: '12px' }} mt={1}>
-                                    {fCurrency(x?.productPrice)}
-                                    per item
-                                  </Box>
-                                ) : (
+                                <Box sx={{ fontSize: '12px' }} mt={1}>
+                                  {fCurrency(x?.productPrice)} {''}
+                                  per item
+                                </Box>
+                                {x?.diamondDetail ? (
                                   <>
-                                    <Box sx={{ fontSize: '12px' }} mt={1}>
-                                      {fCurrency(x?.productPrice)} {''}
-                                      Product Price per item
-                                    </Box>
-                                    <Box sx={{ fontSize: '12px' }}>
-                                      {fCurrency(x?.diamondDetail.price)} {''}
-                                      Diamond Price per item
-                                    </Box>
                                     <Typography variant="subtitle2" mt={2}>
                                       Diamond Detail
                                     </Typography>
@@ -269,7 +260,7 @@ const OrderDetail = () => {
                                         })}
                                     </Stack>
                                   </>
-                                )}
+                                ) : null}
                               </Box>
                               <Stack direction={'row'} alignItems={'center'} sx={font14}>
                                 <Box width={'60px'}>x{x?.cartQuantity}</Box>

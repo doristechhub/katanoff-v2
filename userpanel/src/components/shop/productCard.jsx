@@ -1,7 +1,7 @@
 import { helperFunctions } from "@/_helper";
 import Link from "next/link";
 import { ProgressiveImg } from "../dynamiComponents";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import logo from "@/assets/images/logo.webp";
 
 export default function ProductCard({
@@ -60,15 +60,29 @@ export default function ProductCard({
     )}`;
 
   // Determine the current image to display
-  const currentImage =
-    (isImageHovered &&
-      selectedGoldColor &&
-      goldColorImageMap[selectedGoldColor]?.hovered) ||
-    (hoveredGoldColor && goldColorImageMap[hoveredGoldColor]?.thumbnail) ||
-    (selectedGoldColor && goldColorImageMap[selectedGoldColor]?.thumbnail) ||
-    (goldColorVariations?.length > 0 &&
-      goldColorImageMap[goldColorVariations[0].variationTypeName]?.thumbnail) ||
-    logo;
+  const currentImage = useMemo(() => {
+    if (isImageHovered && selectedGoldColor) {
+      return goldColorImageMap[selectedGoldColor]?.hovered || logo;
+    }
+    if (hoveredGoldColor) {
+      return goldColorImageMap[hoveredGoldColor]?.thumbnail || logo;
+    }
+    if (selectedGoldColor) {
+      return goldColorImageMap[selectedGoldColor]?.thumbnail || logo;
+    }
+    if (goldColorVariations.length > 0) {
+      return (
+        goldColorImageMap[goldColorVariations[0].variationTypeName]
+          ?.thumbnail || logo
+      );
+    }
+    return logo;
+  }, [
+    isImageHovered,
+    selectedGoldColor,
+    hoveredGoldColor,
+    goldColorVariations,
+  ]);
 
   return (
     <div className="flex flex-col">
@@ -120,8 +134,15 @@ export default function ProductCard({
                       ? "border-primary"
                       : "border-transparent hover:border-primary"
                   }`}
-                  onMouseEnter={() => setHoveredGoldColor(x.variationTypeName)}
-                  onMouseLeave={() => setHoveredGoldColor(null)}
+                  onMouseEnter={() => {
+                    setTimeout(
+                      () => setHoveredGoldColor(x.variationTypeName),
+                      300
+                    ); // 300ms delay
+                  }}
+                  onMouseLeave={() => {
+                    setTimeout(() => setHoveredGoldColor(null), 300); // 300ms delay
+                  }}
                   onClick={() => setSelectedGoldColor(x.variationTypeName)}
                 >
                   <div

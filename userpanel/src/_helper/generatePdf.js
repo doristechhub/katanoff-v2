@@ -38,8 +38,9 @@ export const generatePDF = async (orderData, sizePage = "1") => {
 
   const doc = new jsPDF(sizePage, "pt", "a4");
   const date = new Date();
-  const formattedDate = `Date: ${date.getMonth() + 1
-    } / ${date.getDate()} / ${date.getFullYear()}`;
+  const formattedDate = `Date: ${
+    date.getMonth() + 1
+  } / ${date.getDate()} / ${date.getFullYear()}`;
   const pageWidth = doc.internal.pageSize.getWidth();
   const topHeight = 25;
 
@@ -96,16 +97,13 @@ export const generatePDF = async (orderData, sizePage = "1") => {
 
     const diamondDetail = isDiamond
       ? `\n\nDiamond Details:\n` +
-      `- Carat: ${x.diamondDetail.caratWeight}\n` +
-      `- Clarity: ${x.diamondDetail.clarity}\n` +
-      `- Color: ${x.diamondDetail.color}\n` +
-      `- Price: $${helperFunctions.toFixedNumber(x.diamondDetail.price)}\n` +
-      `- Shape: ${x.diamondDetail.shapeName}`
+        `- Carat: ${x.diamondDetail.caratWeight}\n` +
+        `- Clarity: ${x.diamondDetail.clarity}\n` +
+        `- Color: ${x.diamondDetail.color}\n` +
+        `- Shape: ${x.diamondDetail.shapeName}`
       : "";
 
-    const unitPrice = isDiamond
-      ? Number(x.diamondDetail.price) + Number(x.productPrice)
-      : x.productPrice;
+    const unitPrice = x.productPrice;
 
     return [
       {
@@ -135,7 +133,7 @@ export const generatePDF = async (orderData, sizePage = "1") => {
     },
     bodyStyles: {
       minCellHeight: 35,
-      textColor: '#111111'
+      textColor: "#111111",
     },
     didDrawCell: (data) => {
       if (data?.column?.index === 0 && data?.row?.index >= 0) {

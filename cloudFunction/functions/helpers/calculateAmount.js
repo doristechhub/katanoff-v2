@@ -1,9 +1,10 @@
 const {
   ALLOWED_DIA_CLARITIES,
   ALLOWED_DIA_COLORS,
-  CLARITY_COLOR_PRICES,
+  CARAT_RANGE_PRICES,
   PRICE_MULTIPLIER,
-  METAL_PRICES,
+  METAL_PRICE_PER_GRAM,
+  SIDE_DIAMOND_PRICE_PER_CARAT,
 } = require("./common");
 
 const getSellingPrice = ({ price, discount = 0, isCustomized = false }) => {
@@ -27,124 +28,127 @@ const calculateSubTotal = (list) => {
   return +Number(total).toFixed(2);
 };
 
-/**
- * Calculates the estimated price of a diamond based on its carat weight, clarity, and color.
- *
- * Pricing formula:
- *   price = basePricePerCarat * caratWeight * PRICE_MULTIPLIER
- *
- * - basePricePerCarat is retrieved from the CLARITY_COLOR_PRICES map using the provided clarity and color.
- * - PRICE_MULTIPLIER accounts for market adjustments, shape premiums, and other modifiers.
- *
- * @param {Object} params - Parameters for diamond pricing.
- * @param {number} params.caratWeight - Carat weight of the diamond (must be a positive number).
- * @param {string} params.clarity - Clarity grade (must match one of the allowed values).
- * @param {string} params.color - Color grade (must match one of the allowed values).
- * @returns {number} Estimated price of the diamond, rounded to 2 decimal places.
- * @throws {Error} If any parameter is invalid or pricing data is unavailable.
- */
-const calculateDiamondPrice = ({ caratWeight, clarity, color }) => {
-  // Validate carat weight
-  if (!Number.isFinite(caratWeight) || caratWeight <= 0) {
-    throw new Error(
-      "Invalid or missing 'caratWeight'. Must be a positive number."
-    );
-  }
+// Function to get the price per carat based on carat weight
+const getCaratWeightPricePerCarat = (caratWeight) => {
+  const range = CARAT_RANGE_PRICES?.find((range) =>
+    range?.carats?.includes(caratWeight)
+  );
+  return range ? range?.pricePerCarat : 0;
+};
 
-  // Validate clarity
-  const isValidClarity = ALLOWED_DIA_CLARITIES.some((c) => c.value === clarity);
-  if (!clarity || typeof clarity !== "string" || !isValidClarity) {
-    const allowedClarityValues = ALLOWED_DIA_CLARITIES.map((c) => c.value).join(
-      ", "
-    );
-    throw new Error(
-      `Invalid 'clarity'. Allowed values are: ${allowedClarityValues}`
-    );
-  }
+// Function to get the price per carat based on clarity
+const getClarityPricePerCarat = (clarity) => {
+  const clarityData = ALLOWED_DIA_CLARITIES?.find(
+    (item) => item?.value === clarity
+  );
+  return clarityData ? clarityData?.pricePerCarat : 0;
+};
 
-  // Validate color
-  const isValidColor = ALLOWED_DIA_COLORS.some((c) => c.value === color);
-  if (!color || typeof color !== "string" || !isValidColor) {
-    const allowedColorValues = ALLOWED_DIA_COLORS.map((c) => c.value).join(
-      ", "
-    );
-    throw new Error(
-      `Invalid 'color'. Allowed values are: ${allowedColorValues}`
-    );
-  }
+// Function to get the price per carat based on color
+const getColorPricePerCarat = (color) => {
+  const colorData = ALLOWED_DIA_COLORS?.find((item) => item?.value === color);
+  return colorData ? colorData.pricePerCarat : 0;
+};
 
-  // Get base price per carat for the specified clarity and color
-  const clarityPrices = CLARITY_COLOR_PRICES[clarity];
-  if (!clarityPrices) {
-    throw new Error(`Price data not found for clarity: '${clarity}'`);
-  }
+// Calculate the price of the center diamond
+const calculateCenterDiamondPrice = ({ caratWeight, clarity, color }) => {
+  const caratWeightPricePerCarat = getCaratWeightPricePerCarat(caratWeight);
+  const clarityPricePerCarat = getClarityPricePerCarat(clarity);
+  const colorPricePerCarat = getColorPricePerCarat(color);
 
-  const basePricePerCarat = clarityPrices[color];
-  if (!basePricePerCarat) {
-    throw new Error(
-      `Price data not found for combination: '${clarity}' - '${color}'`
-    );
-  }
+  const calculatedPricePerCarat =
+    caratWeightPricePerCarat + clarityPricePerCarat + colorPricePerCarat;
+  const centerDiamondPrice = calculatedPricePerCarat * caratWeight;
+  return centerDiamondPrice;
+};
 
-  // Apply the pricing formula
-  const price = basePricePerCarat * caratWeight * PRICE_MULTIPLIER;
-
-  // Return price rounded to 2 decimal places
-  return Number(price.toFixed(2));
+// Calculate the price of metal and side diamonds
+const calculateMetalAndSideDiamondPrice = ({
+  netWeight,
+  sideDiamondWeight,
+}) => {
+  const goldWithLabor = netWeight * METAL_PRICE_PER_GRAM;
+  const sideDiamondPrice = sideDiamondWeight * SIDE_DIAMOND_PRICE_PER_CARAT;
+  const basePrice = goldWithLabor + sideDiamondPrice;
+  return basePrice;
 };
 
 /**
- * Calculates the total price of a customized product based on its net weight and selected metal variation.
+ * Calculates the total price of a customized product based on center diamond details and product specifications.
  *
  * Pricing formula:
- *   price = metalPricePerGram * netWeight * PRICE_MULTIPLIER
+ *   totalBasePrice = centerDiamondPrice + metalAndSideDiamondPrice + (centerDiamondPrice + metalAndSideDiamondPrice) / 2
+ *   finalPrice = totalBasePrice * PRICE_MULTIPLIER
  *
- * - The metal price is determined by the variation with a valid metal type.
- * - PRICE_MULTIPLIER can account for making charges, design complexity, etc.
+ * - centerDiamondPrice is determined by carat weight, clarity, and color from ALLOWED_DIA_COLORS, ALLOWED_DIA_CLARITIES, and CARAT_RANGE_PRICES.
+ * - metalAndSideDiamondPrice includes metal cost (netWeight * METAL_PRICE_PER_GRAM) and side diamond cost (sideDiamondWeight * SIDE_DIAMOND_PRICE_PER_CARAT).
+ * - A 50% markup is added to the sum of centerDiamondPrice and metalAndSideDiamondPrice.
+ * - PRICE_MULTIPLIER accounts for additional charges (e.g., labor, design complexity).
  *
- * @param {number} netWeight - Net weight of the product in grams.
- * @param {Array<Object>} variations - Array of variation objects containing variationTypeName.
+ * @param {Object} params - The input parameters for the calculation.
+ * @param {Object} params.centerDiamondDetail - Details of the center diamond.
+ * @param {number} params.centerDiamondDetail.caratWeight - Carat weight of the center diamond.
+ * @param {string} params.centerDiamondDetail.clarity - Clarity of the center diamond (e.g., "VVS1").
+ * @param {string} params.centerDiamondDetail.color - Color grade of the center diamond (e.g., "D").
+ * @param {Object} params.productDetail - Details of the product.
+ * @param {number} params.productDetail.netWeight - Net weight of the product in grams.
+ * @param {number} params.productDetail.sideDiamondWeight - Total carat weight of side diamonds.
  * @returns {number} The final customized product price, rounded to 2 decimal places.
- * @throws {Error} If inputs are invalid or no valid metal variation is found.
+ * @throws {Error} If inputs are invalid or missing required properties.
  */
-const calculateCustomProductPrice = ({ netWeight, variations }) => {
-  // Validate product and net weight
-  if (!Number.isFinite(netWeight) || netWeight <= 0) {
+const calculateCustomizedProductPrice = ({
+  centerDiamondDetail = {},
+  productDetail = {},
+}) => {
+  // Validate center diamond details
+  if (
+    !centerDiamondDetail ||
+    !Number.isFinite(centerDiamondDetail?.caratWeight) ||
+    centerDiamondDetail?.caratWeight <= 0 ||
+    !centerDiamondDetail?.clarity ||
+    !centerDiamondDetail?.color
+  ) {
     throw new Error(
-      "Invalid or missing product data. 'netWeight' must be a positive number."
+      "Invalid or missing center diamond details. 'caratWeight' must be a positive number, and 'clarity' and 'color' must be provided."
     );
   }
 
-  // Validate variations array
-  if (!Array.isArray(variations) || variations.length === 0) {
-    throw new Error("Variations must be a non-empty array.");
-  }
-
-  // Identify valid metal type variation
-  const metalVariation = variations.find((variation) => {
-    const variationType = variation?.variationTypeName?.toUpperCase();
-    return variationType && METAL_PRICES.hasOwnProperty(variationType);
-  });
-
-  if (!metalVariation) {
-    const allowedMetals = Object.keys(METAL_PRICES).join(", ");
+  // Validate product details
+  if (
+    !productDetail ||
+    !Number.isFinite(productDetail?.netWeight) ||
+    productDetail?.netWeight <= 0 ||
+    !Number.isFinite(productDetail?.sideDiamondWeight) ||
+    productDetail?.sideDiamondWeight < 0
+  ) {
     throw new Error(
-      `No valid metal type found in variations. Supported types: ${allowedMetals}`
+      "Invalid or missing product details. 'netWeight' and 'sideDiamondWeight' must be numbers, with 'netWeight' positive."
     );
   }
 
-  // Get metal price
-  const metalType = metalVariation.variationTypeName.toUpperCase();
-  const metalPricePerGram = METAL_PRICES[metalType];
+  // Calculate center diamond price based on carat weight, clarity, and color
+  const centerDiamondPrice = calculateCenterDiamondPrice(centerDiamondDetail);
 
-  // Calculate and return final price
-  const rawPrice = metalPricePerGram * netWeight * PRICE_MULTIPLIER;
-  return Number(rawPrice.toFixed(2));
+  // Calculate metal and side diamond price based on net weight and side diamond weight
+  const metalAndSideDiamondPrice =
+    calculateMetalAndSideDiamondPrice(productDetail);
+
+  // Apply 50% markup to the sum of center diamond and metal/side diamond prices
+  const fiftyPercentMarkup =
+    (centerDiamondPrice + metalAndSideDiamondPrice) / 2;
+
+  // Calculate total base price
+  const totalBasePrice =
+    centerDiamondPrice + metalAndSideDiamondPrice + fiftyPercentMarkup;
+
+  // Apply PRICE_MULTIPLIER and round to 2 decimal places
+  const finalPrice = Number((totalBasePrice * PRICE_MULTIPLIER).toFixed(2));
+
+  return finalPrice;
 };
 
 module.exports = {
   getSellingPrice,
   calculateSubTotal,
-  calculateDiamondPrice,
-  calculateCustomProductPrice,
+  calculateCustomizedProductPrice,
 };

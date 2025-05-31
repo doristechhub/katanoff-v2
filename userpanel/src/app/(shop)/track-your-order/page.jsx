@@ -52,22 +52,23 @@ export default function TrackYourOrderPage() {
   }, [orderDetail]);
 
   return (
-    <div>
-      <CommonBgHeading title="Order Tracking" />
-
-      <section className="my-28 flex justify-center">
-        <div className="container w-full max-w-xl">
+    <>
+      <div className="pt-12">
+        <CommonBgHeading title="Order Tracking" />
+      </div>
+      <section className="pt-8 flex mx-auto justify-center max-w-4xl">
+        <div className="container w-full">
           <div className="flex justify-end mb-2">
             <p className="block text-sm font-semibold mb-2">
               <span className="text-red-500">*</span>Required Fields
             </p>
           </div>
-          <form onSubmit={handleSubmit} noValidate className="bg-white p-10">
+          <form onSubmit={handleSubmit} noValidate>
             {/* Order Number Field */}
             <div className="mb-6">
               <label
                 htmlFor="orderNumber"
-                className="block text-sm font-semibold  mb-2"
+                className="block text-sm md:text-base font-semibold mb-2"
               >
                 Order Number <span className="text-red-500">*</span>
               </label>
@@ -76,7 +77,7 @@ export default function TrackYourOrderPage() {
                 type="text"
                 {...getFieldProps("orderNumber")}
                 placeholder="Enter your Order Number"
-                className="w-full border px-4 py-2 focus:outline-none"
+                className="w-full border px-4 py-2 focus:outline-none !bg-transparent !rounded-md"
               />
               {touched.orderNumber && errors.orderNumber && (
                 <ErrorMessage message={errors.orderNumber} />
@@ -87,7 +88,7 @@ export default function TrackYourOrderPage() {
             <div className="mb-6">
               <label
                 htmlFor="email"
-                className="block text-sm font-semibold  mb-2"
+                className="block text-sm md:text-base font-semibold mb-2"
               >
                 Order Billing Email <span className="text-red-500">*</span>
               </label>
@@ -96,7 +97,7 @@ export default function TrackYourOrderPage() {
                 type="email"
                 {...getFieldProps("email")}
                 placeholder="Enter your Billing Email"
-                className="w-full border px-4 py-2 focus:outline-none"
+                className="w-full border px-4 py-2 focus:outline-none !bg-transparent !rounded-md"
               />
               {touched.email && errors.email && (
                 <ErrorMessage message={errors.email} />
@@ -130,7 +131,7 @@ export default function TrackYourOrderPage() {
       {/* Order Details Section */}
       <div ref={orderDetailsRef}>
         {formSubmitted && (
-          <>
+          <div className="pt-12 xl:pt-16 container">
             {orderDetail ? (
               <OrderDetails
                 orderLoading={orderDetailLoading}
@@ -139,9 +140,9 @@ export default function TrackYourOrderPage() {
             ) : (
               <CommonNotFound message={"Order Not Found!"} />
             )}
-          </>
+          </div>
         )}
       </div>
-    </div>
+    </>
   );
 }

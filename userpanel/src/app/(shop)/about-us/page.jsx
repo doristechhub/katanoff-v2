@@ -107,6 +107,8 @@ export default function AboutPage() {
         isStaticBanner={true}
         altAttr=""
         titleAttr=""
+        textAlignment="left"
+        customClass="text-!left !justify-left !pl-12"
       />
       <section className="mt-12 lg:mt-16 flex flex-col gap-8 container text-sm">
         <p>

@@ -1,16 +1,27 @@
-import { ProductNotFound, ProgressiveImg } from "@/components/dynamiComponents";
+"use client";
+import {
+  CustomImg,
+  ProductNotFound,
+  ProgressiveImg,
+} from "@/components/dynamiComponents";
 import CustomBadge from "@/components/ui/CustomBadge";
 import { helperFunctions } from "@/_helper";
 import SkeletonLoader from "../skeletonLoader";
 import moment from "moment";
 import DiamondDetailDrawer from "@/components/ui/customize/DiamondDetailDrawer";
+import effect from "@/assets/icons/effect.png";
 
 import { setOpenDiamondDetailDrawer } from "@/store/slices/commonSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 import CancelReturnRequest from "./CancelReturnRequest";
+import { useEffect, useRef } from "react";
 
-const ReturnDetails = ({ returnDetail, returnLoader = false }) => {
+const ReturnDetails = ({
+  returnDetail,
+  returnLoader = false,
+  isShadow = true,
+}) => {
   const { openDiamondDetailDrawer } = useSelector(({ common }) => common);
   const dispatch = useDispatch();
   const orderMetaFields = [
@@ -30,12 +41,12 @@ const ReturnDetails = ({ returnDetail, returnLoader = false }) => {
     {
       label: "Payment Status",
       value: returnDetail?.returnPaymentStatus,
-      render: (val) => <CustomBadge status={val}>{val}</CustomBadge>,
+      // render: (val) => <CustomBadge status={val}>{val}</CustomBadge>,
     },
     {
       label: "Return Status",
       value: returnDetail?.status,
-      render: (val) => <CustomBadge status={val}>{val}</CustomBadge>,
+      // render: (val) => <CustomBadge status={val}>{val}</CustomBadge>,
     },
     {
       label: "Return Request Reason",
@@ -66,6 +77,35 @@ const ReturnDetails = ({ returnDetail, returnLoader = false }) => {
       isOptional: true,
     },
   ];
+
+  useEffect(() => {
+    const contentElement = cartContentRef.current;
+    if (!contentElement) return;
+
+    const handleWheel = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const scrollAmount = event.deltaY;
+      const maxScroll =
+        contentElement?.scrollHeight - contentElement?.clientHeight;
+      const currentScroll = contentElement?.scrollTop + scrollAmount;
+
+      contentElement.scrollTop = Math.max(
+        0,
+        Math.min(currentScroll, maxScroll)
+      );
+    };
+
+    contentElement.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      contentElement.removeEventListener("wheel", handleWheel);
+    };
+  }, []);
+
+  const cartContentRef = useRef(null);
+
   return (
     <>
       {returnLoader ? (
@@ -84,7 +124,7 @@ const ReturnDetails = ({ returnDetail, returnLoader = false }) => {
         <ProductNotFound message="Sorry, no order found." />
       ) : (
         <>
-          <div className="container my-8">
+          <div className={`px-6 my-8 ${isShadow ? "shadow-lg" : null}`}>
             <div className="flex justify-end">
               <div className="flex gap-4 mb-2">
                 {returnDetail?.status === "pending" &&
@@ -93,40 +133,30 @@ const ReturnDetails = ({ returnDetail, returnLoader = false }) => {
                     <CancelReturnRequest returnId={returnDetail.id} />
                   </>
                 ) : null}
-
-                {/* {returnDetail?.returnPaymentStatus == "refunded" ? (
-                  <>
-                
-                    {invoiceLoading ? (
-                      <Spinner className="h-6" />
-                    ) : (
-                      <DownloadInvoice orderId={returnDetail.id} />
-                    )}
-                  </>
-                ) : (
-                  ""
-                )} */}
               </div>
             </div>
 
             {/* Left Panel: Products */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-4">
-                <div className="bg-white p-4 lg:p-6 min-h-[300px] lg:min-h-[400px] flex flex-col gap-6">
+            <div className="relative flex flex-col lg:flex-row">
+              <div className="flex flex-col gap-4 pr-6 w-full lg:w-1/2">
+                <div
+                  className="px-4 flex-1 overflow-y-auto max-h-[55vh] custom-scrollbar relative pt-6"
+                  ref={cartContentRef}
+                >
                   {returnDetail?.products?.map((product, index) => {
                     return (
-                      <div key={index}>
+                      <div key={index} className="pt-6">
                         <div className="flex gap-4">
                           <div className="relative">
+                            <div className="absolute -top-2 -left-2 bg-baseblack text-white text-xs xs:text-sm lg:text-base font-semibold rounded-full px-2  z-10">
+                              {product?.returnQuantity}
+                            </div>
                             <ProgressiveImg
                               src={product.productImage}
                               alt={product.productName}
                               title={product.productName}
                               className={"w-60 md:w-44 border border-alabaster"}
                             />
-                            <div className="absolute top-0 left-0 bg-primary text-white text-xs font-semibold px-2 py-1 z-10">
-                              Qty: {product?.returnQuantity}
-                            </div>
                           </div>
 
                           <div className="w-full">
@@ -142,22 +172,34 @@ const ReturnDetails = ({ returnDetail, returnLoader = false }) => {
                               </h3>
                             </div>
 
-                            <div className="flex flex-wrap gap-0.5 sm:gap-1 lg:gap-2 my-1 sm:my-1.5 lg:my-3">
-                              {product?.variations?.map((variItem) => (
-                                <span
-                                  className="flex p-1 md:p-1.5 w-fit border border-alabaster text-xs sm:text-xs lg:text-sm 2xl:text-base"
-                                  key={helperFunctions.getRandomValue()}
-                                >
-                                  <p className="font-bold">
-                                    {variItem.variationName}:
-                                  </p>
-                                  <p className="mb-0 text-capitalize pl-1">
-                                    {variItem.variationTypeName}
-                                  </p>
-                                </span>
-                              ))}
+                            <div className="flex flex-wrap gap-0.5 sm:gap-1 lg:gap-2 my-1 sm:my-1.5">
+                              <p className="text-baseblack font-medium  flex flex-wrap text-sm md:text-base">
+                                {helperFunctions?.displayVariationsLabel(
+                                  product?.variations
+                                )}
+                              </p>
                             </div>
-                            <h3 className="font-medium text-sm md:text-base">
+                            {product.diamondDetail && (
+                              <div className="hidden xs:block">
+                                <DiamondDetailDrawer
+                                  key={product.productId}
+                                  cartItem={{
+                                    ...product,
+                                    id: product?.productId,
+                                    quantity: product?.returnQuantity,
+                                  }}
+                                  openDiamondDetailDrawer={
+                                    openDiamondDetailDrawer
+                                  }
+                                  dispatch={dispatch}
+                                  setOpenDiamondDetailDrawer={
+                                    setOpenDiamondDetailDrawer
+                                  }
+                                  isOrderPage={true}
+                                />
+                              </div>
+                            )}
+                            <h3 className="font-medium text-sm md:text-base pt-1">
                               $
                               {helperFunctions.toFixedNumber(
                                 product?.productPrice
@@ -168,13 +210,13 @@ const ReturnDetails = ({ returnDetail, returnLoader = false }) => {
                               </span>
                             </h3>
                             {product.diamondDetail && (
-                              <div className="hidden xs:block">
+                              <div className="xs:hidden">
                                 <DiamondDetailDrawer
                                   key={product.productId}
                                   cartItem={{
                                     ...product,
-                                    id: product.productId,
-                                    quantity: product.returnQuantity,
+                                    id: product?.productId,
+                                    quantity: product?.returnQuantity,
                                   }}
                                   openDiamondDetailDrawer={
                                     openDiamondDetailDrawer
@@ -189,31 +231,21 @@ const ReturnDetails = ({ returnDetail, returnLoader = false }) => {
                             )}
                           </div>
                         </div>
-                        {product.diamondDetail && (
-                          <div className="xs:hidden">
-                            <DiamondDetailDrawer
-                              key={product.productId}
-                              cartItem={{
-                                ...product,
-                                id: product.productId,
-                                quantity: product.returnQuantity,
-                              }}
-                              openDiamondDetailDrawer={openDiamondDetailDrawer}
-                              dispatch={dispatch}
-                              setOpenDiamondDetailDrawer={
-                                setOpenDiamondDetailDrawer
-                              }
-                              isOrderPage={true}
-                            />
-                          </div>
-                        )}
                       </div>
                     );
                   })}
+                  {returnDetail?.products?.length > 3 && (
+                    <div className="sticky bottom-0 w-full h-24 pointer-events-none">
+                      <CustomImg
+                        src={effect}
+                        alt="Effect"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
                 </div>
 
-                {/* Billing Section */}
-                <div className="bg-white p-4 lg:p-6 flex flex-col gap-2 text-sm md:text-base">
+                <div className="p-4 lg:p-6 flex flex-col gap-2 text-sm md:text-base">
                   {[
                     {
                       label: "Total Amount",
@@ -250,9 +282,12 @@ const ReturnDetails = ({ returnDetail, returnLoader = false }) => {
                   ) : null}
                 </div>
               </div>
-              <div className="flex flex-col gap-4">
+              <div className="flex justify-center items-center px-2 my-4 lg:my-0">
+                <div className="w-full h-px bg-grayborder lg:w-px lg:h-[80%]"></div>
+              </div>
+              <div className="flex flex-col gap-4 lg:pl-6 w-full lg:w-1/2">
                 {/* Order Info Section */}
-                <div className="bg-white p-4 lg:p-6">
+                <div className="p-4 lg:p-6">
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 text-sm md:text-base">
                     {orderMetaFields.map(
                       ({ label, value, render, isOptional }) => {

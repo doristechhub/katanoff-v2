@@ -163,7 +163,7 @@ export default function Header() {
             />
           </Link>
 
-          <div className="text-xl flex items-center gap-4 lg:w-64 justify-end">
+          <div className="text-xl flex items-center gap-2.5 lg:w-64 justify-end">
             <SearchBar
               isMobile={false}
               searchContainerRef={searchContainerRef}
@@ -179,7 +179,7 @@ export default function Header() {
               uniqueId={"desktop-header-profile"}
             />
             {!hideCartPopup && (
-              <div className="pe-3.5 lg:pe-0">
+              <div className="pe-3.5 lg:pe-0 inline-flex">
                 <CartPopup />
               </div>
             )}

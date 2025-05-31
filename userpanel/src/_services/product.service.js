@@ -7,7 +7,6 @@ import {
   sanitizeObject,
 } from "../_helper";
 import { GOLD_COLOR, GOLD_TYPES } from "../_helper/constants";
-import { DIAMONDS_LIST } from "../_helper/diamondsList";
 import { collectionService } from "./collection.service";
 import { diamondShapeService } from "./diamondShape.service";
 import { homeService } from "./home.service";
@@ -485,7 +484,7 @@ const getFilteredDiamondProducts = (params) => {
       );
       let filteredProducts = diamondFilteredProducts;
       if (diamondId) {
-        const selectedDiamond = DIAMONDS_LIST?.find(
+        const selectedDiamond = []?.find(
           (diamond) => Number(diamond.id) === Number(diamondId)
         );
 
@@ -738,33 +737,66 @@ const getSingleProductDataById = async ({ productId }) => {
   }
 };
 
-// const getCustomizeProduct = (collectionType, collectionTitle) => {
+const fetchUniqueShapesAndCaratBounds = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const activeProducts = await getAllActiveProducts();
+
+      const shapeIdSet = new Set();
+      const distinctShapes = [];
+      const minCaratValues = [];
+      const maxCaratValues = [];
+
+      activeProducts?.forEach((item) => {
+        const itemShapes = item?.diamondFilters?.diamondShapes;
+        if (item.isDiamondFilter) {
+          // Collect unique shapes
+          if (itemShapes?.length) {
+            itemShapes?.forEach((shape) => {
+              if (!shapeIdSet.has(shape.id)) {
+                shapeIdSet.add(shape.id);
+                distinctShapes.push(shape);
+              }
+            });
+          }
+          minCaratValues.push(item?.diamondFilters?.caratWeightRange?.min);
+          maxCaratValues.push(item?.diamondFilters?.caratWeightRange?.max);
+        }
+      });
+
+      // Calculate carat bounds
+      const minCaratBound = minCaratValues.length
+        ? Math.min(...minCaratValues)
+        : 0;
+      const maxCaratBound = maxCaratValues.length
+        ? Math.max(...maxCaratValues)
+        : 0;
+      const caratBounds = [minCaratBound, maxCaratBound];
+
+      resolve({ distinctShapes, caratBounds });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+async function run() {
+  try {
+    const result = await fetchUniqueShapesAndCaratBounds();
+    console.log("Unique Shapes:", result.distinctShapes);
+    console.log("Carat Bounds:", result.caratBounds);
+  } catch (error) {
+    console.error("Error:", error.message);
+  }
+}
+run();
+
 const getCustomizeProduct = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      // collectionType = sanitizeValue(collectionType)
-      //   ? collectionType.trim()
-      //   : null;
-      // collectionTitle = sanitizeValue(collectionTitle)
-      //   ? collectionTitle.trim()
-      //   : null;
-
-      // if (!collectionType || !collectionTitle) {
-      //   reject(new Error("Invalid Data"));
-      //   return;
-      // }
-
       const allActiveProductsData = await getAllActiveProducts();
 
-      // // Filter by collection type
       let filteredData = [];
-      // if (collectionType === "categories") {
-      //   filteredData = allActiveProductsData.filter(
-      //     (item) =>
-      //       item.categoryName.toLowerCase() === collectionTitle.toLowerCase()
-      //   );
-      // }
-
       // Further filter to only include products with isDiamondFilter: true
       filteredData = allActiveProductsData.filter(
         (item) => item.isDiamondFilter
@@ -774,20 +806,11 @@ const getCustomizeProduct = () => {
         ?.sortByField(filteredData)
         ?.map((product) => {
           // Price Formula Here
-          const metalVariations = product?.variations?.find(
-            (x) => x?.variationName?.toLowerCase() === GOLD_TYPES?.toLowerCase()
-          )?.variationTypes;
-          const metalWiseCustomProdctPrices = metalVariations?.map(
-            (metalItem) => {
-              return helperFunctions?.calculateCustomProductPrice({
-                netWeight: product?.netWeight,
-                variations: [metalItem],
-              });
-            }
-          );
-          const minCustomProductPrice = Math.min(
-            ...metalWiseCustomProdctPrices
-          );
+          const metalWithSideDiamondPrice =
+            helperFunctions?.calculateMetalAndSideDiamondPrice({
+              netWeight: product?.netWeight,
+              sideDiamondWeight: product?.sideDiamondWeight,
+            });
           return {
             productName: product?.productName,
             isDiamondFilter: product?.isDiamondFilter || false,
@@ -799,8 +822,8 @@ const getCustomizeProduct = () => {
             roseGoldThumbnailImage: product?.roseGoldThumbnailImage,
             diamondFilters: product?.diamondFilters,
             id: product.id,
-            basePrice: minCustomProductPrice,
-            baseSellingPrice: minCustomProductPrice,
+            basePrice: metalWithSideDiamondPrice,
+            baseSellingPrice: metalWithSideDiamondPrice,
             variations: product.variations,
             createdDate: product.createdDate,
             goldTypeVariations: product?.variations?.find(

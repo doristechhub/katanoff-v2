@@ -225,11 +225,7 @@ const ReturnRequestPage = () => {
                       <p className="text-base md:text-xl lg:text-2xl font-medium font-castoro text-end">
                         $
                         {helperFunctions.toFixedNumber(
-                          cartItem?.diamondDetail
-                            ? (cartItem.diamondDetail.price +
-                                cartItem.productPrice) *
-                                cartItem.returnQuantity
-                            : cartItem.productPrice * cartItem.returnQuantity
+                          cartItem.productPrice * cartItem.returnQuantity
                         )}
                       </p>
                     </div>
