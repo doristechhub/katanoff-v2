@@ -1,5 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-export const defaultOpenKeys = ["sortBy"];
+export const defaultsmOpenFilter = [
+  "shape",
+  "metal",
+  "settingStyle",
+  "price",
+];
 const initialState = {
   productLoading: false,
   recentlyProductLoading: false,
@@ -12,9 +17,9 @@ const initialState = {
   selectedFilterVariations: {},
   productQuantity: 1,
   selectedSortByValue: "date_new_to_old",
-  shortByValue: "date_new_to_old",
-  openKeys: defaultOpenKeys,
-  showFilterSidebar: false,
+  smOpenFilter: defaultsmOpenFilter,
+  isFilterMenuOpen: false,
+  isFilterFixed: false,
   uniqueFilterOptions: {},
   selectedSettingStyles: [],
   selectedSettingStyle: "",
@@ -77,19 +82,22 @@ const productSlice = createSlice({
     setSelectedSortByValue: (state, action) => {
       state.selectedSortByValue = action.payload;
     },
-    setOpenKeys: (state, action) => {
-      state.openKeys = action.payload;
+    setIsFilterFixed: (state, action) => {
+      state.isFilterFixed = action.payload;
     },
-    toggleOpenKey: (state, action) => {
-      const key = action.payload;
-      if (state.openKeys.includes(key)) {
-        state.openKeys = state.openKeys.filter((k) => k !== key);
+    setSMOpenFilter: (state, action) => {
+      state.smOpenFilter = action.payload;
+    },
+    toggleSMOpenFilter: (state, action) => {
+      const filter = action.payload;
+      if (state.smOpenFilter.includes(filter)) {
+        state.smOpenFilter = state.smOpenFilter.filter(item => item !== filter);
       } else {
-        state.openKeys.push(key);
+        state.smOpenFilter.push(filter);
       }
     },
-    setShowFilterSidebar: (state, action) => {
-      state.showFilterSidebar = action.payload;
+    setIsFilterMenuOpen: (state, action) => {
+      state.isFilterMenuOpen = action.payload;
     },
     setVisibleItemCount: (state, action) => {
       state.visibleItemCount = action.payload;
@@ -100,7 +108,7 @@ const productSlice = createSlice({
     resetFilters: (state) => {
       state.selectedSortByValue = "date_new_to_old";
       state.selectedFilterVariations = {};
-      state.openKeys = defaultOpenKeys;
+      state.smOpenFilter = defaultsmOpenFilter;
       state.selectedSettingStyles = [];
       state.selectedDiamondShapes = [];
       state.selectedGenders = [];
@@ -117,10 +125,7 @@ const productSlice = createSlice({
     setSelectedSettingStyle: (state, action) => {
       state.selectedSettingStyle = action.payload;
     },
-    // Remove that 
-    setSortByValue: (state, action) => {
-      state.shortByValue = action.payload;
-    },
+
     // Customize Product List States
     setCustomizeProductList: (state, action) => {
       state.customizeProductList = action.payload;
@@ -169,11 +174,11 @@ export const {
   setProductQuantity,
   setProductMessage,
   setSelectedSortByValue,
-  setShowFilterSidebar,
+  setIsFilterMenuOpen,
   resetFilters,
-  setOpenKeys,
+  setSMOpenFilter,
+  setIsFilterFixed,
   setSelectedPrices,
-  toggleOpenKey,
   setUniqueFilterOptions,
   setSelectedSettingStyles,
   setSelectedSettingStyle,
@@ -186,8 +191,8 @@ export const {
   setProductsPerPage,
   setSelectedDiamondShapes,
   setSelectedDiamondShape,
-  setSortByValue,
   setVisibleItemCount,
+  toggleSMOpenFilter,
   setFilteredProducts
 } = productSlice.actions;
 

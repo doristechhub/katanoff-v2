@@ -780,17 +780,6 @@ const fetchUniqueShapesAndCaratBounds = () => {
   });
 };
 
-async function run() {
-  try {
-    const result = await fetchUniqueShapesAndCaratBounds();
-    console.log("Unique Shapes:", result.distinctShapes);
-    console.log("Carat Bounds:", result.caratBounds);
-  } catch (error) {
-    console.error("Error:", error.message);
-  }
-}
-run();
-
 const getCustomizeProduct = () => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -934,6 +923,7 @@ export const productService = {
   getFilteredDiamondProducts,
   getSingleProductDataById,
   getProcessProducts,
+  fetchUniqueShapesAndCaratBounds,
   getCustomizeProduct,
   searchProducts,
 };

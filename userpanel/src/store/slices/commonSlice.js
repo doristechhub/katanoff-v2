@@ -17,7 +17,6 @@ const initialState = {
   customizeLoader: false,
   openDiamondDetailDrawer: "",
   openDiamondDetailProductId: "",
-  uniqueFilterOptionsForHeader: {},
   customizeOptionLoading: false,
   diamondShapeList: [],
   transparenHeadertBg: false,
@@ -30,6 +29,7 @@ const initialState = {
   engagementHeaderUniqueFilterOptions: [],
   engagementHeaderLoader: false,
   uniqueDiamondShapesForHomePage: {},
+  uniqueDiamondShapesAndCaratBounds: {},
 };
 
 const commonSlice = createSlice({
@@ -117,9 +117,7 @@ const commonSlice = createSlice({
     setOpenDiamondDetailProductId(state, action) {
       state.openDiamondDetailProductId = action.payload;
     },
-    setUniqueFilterOptionsForHeader: (state, action) => {
-      state.uniqueFilterOptionsForHeader = action.payload;
-    },
+  
     setCustomizeOptionLoading: (state, action) => {
       state.customizeOptionLoading = action.payload;
     },
@@ -128,6 +126,9 @@ const commonSlice = createSlice({
     },
     setUniqueDiamondShapesForHomePage: (state, action) => {
       state.uniqueDiamondShapesForHomePage = action.payload;
+    },
+    setUniqueDiamondShapesAndCaratBounds: (state, action) => {
+      state.uniqueDiamondShapesAndCaratBounds = action.payload;
     },
   },
 });
@@ -152,7 +153,6 @@ export const {
   setCustomProductDetails,
   setOpenDiamondDetailDrawer,
   setOpenDiamondDetailProductId,
-  setUniqueFilterOptionsForHeader,
   setCustomizeOptionLoading,
   setIsSearchOpen,
   setIsMobileSearchOpen,
@@ -161,7 +161,8 @@ export const {
   setWeddingHeaderUniqueFilterOptions,
   setEngagementHeaderUniqueFilterOptions,
   setEngagementHeaderLoader,
-  setUniqueDiamondShapesForHomePage
+  setUniqueDiamondShapesForHomePage,
+  setUniqueDiamondShapesAndCaratBounds,
 } = commonSlice.actions;
 
 export default commonSlice.reducer;

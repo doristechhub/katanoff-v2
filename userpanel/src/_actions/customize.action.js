@@ -8,8 +8,7 @@ import {
 import { getUniqueFilterOptions } from "./product.actions";
 import {
   setCustomizeOptionLoading,
-  setUniqueDiamondShapesForHomePage,
-  setUniqueFilterOptionsForHeader,
+  setUniqueDiamondShapesAndCaratBounds,
 } from "@/store/slices/commonSlice";
 
 export const fetchCustomizeProducts = () => {
@@ -18,10 +17,7 @@ export const fetchCustomizeProducts = () => {
       dispatch(setCustomizeProductList([]));
       dispatch(setCustomizeProductLoading(true));
       const customizProductList = await productService.getCustomizeProduct();
-      // await productService.getCustomizeProduct(
-      //     CATEGORIES,
-      //     RING
-      // );
+
       if (customizProductList) {
         const tempUniqueFilterOptions =
           getUniqueFilterOptions(customizProductList);
@@ -38,18 +34,22 @@ export const fetchCustomizeProducts = () => {
   };
 };
 
-export const fetchCustomizeProductsVariation = () => {
+export const fetchUniqueShapesAndCaratBounds = () => {
   return async (dispatch) => {
     try {
       dispatch(setCustomizeOptionLoading(true));
-      const customizProductList = await productService.getCustomizeProduct();
-      if (customizProductList) {
-        const tempUniqueFilterOptions =
-          getUniqueFilterOptions(customizProductList);
-        dispatch(setUniqueDiamondShapesForHomePage(tempUniqueFilterOptions));
+      const diamondData =
+        await productService.fetchUniqueShapesAndCaratBounds();
+      if (diamondData) {
+        dispatch(setUniqueDiamondShapesAndCaratBounds(diamondData));
       }
     } catch (e) {
-      dispatch(setUniqueDiamondShapesForHomePage([]));
+      dispatch(
+        setUniqueDiamondShapesAndCaratBounds({
+          uniqueDiamondShapes: [],
+          caratBounds: [],
+        })
+      );
     } finally {
       dispatch(setCustomizeOptionLoading(false));
     }

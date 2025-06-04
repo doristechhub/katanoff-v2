@@ -11,8 +11,8 @@ import {
   setSelectedPrices,
 } from "@/store/slices/productSlice";
 import { productService, recentlyViewedService } from "@/_services";
-import { ENGAGEMENT_RINGS, messageType, WEDDING, WEDDING_RINGS } from "@/_helper/constants";
-import { setEngagementHeaderLoader, setEngagementHeaderUniqueFilterOptions, setUniqueFilterOptionsForHeader, setWeddingHeaderLoader, setWeddingHeaderUniqueFilterOptions } from "@/store/slices/commonSlice";
+import { ENGAGEMENT_RINGS, messageType, WEDDING_RINGS } from "@/_helper/constants";
+import { setEngagementHeaderLoader, setEngagementHeaderUniqueFilterOptions, setWeddingHeaderLoader, setWeddingHeaderUniqueFilterOptions } from "@/store/slices/commonSlice";
 
 export const fetchLatestProductList = (length) => {
   return async (dispatch) => {
@@ -115,16 +115,11 @@ export const fetchCollectionsTypeWiseProduct = (
         );
         const uniqueFilterOptions = { ...tempUniqueFilterOptions };
         dispatch(setUniqueFilterOptions(uniqueFilterOptions));
-        dispatch(setUniqueFilterOptionsForHeader(uniqueFilterOptions));
         dispatch(setSelectedPrices(uniqueFilterOptions?.availablePriceRange));
         dispatch(setCollectionTypeProductList(collectionsTypeWiseProductList));
-        dispatch(setProductLoading(false));
       }
     } catch (e) {
       dispatch(setCollectionTypeProductList([]));
-      dispatch(setUniqueFilterOptionsForHeader([]));
-
-    } finally {
       dispatch(setProductLoading(false));
     }
   };

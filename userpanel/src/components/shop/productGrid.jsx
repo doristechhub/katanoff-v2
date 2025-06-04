@@ -5,7 +5,7 @@ import ProductCard from "./productCard";
 import { useWindowSize } from "@/_helper/hooks";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  setSortByValue,
+  setSelectedSortByValue,
   setVisibleItemCount,
 } from "@/store/slices/productSlice";
 import SkeletonLoader from "../ui/skeletonLoader";
@@ -16,7 +16,7 @@ import { HeaderLinkButton } from "../ui/button";
 const ProductGrid = memo(
   ({
     productsList = [],
-    isLoading,
+    isLoading = false,
     pagination = false,
     isDiamondSettingPage,
     className,
@@ -42,8 +42,8 @@ const ProductGrid = memo(
     };
 
     useEffect(() => {
-      dispatch(setSortByValue(selectedSortByValue));
-    }, [selectedSortByValue]);
+      dispatch(setSelectedSortByValue(selectedSortByValue));
+    }, [selectedSortByValue, dispatch]);
 
     useEffect(() => {
       dispatch(setVisibleItemCount(ITEMS_PER_PAGE));
@@ -53,6 +53,7 @@ const ProductGrid = memo(
       selectedSettingStyles,
       selectedPrices,
       selectedGenders,
+      dispatch,
     ]);
 
     return (
@@ -75,13 +76,13 @@ const ProductGrid = memo(
           <div>
             <div
               className={`w-full grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4
-                 6xl:grid-cols-6 gap-x-4 gap-y-6`}
+               6xl:grid-cols-6 gap-x-4 gap-y-6`}
             >
               {currentProducts.length
                 ? currentProducts.map((product) => (
                     <ProductCard
                       isDiamondSettingPage={isDiamondSettingPage}
-                      key={`product-key-${product?.productName}`}
+                      key={`product-key-${product?.id}`}
                       title={product?.productName}
                       discount={product?.discount}
                       basePrice={product?.basePrice}
@@ -113,6 +114,7 @@ const ProductGrid = memo(
                         isDiamondSettingPage,
                         product,
                       })}
+                      productId={product?.id}
                     />
                   ))
                 : null}
@@ -130,7 +132,7 @@ const ProductGrid = memo(
                     setVisibleItemCount(visibleItemCount + ITEMS_PER_PAGE)
                   )
                 }
-                className=" transition-all w-fit !font-semibold !text-baseblack duration-300 uppercase !py-4 !px-20 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack"
+                className="transition-all w-fit !font-semibold !text-baseblack duration-300 uppercase !py-4 !px-20 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack"
               >
                 View More
               </HeaderLinkButton>

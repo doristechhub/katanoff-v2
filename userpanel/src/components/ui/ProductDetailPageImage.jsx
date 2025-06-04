@@ -12,14 +12,14 @@ import { helperFunctions } from "@/_helper";
 import leftArrow from "@/assets/icons/leftArrow.svg";
 import rightArrow from "@/assets/icons/rightArrow.svg";
 
-function toCamelCase(str) {
+const toCamelCase = (str) => {
   if (!str) return "";
   const [first, ...rest] = str.trim().split(" ");
   return (
     first.toLowerCase() +
     rest.map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase()).join("")
   );
-}
+};
 
 const colorOptions = ["yellowGold", "roseGold", "whiteGold"];
 const ProductDetailPageImage = ({
@@ -30,12 +30,13 @@ const ProductDetailPageImage = ({
   const [preloadedData, setPreloadedData] = useState({});
   const [activeColorKey, setActiveColorKey] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+
   const swiperRef = useRef(null);
   const selectedColor = selectedVariations?.find(
     (v) => v?.variationName?.toLowerCase() === "gold color"
   )?.variationTypeName;
 
-  const selectedKey = hoveredColor || toCamelCase(selectedColor);
+  const selectedKey = toCamelCase(hoveredColor) || toCamelCase(selectedColor);
 
   useEffect(() => {
     if (!productDetail) return;
@@ -64,6 +65,7 @@ const ProductDetailPageImage = ({
     images: [],
     video: null,
   };
+
   const allSlides = [
     ...(currentData.thumbnail ? [currentData.thumbnail] : []),
     ...(Array.isArray(currentData.images)

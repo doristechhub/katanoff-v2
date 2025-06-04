@@ -4,7 +4,7 @@ import React from "react";
 
 const ReturnHistory = () => {
   return (
-    <div className="mt-12 lg:mt-10">
+    <div className="pt-12">
       <CommonBgHeading title="Return History" />
       <ReturnHistoryPage />
     </div>

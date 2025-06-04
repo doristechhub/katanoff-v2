@@ -27,15 +27,29 @@ import threeDots from "@/assets/icons/3dots.svg";
 import deleteRed from "@/assets/icons/deleteRed.svg";
 import eye from "@/assets/icons/eye.svg";
 import download from "@/assets/icons/download.svg";
+
+// Import Floating UI
+import {
+  useFloating,
+  offset,
+  flip,
+  shift,
+  autoUpdate,
+} from "@floating-ui/react";
+import {
+  useClick,
+  useDismiss,
+  useRole,
+  useInteractions,
+} from "@floating-ui/react";
+
 export default function ReturnHistoryPage() {
   const [openId, setOpenId] = useState(null);
   const dropdownRef = useRef(null);
 
   const router = useRouter();
   const dispatch = useDispatch();
-  const { orderList, orderLoading, selectedOrder, orderMessage } = useSelector(
-    ({ order }) => order
-  );
+  const { orderList } = useSelector(({ order }) => order);
   const { returnMessage, returnsList, currentPage, returnLoader } = useSelector(
     ({ returns }) => returns
   );
@@ -77,10 +91,44 @@ export default function ReturnHistoryPage() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+  const { refs, floatingStyles, context } = useFloating({
+    open: openId !== null,
+    onOpenChange: (open) => {
+      if (!open) setOpenId(null);
+    },
+    middleware: [
+      offset(5),
+      flip({
+        fallbackAxisSideDirection: "start",
+      }),
+      shift({ padding: 8 }),
+    ],
+    whileElementsMounted: autoUpdate,
+  });
+
+  const click = useClick(context);
+  const dismiss = useDismiss(context);
+  const role = useRole(context);
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    click,
+    dismiss,
+    role,
+  ]);
+
+  const handleActionClick = (orderId, event) => {
+    event.stopPropagation();
+    if (openId === orderId) {
+      setOpenId(null);
+    } else {
+      setOpenId(orderId);
+      refs.setReference(event.currentTarget);
+    }
+  };
 
   const renderTableHeading = () => {
     return (
-      <thead className="text-xs text-basegray uppercase bg-[#0000000D] dark:text-gray-400">
+      <thead className="text-xs lg:text-sm text-basegray uppercase bg-[#00000005] dark:text-gray-400">
         <tr>
           <th scope="col" className="px-6 py-3.5">
             Request Date
@@ -107,10 +155,10 @@ export default function ReturnHistoryPage() {
         <Alert message={returnMessage.message} type={returnMessage.type} />
       )}
 
-      <div className="container my-10 relative">
+      <div className="container my-10 relative overflow-x-auto pb-4">
         {returnLoader ? (
           <div className={`w-full h-[300px] animate-pulse`}>
-            <table className="w-full text-sm text-left rtl:text-right">
+            <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 shadow-lg">
               {renderTableHeading()}
 
               <tbody>
@@ -133,7 +181,7 @@ export default function ReturnHistoryPage() {
             </table>
           </div>
         ) : (
-          <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+          <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400  shadow-lg">
             {renderTableHeading()}
             <tbody>
               {paginatedOrder.map((order, index) => (
@@ -150,14 +198,16 @@ export default function ReturnHistoryPage() {
                       : null}
                   </th>
                   <td className="px-6 py-4">{order.orderNumber}</td>
-                  <td className="px-6 py-4">{order?.returnPaymentStatus}</td>
-                  <td className="px-6 py-4">{order?.status}</td>
-                  <td className="px-6 py-4 relative">
+                  <td className="px-6 py-4 capitalize">
+                    {order?.returnPaymentStatus}
+                  </td>
+                  <td className="px-6 py-4 capitalize">{order?.status}</td>
+
+                  <td className="px-3 py-4">
                     <button
-                      onClick={() =>
-                        setOpenId(openId === order.id ? null : order.id)
-                      }
-                      className="p-2 rounded hover:bg-gray-100"
+                      {...getReferenceProps()}
+                      onClick={(e) => handleActionClick(order.id, e)}
+                      className="p-2 rounded"
                       aria-haspopup="true"
                       title="More Actions"
                     >
@@ -167,40 +217,47 @@ export default function ReturnHistoryPage() {
                         className="w-4 h-4"
                       />
                     </button>
-
-                    {openId === order.id && (
-                      <div
-                        ref={dropdownRef}
-                        className="absolute right-0 z-50 mt-2 w-44 bg-white border border-gray-300 rounded shadow-lg"
-                      >
-                        <button
-                          className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4"
-                          onClick={() =>
-                            router.push(`/return-history/${order.id}`)
-                          }
-                        >
-                          <CustomImg
-                            srcAttr={eye}
-                            altAttr="View"
-                            className="w-6 h-6"
-                          />
-                          <p className="text-base text-basegray">View</p>
-                        </button>
-
-                        {order.status === "pending" &&
-                          order.returnPaymentStatus === "pending" && (
-                            <div className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray">
-                              <CancelReturnRequest returnId={order.id} />
-                              Delete
-                            </div>
-                          )}
-                      </div>
-                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        )}
+        {openId !== null && (
+          <div
+            ref={refs.setFloating}
+            style={floatingStyles}
+            {...getFloatingProps()}
+            className="z-50 w-48 bg-[#FAFAF8] filter drop-shadow-lg"
+          >
+            <button
+              className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4"
+              onClick={() => {
+                router.push(`/return-history/${openId}`);
+                setOpenId(null);
+              }}
+            >
+              <CustomImg srcAttr={eye} altAttr="View" className="w-6 h-6" />
+              <p className="text-base text-basegray">View</p>
+            </button>
+
+            {(() => {
+              const currentOrder = paginatedOrder?.find(
+                (order) => order.id === openId
+              );
+              return (
+                <>
+                  {currentOrder?.status === "pending" &&
+                    currentOrder?.returnPaymentStatus === "pending" && (
+                      <div className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray">
+                        <CancelReturnRequest returnId={currentOrder?.id} />
+                        Delete
+                      </div>
+                    )}
+                </>
+              );
+            })()}
+          </div>
         )}
       </div>
       {!returnLoader && returnsList.length > ITEMS_PER_PAGE && (

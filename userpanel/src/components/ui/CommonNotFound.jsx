@@ -21,7 +21,9 @@ export default function CommonNotFound({
         <h3 className="text-2xl md:text-3xl 2xl:text-4xl font-castoro capitalize">
           {message}
         </h3>
-        <p className="text-base mt-2 font-semibold">{subMessage}</p>
+        {subMessage ? (
+          <p className="text-base mt-2 font-semibold">{subMessage}</p>
+        ) : null}
         {showButton ? (
           <div className="flex justify-center mt-4">
             <PrimaryLinkButton href="/" className="w-[70%] text-sm 2xl:text-xl">

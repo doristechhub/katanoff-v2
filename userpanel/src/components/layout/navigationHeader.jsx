@@ -2,6 +2,7 @@
 import { HeaderLinkButton } from "@/components/ui/button";
 import {
   setIsMenuOpen,
+  setLastScrollY,
   setOpenDropdown,
   setOpenDropdownMobile,
 } from "@/store/slices/commonSlice";
@@ -53,7 +54,7 @@ const staticLinks = [
   },
 ];
 
-const mainHeaderLinks = [
+export const mainHeaderLinks = [
   { image: diamondIcon, href: "/contact-us", title: "contact us" },
   {
     icon: <HiOutlineShoppingBag className="text-xl" />,
@@ -77,11 +78,11 @@ export default function NavigationHeader() {
     transparenHeadertBg,
     weddingHeaderLoader,
     engagementHeaderLoader,
+    lastScrollY,
     engagementHeaderUniqueFilterOptions,
   } = useSelector(({ common }) => common);
   const [isHeaderVisible, setIsHeaderVisible] = useState(false);
   const [activeNestedMobile, setActiveNestedMobile] = useState(null);
-  const [lastScrollY, setLastScrollY] = useState(0);
   const navSearchContainerRef = useRef(null);
   const resultsContainerRef = useRef(null);
   const navSearchInputRef = useRef(null);
@@ -104,14 +105,14 @@ export default function NavigationHeader() {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      setLastScrollY(currentScrollY);
+      dispatch(setLastScrollY(currentScrollY));
       setIsHeaderVisible(currentScrollY > 100);
     };
 
     handleScroll();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [dispatch, lastScrollY]);
 
   useEffect(() => {
     loadData();
@@ -137,12 +138,14 @@ export default function NavigationHeader() {
 
   return (
     <header
-      className={`w-full ${
+      className={`w-full  ${
         transparenHeadertBg && !isHeaderVisible ? "bg-offwhite" : "bg-white"
       } ${
         lastScrollY > 100 ? "bg-white shadow-lg" : ""
       } z-40 transition-all duration-500 ease-in-out ${
-        isHeaderVisible ? "fixed top-0 left-0" : "relative lg:translate-y-[40%]"
+        isHeaderVisible
+          ? "fixed top-0 left-0 animate-slideDown animate-duration-900 animate-ease-in-out"
+          : "relative lg:translate-y-[40%]"
       }`}
     >
       {/* Desktop Navigation */}
@@ -706,7 +709,7 @@ export default function NavigationHeader() {
                             : null}
                         </div>
                         <HeaderLinkButton
-                          href={`/collections/collection/${helperFunctions?.stringReplacedWithSpace(
+                          href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
                             WEDDING_RINGS
                           )}?gender=female`}
                           onClick={(e) => {
@@ -928,7 +931,7 @@ export default function NavigationHeader() {
           </ul>
         )}
         {lastScrollY > 100 ? (
-          <div className="text-xl flex py-4 items-center gap-5">
+          <div className="text-xl flex py-4 items-center gap-3">
             <SearchBar
               isMobile={false}
               searchContainerRef={navSearchContainerRef}
@@ -1523,7 +1526,6 @@ export default function NavigationHeader() {
                       key={`header-static-link-${index}`}
                     >
                       <HeaderLinkButton
-                        key={`variation-${index}4`}
                         href={item.href}
                         className="!text-[14px] !uppercase flex items-center font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !px-[10px] !p-0 duration-300"
                         onClick={(e) => {
@@ -1535,6 +1537,7 @@ export default function NavigationHeader() {
                           <CustomImg
                             srcAttr={item.image}
                             titleAttr=""
+                            className="w-6"
                             altAttr=""
                           />
                         ) : item.icon ? (
@@ -1545,7 +1548,10 @@ export default function NavigationHeader() {
                     </div>
                   );
                 })}
-                <ProfileDropdown uniqueId={"mobile-nav-profile"} />
+                <ProfileDropdown
+                  className={"block lg:hidden"}
+                  uniqueId={"mobile-nav-profile"}
+                />
               </nav>
             )}
           </motion.div>

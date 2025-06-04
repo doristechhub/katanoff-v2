@@ -10,7 +10,6 @@ import {
 import { setIsMenuOpen, setLastScrollY } from "@/store/slices/commonSlice";
 import { IoMenu } from "react-icons/io5";
 import { RxCross2 } from "react-icons/rx";
-import logo from "@/assets/images/logo-2.webp";
 import flagUs from "@/assets/images/flag-us.webp";
 import textLogo from "@/assets/images/logo-text.svg";
 import diamondIcon from "@/assets/icons/diamond.svg";
@@ -116,12 +115,14 @@ export default function Header() {
       </div>
       <header
         className={`fixed ${
-          isHeaderVisible ? "left-0 shadow-lg lg:static lg:top-0 lg:left-0" : ""
+          isHeaderVisible
+            ? "left-0 shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] lg:static lg:top-0 lg:left-0"
+            : ""
         } ${lastScrollY > 50 ? "top-0" : "top-10"} lg:static w-full ${
           transparenHeadertBg && !isHeaderVisible
             ? "lg:bg-offwhite"
             : "lg:bg-white"
-        } bg-white z-50 shadow transition-all duration-300`}
+        } bg-white z-50 shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] transition-all duration-300`}
       >
         <div className="flex justify-between items-center pt-4 pb-2 !px-5 lg:pt-[30px] lg:px-0 2xl:px-4 container">
           <div className="items-center gap-6 font-extralight text-[#2B2B2B] text-[14px] 2xl:text-base hidden lg:flex">
@@ -138,7 +139,12 @@ export default function Header() {
               href={"/book-appointment"}
               className="flex items-center gap-1.5"
             >
-              <CustomImg srcAttr={calendarIcon} altAttr="" titleAttr="" />
+              <CustomImg
+                className="w-6"
+                srcAttr={calendarIcon}
+                altAttr=""
+                titleAttr=""
+              />
               <h3 className="uppercase">Book Appointment</h3>
             </Link>
           </div>
@@ -163,7 +169,7 @@ export default function Header() {
             />
           </Link>
 
-          <div className="text-xl flex items-center gap-2.5 lg:w-64 justify-end">
+          <div className="text-xl flex items-center gap-3 lg:w-64 justify-end">
             <SearchBar
               isMobile={false}
               searchContainerRef={searchContainerRef}
