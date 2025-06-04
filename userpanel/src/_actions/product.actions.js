@@ -109,7 +109,7 @@ export const fetchCollectionsTypeWiseProduct = (
           collectionTitle, parentCategory,
           parentMainCategory
         );
-      if (collectionsTypeWiseProductList) {
+      if (collectionsTypeWiseProductList?.length) {
         const tempUniqueFilterOptions = getUniqueFilterOptions(
           collectionsTypeWiseProductList
         );
@@ -117,6 +117,9 @@ export const fetchCollectionsTypeWiseProduct = (
         dispatch(setUniqueFilterOptions(uniqueFilterOptions));
         dispatch(setSelectedPrices(uniqueFilterOptions?.availablePriceRange));
         dispatch(setCollectionTypeProductList(collectionsTypeWiseProductList));
+      } else {
+        dispatch(setCollectionTypeProductList([]));
+        dispatch(setProductLoading(false));
       }
     } catch (e) {
       dispatch(setCollectionTypeProductList([]));

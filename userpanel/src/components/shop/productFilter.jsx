@@ -779,10 +779,15 @@ export default function ProductFilter({ productList, isDiamondPage = false }) {
         className={` ${isFilterFixed ? "h-[70px]" : "h-0"}`}
       ></div>
       <div
+        // className={`z-30 transition-all duration-700 ease-in-out ${
+        //   isFilterFixed
+        //     ? "fixed top-[110px] lg:top-[60px] clear-both w-full pt-6 bg-white shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] animate-slideDown animate-duration-900 animate-ease-in-out"
+        //     : "top-0 border-b-2 border-primary bg-transparent "
+        // }`}
         className={`z-30 transition-all duration-700 ease-in-out ${
           isFilterFixed
             ? "fixed top-[110px] lg:top-[60px] clear-both w-full pt-6 bg-white shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] animate-slideDown animate-duration-900 animate-ease-in-out"
-            : "top-0 border-b-2 border-primary bg-transparent "
+            : "top-0  bg-transparent "
         }`}
       >
         <div className="container">
@@ -816,10 +821,6 @@ export default function ProductFilter({ productList, isDiamondPage = false }) {
                   Reset All
                 </button>
               ) : null}
-            </div>
-
-            <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2 text-base">
-              {filteredProducts.length} Items
             </div>
 
             <div className="flex items-center gap-5 relative">
@@ -867,7 +868,8 @@ export default function ProductFilter({ productList, isDiamondPage = false }) {
 
         {isFilterMenuOpen ? (
           <div
-            className="w-full bg-white shadow-md border-t-2 z-50 border-baseblack text-baseblack pt-2"
+            // className="w-full bg-white shadow-md border-t-2 z-50 border-baseblack text-baseblack pt-2"
+            className="w-full bg-white shadow-md text-baseblack pt-2"
             ref={filterMenuRef}
           >
             <div className={`max-h-[65vh] overflow-y-scroll`}>
@@ -897,7 +899,8 @@ export default function ProductFilter({ productList, isDiamondPage = false }) {
                     {/* Mobile Dropdowns */}
                     <div className="lg:hidden flex flex-col w-full">
                       {!isDiamondPage && (
-                        <div className="border-b border-baseblack ">
+                        // <div className="border-b border-baseblack ">
+                        <div>
                           <button
                             className="w-full flex justify-between items-center py-3 font-medium text-base"
                             onClick={() => toggleDropdown("shape")}

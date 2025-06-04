@@ -36,7 +36,7 @@ const primaryBtn = `
 `;
 
 const containedPrimaryBtn =
-  "!bg-primary !h-12 lg:!h-[2.8rem] 2xl:!h-[3.5rem] !rounded-none font-semibold !tracking-wider hover:border-primary hover:!bg-transparent hover:!text-primary";
+  "!bg-primary !h-12 lg:!h-[2.8rem] 2xl:!h-[3.5rem] !rounded-none font-semibold !tracking-wider hover:border-primary hover:bg-transparent hover:text-primary";
 
 /**
  *

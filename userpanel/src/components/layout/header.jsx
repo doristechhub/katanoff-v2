@@ -104,7 +104,7 @@ export default function Header() {
     return () => {
       dispatch(setIsMenuOpen(false));
     };
-  }, []);
+  }, [dispatch]);
 
   return (
     <>
@@ -148,7 +148,7 @@ export default function Header() {
               <h3 className="uppercase">Book Appointment</h3>
             </Link>
           </div>
-          <div className="ps-2 lg:hidden ">
+          <div className="ps-2 lg:hidden">
             <button
               className="p-1.5 xxs:p-2 hover:bg-black/10 rounded-full text-black transition-colors"
               onClick={toggleMenu}
@@ -190,7 +190,7 @@ export default function Header() {
               </div>
             )}
           </div>
-        </div>{" "}
+        </div>
         <SearchBar
           isMobile={true}
           searchContainerRef={searchContainerRef}
