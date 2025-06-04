@@ -27,7 +27,6 @@ const ReturnDetailPage = () => {
           returnDetail={returnDetail}
           returnLoader={returnLoader}
         />
-        ;
       </div>
     </>
   );

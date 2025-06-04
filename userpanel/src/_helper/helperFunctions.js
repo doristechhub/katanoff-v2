@@ -20,6 +20,14 @@ const stringReplacedWithSpace = (string) => {
   return string?.split("_")?.join(" ");
 };
 
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
+
 const getRandomValue = () => {
   return Math.random().toString(36).substring(7);
 };
@@ -514,6 +522,7 @@ const calculateCustomizedProductPrice = ({
 };
 
 export const helperFunctions = {
+  debounce,
   generateUniqueId,
   stringReplacedWithUnderScore,
   stringReplacedWithSpace,

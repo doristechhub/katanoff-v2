@@ -4,7 +4,6 @@ import {
   ProductNotFound,
   ProgressiveImg,
 } from "@/components/dynamiComponents";
-import CustomBadge from "@/components/ui/CustomBadge";
 import { helperFunctions } from "@/_helper";
 import SkeletonLoader from "../skeletonLoader";
 import moment from "moment";
@@ -245,7 +244,7 @@ const ReturnDetails = ({
                   )}
                 </div>
 
-                <div className="p-4 lg:p-6 flex flex-col gap-2 text-sm md:text-base">
+                <div className="p-4 lg:p-6 flex flex-col gap-2 text-sm md:text-base font-semibold">
                   {[
                     {
                       label: "Total Amount",

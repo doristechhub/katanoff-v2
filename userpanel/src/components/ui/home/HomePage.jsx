@@ -50,7 +50,7 @@ import { messageType } from "@/_helper";
 import KeyFeatures from "../KeyFeatures";
 import { setAppointmentMessage } from "@/store/slices/appointmentSlice";
 import { setCustomJewelryMessage } from "@/store/slices/customjewelrySlice";
-import { fetchCustomizeProductsVariation } from "@/_actions/customize.action";
+import { fetchUniqueShapesAndCaratBounds } from "@/_actions/customize.action";
 import GiftCollections from "../GiftCollections";
 import Marquee from "../Marquee";
 import fiveStar from "@/assets/icons/fiveStar.svg";
@@ -197,7 +197,7 @@ const Home = () => {
   const dispatch = useDispatch();
   const [currentIndex, setCurrentIndex] = useState(0);
   const { loginMessage } = useSelector(({ user }) => user);
-  const { uniqueDiamondShapesForHomePage } = useSelector(
+  const { uniqueDiamondShapesAndCaratBounds } = useSelector(
     ({ common }) => common
   );
   const { appointmentMessage } = useSelector(({ appointment }) => appointment);
@@ -225,13 +225,12 @@ const Home = () => {
   );
 
   const loadData = useCallback(async () => {
-    await dispatch(fetchCustomizeProductsVariation());
+    await dispatch(fetchUniqueShapesAndCaratBounds());
   }, [dispatch]);
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
-
+  }, []);
   return (
     <>
       <HeroBanner
@@ -245,10 +244,10 @@ const Home = () => {
         altAttr="Hero Banner"
       />
 
-      {uniqueDiamondShapesForHomePage?.uniqueDiamondShapes ? (
+      {uniqueDiamondShapesAndCaratBounds?.distinctShapes ? (
         <section className="mt-10 lg:mt-12 2xl:mt-12 lg:container">
           <DiamondShapeSwipper
-            shapes={uniqueDiamondShapesForHomePage?.uniqueDiamondShapes || []}
+            shapes={uniqueDiamondShapesAndCaratBounds?.distinctShapes || []}
             title="Shop for Lab Grown Diamonds"
           />
         </section>

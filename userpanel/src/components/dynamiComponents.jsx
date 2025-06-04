@@ -76,12 +76,6 @@ export const ProductSwiper = dynamic(() => import("./shop/productSwiper.jsx"), {
   ssr: false,
 });
 
-export const ProductFilterSidebar = dynamic(
-  () => import("./shop/productFilterSidebar"),
-  {
-    ssr: false,
-  }
-);
 export const ProductFilter = dynamic(() => import("./shop/productFilter.jsx"), {
   ssr: false,
 });

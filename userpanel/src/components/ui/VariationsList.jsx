@@ -2,15 +2,6 @@ import { memo } from "react";
 import { CustomImg } from "../dynamiComponents";
 import dropdownArrow from "@/assets/icons/dropdownArrow.svg";
 
-function toCamelCase(str) {
-  if (!str) return "";
-  const [first, ...rest] = str.trim().split(" ");
-  return (
-    first.toLowerCase() +
-    rest.map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase()).join("")
-  );
-}
-
 const VariationsList = ({
   variations,
   selectedVariations,
@@ -94,61 +85,24 @@ const VariationsList = ({
                     <div key={type?.variationTypeId} className="relative">
                       {type?.type === "color" ? (
                         <div className="relative flex flex-col items-center">
-                          {/* <button
-                            className={`
-    relative w-16 xs:w-16 3xl:w-20 h-10 p-1 xs:h-8 3xl:h-10  transition-all flex items-center justify-center rounded-sm
-    ${
-      selected || hoveredColor === toCamelCase(type.variationTypeName)
-        ? "border-grayborder border"
-        : "border-transparent"
-    }
-  `}
-                            style={{
-                              backgroundColor: type?.variationTypeHexCode,
-                              boxShadow:
-                                selected ||
-                                hoveredColor ===
-                                  toCamelCase(type.variationTypeName)
-                                  ? "inset 0 0 0 4px #fff"
-                                  : "none",
-                            }}
-                            onClick={() =>
-                              handleSelect(
-                                variation?.variationId,
-                                type?.variationTypeId,
-                                variation?.variationName,
-                                type?.variationTypeName
-                              )
-                            }
-                            onMouseEnter={() => {
-                              if (setHoveredColor)
-                                setHoveredColor(
-                                  toCamelCase(type.variationTypeName)
-                                );
-                            }}
-                            onMouseLeave={() => {
-                              if (setHoveredColor) setHoveredColor("");
-                            }}
-                          /> */}
                           <button
-                            className={`
-    relative w-16 3xl:w-[72px] h-8 transition-all flex items-center justify-center
-    outline-1
-    ${
-      selected || hoveredColor === toCamelCase(type.variationTypeName)
-        ? "outline outline-grayborder"
-        : "outline-none"
-    }
+                            className={`relative w-16 3xl:w-[72px] h-8 transition-all flex items-center justify-center outline-1 ${
+                              selected ||
+                              hoveredColor?.toLowerCase() ===
+                                type.variationTypeName?.toLowerCase()
+                                ? "outline outline-grayborder"
+                                : "outline-none"
+                            }
   `}
                             style={{
                               backgroundColor: type?.variationTypeHexCode,
                               boxShadow:
                                 selected ||
-                                hoveredColor ===
-                                  toCamelCase(type.variationTypeName)
+                                hoveredColor?.toLowerCase() ===
+                                  type.variationTypeName?.toLowerCase()
                                   ? "0 0 5px 2px #fff"
                                   : "none",
-                              outlineOffset: "4px", // Ensures equal spacing outside the button for the outline
+                              outlineOffset: "4px",
                             }}
                             onClick={() =>
                               handleSelect(
@@ -159,10 +113,7 @@ const VariationsList = ({
                               )
                             }
                             onMouseEnter={() => {
-                              if (setHoveredColor)
-                                setHoveredColor(
-                                  toCamelCase(type.variationTypeName)
-                                );
+                              setHoveredColor(type.variationTypeName);
                             }}
                             onMouseLeave={() => {
                               if (setHoveredColor) setHoveredColor("");

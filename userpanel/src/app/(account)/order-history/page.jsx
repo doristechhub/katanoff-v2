@@ -26,6 +26,23 @@ import threeDots from "@/assets/icons/3dots.svg";
 import deleteRed from "@/assets/icons/deleteRed.svg";
 import eye from "@/assets/icons/eye.svg";
 import download from "@/assets/icons/download.svg";
+
+// Import Floating UI
+import {
+  useFloating,
+  offset,
+  flip,
+  shift,
+  autoUpdate,
+} from "@floating-ui/react";
+import {
+  useClick,
+  useDismiss,
+  useRole,
+  useInteractions,
+} from "@floating-ui/react";
+import CommonNotFound from "@/components/ui/CommonNotFound";
+
 export default function OrderHistoryPage() {
   // In your main file (above the return)
   const [openId, setOpenId] = useState(null);
@@ -81,9 +98,45 @@ export default function OrderHistoryPage() {
     };
   }, []);
 
+  const { refs, floatingStyles, context } = useFloating({
+    open: openId !== null,
+    onOpenChange: (open) => {
+      if (!open) setOpenId(null);
+    },
+    middleware: [
+      offset(5),
+      flip({
+        fallbackAxisSideDirection: "start",
+      }),
+      shift({ padding: 8 }),
+    ],
+    whileElementsMounted: autoUpdate,
+  });
+
+  const click = useClick(context);
+  const dismiss = useDismiss(context);
+  const role = useRole(context);
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    click,
+    dismiss,
+    role,
+  ]);
+
+  const handleActionClick = (orderId, event) => {
+    event.stopPropagation();
+    if (openId === orderId) {
+      setOpenId(null);
+    } else {
+      setOpenId(orderId);
+      // Set the reference element for floating UI
+      refs.setReference(event.currentTarget);
+    }
+  };
+
   const renderTableHeading = () => {
     return (
-      <thead className="text-xs text-basegray uppercase bg-[#0000000D]">
+      <thead className="text-xs lg:text-sm text-basegray uppercase bg-[#00000005]">
         <tr>
           <th scope="col" className="px-6 py-3.5">
             Order Date
@@ -100,7 +153,7 @@ export default function OrderHistoryPage() {
           <th scope="col" className="px-6 py-3.5">
             Order Status
           </th>
-          <th scope="col" className="px-6 py-3.5">
+          <th scope="col" className="px-3 py-3.5">
             Action
           </th>
         </tr>
@@ -108,14 +161,14 @@ export default function OrderHistoryPage() {
     );
   };
   return (
-    <div>
+    <>
       {orderMessage?.type === messageType.SUCCESS && (
         <Alert message={orderMessage.message} type={orderMessage.type} />
       )}
       <div className="pt-12">
         <CommonBgHeading title="Order History" />
       </div>
-      <div className="container my-10 relative">
+      <div className="container my-10 relative overflow-x-auto pb-4">
         {orderLoading ? (
           <div className={`w-full h-[300px] animate-pulse`}>
             <table className="w-full text-sm text-left rtl:text-right">
@@ -140,8 +193,8 @@ export default function OrderHistoryPage() {
               </tbody>
             </table>
           </div>
-        ) : (
-          <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        ) : paginatedOrder?.length > 0 ? (
+          <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 shadow-lg">
             {renderTableHeading()}
             <tbody>
               {paginatedOrder?.map((order, index) => (
@@ -161,48 +214,15 @@ export default function OrderHistoryPage() {
                   <td className="px-6 py-4">
                     $ {helperFunctions?.toFixedNumber(order?.total)}
                   </td>
-                  <td className="px-6 py-4">{order?.orderStatus}</td>
+                  <td className="px-6 py-4">
+                    {helperFunctions?.capitalizeCamelCase(order?.orderStatus)}
+                  </td>
 
-                  {/* <div className="flex gap-3">
-                      <IoEyeSharp
-                        title="Order Detail"
-                        className="cursor-pointer text-xl text-basegray"
-                        onClick={() =>
-                          router.push(`/order-history/${order?.id}`)
-                        }
-                      />
-
-                      {["pending", "confirmed"].includes(order?.orderStatus) &&
-                      order?.paymentStatus === "success" ? (
-                        <CancelOrder orderId={order?.id} />
-                      ) : null}
-
-                      {["delivered"].includes(order?.orderStatus) &&
-                      helperFunctions.isReturnValid(order?.deliveryDate) &&
-                      order?.hasActiveReturns ? (
-                        <CustomImg
-                          srcAttr={returnRequestSvg}
-                          altAttr="Return Request"
-                          titleAttr="Return Request"
-                          onClick={() =>
-                            router.push(`/return-request/${order?.id}`)
-                          }
-                          className="cursor-pointer w-6 h-6"
-                        />
-                      ) : null}
-
-                      {invoiceLoading && order?.id === selectedOrder ? (
-                        <Spinner className="h-6" />
-                      ) : (
-                        <DownloadInvoice orderId={order?.id} />
-                      )}
-                    </div> */}
-                  <td className="px-6 py-4 relative">
+                  <td className="px-3 py-4">
                     <button
-                      onClick={() =>
-                        setOpenId(openId === order.id ? null : order.id)
-                      }
-                      className="p-2 rounded hover:bg-gray-100"
+                      {...getReferenceProps()}
+                      onClick={(e) => handleActionClick(order.id, e)}
+                      className="p-2 rounded"
                       aria-haspopup="true"
                       title="More Actions"
                     >
@@ -212,73 +232,96 @@ export default function OrderHistoryPage() {
                         className="w-4 h-4"
                       />
                     </button>
-
-                    {openId === order.id && (
-                      <div
-                        ref={dropdownRef}
-                        className="absolute right-0 z-50 mt-2 w-44 bg-white border border-gray-300 rounded shadow-lg"
-                      >
-                        <button
-                          className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4"
-                          onClick={() =>
-                            router.push(`/order-history/${order.id}`)
-                          }
-                        >
-                          <CustomImg
-                            srcAttr={eye}
-                            altAttr="View"
-                            className="w-6 h-6"
-                          />
-                          <p className="text-base text-basegray">View</p>
-                        </button>
-
-                        {["pending", "confirmed"].includes(order.orderStatus) &&
-                          order.paymentStatus === "success" && (
-                            <div className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray">
-                              <CancelOrder orderId={order.id} /> Delete
-                            </div>
-                          )}
-
-                        {order.orderStatus === "delivered" &&
-                          helperFunctions.isReturnValid(order.deliveryDate) &&
-                          order.hasActiveReturns && (
-                            <button
-                              className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4"
-                              onClick={() =>
-                                router.push(`/return-request/${order.id}`)
-                              }
-                            >
-                              <CustomImg
-                                srcAttr={returnRequestSvg}
-                                altAttr="View"
-                                className="w-6 h-6"
-                              />
-                              <p className="text-base text-basegray">
-                                {" "}
-                                Return Order
-                              </p>
-                            </button>
-                          )}
-
-                        {invoiceLoading && order.id === selectedOrder ? (
-                          <div className="px-4 py-2">Loading invoice...</div>
-                        ) : (
-                          <div className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray">
-                            <DownloadInvoice orderId={order?.id} /> Download
-                          </div>
-                        )}
-                      </div>
-                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        ) : (
+          <CommonNotFound
+            message="Sorry, No order Found"
+            subMessage=""
+            showButton={true}
+          />
+        )}
+        {openId !== null && (
+          <div
+            ref={refs.setFloating}
+            style={floatingStyles}
+            {...getFloatingProps()}
+            className="z-50 py-2 w-48 bg-[#FAFAF8] filter drop-shadow-lg"
+          >
+            <button
+              className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4"
+              onClick={() => {
+                router.push(`/order-history/${openId}`);
+                setOpenId(null);
+              }}
+            >
+              <CustomImg srcAttr={eye} altAttr="View" className="w-6 h-6" />
+              <p className="text-base text-basegray">View</p>
+            </button>
+
+            {(() => {
+              const currentOrder = paginatedOrder?.find(
+                (order) => order.id === openId
+              );
+              return (
+                <>
+                  {["pending", "confirmed"].includes(
+                    currentOrder?.orderStatus
+                  ) &&
+                    currentOrder?.paymentStatus === "success" && (
+                      <div className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray">
+                        <CancelOrder
+                          orderId={openId}
+                          onSuccess={() => setOpenId(null)}
+                        />
+                        Delete
+                      </div>
+                    )}
+
+                  {currentOrder?.orderStatus === "delivered" &&
+                    helperFunctions.isReturnValid(currentOrder?.deliveryDate) &&
+                    currentOrder?.hasActiveReturns && (
+                      <button
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4"
+                        onClick={() => {
+                          router.push(`/return-request/${openId}`);
+                          setOpenId(null);
+                        }}
+                      >
+                        <CustomImg
+                          srcAttr={returnRequestSvg}
+                          altAttr="Return"
+                          className="w-6 h-6"
+                        />
+                        <p className="text-base text-basegray">
+                          Return Request
+                        </p>
+                      </button>
+                    )}
+
+                  {invoiceLoading && openId === selectedOrder ? (
+                    <div className="px-4 py-2">Loading invoice...</div>
+                  ) : (
+                    <div className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray">
+                      <DownloadInvoice
+                        orderId={openId}
+                        onSuccess={() => setOpenId(null)}
+                      />
+                      Download
+                    </div>
+                  )}
+                </>
+              );
+            })()}
+          </div>
         )}
       </div>
       {!orderLoading && orderList?.length > ITEMS_PER_PAGE && (
         <Pagination handlePageClick={handlePageClick} pageCount={pageCount} />
       )}
-    </div>
+    </>
   );
 }

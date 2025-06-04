@@ -95,11 +95,13 @@ export default function ProductSwiper({
             productList.map((product) => (
               <SwiperSlide key={`product-key-${product?.productName}`}>
                 <ProductCard
-                  goldColorVariations={product?.goldColorVariations}
-                  goldTypeVariations={product?.goldTypeVariations}
+                  key={`product-key-${product?.id}`}
                   title={product?.productName}
                   discount={product?.discount}
                   basePrice={product?.basePrice}
+                  price={product?.baseSellingPrice}
+                  goldColorVariations={product?.goldColorVariations}
+                  goldTypeVariations={product?.goldTypeVariations}
                   whiteGoldThumbnailImage={product?.whiteGoldThumbnailImage}
                   yellowGoldThumbnailImage={product?.yellowGoldThumbnailImage}
                   roseGoldThumbnailImage={product?.roseGoldThumbnailImage}
@@ -118,12 +120,12 @@ export default function ProductSwiper({
                       ? product?.roseGoldImages[0]?.image
                       : null
                   }
-                  price={product?.baseSellingPrice}
                   productLink={getProductLink({
                     queryParams,
                     isDiamondSettingPage,
                     product,
                   })}
+                  productId={product?.id}
                 />
               </SwiperSlide>
             ))}

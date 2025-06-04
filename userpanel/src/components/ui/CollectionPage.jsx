@@ -109,7 +109,7 @@ export default function CollectionPage() {
       <h2 className="text-center text-[20px] leading-6 md:text-3xl lg:text-[26px] lg:leading-[33px] 2xl:text-5xl font-castoro capitalize pt-6 lg:pt-10 2xl:pt-12">
         {collectionTitle}
       </h2>
-      <section className="pt-6 lg:pt-10 2xl:pt-12">
+      <section className="pt-10 2xl:pt-12">
         {collectionTypeProductList?.length ? (
           <ProductFilter
             uniqueVariations={uniqueFilterOptions}

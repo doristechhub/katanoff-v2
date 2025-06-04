@@ -8,6 +8,10 @@ import {
   setSelectedSortByValue,
   resetFilters,
   setSelectedGenders,
+  setIsFilterMenuOpen,
+  setIsFilterFixed,
+  toggleSMOpenFilter,
+  setProductLoading,
 } from "@/store/slices/productSlice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,15 +24,18 @@ import { RxCross1 } from "react-icons/rx";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import { HeaderLinkButton } from "../ui/button";
+import { FiMinus } from "react-icons/fi";
+import { FaPlus } from "react-icons/fa6";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import { SlArrowLeft, SlArrowRight } from "react-icons/sl";
 
-const filterHeadingClass = "text-base leading-4 font-semibold pb-[15px]";
+const filterHeadingClass =
+  "text-[14px] lg:text-base leading-4 font-semibold pb-[15px]";
 
 export default function ProductFilter({ productList, isDiamondPage = false }) {
-  const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
-  const router = useRouter();
-  const filterMenuRef = useRef(null);
-  const searchParams = useSearchParams();
-
   const {
     selectedSortByValue,
     selectedFilterVariations,
@@ -36,16 +43,67 @@ export default function ProductFilter({ productList, isDiamondPage = false }) {
     selectedPrices,
     uniqueFilterOptions,
     selectedGenders,
+    isFilterFixed,
+    isFilterMenuOpen,
+    smOpenFilter,
   } = useSelector(({ product }) => product);
+
+  // Swiper
+  const [isBeginning, setIsBeginning] = useState(true);
+  const [isEnd, setIsEnd] = useState(false);
+  const [showNavigationButtons, setShowNavigationButtons] = useState(false);
   const dispatch = useDispatch();
 
-  // Update URL when filters change
-  const debounce = (func, delay) => {
-    let timeoutId;
-    return (...args) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func(...args), delay);
+  const router = useRouter();
+  const swiperRef = useRef(null);
+  const filterMenuRef = useRef(null);
+  const filterSectionRef = useRef(null);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (filterSectionRef.current) {
+        const rect = filterSectionRef.current.getBoundingClientRect();
+        dispatch(setIsFilterFixed(rect.top <= 0));
+      }
     };
+    window.addEventListener("scroll", handleScroll);
+    handleScroll(); // Check initial position
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const handleSwiperInit = (swiper) => {
+    swiperRef.current = swiper;
+    setIsBeginning(swiper.isBeginning);
+    setIsEnd(swiper.isEnd);
+
+    const currentBreakpoint = swiper.currentBreakpoint;
+    const slidesPerView =
+      swiper.params.breakpoints?.[currentBreakpoint]?.slidesPerView ||
+      swiper.params.slidesPerView;
+    const totalSlides = swiper.slides.length;
+
+    setShowNavigationButtons(totalSlides > slidesPerView);
+  };
+
+  const handleSlideChange = (swiper) => {
+    setIsBeginning(swiper.isBeginning);
+    setIsEnd(swiper.isEnd);
+
+    const currentBreakpoint = swiper.currentBreakpoint;
+    const slidesPerView =
+      swiper.params.breakpoints?.[currentBreakpoint]?.slidesPerView ||
+      swiper.params.slidesPerView;
+    const totalSlides = swiper.slides.length;
+
+    setShowNavigationButtons(totalSlides > slidesPerView);
+  };
+
+  const toggleDropdown = (filter) => {
+    dispatch(toggleSMOpenFilter(filter));
   };
 
   const updateURL = useCallback(
@@ -102,10 +160,7 @@ export default function ProductFilter({ productList, isDiamondPage = false }) {
           helperFunctions?.stringReplacedWithUnderScore(newFilters.sortBy)
         );
       }
-      console.log(
-        "newFilters.genders && newFilters.genders.length > 0",
-        newFilters.genders && newFilters.genders.length > 0
-      );
+
       if (newFilters.genders && newFilters.genders.length > 0) {
         newFilters.genders.forEach((gender) => {
           params.append(
@@ -177,7 +232,7 @@ export default function ProductFilter({ productList, isDiamondPage = false }) {
     if (e.key === "." && e.target.value.includes(".")) e.preventDefault();
   };
   const debouncedOnPriceChange = useCallback(
-    debounce((value) => {
+    helperFunctions?.debounce((value) => {
       if (!formik.errors.priceRange && typeof onPriceChange === "function") {
         onPriceChange(value);
       }
@@ -192,7 +247,7 @@ export default function ProductFilter({ productList, isDiamondPage = false }) {
         !filterMenuRef.current.contains(event.target) &&
         !event.target.closest(".filter-button")
       ) {
-        setIsFilterMenuOpen(false);
+        dispatch(setIsFilterMenuOpen(false));
       }
     };
 
@@ -231,6 +286,7 @@ export default function ProductFilter({ productList, isDiamondPage = false }) {
   const handleFilteredProductsChange = (filtered) => {
     dispatch(setFilteredProducts(filtered));
     dispatch(setCurrentPage(0));
+    dispatch(setProductLoading(false));
   };
 
   const onSelectVariant = useCallback(
@@ -716,191 +772,490 @@ export default function ProductFilter({ productList, isDiamondPage = false }) {
   };
 
   const selectedFilters = renderSelectedFilters();
-
   return (
-    <div className="border-b-2 border-primary bg-transparent relative">
-      <div className="container">
-        <div className="flex items-center justify-between h-[45px] relative pb-6">
-          <div className="flex flex-wrap items-center w-[45%] gap-x-6 gap-y-1.5">
-            {/* Display selected filters */}
-            {selectedFilters.map((filter) => (
-              <span
-                key={filter.key}
-                onClick={() =>
-                  removeFilter(filter.type, filter.value, filter.specificValue)
-                }
-                className="rounded flex items-center gap-1 text-base cursor-pointer "
-              >
-                {filter.label}
-                <RxCross1 className="text-base" />
-              </span>
-            ))}
-            {/* Reset all button - only show if there are active filters */}
-            {activeFilterCount > 0 && selectedFilters.length ? (
-              <button
-                className="text-baseblack hover:underline font-semibold text-base "
-                onClick={resetAllFilters}
-              >
-                Reset All
-              </button>
-            ) : null}
-          </div>
-
-          <div className="absolute left-1/2 transform -translate-x-1/2 text-base">
-            {filteredProducts.length} Items
-          </div>
-
-          <div className="flex items-center gap-5 relative">
-            {/* Filter Button */}
-            <div className="relative">
-              <button
-                className="flex items-center gap-2 filter-button" // Add filter-button class
-                onClick={() => setIsFilterMenuOpen((prev) => !prev)}
-              >
-                <CustomImg
-                  srcAttr={settingsSlidersIcon}
-                  altAttr="Filter Icon"
-                  titleAttr="Filter"
-                />
-                <span>Filter</span>
-              </button>
+    <>
+      <div
+        ref={filterSectionRef}
+        className={` ${isFilterFixed ? "h-[70px]" : "h-0"}`}
+      ></div>
+      <div
+        className={`z-30 transition-all duration-700 ease-in-out ${
+          isFilterFixed
+            ? "fixed top-[110px] lg:top-[60px] clear-both w-full pt-6 bg-white shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] animate-slideDown animate-duration-900 animate-ease-in-out"
+            : "top-0 border-b-2 border-primary bg-transparent "
+        }`}
+      >
+        <div className="container">
+          <div className="gap-2 flex flex-col lg:flex-row lg:items-center lg:justify-between lg:h-[45px] relative pb-6">
+            <div className="flex flex-wrap items-center w-[90%] lg:w-[45%] gap-x-2 lg:gap-x-6 gap-y-1.5">
+              {/* Display selected filters */}
+              {selectedFilters.map((filter) => (
+                <span
+                  key={filter.key}
+                  onClick={() =>
+                    removeFilter(
+                      filter.type,
+                      filter.value,
+                      filter.specificValue
+                    )
+                  }
+                  className="rounded flex items-center gap-1 text-[14px] lg:text-[15px] cursor-pointer "
+                >
+                  {filter.label}
+                  <RxCross1 className="text-[14px] lg:text-base" />
+                </span>
+              ))}
+              {/* Reset all button - only show if there are active filters */}
+              {activeFilterCount > 0 && selectedFilters.length ? (
+                <button
+                  className="text-baseblack hover:underline font-semibold text-[14px] lg:text-base"
+                  onClick={() => {
+                    resetAllFilters();
+                  }}
+                >
+                  Reset All
+                </button>
+              ) : null}
             </div>
 
-            {/* Sort Dropdown */}
-            <div className="relative group">
-              <button className="flex items-center gap-2">
-                <CustomImg srcAttr={filterIcon} altAttr="" titleAttr="" />
-                <span>Sort</span>
-              </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-baseblack shadow-md opacity-0 group-hover:opacity-100 group-hover:visible invisible transition-all duration-200 z-10">
-                <ul className="py-2 text-[14px] leading-[17px] font-semibold text-baseblack">
-                  {sortByList?.length
-                    ? sortByList.map((item) => (
-                        <li
-                          key={item.value}
-                          style={{ textTransform: "capitalize" }}
-                          className={`px-4 py-2 hover:bg-gray-100 cursor-pointer`}
-                          onClick={() => onSelectSortBy(item.value)}
-                        >
-                          {item.title}
-                        </li>
-                      ))
-                    : null}
-                </ul>
+            <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2 text-base">
+              {filteredProducts.length} Items
+            </div>
+
+            <div className="flex items-center gap-5 relative">
+              {/* Filter Button */}
+              <div className="relative">
+                <button
+                  className="flex items-center gap-2 filter-button" // Add filter-button class
+                  onClick={() => dispatch(setIsFilterMenuOpen((prev) => !prev))}
+                >
+                  <CustomImg
+                    srcAttr={settingsSlidersIcon}
+                    altAttr="Filter Icon"
+                    titleAttr="Filter"
+                  />
+                  <span>Filter</span>
+                </button>
+              </div>
+
+              {/* Sort Dropdown */}
+              <div className="relative group">
+                <button className="flex items-center gap-2">
+                  <CustomImg srcAttr={filterIcon} altAttr="" titleAttr="" />
+                  <span>Sort</span>
+                </button>
+                <div className="absolute -right-full lg:right-0 mt-2 w-48 bg-white border border-baseblack shadow-md opacity-0 group-hover:opacity-100 group-hover:visible invisible transition-all duration-200 z-10">
+                  <ul className="text-[14px] leading-[17px] font-semibold text-baseblack">
+                    {sortByList?.length
+                      ? sortByList.map((item) => (
+                          <li
+                            key={item.value}
+                            style={{ textTransform: "capitalize" }}
+                            className={`px-4 py-2 hover:bg-gray-100 cursor-pointer`}
+                            onClick={() => onSelectSortBy(item.value)}
+                          >
+                            {item.title}
+                          </li>
+                        ))
+                      : null}
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Mega Menu Filter Panel */}
-      {isFilterMenuOpen ? (
-        <div
-          ref={filterMenuRef}
-          className="w-full bg-white shadow-md absolute top-full border-t-2 border-baseblack left-0 z-20 text-baseblack  pt-2"
-        >
-          {" "}
-          <div className="relative max-h-[70vh] block overflow-y-auto">
-            <div className="container">
-              <div className="w-full flex justify-end items-center gap-5 py-6">
-                <button
-                  className="text-baseblack font-medium underline underline-offset-2 hover:no-underline transition-all duration-300 uppercase text-base "
-                  onClick={resetAllFilters}
-                >
-                  Reset
-                </button>
-                <RxCross1
-                  className="text-lg cursor-pointer"
-                  onClick={() => setIsFilterMenuOpen(false)}
-                />
-              </div>
-              <div className="flex justify-center w-full">
-                <div className="flex justify-between w-full gap-[30px]">
-                  {!isDiamondPage ? (
-                    <div className="w-[30%]">
-                      <h5 className={filterHeadingClass}>Shape</h5>
-                      <div className="grid grid-cols-2 gap-[10px]">
-                        {uniqueFilterOptions.uniqueVariations
-                          .filter(
-                            (variation) =>
-                              variation.variationName === "Diamond Shape"
-                          )
-                          .flatMap((variation) =>
-                            variation.variationTypes.map((item, index) => {
-                              const selectedDiamondShape =
-                                selectedFilterVariations["Diamond Shape"] || [];
-                              const isSelected = selectedDiamondShape.includes(
-                                item.variationTypeName
-                              );
-                              return (
-                                <div
-                                  key={`filter-diamond-shape-${index}`}
-                                  className={`flex items-center gap-2 group cursor-pointer`}
-                                  onClick={() =>
-                                    onSelectVariant(
-                                      "Diamond Shape",
-                                      item.variationTypeName
-                                    )
-                                  }
+        {isFilterMenuOpen ? (
+          <div
+            className="w-full bg-white shadow-md border-t-2 z-50 border-baseblack text-baseblack pt-2"
+            ref={filterMenuRef}
+          >
+            <div className={`max-h-[65vh] overflow-y-scroll`}>
+              <div className="container">
+                <div className="w-full flex justify-between lg:!justify-end items-center py-3">
+                  <div className="lg:hidden">
+                    <h3 className="text-base font-semibold">Filters</h3>
+                  </div>
+                  <div className="flex items-center gap-2 lg:gap-5">
+                    <button
+                      className="text-baseblack font-medium underline underline-offset-2 hover:no-underline transition-all duration-300 uppercase text-[14px] lg:text-base"
+                      onClick={() => {
+                        dispatch(setIsFilterMenuOpen());
+                        resetAllFilters();
+                      }}
+                    >
+                      Reset <span className="lg:hidden">Filters</span>
+                    </button>
+                    <RxCross1
+                      className="text-lg cursor-pointer"
+                      onClick={() => dispatch(setIsFilterMenuOpen(false))}
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-center w-full">
+                  <div className="w-full">
+                    {/* Mobile Dropdowns */}
+                    <div className="lg:hidden flex flex-col w-full">
+                      {!isDiamondPage && (
+                        <div className="border-b border-baseblack ">
+                          <button
+                            className="w-full flex justify-between items-center py-3 font-medium text-base"
+                            onClick={() => toggleDropdown("shape")}
+                          >
+                            Shape
+                            <span>
+                              {smOpenFilter?.includes("shape") ? (
+                                <FiMinus />
+                              ) : (
+                                <FaPlus />
+                              )}
+                            </span>
+                          </button>
+                          {smOpenFilter?.includes("shape") && (
+                            <div className="p-3 relative">
+                              {showNavigationButtons && (
+                                <button
+                                  className={`absolute top-1/2 left-[25px] -translate-x-8 -translate-y-1/2 ${
+                                    isBeginning
+                                      ? "opacity-50 cursor-not-allowed"
+                                      : ""
+                                  }`}
+                                  onClick={() => swiperRef.current?.slidePrev()}
+                                  disabled={isBeginning}
                                 >
+                                  <SlArrowLeft className="text-sm md:text-base" />
+                                </button>
+                              )}
+                              {showNavigationButtons && (
+                                <button
+                                  className={`absolute top-1/2 -right-[8px]  -translate-y-1/2 ${
+                                    isEnd ? "opacity-50 cursor-not-allowed" : ""
+                                  }`}
+                                  onClick={() => swiperRef.current?.slideNext()}
+                                  disabled={isEnd}
+                                >
+                                  <SlArrowRight className="text-sm md:text-base" />
+                                </button>
+                              )}
+                              <Swiper
+                                modules={[Navigation]}
+                                slidesPerView={7}
+                                spaceBetween={10}
+                                breakpoints={{
+                                  0: {
+                                    slidesPerView: 4,
+                                    spaceBetween: 8,
+                                  },
+                                  320: {
+                                    slidesPerView: 5,
+                                    spaceBetween: 8,
+                                  },
+                                  480: {
+                                    slidesPerView: 6,
+                                    spaceBetween: 10,
+                                  },
+                                  768: {
+                                    slidesPerView: 7,
+                                    spaceBetween: 10,
+                                  },
+                                }}
+                                className="shape-filter-swiper"
+                                onSwiper={handleSwiperInit}
+                                onSlideChange={handleSlideChange}
+                              >
+                                {uniqueFilterOptions.uniqueVariations
+                                  .filter(
+                                    (variation) =>
+                                      variation.variationName ===
+                                      "Diamond Shape"
+                                  )
+                                  .flatMap((variation) =>
+                                    variation.variationTypes.map(
+                                      (item, index) => {
+                                        const selectedDiamondShape =
+                                          selectedFilterVariations[
+                                            "Diamond Shape"
+                                          ] || [];
+                                        const isSelected =
+                                          selectedDiamondShape.includes(
+                                            item.variationTypeName
+                                          );
+                                        return (
+                                          <SwiperSlide
+                                            key={`filter-diamond-shape-${index}`}
+                                          >
+                                            <div
+                                              className={`flex flex-col items-center gap-2 group cursor-pointer p-1 rounded border ${
+                                                isSelected
+                                                  ? "border-baseblack bg-gray-50"
+                                                  : "border-gray-200 hover:border-baseblack"
+                                              }`}
+                                              onClick={() =>
+                                                onSelectVariant(
+                                                  "Diamond Shape",
+                                                  item.variationTypeName
+                                                )
+                                              }
+                                            >
+                                              <span
+                                                className={`flex items-center justify-center flex-[0_0_36px] max-w-[36px] h-[36px] overflow-hidden`}
+                                              >
+                                                <ProgressiveImg
+                                                  className={`w-[25px] h-[25px] !transition-none`}
+                                                  width={60}
+                                                  height={60}
+                                                  src={item?.variationTypeImage}
+                                                  alt={item?.variationTypeName}
+                                                  title={
+                                                    item?.variationTypeName
+                                                  }
+                                                />
+                                              </span>
+                                              <span
+                                                className={`text-[14px] font-light ${
+                                                  isSelected
+                                                    ? "font-semibold"
+                                                    : ""
+                                                }`}
+                                              >
+                                                {helperFunctions?.stringReplacedWithSpace(
+                                                  item?.variationTypeName
+                                                )}
+                                              </span>
+                                            </div>
+                                          </SwiperSlide>
+                                        );
+                                      }
+                                    )
+                                  )}
+                              </Swiper>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      <div className="border-b border-baseblack">
+                        <button
+                          className="w-full flex justify-between items-center py-3 font-medium text-base"
+                          onClick={() => toggleDropdown("metal")}
+                        >
+                          Metal
+                          <span>
+                            {smOpenFilter?.includes("metal") ? (
+                              <FiMinus />
+                            ) : (
+                              <FaPlus />
+                            )}
+                          </span>
+                        </button>
+                        {smOpenFilter?.includes("metal") && (
+                          <div className="flex flex-col gap-[10px] p-2">
+                            {uniqueFilterOptions?.uniqueVariations?.map(
+                              (variation) =>
+                                variation.variationName === GOLD_COLOR
+                                  ? variation.variationTypes.map(
+                                      (item, index) => {
+                                        const selectedGoldColors =
+                                          selectedFilterVariations[
+                                            GOLD_COLOR
+                                          ] || [];
+                                        const isSelected =
+                                          selectedGoldColors.includes(
+                                            item.variationTypeName
+                                          );
+                                        return (
+                                          <div
+                                            className={`gap-1.5 flex items-center cursor-pointer p-1`}
+                                            key={`filter-variation-${index}2`}
+                                            onClick={() =>
+                                              onSelectVariant(
+                                                GOLD_COLOR,
+                                                item.variationTypeName
+                                              )
+                                            }
+                                          >
+                                            <input
+                                              type="checkbox"
+                                              checked={isSelected}
+                                              readOnly
+                                              className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
+                                            />
+                                            <div
+                                              className={`rounded-full w-5 h-5 border ${
+                                                isSelected
+                                                  ? "border-primary"
+                                                  : "border-black"
+                                              }`}
+                                              style={{
+                                                background:
+                                                  item?.variationTypeHexCode,
+                                              }}
+                                            ></div>
+                                            <span
+                                              className={`text-[14px] font-light ${
+                                                isSelected
+                                                  ? "font-semibold"
+                                                  : ""
+                                              }`}
+                                            >
+                                              {helperFunctions?.stringReplacedWithSpace(
+                                                item?.variationTypeName
+                                              )}
+                                            </span>
+                                          </div>
+                                        );
+                                      }
+                                    )
+                                  : null
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      {uniqueFilterOptions?.uniqueSettingStyles?.length && (
+                        <div className="border-b border-baseblack">
+                          <button
+                            className="w-full flex justify-between items-center py-3 font-medium text-base"
+                            onClick={() => toggleDropdown("settingStyle")}
+                          >
+                            Setting Style
+                            <span>
+                              {smOpenFilter.includes("settingStyle") ? (
+                                <FiMinus />
+                              ) : (
+                                <FaPlus />
+                              )}
+                            </span>
+                          </button>
+                          {smOpenFilter.includes("settingStyle") && (
+                            <div className="flex flex-col gap-[10px] p-2">
+                              {uniqueFilterOptions?.uniqueSettingStyles.map(
+                                (item, index) => {
+                                  const isSelected =
+                                    selectedSettingStyles?.includes(item.title);
+                                  return (
+                                    <span
+                                      key={`filter-variation-${index}4`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
+                                        isSelected ? "font-semibold" : ""
+                                      }`}
+                                      onClick={() =>
+                                        onSelectSettingStyle(item.title)
+                                      }
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={isSelected}
+                                        readOnly
+                                        className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
+                                      />
+                                      {item.title}
+                                    </span>
+                                  );
+                                }
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      <div className="border-b border-baseblack">
+                        <button
+                          className="w-full flex justify-between items-center py-3 font-medium text-base"
+                          onClick={() => toggleDropdown("price")}
+                        >
+                          Price
+                          <span>
+                            {smOpenFilter?.includes("price") ? (
+                              <FiMinus />
+                            ) : (
+                              <FaPlus />
+                            )}
+                          </span>
+                        </button>
+                        {smOpenFilter?.includes("price") && (
+                          <div className="p-3">
+                            <RangeSlider
+                              defaultValue={
+                                uniqueFilterOptions?.availablePriceRange
+                              }
+                              min={uniqueFilterOptions?.availablePriceRange[0]}
+                              max={uniqueFilterOptions?.availablePriceRange[1]}
+                              rangeValue={values.priceRange}
+                              setRangeValue={(value) =>
+                                setFieldValue("priceRange", value)
+                              }
+                              setInputValues={(value) =>
+                                setFieldValue("priceRange", value)
+                              }
+                              step={1}
+                              renderTrack={multipleTrack}
+                            />
+                            <div className="flex justify-between mt-6">
+                              <div className="flex items-center border border-baseblack w-20">
+                                <span className="pl-1">$</span>
+                                <input
+                                  type="text"
+                                  value={values?.priceRange[0]}
+                                  onChange={(e) => handleInputChange(e, 0)}
+                                  onBlur={formik.handleBlur}
+                                  onKeyDown={handleKeyDown}
+                                  className="p-1 w-full text-center border-none focus:outline-none"
+                                />
+                              </div>
+                              <div className="flex items-center border border-baseblack w-20">
+                                <span className="pl-1">$</span>
+                                <input
+                                  type="text"
+                                  value={values?.priceRange[1]}
+                                  onChange={(e) => handleInputChange(e, 1)}
+                                  onBlur={formik.handleBlur}
+                                  onKeyDown={handleKeyDown}
+                                  className="p-1 w-full text-center border-none focus:outline-none"
+                                />
+                              </div>
+                              {touched?.priceRange &&
+                                typeof errors?.priceRange === "string" && (
+                                  <div className="text-red-500 text-[14px]">
+                                    {errors?.priceRange}
+                                  </div>
+                                )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="border-b border-baseblack">
+                        <button
+                          className="w-full flex justify-between items-center py-3 font-medium text-base"
+                          onClick={() => toggleDropdown("gender")}
+                        >
+                          Gender
+                          <span>
+                            {smOpenFilter?.includes("gender") ? (
+                              <FiMinus />
+                            ) : (
+                              <FaPlus />
+                            )}
+                          </span>
+                        </button>
+                        {smOpenFilter?.includes("gender") ? (
+                          <div className="flex gap-6 p-2">
+                            {uniqueFilterOptions?.uniqueGenders.map(
+                              (gender, index) => {
+                                const normalizedGender = gender;
+                                const isSelected =
+                                  selectedGenders?.includes(normalizedGender);
+                                const displayGender =
+                                  {
+                                    male: "Men",
+                                    female: "Women",
+                                    unisex: "Unisex",
+                                  }[gender] || gender;
+                                return (
                                   <span
-                                    className={`flex items-center justify-center w-full flex-[0_0_36px] max-w-[36px] h-[36px] border ${
-                                      isSelected
-                                        ? "border-baseblack"
-                                        : "border-transparent group-hover:border-baseblack"
-                                    } rounded-full overflow-hidden`}
-                                  >
-                                    <ProgressiveImg
-                                      className={`w-[25px] h-[25px] !transition-none`}
-                                      width={60}
-                                      height={60}
-                                      src={item?.variationTypeImage}
-                                      alt={item?.variationTypeName}
-                                      title={item?.variationTypeName}
-                                    />
-                                  </span>
-                                  <span
-                                    className={`text-[15px] font-medium ${
+                                    key={`filter-gender-${index}`}
+                                    className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
                                       isSelected ? "font-semibold" : ""
                                     }`}
-                                  >
-                                    {helperFunctions?.stringReplacedWithSpace(
-                                      item?.variationTypeName
-                                    )}
-                                  </span>
-                                </div>
-                              );
-                            })
-                          )}
-                      </div>
-                    </div>
-                  ) : null}
-
-                  <div className="w-[20%]">
-                    <h5 className={filterHeadingClass}>Metal</h5>
-                    {uniqueFilterOptions?.uniqueVariations?.map(
-                      (variation, index) => (
-                        <div
-                          className="flex flex-col gap-[10px]"
-                          key={`filter-variation-${index}`}
-                        >
-                          {variation.variationName === GOLD_COLOR
-                            ? variation.variationTypes.map((item, index) => {
-                                const selectedGoldColors =
-                                  selectedFilterVariations[GOLD_COLOR] || [];
-                                const isSelected = selectedGoldColors.includes(
-                                  item.variationTypeName
-                                );
-
-                                return (
-                                  <div
-                                    className={`gap-1.5 flex items-center cursor-pointer p-1`}
-                                    key={`filter-variation-${index}2`}
                                     onClick={() =>
-                                      onSelectVariant(
-                                        GOLD_COLOR,
-                                        item.variationTypeName
-                                      )
+                                      onSelectGender(normalizedGender)
                                     }
                                   >
                                     <input
@@ -909,175 +1264,286 @@ export default function ProductFilter({ productList, isDiamondPage = false }) {
                                       readOnly
                                       className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
                                     />
-                                    <div
-                                      className={`rounded-full w-5 h-5 border ${
-                                        isSelected
-                                          ? "border-primary"
-                                          : "border-black"
-                                      }`}
-                                      style={{
-                                        background: item?.variationTypeHexCode,
-                                      }}
-                                    ></div>
-                                    <span
-                                      className={`text-[14px] font-medium ${
-                                        isSelected ? "font-semibold" : ""
-                                      }`}
-                                    >
-                                      {helperFunctions?.stringReplacedWithSpace(
-                                        item?.variationTypeName
-                                      )}{" "}
-                                    </span>
-                                  </div>
+                                    {displayGender}
+                                  </span>
                                 );
-                              })
-                            : null}
-                        </div>
-                      )
-                    )}
-                  </div>
-
-                  <div className="w-[20%]">
-                    {uniqueFilterOptions?.uniqueSettingStyles?.length ? (
-                      <div>
-                        <h5 className={filterHeadingClass}>Setting Style</h5>
-                        <div className="flex flex-col gap-[10px]">
-                          {uniqueFilterOptions?.uniqueSettingStyles.map(
-                            (item, index) => {
-                              const isSelected =
-                                selectedSettingStyles?.includes(item.title);
-
-                              return (
-                                <span
-                                  key={`filter-variation-${index}4`}
-                                  className={`text-[14px] font-medium cursor-pointer p-1 gap-1  flex items-center ${
-                                    isSelected ? "font-semibold" : ""
-                                  }`}
-                                  onClick={() =>
-                                    onSelectSettingStyle(item.title)
-                                  }
-                                >
-                                  <input
-                                    type="checkbox"
-                                    checked={isSelected}
-                                    readOnly
-                                    className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
-                                  />
-                                  {item.title}
-                                </span>
-                              );
-                            }
-                          )}
-                        </div>
-                      </div>
-                    ) : null}
-                  </div>
-
-                  <div className="w-[30%] flex flex-col gap-y-6">
-                    <div>
-                      <h5 className={filterHeadingClass}>Price</h5>
-                      <div>
-                        <RangeSlider
-                          defaultValue={
-                            uniqueFilterOptions?.availablePriceRange
-                          }
-                          min={uniqueFilterOptions?.availablePriceRange[0]}
-                          max={uniqueFilterOptions?.availablePriceRange[1]}
-                          rangeValue={values.priceRange}
-                          setRangeValue={(value) =>
-                            setFieldValue("priceRange", value)
-                          }
-                          setInputValues={(value) =>
-                            setFieldValue("priceRange", value)
-                          }
-                          step={1}
-                          renderTrack={multipleTrack}
-                        />
-
-                        <div className="flex justify-between mt-4">
-                          <div className="flex items-center border border-baseblack w-20">
-                            <span className="pl-1">$</span>
-                            <input
-                              type="text"
-                              value={values?.priceRange[0]}
-                              onChange={(e) => handleInputChange(e, 0)}
-                              onBlur={formik.handleBlur}
-                              onKeyDown={handleKeyDown}
-                              className="p-1 w-full text-center border-none focus:outline-none"
-                            />
-                          </div>
-                          <div className="flex items-center border border-baseblack w-20">
-                            <span className="pl-1">$</span>
-                            <input
-                              type="text"
-                              value={values?.priceRange[1]}
-                              onChange={(e) => handleInputChange(e, 1)}
-                              onBlur={formik.handleBlur}
-                              onKeyDown={handleKeyDown}
-                              className="p-1 w-full text-center border-none focus:outline-none"
-                            />
-                          </div>
-                          {touched?.priceRange &&
-                            typeof errors?.priceRange === "string" && (
-                              <div className="text-red-500 text-sm">
-                                {errors?.priceRange}
-                              </div>
+                              }
                             )}
-                        </div>
+                          </div>
+                        ) : null}
                       </div>
                     </div>
-                    <div>
-                      <h5 className={filterHeadingClass}>Gender</h5>
-                      <div className="flex gap-6">
-                        {uniqueFilterOptions?.uniqueGenders.map(
-                          (gender, index) => {
-                            const normalizedGender = gender;
-                            const isSelected =
-                              selectedGenders?.includes(normalizedGender);
-                            const displayGender =
-                              {
-                                male: "Men",
-                                female: "Women",
-                                unisex: "Unisex",
-                              }[gender] || gender;
-                            return (
-                              <span
-                                key={`filter-gender-${index}`}
-                                className={`text-[14px] font-medium cursor-pointer p-1 gap-1 flex items-center ${
-                                  isSelected ? "font-semibold" : ""
-                                }`}
-                                onClick={() => onSelectGender(normalizedGender)}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={isSelected}
-                                  readOnly
-                                  className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
-                                />
-                                {displayGender}
-                              </span>
-                            );
-                          }
+                    {/* Desktop Layout */}
+                    <div className="hidden lg:flex justify-between w-full gap-[30px]">
+                      {!isDiamondPage ? (
+                        <div className="w-[30%]">
+                          <h5 className={filterHeadingClass}>Shape</h5>
+                          <div className="grid grid-cols-2 gap-[10px]">
+                            {uniqueFilterOptions.uniqueVariations
+                              .filter(
+                                (variation) =>
+                                  variation.variationName === "Diamond Shape"
+                              )
+                              .flatMap((variation) =>
+                                variation.variationTypes.map((item, index) => {
+                                  const selectedDiamondShape =
+                                    selectedFilterVariations["Diamond Shape"] ||
+                                    [];
+                                  const isSelected =
+                                    selectedDiamondShape.includes(
+                                      item.variationTypeName
+                                    );
+                                  return (
+                                    <div
+                                      key={`filter-diamond-shape-${index}`}
+                                      className={`flex items-center gap-2 group cursor-pointer`}
+                                      onClick={() =>
+                                        onSelectVariant(
+                                          "Diamond Shape",
+                                          item.variationTypeName
+                                        )
+                                      }
+                                    >
+                                      <span
+                                        className={`flex items-center justify-center w-full flex-[0_0_36px] max-w-[36px] h-[36px] border ${
+                                          isSelected
+                                            ? "border-baseblack"
+                                            : "border-transparent group-hover:border-baseblack"
+                                        } rounded-full overflow-hidden`}
+                                      >
+                                        <ProgressiveImg
+                                          className={`w-[25px] h-[25px] !transition-none`}
+                                          width={60}
+                                          height={60}
+                                          src={item?.variationTypeImage}
+                                          alt={item?.variationTypeName}
+                                          title={item?.variationTypeName}
+                                        />
+                                      </span>
+                                      <span
+                                        className={`text-[15px] font-light ${
+                                          isSelected ? "font-semibold" : ""
+                                        }`}
+                                      >
+                                        {helperFunctions?.stringReplacedWithSpace(
+                                          item?.variationTypeName
+                                        )}
+                                      </span>
+                                    </div>
+                                  );
+                                })
+                              )}
+                          </div>
+                        </div>
+                      ) : null}
+                      <div className="w-[20%]">
+                        <h5 className={filterHeadingClass}>Metal</h5>
+                        {uniqueFilterOptions?.uniqueVariations?.map(
+                          (variation, index) => (
+                            <div
+                              className="flex flex-col gap-[10px]"
+                              key={`filter-variation-${index}`}
+                            >
+                              {variation.variationName === GOLD_COLOR
+                                ? variation.variationTypes.map(
+                                    (item, index) => {
+                                      const selectedGoldColors =
+                                        selectedFilterVariations[GOLD_COLOR] ||
+                                        [];
+                                      const isSelected =
+                                        selectedGoldColors.includes(
+                                          item.variationTypeName
+                                        );
+                                      return (
+                                        <div
+                                          className={`gap-1.5 flex items-center cursor-pointer p-1`}
+                                          key={`filter-variation-${index}2`}
+                                          onClick={() =>
+                                            onSelectVariant(
+                                              GOLD_COLOR,
+                                              item.variationTypeName
+                                            )
+                                          }
+                                        >
+                                          <input
+                                            type="checkbox"
+                                            checked={isSelected}
+                                            readOnly
+                                            className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
+                                          />
+                                          <div
+                                            className={`rounded-full w-5 h-5 border ${
+                                              isSelected
+                                                ? "border-primary"
+                                                : "border-black"
+                                            }`}
+                                            style={{
+                                              background:
+                                                item?.variationTypeHexCode,
+                                            }}
+                                          ></div>
+                                          <span
+                                            className={`text-[14px] font-light ${
+                                              isSelected ? "font-semibold" : ""
+                                            }`}
+                                          >
+                                            {helperFunctions?.stringReplacedWithSpace(
+                                              item?.variationTypeName
+                                            )}
+                                          </span>
+                                        </div>
+                                      );
+                                    }
+                                  )
+                                : null}
+                            </div>
+                          )
                         )}
+                      </div>
+                      <div className="w-[20%]">
+                        {uniqueFilterOptions?.uniqueSettingStyles?.length ? (
+                          <div>
+                            <h5 className={filterHeadingClass}>
+                              Setting Style
+                            </h5>
+                            <div className="flex flex-col gap-[10px]">
+                              {uniqueFilterOptions?.uniqueSettingStyles.map(
+                                (item, index) => {
+                                  const isSelected =
+                                    selectedSettingStyles?.includes(item.title);
+                                  return (
+                                    <span
+                                      key={`filter-variation-${index}4`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
+                                        isSelected ? "font-semibold" : ""
+                                      }`}
+                                      onClick={() =>
+                                        onSelectSettingStyle(item.title)
+                                      }
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={isSelected}
+                                        readOnly
+                                        className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
+                                      />
+                                      {item.title}
+                                    </span>
+                                  );
+                                }
+                              )}
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
+                      <div className="w-[30%] flex flex-col gap-y-6">
+                        <div>
+                          <h5 className={filterHeadingClass}>Price</h5>
+                          <div>
+                            <RangeSlider
+                              defaultValue={
+                                uniqueFilterOptions?.availablePriceRange
+                              }
+                              min={uniqueFilterOptions?.availablePriceRange[0]}
+                              max={uniqueFilterOptions?.availablePriceRange[1]}
+                              rangeValue={values.priceRange}
+                              setRangeValue={(value) =>
+                                setFieldValue("priceRange", value)
+                              }
+                              setInputValues={(value) =>
+                                setFieldValue("priceRange", value)
+                              }
+                              step={1}
+                              renderTrack={multipleTrack}
+                            />
+                            <div className="flex justify-between mt-4">
+                              <div className="flex items-center border border-baseblack w-20">
+                                <span className="pl-1">$</span>
+                                <input
+                                  type="text"
+                                  value={values?.priceRange[0]}
+                                  onChange={(e) => handleInputChange(e, 0)}
+                                  onBlur={formik.handleBlur}
+                                  onKeyDown={handleKeyDown}
+                                  className="p-1 w-full text-center border-none focus:outline-none"
+                                />
+                              </div>
+                              <div className="flex items-center border border-baseblack w-20">
+                                <span className="pl-1">$</span>
+                                <input
+                                  type="text"
+                                  value={values?.priceRange[1]}
+                                  onChange={(e) => handleInputChange(e, 1)}
+                                  onBlur={formik.handleBlur}
+                                  onKeyDown={handleKeyDown}
+                                  className="p-1 w-full text-center border-none focus:outline-none"
+                                />
+                              </div>
+                              {touched?.priceRange &&
+                                typeof errors?.priceRange === "string" && (
+                                  <div className="text-red-500 text-[14px]">
+                                    {errors?.priceRange}
+                                  </div>
+                                )}
+                            </div>
+                          </div>
+                        </div>
+                        <div>
+                          <h5 className={filterHeadingClass}>Gender</h5>
+                          <div className="flex gap-6">
+                            {uniqueFilterOptions?.uniqueGenders.map(
+                              (gender, index) => {
+                                const normalizedGender = gender;
+                                const isSelected =
+                                  selectedGenders?.includes(normalizedGender);
+                                const displayGender =
+                                  {
+                                    male: "Men",
+                                    female: "Women",
+                                    unisex: "Unisex",
+                                  }[gender] || gender;
+                                return (
+                                  <span
+                                    key={`filter-gender-${index}`}
+                                    className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
+                                      isSelected ? "font-semibold" : ""
+                                    }`}
+                                    onClick={() =>
+                                      onSelectGender(normalizedGender)
+                                    }
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={isSelected}
+                                      readOnly
+                                      className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
+                                    />
+                                    {displayGender}
+                                  </span>
+                                );
+                              }
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+            <div className="w-full bg-white z-30 flex justify-center py-4">
+              <HeaderLinkButton
+                onClick={() => {
+                  dispatch(setIsFilterMenuOpen(false));
+                }}
+                className="transition-all !font-semibold !text-baseblack duration-300 capitalize !py-4 !px-20 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack"
+              >
+                View {filteredProducts.length} Designs
+              </HeaderLinkButton>
+            </div>
           </div>
-          <div className="w-full bg-white z-30 flex justify-center py-4">
-            <HeaderLinkButton
-              onClick={() => {
-                setIsFilterMenuOpen(false);
-              }}
-              className="transition-all !font-semibold !text-baseblack duration-300 capitalize !py-4 !px-20 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack"
-            >
-              View {filteredProducts.length} Designs
-            </HeaderLinkButton>
-          </div>
-        </div>
-      ) : null}
-    </div>
+        ) : null}
+      </div>
+    </>
   );
 }

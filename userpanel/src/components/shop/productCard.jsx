@@ -1,8 +1,7 @@
 import { helperFunctions } from "@/_helper";
 import Link from "next/link";
 import { ProgressiveImg } from "../dynamiComponents";
-import { useState, useEffect, useMemo } from "react";
-import logo from "@/assets/images/logo.webp";
+import { useState, useEffect, useMemo, useCallback } from "react";
 
 export default function ProductCard({
   goldColorVariations = [],
@@ -19,30 +18,44 @@ export default function ProductCard({
   hoveredWhiteGoldImage,
   hoveredYellowGoldImage,
   hoveredRoseGoldImage,
+  productId,
 }) {
-  // State for selected and hovered gold color, and image hover
+  // State for selected and hovered gold color
   const [selectedGoldColor, setSelectedGoldColor] = useState(null);
-  const [hoveredGoldColor, setHoveredGoldColor] = useState(null);
-  const [isImageHovered, setIsImageHovered] = useState(false);
+  const [hoveredState, setHoveredState] = useState({
+    isImageHovered: false,
+    hoveredGoldColor: null,
+  });
+
   const goldTypes = goldTypeVariations
     .map((item) => item.variationTypeName)
     .join(",");
 
   // Map gold color variation names to their thumbnail and hovered images
-  const goldColorImageMap = {
-    "White Gold": {
-      thumbnail: whiteGoldThumbnailImage,
-      hovered: hoveredWhiteGoldImage,
-    },
-    "Yellow Gold": {
-      thumbnail: yellowGoldThumbnailImage,
-      hovered: hoveredYellowGoldImage,
-    },
-    "Rose Gold": {
-      thumbnail: roseGoldThumbnailImage,
-      hovered: hoveredRoseGoldImage,
-    },
-  };
+  const goldColorImageMap = useMemo(
+    () => ({
+      "White Gold": {
+        thumbnail: whiteGoldThumbnailImage,
+        hovered: hoveredWhiteGoldImage,
+      },
+      "Yellow Gold": {
+        thumbnail: yellowGoldThumbnailImage,
+        hovered: hoveredYellowGoldImage,
+      },
+      "Rose Gold": {
+        thumbnail: roseGoldThumbnailImage,
+        hovered: hoveredRoseGoldImage,
+      },
+    }),
+    [
+      whiteGoldThumbnailImage,
+      yellowGoldThumbnailImage,
+      roseGoldThumbnailImage,
+      hoveredWhiteGoldImage,
+      hoveredYellowGoldImage,
+      hoveredRoseGoldImage,
+    ]
+  );
 
   // Set the first gold color as default on mount
   useEffect(() => {
@@ -51,57 +64,93 @@ export default function ProductCard({
     }
   }, [goldColorVariations, selectedGoldColor]);
 
-  productLink =
-    productLink ||
-    `/products/${helperFunctions.stringReplacedWithUnderScore(
-      title
-    )}?goldColor=${helperFunctions.stringReplacedWithUnderScore(
-      selectedGoldColor
-    )}`;
+  // Compute product link
+  const computedProductLink = useMemo(
+    () =>
+      productLink ||
+      `/products/${helperFunctions.stringReplacedWithUnderScore(
+        title
+      )}?goldColor=${helperFunctions.stringReplacedWithUnderScore(
+        selectedGoldColor
+      )}`,
+    [productLink, title, selectedGoldColor]
+  );
 
-  // Determine the current image to display
-  const currentImage = useMemo(() => {
-    if (isImageHovered && selectedGoldColor) {
-      return goldColorImageMap[selectedGoldColor]?.hovered || logo;
+  // Compute image source
+  const imageSrc = useMemo(() => {
+    if (hoveredState.isImageHovered) {
+      return goldColorImageMap[selectedGoldColor]?.hovered;
     }
-    if (hoveredGoldColor) {
-      return goldColorImageMap[hoveredGoldColor]?.thumbnail || logo;
+    if (hoveredState.hoveredGoldColor) {
+      return goldColorImageMap[hoveredState.hoveredGoldColor]?.thumbnail;
     }
-    if (selectedGoldColor) {
-      return goldColorImageMap[selectedGoldColor]?.thumbnail || logo;
-    }
-    if (goldColorVariations.length > 0) {
-      return (
-        goldColorImageMap[goldColorVariations[0].variationTypeName]
-          ?.thumbnail || logo
-      );
-    }
-    return logo;
+    return goldColorImageMap[selectedGoldColor]?.thumbnail;
   }, [
-    isImageHovered,
+    hoveredState.isImageHovered,
+    hoveredState.hoveredGoldColor,
     selectedGoldColor,
-    hoveredGoldColor,
-    goldColorVariations,
+    goldColorImageMap,
   ]);
+
+  const handleImageMouseEnter = useCallback(
+    helperFunctions?.debounce(() => {
+      setHoveredState((prev) => ({
+        ...prev,
+        isImageHovered: true,
+        hoveredGoldColor: null,
+      }));
+    }, 100),
+    []
+  );
+
+  const handleImageMouseLeave = useCallback(
+    helperFunctions?.debounce(() => {
+      setHoveredState((prev) => ({
+        ...prev,
+        isImageHovered: false,
+      }));
+    }, 100),
+    []
+  );
+
+  const handleGoldColorMouseEnter = useCallback(
+    helperFunctions?.debounce((goldColor) => {
+      setHoveredState((prev) => ({
+        ...prev,
+        isImageHovered: false,
+        hoveredGoldColor: goldColor,
+      }));
+    }, 100),
+    []
+  );
+
+  const handleGoldColorMouseLeave = useCallback(
+    helperFunctions?.debounce(() => {
+      setHoveredState((prev) => ({
+        ...prev,
+        hoveredGoldColor: null,
+      }));
+    }, 100),
+    []
+  );
 
   return (
     <div className="flex flex-col">
       <Link
-        href={productLink}
+        href={computedProductLink}
         className="relative group aspect-[1/1]"
-        onMouseEnter={() => setIsImageHovered(true)}
-        onMouseLeave={() => setIsImageHovered(false)}
+        onMouseEnter={handleImageMouseEnter}
+        onMouseLeave={handleImageMouseLeave}
       >
-        {currentImage ? (
-          <ProgressiveImg
-            className="max-w-full h-auto"
-            src={currentImage}
-            alt={title}
-            title={title}
-            width={700}
-            height={700}
-          />
-        ) : null}
+        <ProgressiveImg
+          className="max-w-full h-auto"
+          src={imageSrc}
+          alt={title}
+          title={title}
+          width={700}
+          height={700}
+          key={imageSrc} // Force re-render on imageSrc change
+        />
 
         {!isDiamondSettingPage && discount ? (
           <div className="bg-primary absolute top-3 left-3 text-xs md:text-sm text-white px-2 py-1 md:px-3 md:py-1.5">
@@ -112,7 +161,7 @@ export default function ProductCard({
 
       <div className="mt-3">
         <Link
-          href={productLink}
+          href={computedProductLink}
           className="text-base leading-5 mb-[15px] line-clamp-1"
         >
           {title}
@@ -128,21 +177,16 @@ export default function ProductCard({
             <div className="flex items-center gap-2">
               {goldColorVariations?.map((x, i) => (
                 <div
-                  key={`gold-color-${i}-${title}`}
+                  key={`gold-color-${i}-${productId}`} // Use productId for uniqueness
                   className={`p-[2px] group border cursor-pointer ${
                     selectedGoldColor === x.variationTypeName
                       ? "border-primary"
                       : "border-transparent hover:border-primary"
                   }`}
-                  onMouseEnter={() => {
-                    setTimeout(
-                      () => setHoveredGoldColor(x.variationTypeName),
-                      300
-                    ); // 300ms delay
-                  }}
-                  onMouseLeave={() => {
-                    setTimeout(() => setHoveredGoldColor(null), 300); // 300ms delay
-                  }}
+                  onMouseEnter={() =>
+                    handleGoldColorMouseEnter(x.variationTypeName)
+                  }
+                  onMouseLeave={handleGoldColorMouseLeave}
                   onClick={() => setSelectedGoldColor(x.variationTypeName)}
                 >
                   <div

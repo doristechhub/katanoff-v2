@@ -73,14 +73,12 @@ export default function SettingStyleCategorySwiper({
           className={`pt-10 md:pt-10 lg:pt-18 2xl:pt-20 mx-8 lg:mx-20 2xl:mx-28 grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 6xl:grid-cols-7 gap-4 ${className}`}
         >
           {Array.from({ length: diamondColumnCount }).map((_, index) => (
-            <div key={index}>
+            <div key={index} className="flex flex-col items-center">
               <SkeletonLoader
                 width="max-w-[170px]"
                 height="w-full aspect-square"
               />
-              <div className="flex justify-center">
-                <SkeletonLoader width="w-[70%]" height="h-5" className="mt-2" />
-              </div>
+              <SkeletonLoader width="w-[50%]" height="h-5" className="mt-2" />
             </div>
           ))}
         </div>
@@ -152,7 +150,7 @@ export default function SettingStyleCategorySwiper({
                 return (
                   <SwiperSlide key={`setting-style-key-${settingStyle?.value}`}>
                     <div
-                      className={`text-center cursor-pointer `}
+                      className={`text-center cursor-pointer flex flex-col items-center `}
                       onClick={() => handleStyleSelect(settingStyle?.title)}
                     >
                       {settingStyle?.image?.trim() ? (

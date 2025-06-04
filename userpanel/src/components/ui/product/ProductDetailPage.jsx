@@ -445,8 +445,8 @@ const ProductDetailPage = ({ customizePage }) => {
         <DetailPageSkeleton />
       ) : productDetail && Object.keys(productDetail).length > 0 ? (
         <>
-          <div className="container grid grid-cols-1 md:grid-cols-2 3xl:grid-cols-2 gap-6 xs:gap-8 ">
-            <div className=" auto-rows-min">
+          <div className="container grid grid-cols-1 md:grid-cols-2 gap-6 xs:gap-8">
+            <div className="flex">
               <ProductDetailPageImage
                 productDetail={productDetail}
                 selectedVariations={selectedVariations}
@@ -723,7 +723,7 @@ const AddToBagBar = ({
 
   return (
     <>
-      <div className={`${baseClasses} ${visibility} !z-10`}>
+      <div className={`${baseClasses} ${visibility}`}>
         <div
           className={`mx-auto py-4 px-4 grid lg:grid-cols-3 justify-center  items-center gap-4  container`}
         >

@@ -77,6 +77,11 @@ const OrderDetails = ({
       isOptional: true,
     },
     {
+      label: "Refund Failure Reason",
+      value: orderDetail?.paypalRefundFailureReason,
+      isOptional: true,
+    },
+    {
       label: "Delivery Date",
       value: orderDetail?.deliveryDate ? (
         <span className="fw-semibold">
