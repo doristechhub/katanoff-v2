@@ -8,9 +8,7 @@ export default function DetailPageSkeleton() {
     { width: "w-full", height: "h-8", margin: "mt-2" },
   ];
   return (
-    <div
-      className={`container grid grid-cols-1 md:grid-cols-[55%_auto] gap-12 pb-10`}
-    >
+    <div className={`container grid grid-cols-1 md:grid-cols-2 gap-12 pb-10`}>
       <div className=" auto-rows-min pt-6">
         <SkeletonLoader height="w-full h-[300px] md:h-[400px]  2xl:h-[500px]" />
       </div>

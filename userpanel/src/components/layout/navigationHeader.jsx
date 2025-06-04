@@ -455,7 +455,7 @@ export default function NavigationHeader() {
                         />
                         <div className="flex justify-center">
                           <HeaderLinkButton
-                            href={"/customize/start-with-setting"}
+                            href={"/customize/select-diamond"}
                             className={`transition-all !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
                           >
                             DESIGN WITH DIAMOND
@@ -1338,7 +1338,7 @@ export default function NavigationHeader() {
                           <div className="ps-[10px] pe-[20px] mt-4">
                             {" "}
                             <HeaderLinkButton
-                              href={"/customize/start-with-setting"}
+                              href={"/customize/select-diamond"}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 closeAllDropdown();
@@ -1538,7 +1538,7 @@ export default function NavigationHeader() {
                             srcAttr={item.image}
                             titleAttr=""
                             className="w-6"
-                            altAttr=""
+                            altAttr="" 
                           />
                         ) : item.icon ? (
                           item.icon

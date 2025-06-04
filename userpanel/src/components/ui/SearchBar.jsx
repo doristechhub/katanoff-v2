@@ -20,6 +20,7 @@ import { ProgressiveImg } from "@/components/dynamiComponents";
 import CommonNotFound from "@/components/ui/CommonNotFound";
 import searchVector from "@/assets/images/search-vector.webp";
 import Link from "next/link";
+import { HeaderLinkButton } from "./button";
 
 // Memoized search result item component to prevent unnecessary re-renders
 const SearchResultItem = memo(({ product, onClick }) => (
@@ -66,7 +67,7 @@ const SimpleProductGrid = memo(({ products }) => {
         >
           <div className="aspect-square mb-2">
             <ProgressiveImg
-              src={product?.thumbnailImage || product?.images?.[0]?.image}
+              src={product?.yellowGoldThumbnailImage}
               alt={product?.productName}
               className="w-full h-full object-cover"
             />
@@ -423,7 +424,11 @@ export default function SearchBar({
           }}
         >
           <div className="container mx-auto flex flex-col h-full">
-            <p className="text-center my-6 text-base 2xl:text-lg font-normal">
+            <p
+              className={`text-center mb-6 ${
+                lastScrollY > 100 ? "mt-6" : "mt-12"
+              } text-base 2xl:text-lg font-normal`}
+            >
               {searchedProductList?.length || 0} Products Matched Your Search
             </p>
             <div className="flex-1 px-2 pb-6">
@@ -445,13 +450,14 @@ export default function SearchBar({
               )}
 
               {searchedProductList?.length > 15 && (
-                <div className="text-center mt-8">
-                  <button
+                <div className="text-center mt-6">
+                  <HeaderLinkButton
                     onClick={handleSearchSubmit}
-                    className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark"
+                    className="capitalize"
                   >
-                    View All {searchedProductList.length} Results
-                  </button>
+                    See {searchedProductList.length} more results for :{" "}
+                    {searchQuery}
+                  </HeaderLinkButton>
                 </div>
               )}
             </div>

@@ -30,6 +30,7 @@ const initialState = {
   engagementHeaderLoader: false,
   uniqueDiamondShapesForHomePage: {},
   uniqueDiamondShapesAndCaratBounds: {},
+  selectedDiamondInfoModel: "",
 };
 
 const commonSlice = createSlice({
@@ -117,7 +118,6 @@ const commonSlice = createSlice({
     setOpenDiamondDetailProductId(state, action) {
       state.openDiamondDetailProductId = action.payload;
     },
-  
     setCustomizeOptionLoading: (state, action) => {
       state.customizeOptionLoading = action.payload;
     },
@@ -130,6 +130,9 @@ const commonSlice = createSlice({
     setUniqueDiamondShapesAndCaratBounds: (state, action) => {
       state.uniqueDiamondShapesAndCaratBounds = action.payload;
     },
+    setSelectedDiamondInfoModel: (state, action) => {
+      state.selectedDiamondInfoModel = action.payload
+    }
   },
 });
 
@@ -163,6 +166,7 @@ export const {
   setEngagementHeaderLoader,
   setUniqueDiamondShapesForHomePage,
   setUniqueDiamondShapesAndCaratBounds,
+  setSelectedDiamondInfoModel
 } = commonSlice.actions;
 
 export default commonSlice.reducer;

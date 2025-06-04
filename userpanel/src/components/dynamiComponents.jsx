@@ -354,3 +354,10 @@ export const CustomJewelryDetailPage = dynamic(
     ssr: false,
   }
 );
+
+export const DiamondInfoModel = dynamic(
+  () => import("./ui/customize/DiamondInfoModel.jsx"),
+  {
+    ssr: false,
+  }
+);
