@@ -245,7 +245,7 @@ const Home = () => {
       />
 
       {uniqueDiamondShapesAndCaratBounds?.distinctShapes ? (
-        <section className="mt-10 lg:mt-12 2xl:mt-12 lg:container">
+        <section className="mt-10 lg:mt-12 2xl:mt-12  container">
           <DiamondShapeSwipper
             shapes={uniqueDiamondShapesAndCaratBounds?.distinctShapes || []}
             title="Shop for Lab Grown Diamonds"

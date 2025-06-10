@@ -11,8 +11,17 @@ import {
   setSelectedPrices,
 } from "@/store/slices/productSlice";
 import { productService, recentlyViewedService } from "@/_services";
-import { ENGAGEMENT_RINGS, messageType, WEDDING_RINGS } from "@/_helper/constants";
-import { setEngagementHeaderLoader, setEngagementHeaderUniqueFilterOptions, setWeddingHeaderLoader, setWeddingHeaderUniqueFilterOptions } from "@/store/slices/commonSlice";
+import {
+  ENGAGEMENT_RINGS,
+  messageType,
+  WEDDING_RINGS,
+} from "@/_helper/constants";
+import {
+  setEngagementHeaderLoader,
+  setEngagementHeaderUniqueFilterOptions,
+  setWeddingHeaderLoader,
+  setWeddingHeaderUniqueFilterOptions,
+} from "@/store/slices/commonSlice";
 
 export const fetchLatestProductList = (length) => {
   return async (dispatch) => {
@@ -40,7 +49,7 @@ export const fetchWeddingCollectionsTypeWiseProduct = () => {
       const WeddingCollectionProducts =
         await productService.getCollectionsTypeWiseProduct(
           "collection",
-          WEDDING_RINGS,
+          WEDDING_RINGS
         );
       if (WeddingCollectionProducts) {
         const tempUniqueFilterOptions = getUniqueFilterOptions(
@@ -50,15 +59,12 @@ export const fetchWeddingCollectionsTypeWiseProduct = () => {
         dispatch(setWeddingHeaderUniqueFilterOptions(uniqueFilterOptions));
 
         dispatch(setWeddingHeaderLoader(false));
-
       }
     } catch (e) {
       dispatch(setWeddingHeaderUniqueFilterOptions([]));
       dispatch(setWeddingHeaderLoader(true));
-
     } finally {
       dispatch(setWeddingHeaderLoader(false));
-
     }
   };
 };
@@ -72,7 +78,7 @@ export const fetchEngagementCollectionsTypeWiseProduct = () => {
       const engagementCollectionProducts =
         await productService.getCollectionsTypeWiseProduct(
           "collection",
-          ENGAGEMENT_RINGS,
+          ENGAGEMENT_RINGS
         );
       if (engagementCollectionProducts) {
         const tempUniqueFilterOptions = getUniqueFilterOptions(
@@ -82,22 +88,21 @@ export const fetchEngagementCollectionsTypeWiseProduct = () => {
         dispatch(setEngagementHeaderUniqueFilterOptions(uniqueFilterOptions));
 
         dispatch(setEngagementHeaderLoader(false));
-
       }
     } catch (e) {
       dispatch(setEngagementHeaderUniqueFilterOptions([]));
       dispatch(setEngagementHeaderLoader(true));
-
     } finally {
       dispatch(setEngagementHeaderLoader(false));
-
     }
   };
 };
 
 export const fetchCollectionsTypeWiseProduct = (
   collectionType,
-  collectionTitle, parentCategory, parentMainCategory
+  collectionTitle,
+  parentCategory,
+  parentMainCategory
 ) => {
   return async (dispatch) => {
     try {
@@ -106,7 +111,8 @@ export const fetchCollectionsTypeWiseProduct = (
       const collectionsTypeWiseProductList =
         await productService.getCollectionsTypeWiseProduct(
           collectionType,
-          collectionTitle, parentCategory,
+          collectionTitle,
+          parentCategory,
           parentMainCategory
         );
       if (collectionsTypeWiseProductList?.length) {
@@ -191,180 +197,12 @@ export const fetchProductDetailByProductName = (productName) => {
 //   };
 // };
 
-
 const getUniqueSettingStyles = (styles) => {
-  return Array.from(
-    new Set(styles.map((item) => item.title))
-  ).map((title) => {
+  return Array.from(new Set(styles.map((item) => item.title))).map((title) => {
     const { image, id } = styles.find((item) => item.title === title) || {};
     return { title, value: id, image };
   });
 };
-
-
-// export const getUniqueFilterOptions = (productList) => {
-//   const uniqueVariations = new Map();
-//   const tempSettingStyles = [];
-//   const uniqueShapeIds = new Set();
-//   const uniqueDiamondShapes = [];
-//   const tempPriceRange = [];
-
-//   // For gender-based filtering
-//   const maleVariations = new Map();
-//   const femaleVariations = new Map();
-//   const tempMaleSettingStyles = [];
-//   const tempFemaleSettingStyles = [];
-
-//   // Helper to add variations to a map (deduplication)
-//   const addVariationsToMap = (variations, map) => {
-//     variations.forEach(({ variationId, variationName, variationTypes }) => {
-//       if (!map.has(variationId)) {
-//         map.set(variationId, {
-//           variationName,
-//           variationId,
-//           variationTypes: new Map(
-//             variationTypes.map((type) => [
-//               type.variationTypeId,
-//               {
-//                 variationTypeName: type.variationTypeName,
-//                 variationTypeId: type.variationTypeId,
-//                 variationTypeHexCode: type.variationTypeHexCode ?? undefined,
-//                 variationTypeImage: type.variationTypeImage ?? undefined,
-//               },
-//             ])
-//           ),
-//         });
-//       } else {
-//         const existingVariation = map.get(variationId);
-//         variationTypes.forEach((type) => {
-//           if (!existingVariation.variationTypes.has(type.variationTypeId)) {
-//             existingVariation.variationTypes.set(type.variationTypeId, {
-//               variationTypeName: type.variationTypeName,
-//               variationTypeId: type.variationTypeId,
-//               variationTypeHexCode: type.variationTypeHexCode ?? undefined,
-//               variationTypeImage: type.variationTypeImage ?? undefined,
-//             });
-//           }
-//         });
-//       }
-//     });
-//   };
-
-//   // Helper to add setting styles uniquely to an array (by title)
-//   const addSettingStyles = (stylesArray, targetArray) => {
-//     stylesArray.forEach((style) => {
-//       if (!targetArray.find((s) => s.title === style.title)) {
-//         targetArray.push(style);
-//       }
-//     });
-//   };
-
-//   productList.forEach((product) => {
-//     // Collect all setting styles for global filters
-//     const settingStyles = product?.settingStyleNamesWithImg;
-//     if (settingStyles?.length) {
-//       tempSettingStyles.push(...settingStyles);
-//     }
-
-//     // Collect variations for global filters
-//     product.variations.forEach((variation) => {
-//       const { variationId, variationName, variationTypes } = variation;
-
-//       if (!uniqueVariations.has(variationId)) {
-//         uniqueVariations.set(variationId, {
-//           variationName,
-//           variationId,
-//           variationTypes: new Map(
-//             variationTypes.map((type) => [
-//               type.variationTypeId,
-//               {
-//                 variationTypeName: type.variationTypeName,
-//                 variationTypeId: type.variationTypeId,
-//                 variationTypeHexCode: type.variationTypeHexCode ?? undefined,
-//                 variationTypeImage: type.variationTypeImage ?? undefined,
-//               },
-//             ])
-//           ),
-//         });
-//       } else {
-//         const existingVariation = uniqueVariations.get(variationId);
-//         variationTypes.forEach((type) => {
-//           if (!existingVariation.variationTypes.has(type.variationTypeId)) {
-//             existingVariation.variationTypes.set(type.variationTypeId, {
-//               variationTypeName: type.variationTypeName,
-//               variationTypeId: type.variationTypeId,
-//               variationTypeHexCode: type.variationTypeHexCode ?? undefined,
-//               variationTypeImage: type.variationTypeImage ?? undefined,
-//             });
-//           }
-//         });
-//       }
-//     });
-
-//     // Handle diamond shapes
-//     if (product.isDiamondFilter && product.diamondFilters?.diamondShapes?.length) {
-//       product.diamondFilters.diamondShapes.forEach((shape) => {
-//         if (!uniqueShapeIds.has(shape.id)) {
-//           uniqueShapeIds.add(shape.id);
-//           uniqueDiamondShapes.push(shape);
-//         }
-//       });
-//     }
-//     tempPriceRange.push(product?.baseSellingPrice || 0);
-
-//     // Now handle gender-based splitting
-//     // Assuming product.gender can be "male", "female", or "unisex"
-//     const gender = product.gender?.toLowerCase() || "";
-
-//     if (gender === 'male' || gender === 'unisex') {
-//       addVariationsToMap(product.variations, maleVariations);
-//       if (settingStyles?.length) addSettingStyles(settingStyles, tempMaleSettingStyles);
-//     }
-//     if (gender === 'female' || gender === 'unisex') {
-//       addVariationsToMap(product.variations, femaleVariations);
-//       if (settingStyles?.length) addSettingStyles(settingStyles, tempFemaleSettingStyles);
-//     }
-//   });
-
-//   // Convert maps to arrays for global filters
-//   const variationsArray = Array.from(uniqueVariations.values()).map((variation) => ({
-//     ...variation,
-//     variationTypes: Array.from(variation.variationTypes.values()),
-//   }));
-
-//   // Convert male/female variations maps to arrays
-//   const maleVariationsArray = Array.from(maleVariations.values()).map((variation) => ({
-//     ...variation,
-//     variationTypes: Array.from(variation.variationTypes.values()),
-//   }));
-//   const femaleVariationsArray = Array.from(femaleVariations.values()).map((variation) => ({
-//     ...variation,
-//     variationTypes: Array.from(variation.variationTypes.values()),
-//   }));
-
-
-//   // Price range
-//   const minPrice = tempPriceRange.length ? Math.min(...tempPriceRange) : 0;
-//   const maxPrice = tempPriceRange.length ? Math.max(...tempPriceRange) : 0;
-
-//   return {
-//     uniqueVariations: variationsArray,
-//     uniqueSettingStyles: getUniqueSettingStyles(tempSettingStyles),
-//     uniqueDiamondShapes,
-//     availablePriceRange: [minPrice, maxPrice],
-
-//     // New fields for gender-separated filters
-//     maleFilters: {
-//       variations: maleVariationsArray,
-//       settingStyles: getUniqueSettingStyles(tempMaleSettingStyles),
-//     },
-//     femaleFilters: {
-//       variations: femaleVariationsArray,
-//       settingStyles: getUniqueSettingStyles(tempFemaleSettingStyles),
-//     },
-//   };
-// };
-
 
 export const getUniqueFilterOptions = (productList) => {
   const uniqueVariations = new Map();
@@ -435,7 +273,10 @@ export const getUniqueFilterOptions = (productList) => {
     addVariationsToMap(product.variations, uniqueVariations);
 
     // Handle diamond shapes
-    if (product.isDiamondFilter && product.diamondFilters?.diamondShapes?.length) {
+    if (
+      product.isDiamondFilter &&
+      product.diamondFilters?.diamondShapes?.length
+    ) {
       product.diamondFilters.diamondShapes.forEach((shape) => {
         if (!uniqueShapeIds.has(shape.id)) {
           uniqueShapeIds.add(shape.id);
@@ -452,31 +293,39 @@ export const getUniqueFilterOptions = (productList) => {
     }
 
     // Handle gender-based splitting
-    if (gender === 'male' || gender === 'unisex') {
+    if (gender === "male" || gender === "unisex") {
       addVariationsToMap(product.variations, maleVariations);
-      if (settingStyles?.length) addSettingStyles(settingStyles, tempMaleSettingStyles);
+      if (settingStyles?.length)
+        addSettingStyles(settingStyles, tempMaleSettingStyles);
     }
-    if (gender === 'female' || gender === 'unisex') {
+    if (gender === "female" || gender === "unisex") {
       addVariationsToMap(product.variations, femaleVariations);
-      if (settingStyles?.length) addSettingStyles(settingStyles, tempFemaleSettingStyles);
+      if (settingStyles?.length)
+        addSettingStyles(settingStyles, tempFemaleSettingStyles);
     }
   });
 
   // Convert maps to arrays for global filters
-  const variationsArray = Array.from(uniqueVariations.values()).map((variation) => ({
-    ...variation,
-    variationTypes: Array.from(variation.variationTypes.values()),
-  }));
+  const variationsArray = Array.from(uniqueVariations.values()).map(
+    (variation) => ({
+      ...variation,
+      variationTypes: Array.from(variation.variationTypes.values()),
+    })
+  );
 
   // Convert male/female variations maps to arrays
-  const maleVariationsArray = Array.from(maleVariations.values()).map((variation) => ({
-    ...variation,
-    variationTypes: Array.from(variation.variationTypes.values()),
-  }));
-  const femaleVariationsArray = Array.from(femaleVariations.values()).map((variation) => ({
-    ...variation,
-    variationTypes: Array.from(variation.variationTypes.values()),
-  }));
+  const maleVariationsArray = Array.from(maleVariations.values()).map(
+    (variation) => ({
+      ...variation,
+      variationTypes: Array.from(variation.variationTypes.values()),
+    })
+  );
+  const femaleVariationsArray = Array.from(femaleVariations.values()).map(
+    (variation) => ({
+      ...variation,
+      variationTypes: Array.from(variation.variationTypes.values()),
+    })
+  );
 
   // Price range
   const minPrice = tempPriceRange.length ? Math.min(...tempPriceRange) : 0;
@@ -545,7 +394,9 @@ export const fetchSingleProductDataById = (productId) => {
     dispatch(setProductMessage({ message: "", type: "" }));
 
     try {
-      const productData = await productService.getSingleProductDataById({ productId });
+      const productData = await productService.getSingleProductDataById({
+        productId,
+      });
 
       dispatch(setProductDetail(productData));
       return productData;
@@ -563,17 +414,13 @@ export const fetchSingleProductDataById = (productId) => {
   };
 };
 
-
 export const fetchSearchedProducts = (params) => async (dispatch) => {
   try {
     dispatch(setProductLoading(true));
     const response = await productService.searchProducts(params);
     if (!response) {
-      dispatch(setSearchedProductList([]));
       return [];
     }
-    // set searched product list to redux store
-    dispatch(setSearchedProductList(response));
     return response;
   } catch (error) {
     console.error("Search fetch error:", error);

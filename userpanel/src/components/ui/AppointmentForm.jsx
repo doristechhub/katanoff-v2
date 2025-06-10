@@ -103,11 +103,6 @@ const AppointmentForm = () => {
         value: dateValue,
       },
     });
-    console.log("Date Change:", {
-      selectedDates,
-      dateValue,
-      formikDate: values?.date,
-    });
   };
 
   return (

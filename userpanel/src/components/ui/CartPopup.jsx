@@ -197,11 +197,20 @@ const CartPopup = () => {
                           <div className="xs:flex justify-between">
                             <div>
                               <Link
-                                href={`/products/${cartItem?.productName
-                                  ?.split(" ")
-                                  ?.join("_")}`}
+                                href={
+                                  cartItem?.diamondDetail
+                                    ? "/customize/complete-ring"
+                                    : `/products/${cartItem?.productName
+                                        ?.split(" ")
+                                        ?.join("_")}`
+                                }
+                                onClick={() => {
+                                  helperFunctions?.setCustomProductInLocalStorage(
+                                    cartItem
+                                  );
+                                  closeCartPopup();
+                                }}
                                 className="text-xs  2xl:text-base font-semibold text-baseblack"
-                                onClick={closeCartPopup}
                               >
                                 {cartItem?.productName}
                               </Link>
@@ -261,14 +270,15 @@ const CartPopup = () => {
 
                               <div className="relative inline-block w-fit">
                                 <select
-                                  className={`appearance-none px-3 py-1 pr-10 border border-grayborder rounded-sm text-xs  2xl:text-sm font-semibold bg-transparent cursor-pointer
-      ${
-        (cartItem.quantity < minQuantity ||
-          cartItem.quantity > maxQuantity ||
-          cartItem.quantity > cartItem.productQuantity) &&
-        "opacity-50 cursor-not-allowed"
-      }
-      `}
+                                  className={`appearance-none px-3 py-1 pr-10 border border-grayborder rounded-sm text-xs  2xl:text-sm font-semibold bg-transparent  cursor-pointer
+                                 ${
+                                   (cartItem.quantity < minQuantity ||
+                                     cartItem.quantity > maxQuantity ||
+                                     cartItem.quantity >
+                                       cartItem.productQuantity) &&
+                                   "opacity-50 cursor-not-allowed"
+                                 }
+                                 `}
                                   value={cartItem.quantity}
                                   onChange={(e) =>
                                     handleCartQuantityChange(

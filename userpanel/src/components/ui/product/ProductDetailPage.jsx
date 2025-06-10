@@ -1,7 +1,6 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import diamondSvg from "@/assets/icons/3stepsDiamond.svg";
 import { useParams } from "next/navigation";
 import dropdownArrow from "@/assets/icons/dropdownArrow.svg";
 import { companyEmail, helperFunctions } from "@/_helper";
@@ -82,8 +81,7 @@ const ProductDetailPage = ({ customizePage }) => {
   let { productName, productId } = params;
   let availableQty = 0;
   const [hoveredColor, setHoveredColor] = useState("");
-  const isCustomizePage =
-    customizePage === "completeRing" || customizePage === "setting";
+  const isCustomizePage = customizePage === "completeRing";
   const goldColor = helperFunctions?.stringReplacedWithSpace(
     searchParams.get("goldColor")
   );
@@ -205,11 +203,10 @@ const ProductDetailPage = ({ customizePage }) => {
     }
   }, [dispatch, productName, productId]);
 
-  // This use effect is used to handle the condtion as in the three steps if already selected product in cart and in complete ring i am getting so to remove the customProduct from local storage and redirect to cart page
+  // // This use effect is used to handle the condtion as in the three steps if already selected product in cart and in complete ring i am getting so to remove the customProduct from local storage and redirect to cart page
   useEffect(() => {
     if (
       isSubmitted &&
-      customizePage === "completeRing" &&
       cartMessage?.message === "Product already exists in cart"
     ) {
       localStorage.removeItem("customProduct");
@@ -394,10 +391,14 @@ const ProductDetailPage = ({ customizePage }) => {
       }
 
       localStorage.setItem("customProduct", JSON.stringify(updatedPayload));
-
       if (updatedPayload?.productId && updatedPayload?.diamondDetails) {
         router.push("/customize/complete-ring");
-      } else {
+      } else if (updatedPayload?.diamondDetails && !updatedPayload?.productId) {
+        router.push("/customize/select-setting");
+      } else if (
+        !updatedPayload?.diamondDetails &&
+        !updatedPayload?.productId
+      ) {
         router.push("/customize/select-diamond");
       }
     } finally {
@@ -436,11 +437,7 @@ const ProductDetailPage = ({ customizePage }) => {
   //  const productLoading
 
   return (
-    <div
-      className={` ${
-        isCustomizePage ? "pt-12 lg:pt-6 2xl:pt-8" : "pt-36 lg:pt-12 2xl:pt-16"
-      }`}
-    >
+    <div className={` ${isCustomizePage ? "" : "pt-36 lg:pt-12 2xl:pt-16"}`}>
       {productLoading ? (
         <DetailPageSkeleton />
       ) : productDetail && Object.keys(productDetail).length > 0 ? (
@@ -458,11 +455,11 @@ const ProductDetailPage = ({ customizePage }) => {
               <h2 className="text-xl font-semibold">
                 {productDetail?.productName}
               </h2>
-              {!isCustomizePage && displayValues && (
+              {displayValues ? (
                 <h2 className="text-sm md:text-sm text-basegray font-semibold pt-1">
                   {displayValues}
                 </h2>
-              )}
+              ) : null}
 
               {isCustomizePage ? (
                 <div className="flex items-center gap-2 mb-4 lg:mb-4">
@@ -559,16 +556,8 @@ const ProductDetailPage = ({ customizePage }) => {
                     <div className="border-t border-grayborder mt-10" />
                     <div className=" text-baseblack pt-4 md:pt-6">
                       <div className="flex  items-start gap-2">
-                        <div className="flex gap-1">
-                          <CustomImg
-                            srcAttr={diamondSvg}
-                            altAttr=""
-                            titleAttr=""
-                            className="w-8 h-8"
-                          />
-                        </div>
                         <div className="flex flex-col gap-2">
-                          <p className="font-semibold text-xl">
+                          <p className="font-semibold text-lg">
                             Diamond Detail:
                           </p>
 
@@ -593,9 +582,7 @@ const ProductDetailPage = ({ customizePage }) => {
                                   Diamond
                                 </p>
                               </div>
-
-                              <div className="hidden xs:block border-l border-grayborder mx-2 h-16" />
-                              <div className="flex flex-col xs:gap-2 xs:pl-4 ">
+                              <div className="flex flex-col xs:gap-2 xs:pl-4">
                                 <p>
                                   Clarity-
                                   {
@@ -615,16 +602,11 @@ const ProductDetailPage = ({ customizePage }) => {
                           </div>
                         </div>
                       </div>
-
-                      <p className="font-medium  text-lg 3xl:text-xl">
-                        Final Price: ${customProductPrice.toFixed(2)}
-                        <span className="font-semibold font-castoro"></span>
-                      </p>
                     </div>
                   </>
                 )}
 
-              <section className="pt-8 lg:pt-12">
+              <section className="pt-8">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-8 gap-x-4 md:gap-x-8 max-w-6xl mx-auto">
                   {supportItems.map((item) => (
                     <Link href={item.link} key={item.label}>
@@ -707,7 +689,7 @@ const AddToBagBar = ({
   selectedVariations,
   isActive,
 }) => {
-  const baseClasses = `w-full bg-[#FFFFFF] shadow-md transition-opacity duration-300 z-50 ${
+  const baseClasses = `w-full bg-white shadow-md transition-opacity duration-300 z-40 ${
     position === "bottom" ? "fixed bottom-0 left-0" : "relative mt-4 lg:mt-12"
   }`;
   const estimatedDate = useMemo(() => {
@@ -761,17 +743,6 @@ const AddToBagBar = ({
               onMouseEnter={() => onHoverChange(true)}
               onMouseLeave={() => onHoverChange(false)}
             >
-              {customizePage === "setting" && (
-                <LoadingPrimaryButton
-                  className="w-full uppercase"
-                  disabled={isInValidSelectedVariation}
-                  loaderType={isHovered ? "" : "white"}
-                  onClick={onSelectSetting}
-                >
-                  SELECT THIS OPTION
-                </LoadingPrimaryButton>
-              )}
-
               {customizePage === "completeRing" && (
                 <LoadingPrimaryButton
                   className="w-full uppercase"
@@ -815,10 +786,7 @@ const AddToBagBar = ({
             ) : null}
             {isSubmitted &&
             cartMessage?.message &&
-            !(
-              customizePage === "completeRing" &&
-              cartMessage?.message === "Product already exists in cart"
-            ) ? (
+            !(cartMessage?.message === "Product already exists in cart") ? (
               <ErrorMessage message={cartMessage?.message} />
             ) : null}
           </div>

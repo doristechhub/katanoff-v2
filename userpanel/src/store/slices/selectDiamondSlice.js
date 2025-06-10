@@ -8,6 +8,7 @@ const initialState = {
     color: null,
   },
   diamondMessage: { message: "", type: "" },
+  diamondLoading: false,
 };
 
 const selectDiamondSlice = createSlice({
@@ -26,10 +27,17 @@ const selectDiamondSlice = createSlice({
     setDiamondMessage: (state, action) => {
       state.diamondMessage = action.payload;
     },
+    setDiamondLoading: (state, action) => {
+      state.diamondLoading = action.payload;
+    },
   },
 });
 
-export const { setDiamondSelection, resetDiamondSelection, setDiamondMessage } =
-  selectDiamondSlice.actions;
+export const {
+  setDiamondSelection,
+  resetDiamondSelection,
+  setDiamondMessage,
+  setDiamondLoading,
+} = selectDiamondSlice.actions;
 
 export default selectDiamondSlice.reducer;

@@ -7,7 +7,18 @@ import {
   NavigationHeader,
   SearchBar,
 } from "@/components/dynamiComponents";
-import { setIsMenuOpen, setLastScrollY } from "@/store/slices/commonSlice";
+import {
+  setIsMenuOpen,
+  setLastScrollY,
+  setIsSearchOpen,
+  setIsMobileSearchOpen,
+  setIsShowingResults,
+  setSearchQuery,
+} from "@/store/slices/commonSlice";
+import {
+  setSearchedProductList,
+  setCurrentPage,
+} from "@/store/slices/productSlice";
 import { IoMenu } from "react-icons/io5";
 import { RxCross2 } from "react-icons/rx";
 import flagUs from "@/assets/images/flag-us.webp";
@@ -23,7 +34,7 @@ import { helperFunctions } from "@/_helper";
 
 export default function Header() {
   const dispatch = useDispatch();
-  const { isMenuOpen, lastScrollY, isCartOpen, transparenHeadertBg } =
+  const { isMenuOpen, lastScrollY, isCartOpen, transparentHeaderBg } =
     useSelector(({ common }) => common);
   const [isHeaderVisible, setIsHeaderVisible] = useState(false);
   const searchContainerRef = useRef(null);
@@ -31,10 +42,20 @@ export default function Header() {
   const searchInputRef = useRef(null);
   const mobileSearchInputRef = useRef(null);
 
-  const toggleMenu = () => dispatch(setIsMenuOpen(!isMenuOpen));
-
   const pathname = usePathname();
   const hideCartPopup = helperFunctions?.shouldHideCartPopup(pathname);
+
+  // Reset search state on route change
+  useEffect(() => {
+    dispatch(setSearchQuery(""));
+    dispatch(setIsSearchOpen(false));
+    dispatch(setIsMobileSearchOpen(false));
+    dispatch(setIsShowingResults(false));
+    dispatch(setCurrentPage(0));
+    dispatch(setSearchedProductList([]));
+  }, [pathname, dispatch]);
+
+  const toggleMenu = () => dispatch(setIsMenuOpen(!isMenuOpen));
 
   useEffect(() => {
     const handleScroll = () => {
@@ -119,7 +140,7 @@ export default function Header() {
             ? "left-0 shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] lg:static lg:top-0 lg:left-0"
             : ""
         } ${lastScrollY > 50 ? "top-0" : "top-10"} lg:static w-full ${
-          transparenHeadertBg && !isHeaderVisible
+          transparentHeaderBg && !isHeaderVisible
             ? "lg:bg-offwhite"
             : "lg:bg-white"
         } bg-white z-50 shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] transition-all duration-300`}

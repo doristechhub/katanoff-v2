@@ -35,7 +35,10 @@ import { SlArrowLeft, SlArrowRight } from "react-icons/sl";
 const filterHeadingClass =
   "text-[14px] lg:text-base leading-4 font-semibold pb-[15px]";
 
-export default function ProductFilter({ productList, isDiamondPage = false }) {
+export default function ProductFilter({
+  productList,
+  isDiamondSettingPage = false,
+}) {
   const {
     selectedSortByValue,
     selectedFilterVariations,
@@ -556,28 +559,38 @@ export default function ProductFilter({ productList, isDiamondPage = false }) {
         return price >= minPrice && price <= maxPrice;
       });
     }
-
     // Sorting remains the same (single selection)
     filteredItemsList = filteredItemsList.sort((a, b) => {
-      if (selectedSortByValue === "alphabetically_a_to_z") {
-        return a.productName.localeCompare(b.productName);
+      if (!selectedSortByValue) return 0; // Default case if no sort value
+      try {
+        switch (
+          helperFunctions?.stringReplacedWithUnderScore(selectedSortByValue)
+        ) {
+          case "alphabetically_a_to_z":
+            return (a.productName || "").localeCompare(b.productName || "");
+          case "alphabetically_z_to_a":
+            return (b.productName || "").localeCompare(a.productName || "");
+          case "price_low_to_high":
+            return (
+              parseFloat(a.baseSellingPrice || 0) -
+              parseFloat(b.baseSellingPrice || 0)
+            );
+          case "price_high_to_low":
+            return (
+              parseFloat(b.baseSellingPrice || 0) -
+              parseFloat(a.baseSellingPrice || 0)
+            );
+          case "date_old_to_new":
+            return new Date(a.createdDate || 0) - new Date(b.createdDate || 0);
+          case "date_new_to_old":
+            return new Date(b.createdDate || 0) - new Date(a.createdDate || 0);
+          default:
+            return 0;
+        }
+      } catch (error) {
+        console.log("Sorting error:", error);
+        return 0;
       }
-      if (selectedSortByValue === "alphabetically_z_to_a") {
-        return b.productName.localeCompare(a.productName);
-      }
-      if (selectedSortByValue === "price_low_to_high") {
-        return parseFloat(a.baseSellingPrice) - parseFloat(b.baseSellingPrice);
-      }
-      if (selectedSortByValue === "price_high_to_low") {
-        return parseFloat(b.baseSellingPrice) - parseFloat(a.baseSellingPrice);
-      }
-      if (selectedSortByValue === "date_old_to_new") {
-        return new Date(a.createdDate) - new Date(b.createdDate);
-      }
-      if (selectedSortByValue === "date_new_to_old") {
-        return new Date(b.createdDate) - new Date(a.createdDate);
-      }
-      return 0;
     });
 
     return filteredItemsList;
@@ -644,15 +657,13 @@ export default function ProductFilter({ productList, isDiamondPage = false }) {
 
     // Parse sort by
     const sortBy = urlParams.get("sort_by");
-    if (sortBy) {
-      dispatch(
-        setSelectedSortByValue(
-          helperFunctions?.stringReplacedWithSpace(decodeURIComponent(sortBy))
-        )
-      );
-    } else {
-      dispatch(setSelectedSortByValue(null));
-    }
+    dispatch(
+      setSelectedSortByValue(
+        sortBy
+          ? helperFunctions?.stringReplacedWithSpace(decodeURIComponent(sortBy))
+          : "date_new_to_old" // or set a default sort value like "alphabetically_a_to_z"
+      )
+    );
     const genders = urlParams
       .getAll("gender")
       .map((g) =>
@@ -827,8 +838,10 @@ export default function ProductFilter({ productList, isDiamondPage = false }) {
               {/* Filter Button */}
               <div className="relative">
                 <button
-                  className="flex items-center gap-2 filter-button" // Add filter-button class
-                  onClick={() => dispatch(setIsFilterMenuOpen((prev) => !prev))}
+                  className="flex items-center gap-2 filter-button"
+                  onClick={() =>
+                    dispatch(setIsFilterMenuOpen(!isFilterMenuOpen))
+                  }
                 >
                   <CustomImg
                     srcAttr={settingsSlidersIcon}
@@ -850,10 +863,10 @@ export default function ProductFilter({ productList, isDiamondPage = false }) {
                     {sortByList?.length
                       ? sortByList.map((item) => (
                           <li
-                            key={item.value}
+                            key={item?.value}
                             style={{ textTransform: "capitalize" }}
                             className={`px-4 py-2 hover:bg-gray-100 cursor-pointer`}
-                            onClick={() => onSelectSortBy(item.value)}
+                            onClick={() => onSelectSortBy(item?.value)}
                           >
                             {item.title}
                           </li>
@@ -898,7 +911,7 @@ export default function ProductFilter({ productList, isDiamondPage = false }) {
                   <div className="w-full">
                     {/* Mobile Dropdowns */}
                     <div className="lg:hidden flex flex-col w-full">
-                      {!isDiamondPage && (
+                      {!isDiamondSettingPage && (
                         // <div className="border-b border-baseblack ">
                         <div>
                           <button
@@ -1224,61 +1237,63 @@ export default function ProductFilter({ productList, isDiamondPage = false }) {
                           </div>
                         )}
                       </div>
-                      <div className="border-b border-baseblack">
-                        <button
-                          className="w-full flex justify-between items-center py-3 font-medium text-base"
-                          onClick={() => toggleDropdown("gender")}
-                        >
-                          Gender
-                          <span>
-                            {smOpenFilter?.includes("gender") ? (
-                              <FiMinus />
-                            ) : (
-                              <FaPlus />
-                            )}
-                          </span>
-                        </button>
-                        {smOpenFilter?.includes("gender") ? (
-                          <div className="flex gap-6 p-2">
-                            {uniqueFilterOptions?.uniqueGenders.map(
-                              (gender, index) => {
-                                const normalizedGender = gender;
-                                const isSelected =
-                                  selectedGenders?.includes(normalizedGender);
-                                const displayGender =
-                                  {
-                                    male: "Men",
-                                    female: "Women",
-                                    unisex: "Unisex",
-                                  }[gender] || gender;
-                                return (
-                                  <span
-                                    key={`filter-gender-${index}`}
-                                    className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
-                                      isSelected ? "font-semibold" : ""
-                                    }`}
-                                    onClick={() =>
-                                      onSelectGender(normalizedGender)
-                                    }
-                                  >
-                                    <input
-                                      type="checkbox"
-                                      checked={isSelected}
-                                      readOnly
-                                      className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
-                                    />
-                                    {displayGender}
-                                  </span>
-                                );
-                              }
-                            )}
-                          </div>
-                        ) : null}
-                      </div>
+                      {uniqueFilterOptions?.uniqueGenders?.length ? (
+                        <div className="border-b border-baseblack">
+                          <button
+                            className="w-full flex justify-between items-center py-3 font-medium text-base"
+                            onClick={() => toggleDropdown("gender")}
+                          >
+                            Gender
+                            <span>
+                              {smOpenFilter?.includes("gender") ? (
+                                <FiMinus />
+                              ) : (
+                                <FaPlus />
+                              )}
+                            </span>
+                          </button>
+                          {smOpenFilter?.includes("gender") ? (
+                            <div className="flex gap-6 p-2">
+                              {uniqueFilterOptions?.uniqueGenders.map(
+                                (gender, index) => {
+                                  const normalizedGender = gender;
+                                  const isSelected =
+                                    selectedGenders?.includes(normalizedGender);
+                                  const displayGender =
+                                    {
+                                      male: "Men",
+                                      female: "Women",
+                                      unisex: "Unisex",
+                                    }[gender] || gender;
+                                  return (
+                                    <span
+                                      key={`filter-gender-${index}`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
+                                        isSelected ? "font-semibold" : ""
+                                      }`}
+                                      onClick={() =>
+                                        onSelectGender(normalizedGender)
+                                      }
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={isSelected}
+                                        readOnly
+                                        className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
+                                      />
+                                      {displayGender}
+                                    </span>
+                                  );
+                                }
+                              )}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
                     </div>
                     {/* Desktop Layout */}
                     <div className="hidden lg:flex justify-between w-full gap-[30px]">
-                      {!isDiamondPage ? (
+                      {!isDiamondSettingPage ? (
                         <div className="w-[30%]">
                           <h5 className={filterHeadingClass}>Shape</h5>
                           <div className="grid grid-cols-2 gap-[10px]">
@@ -1491,43 +1506,45 @@ export default function ProductFilter({ productList, isDiamondPage = false }) {
                             </div>
                           </div>
                         </div>
-                        <div>
-                          <h5 className={filterHeadingClass}>Gender</h5>
-                          <div className="flex gap-6">
-                            {uniqueFilterOptions?.uniqueGenders.map(
-                              (gender, index) => {
-                                const normalizedGender = gender;
-                                const isSelected =
-                                  selectedGenders?.includes(normalizedGender);
-                                const displayGender =
-                                  {
-                                    male: "Men",
-                                    female: "Women",
-                                    unisex: "Unisex",
-                                  }[gender] || gender;
-                                return (
-                                  <span
-                                    key={`filter-gender-${index}`}
-                                    className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
-                                      isSelected ? "font-semibold" : ""
-                                    }`}
-                                    onClick={() =>
-                                      onSelectGender(normalizedGender)
-                                    }
-                                  >
-                                    <input
-                                      type="checkbox"
-                                      checked={isSelected}
-                                      readOnly
-                                      className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
-                                    />
-                                    {displayGender}
-                                  </span>
-                                );
-                              }
-                            )}
+                        {uniqueFilterOptions?.uniqueGenders?.length ? (
+                          <div>
+                            <h5 className={filterHeadingClass}>Gender</h5>
+                            <div className="flex gap-6">
+                              {uniqueFilterOptions?.uniqueGenders.map(
+                                (gender, index) => {
+                                  const normalizedGender = gender;
+                                  const isSelected =
+                                    selectedGenders?.includes(normalizedGender);
+                                  const displayGender =
+                                    {
+                                      male: "Men",
+                                      female: "Women",
+                                      unisex: "Unisex",
+                                    }[gender] || gender;
+                                  return (
+                                    <span
+                                      key={`filter-gender-${index}`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
+                                        isSelected ? "font-semibold" : ""
+                                      }`}
+                                      onClick={() =>
+                                        onSelectGender(normalizedGender)
+                                      }
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={isSelected}
+                                        readOnly
+                                        className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
+                                      />
+                                      {displayGender}
+                                    </span>
+                                  );
+                                }
+                              )}
+                            </div>
                           </div>
-                        </div>
+                        ) : null}
                       </div>
                     </div>
                   </div>

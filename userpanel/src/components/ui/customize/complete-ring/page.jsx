@@ -19,10 +19,12 @@ export default function SelectDiamondPage() {
   const dispatch = useDispatch();
   useEffect(() => {
     const customProduct = helperFunctions.getCustomProduct();
-    if (customProduct) {
+    if (customProduct?.diamondDetails && customProduct?.productId) {
       dispatch(setCustomProductDetails(customProduct));
-    } else {
-      router.replace("/customize/start-with-setting");
+    } else if (customProduct?.diamondDetails && !customProduct?.productId) {
+      router.replace("/customize/select-setting");
+    } else if (!customProduct?.diamondDetails && !customProduct?.productId) {
+      router.replace("/customize/select-diamond");
     }
   }, [dispatch, router]);
   const pId = customProductDetails?.productId;
@@ -34,68 +36,43 @@ export default function SelectDiamondPage() {
       return [
         {
           id: 1,
-          label: "Choose Setting",
-          icon: ring,
-          subOption: [
-            {
-              label: "View",
-              route: `/customize/start-with-setting/${pId}`,
-            },
-            {
-              label: "Change",
-              route: "/customize/start-with-setting",
-            },
-          ],
-        },
-        {
-          id: 2,
-          label: "Choose Diamond",
-          icon: diamond,
+          label: "Choose a",
+          labelDetail: "Diamond",
           subOption: [
             {
               label: "Change",
               route: `/customize/select-diamond`,
-            },
-          ],
-        },
-
-        {
-          id: 3,
-          label: "Complete Ring",
-          icon: ringWithDiamondBlack,
-          iconBlack: ringWithDiamondBlack,
-          disabled: false,
-        },
-      ];
-    } else if (pId && !isDiamondSelected) {
-      return [
-        {
-          id: 1,
-          label: "Choose Setting",
-          icon: ring,
-          subOption: [
-            {
-              label: "View",
-              route: `/customize/start-with-setting/${pId}`,
-            },
-            {
-              label: "Change",
-              route: "/customize/start-with-setting",
+              onClick: () => {
+                localStorage.removeItem("customProduct");
+              },
             },
           ],
         },
         {
           id: 2,
-          label: "Choose Diamond",
-          icon: diamond,
+          label: "Choose a",
+          labelDetail: "Setting",
+         
+          subOption: [
+            {
+              label: "Change",
+              route: "/customize/select-setting",
+              onClick: () => {
+                const data = JSON.parse(
+                  localStorage.getItem("customProduct") || "{}"
+                );
+                delete data.productId;
+                localStorage.setItem("customProduct", JSON.stringify(data));
+              },
+            },
+          ],
         },
 
         {
           id: 3,
-          label: "Complete Ring",
-          icon: ringWithDiamondBlack,
-          iconBlack: ringWithDiamondBlack,
-          disabled: true,
+          label: "Completed",
+          labelDetail: "Ring",
+          disabled: false,
         },
       ];
     }
@@ -104,7 +81,6 @@ export default function SelectDiamondPage() {
   const loadData = useCallback(async () => {
     await dispatch(fetchCustomizeProducts());
   }, [dispatch]);
-
   useEffect(() => {
     loadData();
   }, [loadData]);
@@ -114,9 +90,13 @@ export default function SelectDiamondPage() {
       {customProductDetails && Object.keys(customProductDetails).length > 0 ? (
         <>
           <section className="container pt-8">
-            <StepsGrid steps={steps} currentStep={currentStep} />
+            <StepsGrid
+              steps={steps}
+              currentStep={currentStep}
+              titleText="Design Your Own Lab Created Diamond Engagement Ring"
+            />
           </section>
-          <section className="pt-10 md:pt-14 lg:pt-10 2xl:pt-12">
+          <section className="pt-10 md:pt-14 lg:pt-10 2xl:pt-16">
             <ProductDetailPage customizePage="completeRing" />
           </section>
         </>

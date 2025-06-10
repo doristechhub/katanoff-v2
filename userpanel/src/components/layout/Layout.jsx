@@ -2,7 +2,8 @@
 
 import axios from "axios";
 import { setAuthToken } from "@/interceptors/httpInterceptor";
-import { apiUrl } from "@/_helper";
+import Cookies from "js-cookie";
+import { apiUrl, helperFunctions } from "@/_helper";
 import errorInterceptor from "@/interceptors/errorInterceptor";
 import { usePathname, useRouter } from "next/navigation";
 import { setTransparentHeaderBg } from "@/store/slices/commonSlice";
@@ -36,6 +37,14 @@ const Layout = ({ children }) => {
       )
     );
   }, [pathname, dispatch]);
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+    const currentUser = helperFunctions?.getCurrentUser();
+    if (!token && currentUser?.token) {
+      Cookies.set("token", currentUser?.token);
+    }
+  }, []);
 
   return (
     <>
