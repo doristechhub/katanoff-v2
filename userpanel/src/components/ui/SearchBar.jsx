@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef, useCallback, memo, use } from "react";
+import { useState, useEffect, useRef, useCallback, memo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { IoIosSearch } from "react-icons/io";
@@ -16,9 +16,7 @@ import {
   setSearchedProductList,
 } from "@/store/slices/productSlice";
 import { helperFunctions } from "@/_helper";
-import { ProgressiveImg } from "@/components/dynamiComponents";
-import CommonNotFound from "@/components/ui/CommonNotFound";
-import searchVector from "@/assets/images/search-vector.webp";
+import { ProductNotFound, ProgressiveImg } from "@/components/dynamiComponents";
 import Link from "next/link";
 import { HeaderLinkButton } from "./button";
 
@@ -50,7 +48,7 @@ SearchResultItem.displayName = "SearchResultItem";
 const SimpleProductGrid = memo(({ products }) => {
   const dispatch = useDispatch();
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-4">
       {products.map((product) => (
         <Link
           href={`/products/${helperFunctions.stringReplacedWithUnderScore(
@@ -63,9 +61,8 @@ const SimpleProductGrid = memo(({ products }) => {
             dispatch(setSearchedProductList([]));
           }}
           key={product.id}
-          className="bg-white p-2"
         >
-          <div className="aspect-square mb-2">
+          <div className="p-2 aspect-square mb-2 border border-[#80808021]">
             <ProgressiveImg
               src={product?.yellowGoldThumbnailImage}
               alt={product?.productName}
@@ -113,28 +110,23 @@ export default function SearchBar({
     isMobileSearchOpen,
     isShowingResults,
     searchQuery,
-    transparenHeadertBg,
+    transparentHeaderBg,
   } = useSelector(({ common }) => common);
   const { searchedProductList, productLoading } = useSelector(
     ({ product }) => product
   );
 
-  // Increase debounce delay to reduce API calls
   const debouncedSearchQuery = useDebounce(searchQuery, 800);
-  const abortControllerRef = useRef(null);
   const [localLoading, setLocalLoading] = useState(false);
-
-  // Cache for search results to prevent unnecessary API calls
   const searchCache = useRef(new Map());
 
-  const openSearch = useCallback(
-    () => dispatch(setIsSearchOpen(true)),
-    [dispatch]
-  );
-  const closeSearch = useCallback(
-    () => dispatch(setIsSearchOpen(false)),
-    [dispatch]
-  );
+  const openSearch = useCallback(() => {
+    dispatch(setIsSearchOpen(true));
+  }, [dispatch]);
+
+  const closeSearch = useCallback(() => {
+    dispatch(setIsSearchOpen(false));
+  }, [dispatch]);
 
   const handleProductClick = useCallback(
     (product) => {
@@ -151,6 +143,7 @@ export default function SearchBar({
     (e) => {
       const value = e.target.value;
       dispatch(setSearchQuery(value));
+
       if (!value) {
         dispatch(setIsShowingResults(false));
         dispatch(setSearchedProductList([]));
@@ -163,9 +156,12 @@ export default function SearchBar({
     (e) => {
       e?.preventDefault();
       if (searchQuery) {
-        dispatch(setIsShowingResults(false));
+        dispatch(setSearchQuery(""));
+        dispatch(setIsSearchOpen(false));
         dispatch(setIsMobileSearchOpen(false));
+        dispatch(setIsShowingResults(false));
         dispatch(setCurrentPage(0));
+        dispatch(setSearchedProductList([]));
         router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
       }
     },
@@ -189,21 +185,15 @@ export default function SearchBar({
       return;
     }
 
-    // Cancel previous request
-    abortControllerRef.current?.abort();
-    abortControllerRef.current = new AbortController();
-
     const fetchResults = async () => {
       setLocalLoading(true);
       try {
         const results = await dispatch(
           fetchSearchedProducts({
             searchValue: debouncedSearchQuery,
-            signal: abortControllerRef.current.signal,
           })
         );
 
-        // Store in cache (limit cache size to prevent memory issues)
         if (searchCache.current.size > 20) {
           const firstKey = searchCache.current.keys().next().value;
           searchCache.current.delete(firstKey);
@@ -224,26 +214,15 @@ export default function SearchBar({
     };
 
     fetchResults();
-
-    return () => {
-      abortControllerRef.current?.abort();
-    };
   }, [debouncedSearchQuery, dispatch]);
 
-  // Click outside handler
+  // Updated click outside handler
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
         lastScrollY < 50 &&
-        searchContainerRef?.current &&
-        !searchContainerRef.current.contains(event.target)
-      ) {
-        closeSearch();
-      }
-      if (
-        lastScrollY < 50 &&
         resultsContainerRef?.current &&
-        !resultsContainerRef.current.contains(event.target) &&
+        !resultsContainerRef?.current?.contains(event.target) &&
         !searchContainerRef?.current?.contains(event.target)
       ) {
         dispatch(setIsShowingResults(false));
@@ -335,8 +314,8 @@ export default function SearchBar({
         onMouseLeave={!isMobile ? closeSearch : undefined}
       >
         <div
-          className={`absolute right-5 -top-2 z-50  ${
-            transparenHeadertBg && !isHeaderVisible ? "bg-offwhite" : "bg-white"
+          className={`absolute right-5 -top-2 z-50 ${
+            transparentHeaderBg && !isHeaderVisible ? "bg-offwhite" : "bg-white"
           } hidden lg:flex items-center overflow-hidden transition-all duration-300 ease-in-out border-b border-transparent ${
             isSearchOpen ? "w-48 !border-gray-300" : "w-0"
           }`}
@@ -347,13 +326,14 @@ export default function SearchBar({
               ref={navSearchInputRef}
               type="search"
               placeholder="Search..."
-              className={`w-full py-1 px-2 text-sm focus:outline-none  ${
-                transparenHeadertBg && !isHeaderVisible
+              className={`w-full py-1 px-2 text-sm focus:outline-none ${
+                transparentHeaderBg && !isHeaderVisible
                   ? "bg-offwhite"
                   : "bg-white"
               }`}
               value={searchQuery}
               onChange={handleInputChange}
+              onClick={(e) => e.stopPropagation()}
               aria-label="Search products"
             />
           </form>
@@ -366,7 +346,6 @@ export default function SearchBar({
             }}
             className="relative z-10"
             aria-label="Toggle search"
-            aria-expanded={isMobileSearchOpen}
           >
             <IoIosSearch className="text-xl" />
           </button>
@@ -414,46 +393,44 @@ export default function SearchBar({
         <div
           ref={resultsContainerRef}
           className={`${
-            lastScrollY > 100
+            lastScrollY > 50
               ? "top-[54px] h-[calc(100vh-54px)]"
-              : "top-[160px] h-[calc(100vh-160px)]"
-          } fixed left-0 w-full bg-offwhite shadow-lg overflow-hidden z-40 hidden lg:block`}
-          style={{
-            overflowY: "auto",
-            willChange: "transform", // Optimization for animations
-          }}
+              : "top-[170px] h-[calc(100vh-170px)] opacity-0 translate-y-6 animate-enter"
+          }
+          fixed left-0 w-full bg-white shadow-lg overflow-y-auto z-40
+          hidden lg:block
+          transition-all duration-400 ease-in-out
+        `}
         >
           <div className="container mx-auto flex flex-col h-full">
-            <p
-              className={`text-center mb-6 ${
-                lastScrollY > 100 ? "mt-6" : "mt-12"
-              } text-base 2xl:text-lg font-normal`}
-            >
-              {searchedProductList?.length || 0} Products Matched Your Search
-            </p>
+            {searchedProductList?.length ? (
+              <p
+                className={`text-center mb-6 ${
+                  lastScrollY > 50 ? "mt-6" : "mt-12"
+                } text-base 2xl:text-lg font-normal`}
+              >
+                {searchedProductList?.length || 0} Products Matched Your Search
+              </p>
+            ) : null}
+
             <div className="flex-1 px-2 pb-6">
               {localLoading || productLoading ? (
                 <div className="flex justify-center items-center h-32">
                   <p className="text-gray-500">Loading results...</p>
                 </div>
-              ) : searchedProductList?.length > 0 ? (
+              ) : searchedProductList?.length ? (
                 <SimpleProductGrid
                   products={searchedProductList.slice(0, 15)}
                 />
               ) : (
-                <CommonNotFound
-                  message="Searching for sparkle?"
-                  notFoundImg={searchVector}
-                  subMessage="No matching products found. Try another search term."
-                  showButton={false}
-                />
+                <ProductNotFound />
               )}
 
               {searchedProductList?.length > 15 && (
                 <div className="text-center mt-6">
                   <HeaderLinkButton
                     onClick={handleSearchSubmit}
-                    className="capitalize"
+                    className="capitalize hover:underline"
                   >
                     See {searchedProductList.length} more results for :{" "}
                     {searchQuery}

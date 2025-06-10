@@ -75,7 +75,7 @@ export default function NavigationHeader() {
     menuLoading,
     weddingHeaderUniqueFilterOptions,
     customizeOptionLoading,
-    transparenHeadertBg,
+    transparentHeaderBg,
     weddingHeaderLoader,
     engagementHeaderLoader,
     lastScrollY,
@@ -139,7 +139,7 @@ export default function NavigationHeader() {
   return (
     <header
       className={`w-full  ${
-        transparenHeadertBg && !isHeaderVisible ? "bg-offwhite" : "bg-white"
+        transparentHeaderBg && !isHeaderVisible ? "bg-offwhite" : "bg-white"
       } ${
         lastScrollY > 100 ? "bg-white shadow-lg" : ""
       } z-40 transition-all duration-500 ease-in-out ${
@@ -168,7 +168,7 @@ export default function NavigationHeader() {
         {menuLoading ? (
           <div
             className={`flex justify-center gap-12 ${
-              transparenHeadertBg && !isHeaderVisible
+              transparentHeaderBg && !isHeaderVisible
                 ? "bg-offwhite"
                 : "bg-white"
             } ${lastScrollY > 100 ? "py-2 lg:py-5" : "py-4"}`}
@@ -1538,7 +1538,7 @@ export default function NavigationHeader() {
                             srcAttr={item.image}
                             titleAttr=""
                             className="w-6"
-                            altAttr="" 
+                            altAttr=""
                           />
                         ) : item.icon ? (
                           item.icon

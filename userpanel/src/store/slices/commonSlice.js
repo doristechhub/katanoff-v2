@@ -19,7 +19,7 @@ const initialState = {
   openDiamondDetailProductId: "",
   customizeOptionLoading: false,
   diamondShapeList: [],
-  transparenHeadertBg: false,
+  transparentHeaderBg: false,
   isSearchOpen: false,
   isMobileSearchOpen: false,
   isShowingResults: false,
@@ -57,7 +57,7 @@ const commonSlice = createSlice({
       state.openDropdownMobile = action.payload;
     },
     setTransparentHeaderBg: (state, action) => {
-      state.transparenHeadertBg = action.payload;
+      state.transparentHeaderBg = action.payload;
     },
     setWeddingHeaderUniqueFilterOptions: (state, action) => {
       state.weddingHeaderUniqueFilterOptions = action.payload;
@@ -131,8 +131,8 @@ const commonSlice = createSlice({
       state.uniqueDiamondShapesAndCaratBounds = action.payload;
     },
     setSelectedDiamondInfoModel: (state, action) => {
-      state.selectedDiamondInfoModel = action.payload
-    }
+      state.selectedDiamondInfoModel = action.payload;
+    },
   },
 });
 
@@ -166,7 +166,7 @@ export const {
   setEngagementHeaderLoader,
   setUniqueDiamondShapesForHomePage,
   setUniqueDiamondShapesAndCaratBounds,
-  setSelectedDiamondInfoModel
+  setSelectedDiamondInfoModel,
 } = commonSlice.actions;
 
 export default commonSlice.reducer;

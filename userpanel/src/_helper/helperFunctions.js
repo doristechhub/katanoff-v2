@@ -521,6 +521,38 @@ const calculateCustomizedProductPrice = ({
   return finalPrice;
 };
 
+const setCustomProductInLocalStorage = (cartItem) => {
+  if (!cartItem?.diamondDetail) return;
+
+  const customProduct = {
+    productId: cartItem.productId,
+    selectedVariations: cartItem.variations.map((v) => ({
+      variationId: v.variationId,
+      variationTypeId: v.variationTypeId,
+      variationName: v.variationName,
+      variationTypeName: v.variationTypeName,
+    })),
+    diamondDetails: {
+      shape: {
+        title: cartItem.diamondDetail.shapeName,
+        image: cartItem.productImage,
+        id: cartItem.diamondDetail.shapeId,
+      },
+      clarity: {
+        title: "",
+        value: cartItem.diamondDetail.clarity,
+      },
+      color: {
+        title: "",
+        value: cartItem.diamondDetail.color,
+      },
+      caratWeight: cartItem.diamondDetail.caratWeight,
+    },
+  };
+
+  localStorage.setItem("customProduct", JSON.stringify(customProduct));
+};
+
 export const helperFunctions = {
   debounce,
   generateUniqueId,
@@ -557,4 +589,6 @@ export const helperFunctions = {
   shouldHideCartPopup,
   updateGoldColorInUrl,
   calculateCustomizedProductPrice,
+  calculateMetalAndSideDiamondPrice,
+  setCustomProductInLocalStorage,
 };

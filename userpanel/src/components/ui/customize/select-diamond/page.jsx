@@ -1,37 +1,25 @@
 "use client";
 
-import { fetchSingleProductDataById } from "@/_actions/product.actions";
-import { helperFunctions } from "@/_helper";
 import {
   ALLOWED_DIA_CLARITIES,
   ALLOWED_DIA_COLORS,
   messageType,
 } from "@/_helper/constants";
-import {
-  AccordionTabs,
-  ProgressiveImg,
-  RangeSlider,
-} from "@/components/dynamiComponents";
+import { AccordionTabs, ProgressiveImg } from "@/components/dynamiComponents";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { PrimaryLinkButton } from "../../button";
 import {
+  setDiamondLoading,
   setDiamondMessage,
   setDiamondSelection,
 } from "@/store/slices/selectDiamondSlice";
 import { useRouter } from "next/navigation";
-import {
-  setCustomProductDetails,
-  setSelectedDiamondInfoModel,
-} from "@/store/slices/commonSlice";
+import { setSelectedDiamondInfoModel } from "@/store/slices/commonSlice";
 import ring from "@/assets/images/customize/customize-ring-black.svg";
 import diamond from "@/assets/images/customize/customize-diamond-black.svg";
 import ringWithDiamondBlack from "@/assets/images/customize/customize-ringWithDiamond-black.svg";
 import StepsGrid from "../StepsGrid";
-import diamondNotFound from "@/assets/images/diamond-not-found.webp";
-import CommonNotFound from "../../CommonNotFound";
-import { setProductLoading } from "@/store/slices/productSlice";
-import SkeletonLoader from "../../skeletonLoader";
 import { fetchUniqueShapesAndCaratBounds } from "@/_actions/customize.action";
 import CustomImg from "../../custom-img";
 import question3steps from "@/assets/icons/question3steps.svg";
@@ -43,6 +31,7 @@ import {
   DiamondColorModal,
   DiamondShapeModal,
 } from "../DiamondInfoModel";
+import { helperFunctions } from "@/_helper";
 export default function SelectDiamondPage() {
   const router = useRouter();
   const { productLoading } = useSelector(({ product }) => product);
@@ -50,55 +39,21 @@ export default function SelectDiamondPage() {
   const { uniqueDiamondShapesAndCaratBounds } = useSelector(
     ({ common }) => common
   );
-  const { diamondSelection, diamondMessage } = useSelector(
+  const { diamondSelection, diamondMessage, diamondLoading } = useSelector(
     ({ selectedDiamond }) => selectedDiamond
   );
   const dispatch = useDispatch();
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(false);
   const caratWeightRange = uniqueDiamondShapesAndCaratBounds?.caratBounds;
   const minCarat = caratWeightRange?.[0] || 0;
   const maxCarat = caratWeightRange?.[1] || 0;
-  const pId = customProductDetails?.productId;
-  const isDiamondSelected = customProductDetails?.diamondDetails;
+  const customProduct = helperFunctions?.getCustomProduct();
+  const pId = customProduct?.productId;
+  const isDiamondSelected = customProduct?.diamondDetails;
   const currentStep = 1;
+
   const steps = useMemo(() => {
-    if (pId && isDiamondSelected) {
-      return [
-        {
-          id: 1,
-          label: "Choose Diamond",
-          icon: diamond,
-        },
-        {
-          id: 2,
-          label: "Choose Setting",
-          icon: ring,
-          subOption: [
-            {
-              label: "View",
-              route: `/customize/start-with-setting/${pId}`,
-            },
-            {
-              label: "Change",
-              route: "/customize/start-with-setting",
-            },
-          ],
-        },
-        {
-          id: 3,
-          label: "Complete Ring",
-          icon: ringWithDiamondBlack,
-          iconBlack: ringWithDiamondBlack,
-          disabled: false,
-          subOption: [
-            {
-              label: "View",
-              route: `/customize/complete-ring`,
-            },
-          ],
-        },
-      ];
-    } else {
+    if (!pId) {
       return [
         {
           id: 1,
@@ -120,6 +75,45 @@ export default function SelectDiamondPage() {
           disabled: true,
         },
       ];
+    } else if (isDiamondSelected && pId) {
+      return [
+        {
+          id: 1,
+          label: "Choose a",
+          labelDetail: "Diamond",
+        },
+        {
+          id: 2,
+          label: "Choose a",
+          labelDetail: "Setting",
+          subOption: [
+            {
+              label: "Change",
+              route: "/customize/select-setting",
+              onClick: () => {
+                const data = JSON.parse(
+                  localStorage.getItem("customProduct") || "{}"
+                );
+                delete data.productId;
+                localStorage.setItem("customProduct", JSON.stringify(data));
+              },
+            },
+          ],
+        },
+
+        {
+          id: 3,
+          label: "Completed",
+          labelDetail: "Ring",
+          iconBlack: ringWithDiamondBlack,
+          subOption: [
+            {
+              label: "View",
+              route: "/customize/complete-ring",
+            },
+          ],
+        },
+      ];
     }
   }, [customProductDetails]);
 
@@ -137,11 +131,12 @@ export default function SelectDiamondPage() {
 
   const loadData = useCallback(async () => {
     try {
+      dispatch(setDiamondLoading(true));
       await dispatch(fetchUniqueShapesAndCaratBounds());
-      setIsLoading(false);
+      dispatch(setDiamondLoading(false));
     } catch (error) {
       console.error("Error loading data:", error);
-      setIsLoading(false);
+      dispatch(setDiamondLoading(false));
     }
   }, [dispatch]);
 
@@ -150,17 +145,23 @@ export default function SelectDiamondPage() {
   }, [loadData]);
 
   useEffect(() => {
-    if (isLoading || !uniqueDiamondShapesAndCaratBounds) return;
-
-    // Only initialize if diamondSelection is empty (i.e., on first mount)
     if (
+      diamondLoading ||
+      !uniqueDiamondShapesAndCaratBounds ||
+      !uniqueDiamondShapesAndCaratBounds?.distinctShapes?.length
+    ) {
+      return;
+    }
+
+    // Only update selection if all are null/undefined
+    const noSelection =
       !diamondSelection.shape &&
       !diamondSelection.clarity &&
       !diamondSelection.color &&
-      !diamondSelection.caratWeight
-    ) {
-      const defaultShape =
-        uniqueDiamondShapesAndCaratBounds?.distinctShapes?.[0] || null;
+      !diamondSelection.caratWeight;
+
+    if (noSelection) {
+      const defaultShape = uniqueDiamondShapesAndCaratBounds.distinctShapes[0];
       const defaultClarity = ALLOWED_DIA_CLARITIES[0] || null;
       const defaultColor = ALLOWED_DIA_COLORS[0] || null;
       const defaultCaratWeight =
@@ -175,9 +176,10 @@ export default function SelectDiamondPage() {
       dispatch(setDiamondSelection(updatedSelection));
     }
   }, [
-    dispatch,
-    isLoading,
+    diamondLoading,
     uniqueDiamondShapesAndCaratBounds,
+    diamondSelection,
+    dispatch,
     initialShape,
     initialClarity,
     initialColor,
@@ -186,7 +188,6 @@ export default function SelectDiamondPage() {
 
   const handleContinueClick = () => {
     try {
-      // Check if all required fields are selected
       if (
         !diamondSelection.shape?.id ||
         !diamondSelection.clarity?.value ||
@@ -281,19 +282,20 @@ export default function SelectDiamondPage() {
     <>
       <section className="container">
         <div className="pt-12 lg:pt-16">
-          <StepsGrid steps={steps} currentStep={currentStep} />
+          <StepsGrid
+            steps={steps}
+            currentStep={currentStep}
+            titleText="Design Your Own Lab Created Diamond Engagement Ring"
+          />
         </div>
-        <div className="pt-6 lg:pt-8 2xl:pt-10 text-center flex justify-center">
-          <p className="font-castoro text-lg xss::text-xl xs:text-2xl lg:text-3xl 2xl:text-4xl xs:w-[70%] lg:w-[45%] 2xl:w-[40%] 4xl:w-[35%]">
-            Design Your Own Lab Created Diamond Engagement Ring
-          </p>
-        </div>
-        {isLoading ? (
+
+        {diamondLoading ? (
           <SelectDiamondSkeleton />
-        ) : (
+        ) : uniqueDiamondShapesAndCaratBounds?.distinctShapes?.length > 0 &&
+          (caratWeightRange?.[0] > 0 || caratWeightRange?.[1] > 0) ? (
           <div className="pt-8 lg:pt-12">
             <div
-              className="grid lg:grid-cols-[25%_50%_25%] gap-4 2xl:gap-5 w-full rounded-md"
+              className="grid lg:grid-cols-[27%_44%_27%] gap-4 2xl:gap-5 w-full rounded-md"
               style={{ boxShadow: "0px 4px 15px rgba(112, 112, 112, 0.53)" }}
             >
               <div className="pt-10 px-6 w-full relative lg:pb-4">
@@ -313,7 +315,7 @@ export default function SelectDiamondPage() {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-4 2xl:grid-cols-5 gap-6 mt-4">
+                <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-3 2xl:grid-cols-5 gap-6 mt-4">
                   {uniqueDiamondShapesAndCaratBounds?.distinctShapes?.map(
                     (item, index) => (
                       <div
@@ -359,8 +361,8 @@ export default function SelectDiamondPage() {
                 {/* Horizontal line for below lg */}
                 <div className="block lg:hidden w-full h-px bg-[#0000001A] my-4" />
               </div>
-              <div className="w-full flex flex-col pt-4 lg:pt-10 px-8 relative lg:pb-4">
-                <div className="mb-2 items-center">
+              <div className="w-full flex flex-col pt-4 lg:pt-10 px-8 lg:px-4 relative lg:pb-4">
+                <div className="mb-4 items-center">
                   <h3 className="font-semibold text-base uppercase">
                     TOTAL CARAT WEIGHT
                   </h3>
@@ -373,7 +375,7 @@ export default function SelectDiamondPage() {
                     return (
                       <div
                         key={`carat-option-${index}`}
-                        className={`w-[55px] flex justify-center items-center px-2 py-1.5 cursor-pointer transition-all duration-100
+                        className={`w-[50px] flex justify-center items-center px-2 py-1.5 cursor-pointer transition-all duration-100
          rounded-[3px] border ${
            isSelected
              ? "text-baseblack border-baseblack"
@@ -395,7 +397,7 @@ export default function SelectDiamondPage() {
                 </div>
                 <div className="flex flex-col xs:flex-row  2xl:flex-row lg:flex-col gap-6 xl:gap-10 w-full pt-6">
                   <div className="">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center gap-3 mb-4">
                       <h3 className="font-semibold text-base uppercase">
                         Clarity
                       </h3>
@@ -437,7 +439,7 @@ export default function SelectDiamondPage() {
                   </div>
 
                   <div>
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center gap-3 mb-4">
                       <h3 className="font-semibold text-base uppercase">
                         Color
                       </h3>
@@ -503,7 +505,7 @@ export default function SelectDiamondPage() {
 
                 <div className="pt-2">
                   <PrimaryLinkButton
-                    className="!bg-transparent !text-baseblack !border !border-baseblack px-6 py-2 !rounded-[6px] hover:!bg-black hover:!text-white"
+                    variant="blackHover"
                     onClick={(e) => {
                       e.preventDefault();
                       handleContinueClick();
@@ -518,6 +520,22 @@ export default function SelectDiamondPage() {
               </div>
             </div>
           </div>
+        ) : (
+          <div className="pt-8 lg:pt-12 text-center">
+            <p className="text-lg sm:text-xl lg:text-2xl font-medium text-gray-700 mb-4">
+              Currently, we don’t have any diamonds available that support all
+              three steps of customization.
+            </p>
+            <div className="flex justify-center mt-4">
+              <PrimaryLinkButton
+                variant="blackHover"
+                className="!uppercase"
+                href="/"
+              >
+                Back To Home
+              </PrimaryLinkButton>
+            </div>
+          </div>
         )}
         <div className="pt-8 lg:pt-12 xl:pt-20">
           <div className="flex border-b border-grayborder pb-10 text-lg" />
@@ -529,7 +547,7 @@ export default function SelectDiamondPage() {
         </div>
       </section>
 
-      <div className="pt-8 lg:pt-12 xl:pt-20">
+      <div className="pt-8 lg:pt-12 xl:pt-16">
         <KeyFeatures />
       </div>
       <DiamondShapeModal />
@@ -540,26 +558,86 @@ export default function SelectDiamondPage() {
 }
 
 const SelectDiamondSkeleton = () => {
-  const skeletons = [
-    { width: "w-[80%]", height: "h-4", margin: "mt-2" },
-    { width: "w-full", height: "h-4", margin: "mt-2" },
-    { width: "w-[80%]", height: "h-4", margin: "mt-2" },
-    { width: "w-full", height: "h-4", margin: "mt-2" },
-  ];
+  const renderShapeSkeletons = Array(10)
+    .fill(null)
+    .map((_, i) => (
+      <div
+        key={`shape-${i}`}
+        className="w-10 h-10 rounded border mt-2 bg-gray-200 animate-pulse"
+      ></div>
+    ));
+
+  const renderCaratSkeletons = Array(7)
+    .fill(null)
+    .map((_, i) => (
+      <div
+        key={`carat-${i}`}
+        className="w-16 h-6 rounded bg-gray-200 animate-pulse"
+      ></div>
+    ));
+
+  const renderLabel = (width = "w-32") => (
+    <div
+      className={`${width} h-4 bg-gray-200 rounded animate-pulse mt-2`}
+    ></div>
+  );
+
+  const renderOptionGroup = (count) =>
+    Array(count)
+      .fill(null)
+      .map((_, i) => (
+        <div
+          key={i}
+          className="w-16 h-6 rounded bg-gray-200 animate-pulse"
+        ></div>
+      ));
+
   return (
-    <div className={`container pt-10 `}>
-      <div>
-        {Array(2)
-          .fill(skeletons)
-          .flat()
-          .map((skeleton, index) => (
-            <SkeletonLoader
-              key={index}
-              width={skeleton.width}
-              height={skeleton.height}
-              className={skeleton.margin}
-            />
-          ))}
+    <div className="container pt-10 xl:pt-16">
+      <div
+        className="grid lg:grid-cols-[27%_44%_27%] gap-8 lg:gap-4  w-full rounded-md p-4 lg:p-6 bg-white"
+        style={{ boxShadow: "0px 4px 15px rgba(112, 112, 112, 0.53)" }}
+      >
+        {/* Column 1 - Shape */}
+        <div className="flex-1 min-w-[200px] px-6">
+          {renderLabel("w-40")}
+          <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-3 2xl:grid-cols-5 gap-6 mt-4">
+            {renderShapeSkeletons}
+          </div>
+        </div>
+
+        {/* Column 2 - Carat, Clarity, Color */}
+        <div className="flex-1 min-w-[300px] px-6">
+          {renderLabel("w-40")} {/* Carat Label */}
+          <div className="flex flex-wrap gap-2 mt-4">
+            {renderCaratSkeletons}
+          </div>
+          {/* Clarity & Color in one line */}
+          <div className="flex flex-col sm:flex-row lg:flex-col 3xl:flex-row gap-4 mt-4">
+            {/* Clarity Group */}
+            <div>
+              {renderLabel("w-24")}
+              <div className="flex gap-2 mt-4">{renderOptionGroup(3)}</div>
+            </div>
+
+            {/* Color Group */}
+            <div>
+              {renderLabel("w-20")}
+              <div className="flex gap-2 mt-4">{renderOptionGroup(3)}</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1 min-w-[150px] flex flex-col lg:pl-0 pl-6">
+          <div className="grid gird-cols-1 3xl:grid-cols-2">
+            <div className="w-28 h-4 bg-gray-200 rounded animate-pulse mt-2" />
+            <div className="w-28 h-4 bg-gray-200 rounded animate-pulse mt-2" />
+            <div className="w-28 h-4 bg-gray-200 rounded animate-pulse mt-2" />
+          </div>
+          <div className="mt-6">
+            <div className="w-36 h-10 bg-gray-200 rounded animate-pulse" />
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -214,8 +214,7 @@ export const CompleteRingPage = dynamic(
 );
 
 export const StartWithSettingDetailpage = dynamic(
-  () =>
-    import("./ui/customize/start-with-setting/StartWithSettingDetailpage.jsx"),
+  () => import("./ui/customize/select-setting/StartWithSettingDetailpage.jsx"),
   {
     ssr: false,
   }
@@ -236,7 +235,7 @@ export const SelectDiamondPage = dynamic(
 );
 
 export const StartWithSettingPage = dynamic(
-  () => import("./ui/customize/start-with-setting/page.jsx"),
+  () => import("./ui/customize/select-setting/page.jsx"),
   {
     ssr: false,
   }

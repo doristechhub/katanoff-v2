@@ -64,15 +64,17 @@ export default function ProductCard({
     }
   }, [goldColorVariations, selectedGoldColor]);
 
-  // Compute product link
   const computedProductLink = useMemo(
     () =>
-      productLink ||
-      `/products/${helperFunctions.stringReplacedWithUnderScore(
-        title
-      )}?goldColor=${helperFunctions.stringReplacedWithUnderScore(
-        selectedGoldColor
-      )}`,
+      productLink
+        ? `${productLink}?goldColor=${helperFunctions.stringReplacedWithUnderScore(
+            selectedGoldColor
+          )}`
+        : `/products/${helperFunctions.stringReplacedWithUnderScore(
+            title
+          )}?goldColor=${helperFunctions.stringReplacedWithUnderScore(
+            selectedGoldColor
+          )}`,
     [productLink, title, selectedGoldColor]
   );
 
@@ -141,6 +143,18 @@ export default function ProductCard({
         className="relative group aspect-[1/1]"
         onMouseEnter={handleImageMouseEnter}
         onMouseLeave={handleImageMouseLeave}
+        onClick={() => {
+          if (isDiamondSettingPage) {
+            const existingCustomProduct = localStorage.getItem("customProduct");
+            const customProduct = existingCustomProduct
+              ? JSON.parse(existingCustomProduct)
+              : {};
+            localStorage.setItem(
+              "customProduct",
+              JSON.stringify({ ...customProduct, productId })
+            );
+          }
+        }}
       >
         <ProgressiveImg
           className="max-w-full h-auto"

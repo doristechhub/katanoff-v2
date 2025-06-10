@@ -1,10 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-export const defaultsmOpenFilter = [
-  "shape",
-  "metal",
-  "settingStyle",
-  "price",
-];
+export const defaultsmOpenFilter = ["shape", "metal", "settingStyle", "price"];
 const initialState = {
   productLoading: false,
   recentlyProductLoading: false,
@@ -31,6 +26,7 @@ const initialState = {
   customizeProductLoading: false,
   productMessage: { message: "", type: "" },
   searchedProductList: [],
+  searchResults: [],
   searchQuery: "",
   resultCount: 0,
   hasSearched: false,
@@ -91,7 +87,9 @@ const productSlice = createSlice({
     toggleSMOpenFilter: (state, action) => {
       const filter = action.payload;
       if (state.smOpenFilter.includes(filter)) {
-        state.smOpenFilter = state.smOpenFilter.filter(item => item !== filter);
+        state.smOpenFilter = state.smOpenFilter.filter(
+          (item) => item !== filter
+        );
       } else {
         state.smOpenFilter.push(filter);
       }
@@ -135,6 +133,9 @@ const productSlice = createSlice({
     },
     setSearchedProductList: (state, action) => {
       state.searchedProductList = action.payload;
+    },
+    setSearchResults: (state, action) => {
+      state.searchResults = action.payload;
     },
     setSearchQuery: (state, action) => {
       state.searchQuery = action.payload;
@@ -185,6 +186,7 @@ export const {
   setCustomizeProductList,
   setCustomizeProductLoading,
   setSearchedProductList,
+  setSearchResults,
   setSearchQuery,
   setResultCount,
   setHasSearched,
@@ -193,7 +195,7 @@ export const {
   setSelectedDiamondShape,
   setVisibleItemCount,
   toggleSMOpenFilter,
-  setFilteredProducts
+  setFilteredProducts,
 } = productSlice.actions;
 
 export default productSlice.reducer;

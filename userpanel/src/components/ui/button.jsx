@@ -36,7 +36,7 @@ const primaryBtn = `
 `;
 
 const containedPrimaryBtn =
-  "!bg-primary !h-12 lg:!h-[2.8rem] 2xl:!h-[3.5rem] !rounded-none font-semibold !tracking-wider hover:border-primary hover:bg-transparent hover:text-primary";
+  "!bg-primary !h-12 lg:!h-[2.8rem] 2xl:!h-[3.5rem] !rounded-none font-semibold !tracking-wider hover:border-primary hover:!bg-transparent hover:!text-primary";
 
 /**
  *
@@ -111,11 +111,20 @@ export const PrimaryButton = ({ className, ...rest }) => {
   return <Button className={`${containedPrimaryBtn} ${className}`} {...rest} />;
 };
 
-export const PrimaryLinkButton = ({ className, href = "#", ...rest }) => {
+export const PrimaryLinkButton = ({
+  className,
+  href = "#",
+  variant = "default",
+  ...rest
+}) => {
+  const variantClass =
+    variant === "blackHover"
+      ? "!bg-transparent !h-12 lg:!h-[2.8rem] 2xl:!h-[3.5rem] font-semibold !tracking-wider !text-baseblack !border !border-baseblack px-6 py-2 !rounded-[8px] hover:!bg-black hover:!text-white"
+      : containedPrimaryBtn;
   return (
     <LinkButton
       href={href}
-      className={`${containedPrimaryBtn} ${className}`}
+      className={`${variantClass} ${className}`}
       {...rest}
     />
   );

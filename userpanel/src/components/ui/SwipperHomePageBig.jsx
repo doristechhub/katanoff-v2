@@ -85,7 +85,7 @@ const collections = [
     image: home33,
     btnText: "Shop Now",
     btnLink: `/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-      "Trending Collection"
+      "Trending "
     )}`,
   },
   {

@@ -149,36 +149,6 @@ const CartPage = () => {
     dispatch(setIsChecked(false));
   }, []);
 
-  const setCustomProductInLocalStorage = (cartItem) => {
-    if (!cartItem?.diamondDetail) return;
-
-    const customProduct = {
-      productId: cartItem.productId,
-      selectedVariations: cartItem.variations.map((v) => ({
-        variationId: v.variationId,
-        variationTypeId: v.variationTypeId,
-      })),
-      diamondDetails: {
-        shape: {
-          title: cartItem.diamondDetail.shapeName,
-          image: cartItem.productImage,
-          id: cartItem.diamondDetail.shapeId,
-        },
-        clarity: {
-          title: "",
-          value: cartItem.diamondDetail.clarity,
-        },
-        color: {
-          title: "",
-          value: cartItem.diamondDetail.color,
-        },
-        caratWeight: cartItem.diamondDetail.caratWeight,
-      },
-    };
-
-    localStorage.setItem("customProduct", JSON.stringify(customProduct));
-  };
-
   const handleCartQuantityChange = (item, newQty) => {
     handleCartQuantity("set", { ...item, quantity: newQty });
   };
@@ -223,7 +193,9 @@ const CartPage = () => {
                                   ?.join("_")}`
                           }
                           onClick={() =>
-                            setCustomProductInLocalStorage(cartItem)
+                            helperFunctions?.setCustomProductInLocalStorage(
+                              cartItem
+                            )
                           }
                           className="text-sm md:text-base lg:text-xl font-semibold flex-wrap hover:border-b hover:border-baseblack"
                         >
@@ -339,10 +311,6 @@ const CartPage = () => {
                             )}
                         </div>
                       </div>
-                      <p className="text-sm md:text-base font-medium text-baseblack">
-                        ${cartItem?.productSellingPrice}
-                        {` × ${cartItem?.quantity}`}
-                      </p>
 
                       {cartItem?.variations?.some(
                         (v) => v.variationName === "Size"

@@ -11,12 +11,12 @@ import {
   setUniqueDiamondShapesAndCaratBounds,
 } from "@/store/slices/commonSlice";
 
-export const fetchCustomizeProducts = () => {
+export const fetchCustomizeProducts = (params) => {
   return async (dispatch) => {
     try {
       dispatch(setCustomizeProductList([]));
       dispatch(setCustomizeProductLoading(true));
-      const customizProductList = await productService.getCustomizeProduct();
+      const customizProductList = await productService.getCustomizeProduct(params);
 
       if (customizProductList) {
         const tempUniqueFilterOptions =

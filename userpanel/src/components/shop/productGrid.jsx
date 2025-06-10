@@ -37,7 +37,7 @@ const ProductGrid = memo(
 
     const getProductLink = ({ isDiamondSettingPage, product }) => {
       if (!isDiamondSettingPage) return null;
-      const basePath = `/customize/start-with-setting/${product?.id}`;
+      const basePath = `/customize/complete-ring`;
       return `${basePath}`;
     };
 
@@ -127,11 +127,12 @@ const ProductGrid = memo(
           currentProducts.length < productsList.length && (
             <div className="mt-12 md:mt-16 lg:mt-24 justify-center flex">
               <HeaderLinkButton
-                onClick={() =>
+                onClick={(e) => {
+                  e.preventDefault();
                   dispatch(
                     setVisibleItemCount(visibleItemCount + ITEMS_PER_PAGE)
-                  )
-                }
+                  );
+                }}
                 className="transition-all w-fit !font-semibold !text-baseblack duration-300 uppercase !py-4 !px-20 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack"
               >
                 View More

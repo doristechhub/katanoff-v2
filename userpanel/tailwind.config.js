@@ -18,9 +18,9 @@ module.exports = {
         isabelline: "var(--isabelline)",
       },
       imageRendering: {
-        'pixelated': 'pixelated',
-        'crisp': 'crisp-edges',
-        'optimize': '-webkit-optimize-contrast',
+        pixelated: "pixelated",
+        crisp: "crisp-edges",
+        optimize: "-webkit-optimize-contrast",
       },
     },
     fontFamily: {
@@ -29,12 +29,17 @@ module.exports = {
     animation: {
       "fade-in": "fadeIn 2s linear infinite",
       marquee: "marquee 20s linear infinite",
+      enter: "enterAnim 0.5s ease-out forwards",
     },
     marquee: {
       from: { transform: "translateX(0)" },
       to: { transform: "translateX(-75%)" },
     },
     keyframes: {
+      enterAnim: {
+        "0%": { opacity: "0", transform: "translateY(24px)" },
+        "100%": { opacity: "1", transform: "translateY(0)" },
+      },
       fadeIn: {
         "0%, 100%": { opacity: 0.25 },
         "50%": { opacity: 1 },
@@ -77,14 +82,14 @@ module.exports = {
   plugins: [
     function ({ addUtilities }) {
       addUtilities({
-        '.image-rendering-pixelated': {
-          imageRendering: 'pixelated',
+        ".image-rendering-pixelated": {
+          imageRendering: "pixelated",
         },
-        '.image-rendering-crisp': {
-          imageRendering: 'crisp-edges',
+        ".image-rendering-crisp": {
+          imageRendering: "crisp-edges",
         },
-        '.image-rendering-optimize': {
-          imageRendering: '-webkit-optimize-contrast',
+        ".image-rendering-optimize": {
+          imageRendering: "-webkit-optimize-contrast",
         },
       });
     },

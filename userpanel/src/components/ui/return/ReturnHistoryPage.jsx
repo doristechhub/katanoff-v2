@@ -42,6 +42,7 @@ import {
   useRole,
   useInteractions,
 } from "@floating-ui/react";
+import CommonNotFound from "../CommonNotFound";
 
 export default function ReturnHistoryPage() {
   const [openId, setOpenId] = useState(null);
@@ -180,7 +181,7 @@ export default function ReturnHistoryPage() {
               </tbody>
             </table>
           </div>
-        ) : (
+        ) : paginatedOrder?.length > 0 ? (
           <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400  shadow-lg">
             {renderTableHeading()}
             <tbody>
@@ -222,6 +223,12 @@ export default function ReturnHistoryPage() {
               ))}
             </tbody>
           </table>
+        ) : (
+          <CommonNotFound
+            message="Sorry, No Return Found"
+            subMessage=""
+            showButton={true}
+          />
         )}
         {openId !== null && (
           <div

@@ -2,7 +2,6 @@
 
 import { useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import ProgressiveImg from "./progressive-img";
 import leftArrow from "@/assets/icons/leftArrow.svg";
 import rightArrow from "@/assets/icons/rightArrow.svg";
@@ -46,13 +45,13 @@ export default function DiamondShapeSwipper({
         {/* Scrollable Shape Items */}
         <div
           ref={scrollRef}
-          className="overflow-x-auto no-scrollbar scroll-smooth flex gap-6 items-center px-10 justify-center "
+          className="overflow-x-auto no-scrollbar scroll-smooth flex lg:gap-6 items-center px-10 justify-center"
         >
           {shapes.map((shape, idx) => (
             <Link
               href={`/customize/start-with-setting?diamondShape=${shape?.id}`}
               key={shape?.id || idx}
-              className="flex flex-col items-center min-w-[80px] md:min-w-[100px] text-center focus:outline-none hover:font-bold "
+              className="flex flex-col items-center min-w-[80px] md:min-w-[100px] text-center focus:outline-none hover:font-bold"
             >
               <ProgressiveImg
                 src={shape?.image}

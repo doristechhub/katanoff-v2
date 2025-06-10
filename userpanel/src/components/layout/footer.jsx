@@ -49,12 +49,14 @@ export default function Footer() {
   // Match dynamic /products/[productname] (but NOT /products)
   const isProductDetailPage =
     pathname.startsWith("/products/") && pathname.split("/").length === 3;
-
+  const customizePage = pathname.startsWith("/customize/complete-ring");
   // Static routes to match exactly
   const noMarginStaticRoutes = [];
 
   const shouldRemoveMargin =
-    isProductDetailPage || noMarginStaticRoutes.includes(pathname);
+    customizePage ||
+    isProductDetailPage ||
+    noMarginStaticRoutes.includes(pathname);
 
   const footerMarginClass = shouldRemoveMargin
     ? ""
