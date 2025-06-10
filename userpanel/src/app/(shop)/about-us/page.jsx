@@ -253,7 +253,11 @@ export default function AboutPage() {
                   <div
                     className={`w-full h-[550px] flex items-center justify-center`}
                   >
-                    <CustomImg src={src} alt={alt} className="max-h-[100px]" />
+                    <CustomImg
+                      src={src}
+                      alt={alt}
+                      className="w-full h-[550px] object-cover"
+                    />
                   </div>
                 ) : (
                   <CustomImg

@@ -277,21 +277,23 @@ export default function SearchBar({
     }
 
     return (
-      <div className="max-h-64 overflow-y-auto border-t border-gray-100">
-        {searchedProductList.slice(0, 5).map((product) => (
-          <SearchResultItem
-            key={product.id}
-            product={product}
-            onClick={handleProductClick}
-          />
-        ))}
+      <>
+        <div className="max-h-64 overflow-y-auto border-t border-gray-100">
+          {searchedProductList.slice(0, 5).map((product) => (
+            <SearchResultItem
+              key={product.id}
+              product={product}
+              onClick={handleProductClick}
+            />
+          ))}
+        </div>
         <div
           className="p-3 bg-gray-50 text-center cursor-pointer"
           onClick={handleSearchSubmit}
         >
           <p className="text-sm font-medium text-primary">See all results</p>
         </div>
-      </div>
+      </>
     );
   }, [
     searchQuery,
@@ -356,7 +358,7 @@ export default function SearchBar({
       {isMobile && (
         <div className="lg:hidden container border-t border-gray-200 shadow-inner">
           <form onSubmit={handleSearchSubmit} className="flex flex-col">
-            <div className="flex items-center px-2 h-12">
+            <div className="flex items-center relative h-7  my-4">
               <label htmlFor="mobile-search" className="sr-only">
                 Search products
               </label>
@@ -365,14 +367,14 @@ export default function SearchBar({
                 ref={mobileSearchInputRef}
                 type="search"
                 placeholder="Search products..."
-                className="w-full h-full py-2 px-3 text-sm focus:outline-none bg-transparent"
+                className="w-full  py-1.5 px-2 text-sm focus:outline-none bg-transparent border focus:border-primary"
                 value={searchQuery}
                 onChange={handleInputChange}
                 aria-label="Search products"
               />
               <button
                 type="submit"
-                className="px-2"
+                className="px-2 absolute right-0"
                 disabled={localLoading || productLoading}
                 aria-label="Submit search"
               >

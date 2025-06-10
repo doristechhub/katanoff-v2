@@ -17,7 +17,7 @@ const StepsGrid = ({ steps = [], currentStep, titleText }) => {
                 {step.id}
               </span>
 
-              <div className="hidden sm:grid grid-cols-[auto_1fr] gap-x-2 text-sm md:text-base lg:text-lg xl:text-xl">
+              <div className="hidden sm:grid grid-cols-[auto_1fr] gap-x-2 text-sm md:text-base">
                 <span
                   className={`row-span-2 ${
                     currentStep === step.id

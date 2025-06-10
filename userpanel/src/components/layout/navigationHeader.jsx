@@ -94,6 +94,7 @@ export default function NavigationHeader() {
     setTimeout(() => {
       dispatch(setOpenDropdown(null));
       dispatch(setOpenDropdownMobile(null));
+      dispatch(setIsMenuOpen(false));
     }, 200);
   }, [dispatch]);
 
@@ -456,6 +457,7 @@ export default function NavigationHeader() {
                         <div className="flex justify-center">
                           <HeaderLinkButton
                             href={"/customize/select-diamond"}
+                            onClick={closeAllDropdown}
                             className={`transition-all !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
                           >
                             DESIGN WITH DIAMOND
@@ -1147,7 +1149,6 @@ export default function NavigationHeader() {
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     closeAllDropdown();
-                                    dispatch(setIsMenuOpen(false));
                                   }}
                                   className="border-b border-baseblack hover:border-b-primary text-[0.875em] mx-3"
                                 >
@@ -1175,7 +1176,6 @@ export default function NavigationHeader() {
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             closeAllDropdown();
-                                            dispatch(setIsMenuOpen(false));
                                           }}
                                         >
                                           {item.title}
@@ -1214,7 +1214,6 @@ export default function NavigationHeader() {
                                               onClick={(e) => {
                                                 e.stopPropagation();
                                                 closeAllDropdown();
-                                                dispatch(setIsMenuOpen(false));
                                               }}
                                             >
                                               {" "}
@@ -1400,7 +1399,6 @@ export default function NavigationHeader() {
                         )}?gender=female`}
                         className="!font-semibold !p-[10px] !text-[0.875em] leading-[1em] text-baseblack capitalize"
                         onClick={() => {
-                          dispatch(setIsMenuOpen(false));
                           closeAllDropdown();
                         }}
                       >
@@ -1412,7 +1410,6 @@ export default function NavigationHeader() {
                         )}?gender=male`}
                         className="!font-semibold !p-[10px] !text-[0.875em] leading-[1em] text-baseblack capitalize"
                         onClick={() => {
-                          dispatch(setIsMenuOpen(false));
                           closeAllDropdown();
                         }}
                       >
@@ -1491,7 +1488,6 @@ export default function NavigationHeader() {
                                   href={subItem.href}
                                   className="!font-semibold !p-[10px] !text-[0.875em] leading-[1em] text-baseblack capitalize"
                                   onClick={() => {
-                                    dispatch(setIsMenuOpen(false));
                                     closeAllDropdown();
                                   }}
                                 >
