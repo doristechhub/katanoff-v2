@@ -14,7 +14,7 @@ const TextAboveImage = ({ categoryData, className, textClassName }) => {
             className="h-[60vh] sm:h-[85vh] object-cover"
           />
 
-          <div className="px-4 md:px-0 absolute bottom-28 left-1/2 -translate-x-1/2 inline-block lg:bottom-[30%] text-center  text-white gap-4 z-40 uppercase">
+          <div className="px-4 md:px-0 absolute bottom-28 left-1/2 -translate-x-1/2 inline-block lg:bottom-[30%] text-center  text-white gap-4 uppercase">
             <h3
               className={`text-lg md:text-2xl 2xl:text-3xl tracking-wider font-castoro pb-10 ${textClassName}`}
             >

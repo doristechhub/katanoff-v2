@@ -315,7 +315,7 @@ export default function SelectDiamondPage() {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-3 2xl:grid-cols-5 gap-6 mt-4">
+                <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-3 2xl:grid-cols-4 4xl:grid-cols-5 gap-6 mt-4">
                   {uniqueDiamondShapesAndCaratBounds?.distinctShapes?.map(
                     (item, index) => (
                       <div
