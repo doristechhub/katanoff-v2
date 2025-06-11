@@ -99,10 +99,10 @@ const ProductDetailPageImage = ({
         }}
         onSwiper={(swiper) => (swiperRef.current = swiper)}
         onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
-        className="w-full"
+        className="w-full h-auto"
       >
         {currentData.thumbnail && (
-          <SwiperSlide className="flex justify-center items-center max-h-[750px]">
+          <SwiperSlide className="!flex !justify-start !items-start max-h-[750px]">
             <ZoomImage src={currentData.thumbnail} alt="Product Thumbnail" />
           </SwiperSlide>
         )}
@@ -111,7 +111,7 @@ const ProductDetailPageImage = ({
           currentData.images.map((imgObj, index) => (
             <SwiperSlide
               key={index}
-              className="flex justify-center items-center max-h-[750px]"
+              className="!flex !justify-start !items-start max-h-[750px]"
             >
               <ZoomImage
                 src={imgObj?.image}
@@ -120,7 +120,7 @@ const ProductDetailPageImage = ({
             </SwiperSlide>
           ))}
         {currentData.video && (
-          <SwiperSlide className="flex justify-center items-center max-h-[750px]">
+          <SwiperSlide className="!flex !justify-start !items-start max-h-[750px]">
             <ProgressiveVed
               key={currentData.video} // force re-render on video change
               src={currentData.video}
@@ -130,7 +130,7 @@ const ProductDetailPageImage = ({
           </SwiperSlide>
         )}
         {totalSlides === 0 && (
-          <SwiperSlide className="flex justify-center items-center max-h-[750px]">
+          <SwiperSlide className="!flex !justify-start !items-start max-h-[750px]">
             <ProgressiveImg
               src={null}
               alt="Fallback Image"

@@ -19,6 +19,7 @@ import { helperFunctions } from "@/_helper";
 import { ProductNotFound, ProgressiveImg } from "@/components/dynamiComponents";
 import Link from "next/link";
 import { HeaderLinkButton } from "./button";
+import { IoCloseOutline } from "react-icons/io5";
 
 // Memoized search result item component to prevent unnecessary re-renders
 const SearchResultItem = memo(({ product, onClick }) => (
@@ -48,7 +49,7 @@ SearchResultItem.displayName = "SearchResultItem";
 const SimpleProductGrid = memo(({ products }) => {
   const dispatch = useDispatch();
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-5 lg:gap-4">
       {products.map((product) => (
         <Link
           href={`/products/${helperFunctions.stringReplacedWithUnderScore(
@@ -268,30 +269,49 @@ export default function SearchBar({
       );
     }
 
-    if (searchedProductList?.length === 0) {
+    if (!searchedProductList?.length && !productLoading) {
       return (
-        <div className="p-4 text-center">
-          <p className="text-sm text-gray-500">No products found</p>
+        <div className="py-6 bg-white">
+          {" "}
+          <ProductNotFound />
         </div>
       );
     }
 
     return (
       <>
-        <div className="max-h-64 overflow-y-auto border-t border-gray-100">
-          {searchedProductList.slice(0, 5).map((product) => (
-            <SearchResultItem
-              key={product.id}
-              product={product}
-              onClick={handleProductClick}
-            />
-          ))}
-        </div>
-        <div
-          className="p-3 bg-gray-50 text-center cursor-pointer"
-          onClick={handleSearchSubmit}
-        >
-          <p className="text-sm font-medium text-primary">See all results</p>
+        <div className="flex flex-col h-full">
+          {searchedProductList?.length ? (
+            <p className={`text-center mb-6 text-sm `}>
+              {searchedProductList?.length || 0} Products Matched Your Search
+            </p>
+          ) : null}
+
+          <div className="flex-1 px-2 pb-6 max-h-[50vh] overflow-y-auto">
+            {localLoading || productLoading ? (
+              <div className="flex justify-center items-center h-32">
+                <p className="text-gray-500">Loading results...</p>
+              </div>
+            ) : searchedProductList?.length ? (
+              <div className="container">
+                {" "}
+                <SimpleProductGrid products={searchedProductList.slice(0, 6)} />
+              </div>
+            ) : (
+              <ProductNotFound />
+            )}
+          </div>
+          {searchedProductList?.length > 6 ? (
+            <div className="text-center bg-offwhite py-3">
+              <HeaderLinkButton
+                onClick={handleSearchSubmit}
+                className="capitalize hover:underline"
+              >
+                See {searchedProductList.length} more results for :{" "}
+                {searchQuery}
+              </HeaderLinkButton>
+            </div>
+          ) : null}
         </div>
       </>
     );
@@ -356,34 +376,42 @@ export default function SearchBar({
 
       {/* Mobile Search */}
       {isMobile && (
-        <div className="lg:hidden container border-t border-gray-200 shadow-inner">
+        <div className="lg:hidden  border-t border-gray-200 shadow-[0_5px_5px_0_rgba(0,0,0,0.21)]">
           <form onSubmit={handleSearchSubmit} className="flex flex-col">
-            <div className="flex items-center relative h-7  my-4">
+            <div className="flex items-center container relative h-7  my-4">
               <label htmlFor="mobile-search" className="sr-only">
                 Search products
               </label>
               <input
                 id="mobile-search"
                 ref={mobileSearchInputRef}
-                type="search"
+                type="text"
                 placeholder="Search products..."
-                className="w-full  py-1.5 px-2 text-sm focus:outline-none bg-transparent border focus:border-primary"
+                className="w-full  py-1.5 px-2 text-sm focus:outline-none bg-transparent border focus:border-primary pe-12"
                 value={searchQuery}
                 onChange={handleInputChange}
                 aria-label="Search products"
               />
-              <button
-                type="submit"
-                className="px-2 absolute right-0"
-                disabled={localLoading || productLoading}
-                aria-label="Submit search"
-              >
-                <IoIosSearch
-                  className={`text-xl ${
-                    localLoading || productLoading ? "opacity-50" : ""
-                  }`}
-                />
-              </button>
+              <div className="absolute right-6 text-xl flex gap-2 bg-white">
+                {searchQuery?.length ? (
+                  <IoCloseOutline
+                    onClick={() => dispatch(setSearchQuery(""))}
+                  />
+                ) : null}
+
+                <button
+                  type="submit"
+                  onClick={handleSearchSubmit}
+                  disabled={localLoading || productLoading}
+                  aria-label="Submit search"
+                >
+                  <IoIosSearch
+                    className={`text-xl ${
+                      localLoading || productLoading ? "opacity-50" : ""
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
             {renderMobileSearchResults()}
           </form>
@@ -428,7 +456,7 @@ export default function SearchBar({
                 <ProductNotFound />
               )}
 
-              {searchedProductList?.length > 15 && (
+              {searchedProductList?.length > 15 ? (
                 <div className="text-center mt-6">
                   <HeaderLinkButton
                     onClick={handleSearchSubmit}
@@ -438,7 +466,7 @@ export default function SearchBar({
                     {searchQuery}
                   </HeaderLinkButton>
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
         </div>

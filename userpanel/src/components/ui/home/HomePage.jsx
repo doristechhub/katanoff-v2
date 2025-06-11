@@ -1,11 +1,6 @@
 "use client";
 import "swiper/css";
 import "swiper/css/navigation";
-import banner from "@/assets/images/home/banner.webp";
-import banner400px from "@/assets/images/home/banner-400px.webp";
-import banner576px from "@/assets/images/home/banner-576px.webp";
-import banner768px from "@/assets/images/home/banner-768px.webp";
-import banner1024px from "@/assets/images/home/banner-1024px.webp";
 import freeGiftBanner from "@/assets/images/home/free-gift-banner.webp";
 import ring1 from "@/assets/images/home/ring-1.webp";
 import ring2 from "@/assets/images/home/ring-2.webp";
@@ -233,19 +228,10 @@ const Home = () => {
   }, []);
   return (
     <>
-      <HeroBanner
-        isHomePage={true}
-        imageSrc={banner}
-        banner400px={banner400px}
-        banner576px={banner576px}
-        banner768px={banner768px}
-        banner1024px={banner1024px}
-        titleAttr=""
-        altAttr="Hero Banner"
-      />
+      <HeroBanner isHomePage={true} titleAttr="" altAttr="Hero Banner" />
 
       {uniqueDiamondShapesAndCaratBounds?.distinctShapes ? (
-        <section className="mt-10 lg:mt-12 2xl:mt-12  container">
+        <section className="mt-10 lg:mt-12 2xl:mt-12">
           <DiamondShapeSwipper
             shapes={uniqueDiamondShapesAndCaratBounds?.distinctShapes || []}
             title="Shop for Lab Grown Diamonds"

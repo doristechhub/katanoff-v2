@@ -135,15 +135,16 @@ export default function Header() {
         <CustomImg srcAttr={flagUs} className="rounded-full w-6" />
       </div>
       <header
-        className={`fixed ${
-          isHeaderVisible
-            ? "left-0 shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] lg:static lg:top-0 lg:left-0"
-            : ""
-        } ${lastScrollY > 50 ? "top-0" : "top-10"} lg:static w-full ${
-          transparentHeaderBg && !isHeaderVisible
-            ? "lg:bg-offwhite"
-            : "lg:bg-white"
-        } bg-white z-50 shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] transition-all duration-300`}
+        className={` w-full z-50 transition-all duration-700 ease-in-out 
+    ${
+      isHeaderVisible
+        ? "fixed -top-2 animate-slideDown animate-duration-900 animate-ease-in-out clear-both"
+        : ""
+    }
+    ${
+      transparentHeaderBg && !isHeaderVisible ? "lg:bg-offwhite" : "lg:bg-white"
+    }
+  bg-white`}
       >
         <div className="flex justify-between items-center pt-4 pb-2 !px-5 lg:pt-[30px] lg:px-0 2xl:px-4 container">
           <div className="items-center gap-6 font-extralight text-[#2B2B2B] text-[14px] 2xl:text-base hidden lg:flex">

@@ -1,79 +1,84 @@
-"use client"; // Only needed if you're using Next.js App Router
+"use client";
 
-import { useRef } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+
 import Link from "next/link";
 import ProgressiveImg from "./progressive-img";
+import CustomImg from "./custom-img";
+
 import leftArrow from "@/assets/icons/leftArrow.svg";
 import rightArrow from "@/assets/icons/rightArrow.svg";
-import CustomImg from "./custom-img";
 
 export default function DiamondShapeSwipper({
   shapes = [],
   title = "Shop for Lab Grown Diamonds",
 }) {
-  const scrollRef = useRef(null);
-
-  const scrollBy = (direction = "right") => {
-    const container = scrollRef.current;
-    if (!container) return;
-    const scrollAmount = container.offsetWidth * 0.6;
-    container.scrollBy({
-      left: direction === "left" ? -scrollAmount : scrollAmount,
-      behavior: "smooth",
-    });
-  };
-
   if (!shapes?.length) return null;
 
   return (
-    <section className=" mx-auto">
+    <section className="container">
       {/* Title */}
       <h2 className="text-center text-xl md:text-2xl 4xl:text-3xl font-semibold uppercase">
         {title}
       </h2>
 
-      {/* Swiper Wrapper */}
+      {/* Swiper */}
       <div className="relative mt-8 lg:mt-12">
-        {/* Left Arrow */}
-        <button
-          onClick={() => scrollBy("left")}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 3xl:p-8"
-        >
+        {/* Navigation Buttons */}
+        <div className="swiper-button-prev !left-0 z-10">
           <CustomImg srcAttr={leftArrow} altAttr="left-arrow" />
-        </button>
-
-        {/* Scrollable Shape Items */}
-        <div
-          ref={scrollRef}
-          className="overflow-x-auto no-scrollbar scroll-smooth flex lg:gap-6 items-center px-10 justify-center"
-        >
-          {shapes.map((shape, idx) => (
-            <Link
-              href={`/customize/start-with-setting?diamondShape=${shape?.id}`}
-              key={shape?.id || idx}
-              className="flex flex-col items-center min-w-[80px] md:min-w-[100px] text-center focus:outline-none hover:font-bold"
-            >
-              <ProgressiveImg
-                src={shape?.image}
-                alt={shape?.title}
-                width={64}
-                height={64}
-                className="w-8 h-8 md:w-10 md:h-10 object-contain transition-transform duration-300 group-hover:scale-110"
-              />
-              <span className="text-xs md:text-sm mt-4 text-black ">
-                {shape?.title}
-              </span>
-            </Link>
-          ))}
+        </div>
+        <div className="swiper-button-next !right-0 z-10">
+          <CustomImg srcAttr={rightArrow} altAttr="right-arrow" />
         </div>
 
-        {/* Right Arrow */}
-        <button
-          onClick={() => scrollBy("right")}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 3xl:p-8"
+        <Swiper
+          modules={[Navigation]}
+          spaceBetween={10}
+          slidesPerView={3}
+          navigation={{
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+          }}
+          breakpoints={{
+            640: {
+              slidesPerView: 4,
+            },
+            768: {
+              slidesPerView: 6,
+            },
+            1024: {
+              slidesPerView: 8,
+            },
+            1280: {
+              slidesPerView: 9,
+            },
+          }}
+          className="!mx-8"
         >
-          <CustomImg srcAttr={rightArrow} altAttr="right-arrow" />
-        </button>
+          {shapes.map((shape, idx) => (
+            <SwiperSlide key={shape?.id || idx}>
+              <Link
+                href={`/customize/start-with-setting?diamondShape=${shape?.id}`}
+                className="flex flex-col items-center text-center focus:outline-none hover:font-bold transition-all duration-300"
+              >
+                <ProgressiveImg
+                  src={shape?.image}
+                  alt={shape?.title}
+                  width={64}
+                  height={64}
+                  className="w-8 h-8 md:w-10 md:h-10 object-contain transition-transform duration-300 group-hover:scale-110"
+                />
+                <span className="text-xs md:text-sm mt-4 text-black">
+                  {shape?.title}
+                </span>
+              </Link>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
     </section>
   );

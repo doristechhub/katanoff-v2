@@ -179,12 +179,9 @@ const CartPopup = () => {
                   className="flex-1 min-h-0 overflow-y-auto px-2 pt-6 relative"
                 >
                   {cartList?.map((cartItem) => (
-                    <div
-                      className="border-b-2 border-alabaster last:border-b-0 pb-6 xl:pb-8"
-                      key={cartItem?.id}
-                    >
+                    <div className="pb-6 xl:pb-8" key={cartItem?.id}>
                       <div className="flex justify-between gap-4">
-                        <div className="flex-shrink-0 border-2 border-alabaster w-32 h-32 md:w-24 md:h-24 ">
+                        <div className="flex-shrink-0 w-32 h-32 md:w-24 md:h-24 ">
                           <ProgressiveImg
                             src={cartItem?.productImage}
                             alt={cartItem?.productName}

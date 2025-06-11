@@ -241,24 +241,20 @@ const shippingForm = () => {
       <div className="border border-grayborder rounded-md px-4 lg:px-6 flex flex-col">
         <div className="flex justify-between items-center border-b py-4">
           <div>
-            <p className="text-baseblack text-lg md:text-xl font-semibold">
-              Contact
-            </p>
+            <p className="text-baseblack text-lg font-semibold">Contact</p>
             <p className="text-basegray text-base md:text-lg">
               {selectedShippingAddress?.email}
             </p>
           </div>
           <Link href={"/checkout"}>
-            <span className="text-baseblack md:text-xl font-semibold text-lg underline">
+            <span className="text-baseblack font-semibold text-lg underline">
               Change
             </span>
           </Link>
         </div>
         <div className="flex justify-between items-center py-4">
           <div>
-            <p className="text-baseblack text-lg md:text-xl font-semibold">
-              Ship To:
-            </p>
+            <p className="text-baseblack text-lg font-semibold">Ship To:</p>
             <div>
               {selectedShippingAddress &&
                 Object.keys(selectedShippingAddress)?.length && (
@@ -274,53 +270,13 @@ const shippingForm = () => {
             </div>
           </div>
           <Link href={"/checkout"}>
-            <span className="text-baseblack md:text-xl font-semibold text-lg underline">
+            <span className="text-baseblack font-semibold text-lg underline">
               Change
             </span>
           </Link>
         </div>
       </div>
-      {/* <div>
-        <h3 className="font-semibold text-lg mb-3">Shipping Method:</h3>
-        <div className="flex flex-col px-4 border border-grayborder rounded-md">
-          {shippingOptions.map((option, index) => (
-            <div
-              key={option.name}
-              className={`flex justify-between py-5 items-center cursor-pointer border-b border-b-grayborder last:border-b-0 ${
-                selectedMethod === option.name
-                  ? "border border-[#0C1D3D]"
-                  : "border-transparent"
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <input
-                  type="radio"
-                  name="shippingMethod"
-                  value={option.name}
-                  id={option?.id}
-                  checked={selectedMethod === option.name}
-                  onChange={() => {
-                    setSelectedMethod(option.name);
-                    dispatch(setSelectedShippingCharge(option.price));
-                    dispatch(setActiveIndex(index));
-                  }}
-                  className="form-radio w-6 h-5 accent-primary"
-                  disabled={renderTotalAmount > 199}
-                />
-                <span className="md:text-xl text-lg text-baseblack font-semibold">
-                  {option.name}
-                </span>
-              </div>
-              <span className="md:text-xl text-lg text-baseblack font-semibold">
-                ${option.price.toLocaleString()}
-              </span>
-            </div>
-          ))}
-        </div>
-        <span className="mt-5 font-normal text-gray-500">
-          <b className="text-baseblack">Note :</b> Free shipping over 199
-        </span>
-      </div> */}
+
       <div>
         <h3 className="font-semibold text-lg mb-3">Shipping Method:</h3>
         <div className="flex flex-col px-4 border border-grayborder rounded-md">

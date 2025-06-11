@@ -797,7 +797,7 @@ export default function ProductFilter({
         // }`}
         className={`z-30 transition-all duration-700 ease-in-out ${
           isFilterFixed
-            ? "fixed top-[110px] lg:top-[60px] clear-both w-full pt-6 bg-white shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] animate-slideDown animate-duration-900 animate-ease-in-out"
+            ? "fixed top-[110px] lg:top-[50px] clear-both w-full pt-6 bg-white shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] animate-slideDown animate-duration-900 animate-ease-in-out"
             : "top-0  bg-transparent "
         }`}
       >
@@ -885,7 +885,7 @@ export default function ProductFilter({
             className="w-full bg-white shadow-md text-baseblack pt-2"
             ref={filterMenuRef}
           >
-            <div className={`max-h-[65vh] overflow-y-scroll`}>
+            <div className={`max-h-[65vh] overflow-y-auto`}>
               <div className="container">
                 <div className="w-full flex justify-between lg:!justify-end items-center py-3">
                   <div className="lg:hidden">

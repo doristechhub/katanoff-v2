@@ -142,11 +142,11 @@ export default function NavigationHeader() {
       className={`w-full  ${
         transparentHeaderBg && !isHeaderVisible ? "bg-offwhite" : "bg-white"
       } ${
-        lastScrollY > 100 ? "bg-white shadow-lg" : ""
+        lastScrollY > 100 ? "bg-white shadow-lg" : "lg:pt-4"
       } z-40 transition-all duration-500 ease-in-out ${
         isHeaderVisible
-          ? "fixed top-0 left-0 animate-slideDown animate-duration-900 animate-ease-in-out"
-          : "relative lg:translate-y-[40%]"
+          ? "fixed top-0 left-0 clear-both"
+          : "relative  lg:opacity-100 lg:transform lg:translate-y-0"
       }`}
     >
       {/* Desktop Navigation */}
@@ -219,7 +219,7 @@ export default function NavigationHeader() {
                   className={`fixed left-0 right-0 ${
                     isHeaderVisible
                       ? "top-[54px] 2xl:top-[63px]"
-                      : "2xl:top-[50px]"
+                      : "2xl:top-full"
                   } bg-white shadow-lg z-50 border-t-[0.5px] border-primary`}
                 >
                   {engagementHeaderLoader ? (
@@ -490,7 +490,7 @@ export default function NavigationHeader() {
                   className={`fixed left-0 right-0 ${
                     isHeaderVisible
                       ? "top-[54px] 2xl:top-[63px]"
-                      : "2xl:top-[50px]"
+                      : "2xl:top-full"
                   } bg-white shadow-lg z-50 border-t-[0.5px] border-primary`}
                 >
                   {weddingHeaderLoader ? (
@@ -828,7 +828,7 @@ export default function NavigationHeader() {
                       className={`fixed left-0 right-0 ${
                         isHeaderVisible
                           ? "top-[54px] 2xl:top-[63px]"
-                          : "2xl:top-[50px]"
+                          : "2xl:top-full"
                       } bg-white shadow-lg z-50 border-t-[0.5px] border-primary`}
                     >
                       <div className="px-[100px] flex justify-between p-6 w-full">

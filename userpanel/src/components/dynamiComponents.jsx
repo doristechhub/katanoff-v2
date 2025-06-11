@@ -213,13 +213,6 @@ export const CompleteRingPage = dynamic(
   }
 );
 
-export const StartWithSettingDetailpage = dynamic(
-  () => import("./ui/customize/select-setting/StartWithSettingDetailpage.jsx"),
-  {
-    ssr: false,
-  }
-);
-
 export const ProductDetailPage = dynamic(
   () => import("./ui/product/ProductDetailPage.jsx"),
   {

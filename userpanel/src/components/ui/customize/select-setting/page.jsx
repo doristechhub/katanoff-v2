@@ -4,28 +4,27 @@ import { ProductFilter, ProductGrid } from "@/components/dynamiComponents";
 import { useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import StepsGrid from "../StepsGrid";
-import ring from "@/assets/images/customize/customize-ring-black.svg";
-import diamond from "@/assets/images/customize/customize-diamond-black.svg";
-import ringWithDiamondBlack from "@/assets/images/customize/customize-ringWithDiamond-black.svg";
 import { helperFunctions } from "@/_helper";
 import { setCustomProductDetails } from "@/store/slices/commonSlice";
 import SettingStyleCategorySwiper from "../../settingStyleSwiper";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function StartWithSettingPage() {
+
   const {
     customizeProductList,
     customizeProductLoading,
     uniqueFilterOptions,
     filteredProducts,
   } = useSelector(({ product }) => product);
-  const { customProductDetails } = useSelector(({ common }) => common);
   const router = useRouter();
   const dispatch = useDispatch();
+  
   const currentStep = 2;
   const customProduct = helperFunctions?.getCustomProduct();
   const pId = customProduct?.productId;
   const isDiamondSelected = customProduct?.diamondDetails;
+
   const steps = useMemo(() => {
     if (!pId) {
       return [
@@ -33,7 +32,6 @@ export default function StartWithSettingPage() {
           id: 1,
           label: "Choose a",
           labelDetail: "Diamond",
-          icon: diamond,
           subOption: [
             {
               label: "Change",
@@ -48,15 +46,12 @@ export default function StartWithSettingPage() {
           id: 2,
           label: "Choose a",
           labelDetail: "Setting",
-          icon: diamond,
         },
 
         {
           id: 3,
           label: "Completed",
           labelDetail: "Ring",
-          icon: ringWithDiamondBlack,
-          iconBlack: ringWithDiamondBlack,
           disabled: true,
         },
       ];
@@ -66,7 +61,6 @@ export default function StartWithSettingPage() {
           id: 1,
           label: "Choose a",
           labelDetail: "Diamond",
-          icon: diamond,
           subOption: [
             {
               label: "Change",
@@ -81,14 +75,12 @@ export default function StartWithSettingPage() {
           id: 2,
           label: "Choose a",
           labelDetail: "Setting",
-          icon: diamond,
         },
 
         {
           id: 3,
           label: "Completed",
           labelDetail: "Ring",
-          iconBlack: ringWithDiamondBlack,
           subOption: [
             {
               label: "View",
@@ -118,7 +110,6 @@ export default function StartWithSettingPage() {
     };
 
     dispatch(fetchCustomizeProducts(payload));
-    // dispatch(setCustomProductDetails(null));
   }, [dispatch, router]);
 
   useEffect(() => {
@@ -130,12 +121,10 @@ export default function StartWithSettingPage() {
       <section className="pt-10 md:pt-14 lg:pt-10 2xl:pt-12">
         <StepsGrid steps={steps} currentStep={currentStep} />
         {customizeProductList?.length ? (
-          <section className="pt-10 2xl:pt-12">
-            <ProductFilter
-              productList={customizeProductList}
-              isDiamondSettingPage={true}
-            />
-          </section>
+          <ProductFilter
+            productList={customizeProductList}
+            isDiamondSettingPage={true}
+          />
         ) : null}
         <div className="container">
           <div className="pb-8">
