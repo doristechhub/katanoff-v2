@@ -195,11 +195,11 @@ const ReturnRequestPage = () => {
           <div className="max-w-5xl justify-center flex flex-col mx-auto container">
             {orderDetail?.products?.map((cartItem) => (
               <div
-                className="bg-white mt-8 xl:mt-12  py-4 md:py-6 px-2  xs:px-6"
+                className="mt-8 xl:mt-12  py-4 md:py-6 px-2  xs:px-6"
                 key={helperFunctions.getRandomValue()}
               >
                 <div className="flex gap-2 md:gap-6">
-                  <div className="flex h-fit pt-[20%] xss:pt-[12%] md:pt-[8%] mb-4">
+                  <div className="flex items-center">
                     <input
                       type="checkbox"
                       name="productCheckbox"

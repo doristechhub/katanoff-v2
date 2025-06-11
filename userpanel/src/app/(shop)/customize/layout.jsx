@@ -1,10 +1,12 @@
-import customizeRingBanner from "@/assets/images/customize/customize-ring-banner.webp";
+import desktopRingBanner from "@/assets/images/customize/desktop-ring-banner.webp";
+import mobileRingBanner from "@/assets/images/customize/mobile-ring-banner.webp";
 import { CustomImg } from "@/components/dynamiComponents";
 export default function MainLayout({ children }) {
   return (
     <>
-      <div className="mt-11 md:mt-0 lg:mt-5">
-        <CustomImg srcAttr={customizeRingBanner} />
+      <div>
+        <CustomImg srcAttr={mobileRingBanner} className="block lg:hidden" />
+        <CustomImg srcAttr={desktopRingBanner} className="hidden lg:block" />
       </div>
       {children}
     </>

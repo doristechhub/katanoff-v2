@@ -1,22 +1,20 @@
 "use client";
-import { fetchCustomizeProducts } from "@/_actions/customize.action";
 import {
   ProductDetailPage,
   ProductNotFound,
 } from "@/components/dynamiComponents";
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import StepsGrid from "../StepsGrid";
-import ring from "@/assets/images/customize/customize-ring-black.svg";
-import diamond from "@/assets/images/customize/customize-diamond-black.svg";
-import ringWithDiamondBlack from "@/assets/images/customize/customize-ringWithDiamond-black.svg";
 import { setCustomProductDetails } from "@/store/slices/commonSlice";
 import { helperFunctions } from "@/_helper";
 import { useRouter } from "next/navigation";
-export default function SelectDiamondPage() {
+
+export default function CompleteRingPage() {
   const { customProductDetails } = useSelector(({ common }) => common);
   const router = useRouter();
   const dispatch = useDispatch();
+
   useEffect(() => {
     const customProduct = helperFunctions.getCustomProduct();
     if (customProduct?.diamondDetails && customProduct?.productId) {
@@ -27,6 +25,7 @@ export default function SelectDiamondPage() {
       router.replace("/customize/select-diamond");
     }
   }, [dispatch, router]);
+
   const pId = customProductDetails?.productId;
   const isDiamondSelected = customProductDetails?.diamondDetails;
   const currentStep = 3;
@@ -52,7 +51,7 @@ export default function SelectDiamondPage() {
           id: 2,
           label: "Choose a",
           labelDetail: "Setting",
-         
+
           subOption: [
             {
               label: "Change",
@@ -62,6 +61,7 @@ export default function SelectDiamondPage() {
                   localStorage.getItem("customProduct") || "{}"
                 );
                 delete data.productId;
+                delete data.selectedVariations;
                 localStorage.setItem("customProduct", JSON.stringify(data));
               },
             },
@@ -77,13 +77,6 @@ export default function SelectDiamondPage() {
       ];
     }
   }, [pId, isDiamondSelected]);
-
-  const loadData = useCallback(async () => {
-    await dispatch(fetchCustomizeProducts());
-  }, [dispatch]);
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
 
   return (
     <>

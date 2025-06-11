@@ -43,7 +43,7 @@ const SearchProductPage = () => {
 
   return (
     <>
-      <section className="container pt-10 md:pt-3 lg:pt-6">
+      <section className="container lg:pt-4">
         {searchQuery ? (
           <>
             {!productLoading && resultCount ? (

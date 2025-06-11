@@ -41,9 +41,10 @@ export default function ZoomImage({ src, alt, placeholderSrc }) {
 
   return (
     <div
-      className={`zoom-container w-full h-full relative overflow-hidden ${
+      className={`zoom-container w-full relative overflow-hidden ${
         isZoomed ? "cursor-zoom-out" : "cursor-zoom-in"
       }`}
+      style={{ display: "flex", flexDirection: "column" }}
       onMouseMove={handleMouseMove}
       onClick={handleClick}
     >
@@ -56,10 +57,11 @@ export default function ZoomImage({ src, alt, placeholderSrc }) {
         placeholderSrc={placeholderSrc}
         width={imageWidth}
         height={imageHeight}
-        className="object-cover w-full h-full"
+        className="object-contain w-full"
         style={{
+          height: "auto",
           width: "100%",
-          height: "100%",
+          display: "block",
           opacity: isZoomed ? 0 : 1,
           transition: "opacity 0.2s ease-in-out",
         }}

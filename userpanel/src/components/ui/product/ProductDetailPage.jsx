@@ -78,13 +78,9 @@ const ProductDetailPage = ({ customizePage }) => {
   const searchParams = useSearchParams();
   const dispatch = useDispatch();
   const router = useRouter();
-  let { productName, productId } = params;
-  let availableQty = 0;
+
   const [hoveredColor, setHoveredColor] = useState("");
-  const isCustomizePage = customizePage === "completeRing";
-  const goldColor = helperFunctions?.stringReplacedWithSpace(
-    searchParams.get("goldColor")
-  );
+
   const {
     productDetail,
     productLoading,
@@ -97,8 +93,17 @@ const ProductDetailPage = ({ customizePage }) => {
   const { isHovered, isSubmitted, customProductDetails } = useSelector(
     ({ common }) => common
   );
+
+  const isCustomizePage = customizePage === "completeRing";
+  const goldColor = helperFunctions?.stringReplacedWithSpace(
+    searchParams.get("goldColor")
+  );
+  let { productName, productId } = params;
+  let availableQty = 0;
+
   productName = helperFunctions?.stringReplacedWithSpace(productName);
   let customProductIdFromLocalStorage = customProductDetails?.productId;
+
   const loadData = useCallback(async () => {
     dispatch(setProductMessage({ message: "", type: "" }));
 
@@ -201,9 +206,9 @@ const ProductDetailPage = ({ customizePage }) => {
       );
       dispatch(setProductDetail({}));
     }
-  }, [dispatch, productName, productId]);
+  }, [dispatch, productName, productId, customProductIdFromLocalStorage]);
 
-  // // This use effect is used to handle the condtion as in the three steps if already selected product in cart and in complete ring i am getting so to remove the customProduct from local storage and redirect to cart page
+  // This use effect is used to handle the condtion as in the three steps if already selected product in cart and in complete ring i am getting so to remove the customProduct from local storage and redirect to cart page
   useEffect(() => {
     if (
       isSubmitted &&
@@ -220,7 +225,7 @@ const ProductDetailPage = ({ customizePage }) => {
     loadData();
     dispatch(setProductQuantity(1));
     dispatch(setSelectedVariations([]));
-  }, [productName]);
+  }, [productName, productId, customProductIdFromLocalStorage]);
 
   useEffect(() => {
     const customProduct = helperFunctions?.getCustomProduct();
@@ -305,6 +310,7 @@ const ProductDetailPage = ({ customizePage }) => {
     }
     return false;
   }, [productDetail?.variations?.length, selectedVariations?.length]);
+
   const hasDiamondDetails = !!customProductDetails?.diamondDetails;
   let diamondDetail;
 
@@ -320,6 +326,7 @@ const ProductDetailPage = ({ customizePage }) => {
       color,
     };
   }
+
   const addToCartHandler = useCallback(async () => {
     dispatch(setIsSubmitted(true));
     if (isInValidSelectedVariation) return;
@@ -434,16 +441,14 @@ const ProductDetailPage = ({ customizePage }) => {
     .filter(Boolean)
     .join(" ");
 
-  //  const productLoading
-
   return (
-    <div className={` ${isCustomizePage ? "" : "pt-36 lg:pt-12 2xl:pt-16"}`}>
+    <div className="pt-5 2xl:pt-8">
       {productLoading ? (
         <DetailPageSkeleton />
       ) : productDetail && Object.keys(productDetail).length > 0 ? (
         <>
           <div className="container grid grid-cols-1 md:grid-cols-2 gap-6 xs:gap-8">
-            <div className="flex">
+            <div className="flex h-fit">
               <ProductDetailPageImage
                 productDetail={productDetail}
                 selectedVariations={selectedVariations}
@@ -607,15 +612,15 @@ const ProductDetailPage = ({ customizePage }) => {
                 )}
 
               <section className="pt-8">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-8 gap-x-4 md:gap-x-8 max-w-6xl mx-auto">
+                <div className="grid grid-cols-2 lg:grid-cols-3 lg:gap-y-8 gap-x-4 md:gap-x-8 max-w-7xl mx-auto">
                   {supportItems.map((item) => (
                     <Link href={item.link} key={item.label}>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-start gap-3">
                         <CustomImg
                           srcAttr={item.icon}
                           altAttr={item.label}
                           titleAttr={item.label}
-                          className="w-6 h-6 object-contain"
+                          className="w-6 h-6 object-contain self-start"
                         />
                         <p className="text-sm md:text-base font-medium text-black">
                           {item.label}
@@ -715,7 +720,8 @@ const AddToBagBar = ({
             </p>
 
             <p className="text-base pt-1">
-              {isActive && availableQty && availableQty > 0
+              {(isActive && availableQty && availableQty > 0) ||
+              customizePage === "completeRing"
                 ? "Made-to-Order"
                 : isActive
                 ? "Out of Stock"

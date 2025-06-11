@@ -30,7 +30,8 @@ const CheckoutCommonComponent = () => {
   useEffect(() => {
     const address = localStorage.getItem("address");
     const getParsedAddress = address ? JSON.parse(address) : null;
-    const newYorkState = getParsedAddress?.state?.toLowerCase() === "new york";
+    console.log("getParsedAddress", getParsedAddress);
+    const newYorkState = getParsedAddress?.stateCode?.toLowerCase() === "ny";
 
     if (newYorkState !== isNewYorkState) {
       dispatch(setIsNewYorkState(newYorkState));
@@ -52,7 +53,7 @@ const CheckoutCommonComponent = () => {
     }
     return 0;
   }, [cartList, getSubTotal, isNewYorkState]);
-
+  console.log("isNewYorkState", isNewYorkState);
   useEffect(() => {
     const contentElement = cartContentRef.current;
     if (!contentElement) return;
@@ -99,7 +100,7 @@ const CheckoutCommonComponent = () => {
     <>
       <div className="hidden lg:block ">
         <div className=" flex flex-col gap-6 pt-8 lg:pt-12 h-fit">
-          <div className="border border-grayborder">
+          <div className="border border-grayborder rounded-md">
             <div className="flex mx-auto justify-center py-4">
               <p className="text-lg lg:text-xl font-bold"> Order Summary</p>
             </div>
@@ -113,8 +114,8 @@ const CheckoutCommonComponent = () => {
                   key={cartItem?.id}
                 >
                   <div className="flex flex-col md:flex-row justify-between gap-4">
-                    <div className="relative flex border border-alabaster w-36 h-36 md:w-36 md:h-36 mx-auto">
-                      <div className="absolute -top-2 -left-2 bg-baseblack text-white text-xs xs:text-sm lg:text-base font-semibold rounded-full px-2  z-10">
+                    <div className="relative flex md:w-32 md:h-32 mx-auto">
+                      <div className="absolute -top-2 -left-2 bg-baseblack text-white text-sm lg:text-base font-semibold rounded-full px-2">
                         {cartItem?.quantity}
                       </div>
 
@@ -126,26 +127,27 @@ const CheckoutCommonComponent = () => {
                     </div>
 
                     <div className="flex-1 w-full">
-                      <p className="text-base font-medium">
+                      <p className="text-base font-semibold">
                         {cartItem?.productName}
                       </p>
-                      <p className="text-baseblack font-medium flex flex-wrap text-sm xs:text-base">
+
+                      <p className="text-baseblack flex flex-wrap text-sm xs:text-[15px]">
                         {helperFunctions?.displayVariationsLabel(
                           cartItem?.variations
                         )}
                       </p>
+
                       {cartItem?.variations?.some(
                         (v) => v.variationName === "Size"
                       ) && (
-                        <p className="text-baseblack font-medium flex flex-wrap text-sm xs:text-base">
+                        <p className="text-baseblack flex flex-wrap text-sm xs:text-[15px]">
                           Size:{" "}
                           {cartItem.variations.find(
                             (v) => v.variationName === "Size"
                           )?.variationTypeName || "N/A"}
                         </p>
                       )}
-
-                      <p className="text-sm font-semibold xs:text-base w-fit mt-2">
+                      <p className="text-sm font-semibold xs:text-base w-fit">
                         $
                         {cartItem?.productSellingPrice?.toLocaleString(
                           "en-US",
@@ -155,16 +157,8 @@ const CheckoutCommonComponent = () => {
                         )}
                         {` × ${cartItem?.quantity}`}
                       </p>
-                      <p className="text-base text-baseblack font-medium pt-1">
-                        Total Price: &nbsp;
-                        <span className="font-bold">
-                          $
-                          {helperFunctions.toFixedNumber(
-                            cartItem?.quantityWiseSellingPrice
-                          )}
-                        </span>
-                      </p>
-                      <div className="hidden xl:block mt-4">
+
+                      <div className="hidden xl:block">
                         <DiamondDetailDrawer
                           cartItem={cartItem}
                           isCheckoutPage={true}
@@ -177,7 +171,7 @@ const CheckoutCommonComponent = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="xl:hidden mt-4">
+                  <div className="xl:hidden">
                     <DiamondDetailDrawer
                       cartItem={cartItem}
                       isCheckoutPage={true}
@@ -296,36 +290,47 @@ const CheckoutCommonComponent = () => {
         </button>
 
         {isOpen && (
-          <div className="bg-white shadow-inner border border-t-0 border-gray-200">
-            <section className="px-2 xs:px-6 max-h-[50vh] overflow-y-auto">
+          <div className="shadow-inner border border-t-0 border-gray-200">
+            <section className="px-4 xs:px-6 max-h-[50vh] overflow-y-auto">
               {cartList?.map((cartItem) => (
                 <div
                   key={helperFunctions?.getRandomValue()}
-                  className="bg-white py-6  border-b border-alabaster last:border-b-0"
+                  className="py-6 border-b border-grayborder last:border-b-0"
                 >
                   <div className="flex flex-row  gap-4">
-                    <div className="relative flex-shrink-0 h-fit border border-alabaster">
-                      <div className="absolute -top-2 -left-2 bg-baseblack text-white text-xs xs:text-sm lg:text-base font-semibold rounded-full px-2  z-10">
+                    <div className="relative  w-28 h-28">
+                      <div className="absolute -top-2 -left-2 bg-baseblack text-white text-sm lg:text-base font-semibold px-2 py-0.5 rounded-full">
                         {cartItem?.quantity}
                       </div>
 
                       <ProgressiveImg
                         src={cartItem?.productImage}
                         alt={cartItem?.productName}
-                        className="w-28 h-28 object-cover"
+                        className="w-full h-full object-cover"
                       />
                     </div>
 
                     <div className="flex-1 w-full">
-                      <p className="text-base font-medium">
+                      <p className="text-base font-semibold">
                         {cartItem?.productName}
                       </p>
-                      <p className="text-baseblack font-medium flex flex-wrap text-base">
+                      <p className="text-baseblack flex flex-wrap text-sm xs:text-[15px]">
                         {helperFunctions?.displayVariationsLabel(
                           cartItem?.variations
                         )}
                       </p>
-                      <p className="text-sm font-semibold xs:text-base w-fit mt-2">
+                      {cartItem?.variations?.some(
+                        (v) => v.variationName === "Size"
+                      ) && (
+                        <p className="text-baseblack flex flex-wrap text-sm xs:text-[15px]">
+                          Size:{" "}
+                          {cartItem.variations.find(
+                            (v) => v.variationName === "Size"
+                          )?.variationTypeName || "N/A"}
+                        </p>
+                      )}
+
+                      <p className="text-sm font-semibold xs:text-base w-fit mt-1">
                         $
                         {cartItem?.productSellingPrice?.toLocaleString(
                           "en-US",
@@ -335,16 +340,8 @@ const CheckoutCommonComponent = () => {
                         )}
                         {` × ${cartItem?.quantity}`}
                       </p>
-                      <p className="text-base text-baseblack font-medium pt-1">
-                        Total Price: &nbsp;
-                        <span className="font-bold">
-                          $
-                          {helperFunctions.toFixedNumber(
-                            cartItem?.quantityWiseSellingPrice
-                          )}
-                        </span>
-                      </p>
-                      <div className="hidden xs:block mt-4">
+
+                      <div className="hidden xs:block">
                         <DiamondDetailDrawer
                           cartItem={cartItem}
                           isCheckoutPage={true}
@@ -357,7 +354,7 @@ const CheckoutCommonComponent = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="xs:hidden mt-4">
+                  <div className="xs:hidden">
                     <DiamondDetailDrawer
                       cartItem={cartItem}
                       isCheckoutPage={true}
@@ -368,6 +365,15 @@ const CheckoutCommonComponent = () => {
                   </div>
                 </div>
               ))}
+              {cartList?.length > 3 && (
+                <div className="sticky bottom-0 w-full h-24 pointer-events-none">
+                  <CustomImg
+                    src={effect}
+                    alt="Effect"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
             </section>
 
             {/* Your summary section */}

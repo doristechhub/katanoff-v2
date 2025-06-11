@@ -167,7 +167,7 @@ const CartPage = () => {
             <div className="w-full lg:w-2/3">
               {cartList?.map((cartItem, index) => (
                 <div
-                  className={`py-6 md:py-8 px-2 xs:px-6 ${
+                  className={`py-6 md:py-8 pr-2 xs:pr-6 ${
                     index !== cartList.length - 1
                       ? "border-b border-grayborder"
                       : ""
@@ -179,33 +179,51 @@ const CartPage = () => {
                       <ProgressiveImg
                         src={cartItem?.productImage}
                         alt={cartItem?.productName}
-                        className="w-28 md:w-40 xl:w-48 border border-alabaster"
+                        className="w-32 md:w-40 xl:w-48 border border-alabaster"
                       />
                     </div>
                     <div className="flex-1 w-full">
-                      <div className="flex justify-between items-center">
-                        <Link
-                          href={
-                            cartItem?.diamondDetail
-                              ? "/customize/complete-ring"
-                              : `/products/${cartItem?.productName
-                                  ?.split(" ")
-                                  ?.join("_")}`
-                          }
-                          onClick={() =>
-                            helperFunctions?.setCustomProductInLocalStorage(
-                              cartItem
-                            )
-                          }
-                          className="text-sm md:text-base lg:text-xl font-semibold flex-wrap hover:border-b hover:border-baseblack"
-                        >
-                          {cartItem?.productName}
-                        </Link>
-                        <div className="flex xss:gap-4 xss:flex-row flex-col items-center gap-2">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+                        <div className="flex justify-between">
+                          <Link
+                            href={
+                              cartItem?.diamondDetail
+                                ? "/customize/complete-ring"
+                                : `/products/${cartItem?.productName
+                                    ?.split(" ")
+                                    ?.join("_")}`
+                            }
+                            onClick={() =>
+                              helperFunctions?.setCustomProductInLocalStorage(
+                                cartItem
+                              )
+                            }
+                            className="md:text-base lg:text-lg font-semibold hover:underline"
+                          >
+                            {cartItem?.productName}
+                          </Link>
+
+                          <div className="sm:hidden">
+                            <button
+                              className=" font-medium px-1 sm:px-3 cursor-pointer flex items-center justify-center transition-all duration-200"
+                              onClick={() => removeFromCart(cartItem)}
+                              disabled={deleteLoader}
+                            >
+                              <CustomImg
+                                srcAttr={crossIcon}
+                                altAttr=""
+                                titleAttr=""
+                                className="h-3 w-3 xss:h-4 xss:w-4 transition-transform duration-200 hover:scale-110"
+                              />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex xss:gap-4 xss:flex-row flex-col sm:items-center gap-2">
                           <p className="text-base md:text-lg font-bold">
                             {cartItem?.productDiscount &&
                             !cartItem?.diamondDetail ? (
-                              <span className="text-lg text-gray-500 line-through mr-2">
+                              <span className="text-sm md:text-base lg:text-lg text-gray-500 line-through mr-2">
                                 $
                                 {helperFunctions.toFixedNumber(
                                   cartItem?.quantityWisePrice
@@ -217,29 +235,37 @@ const CartPage = () => {
                               cartItem?.quantityWiseSellingPrice
                             )}
                           </p>
-                          <button
-                            className="font-medium px-1 sm:px-3 cursor-pointer flex items-center justify-center transition-all duration-200 -mt-2"
-                            onClick={() => removeFromCart(cartItem)}
-                            disabled={deleteLoader}
-                          >
-                            <CustomImg
-                              srcAttr={crossIcon}
-                              altAttr=""
-                              titleAttr=""
-                              className="h-3 w-3 xss:h-4 xss:w-4 transition-transform duration-200 hover:scale-110"
-                            />
-                          </button>
+                          <div className="hidden sm:block">
+                            <button
+                              className=" font-medium px-1 sm:px-3 cursor-pointer flex items-center justify-center transition-all duration-200 -mt-2"
+                              onClick={() => removeFromCart(cartItem)}
+                              disabled={deleteLoader}
+                            >
+                              <CustomImg
+                                srcAttr={crossIcon}
+                                altAttr=""
+                                titleAttr=""
+                                className="h-3 w-3 xss:h-4 xss:w-4 transition-transform duration-200 hover:scale-110"
+                              />
+                            </button>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex flex-col sm:flex-row justify-between mt-2">
-                        <div className="flex flex-col gap-1">
+
+                      <div className="flex flex-col sm:flex-row justify-between mt-1">
+                        <div className="flex flex-col">
                           <div className="text-baseblack font-medium text-sm md:text-base  flex flex-wrap gap-1">
                             {helperFunctions?.displayVariationsLabel(
                               cartItem?.variations
                             )}
                           </div>
-                          <div className="text-baseblack font-medium text-sm md:text-base flex flex-wrap gap-1">
-                            Product SKU: {cartItem?.productSku}
+                          <div className="text-baseblack font-medium text-sm md:text-base flex flex-wrap">
+                            <span className="inline xss:block">
+                              Product SKU:
+                            </span>
+                            <span className="inline xss:block">
+                              {cartItem?.productSku}
+                            </span>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -255,7 +281,7 @@ const CartPage = () => {
                                   parseInt(e.target.value)
                                 )
                               }
-                              className={`appearance-none px-4 py-2 pr-10 border border-grayborder rounded-sm text-sm font-medium bg-transparent cursor-pointer`}
+                              className={`appearance-none px-2 sm:px-4 sm:py-2 pr-6 sm:pr-10 border border-grayborder rounded-sm text-sm font-medium bg-transparent cursor-pointer`}
                             >
                               {Array.from(
                                 {
@@ -287,7 +313,7 @@ const CartPage = () => {
                               })}
                             </select>
 
-                            <div className="pointer-events-none absolute inset-y-0 right-1 flex items-center px-2 text-black">
+                            <div className="pointer-events-none absolute inset-y-0 right-1 flex items-center px-1 sm:px-2 text-black">
                               <CustomImg
                                 srcAttr={dropdownArrow}
                                 altAttr="Arrow"
@@ -315,7 +341,7 @@ const CartPage = () => {
                       {cartItem?.variations?.some(
                         (v) => v.variationName === "Size"
                       ) && (
-                        <div className="flex items-center gap-2 mt-2">
+                        <div className="flex items-center gap-2">
                           <p className="text-sm items-center md:text-base font-medium text-baseblack">
                             Size:{" "}
                             {cartItem?.variations?.find(
@@ -338,7 +364,7 @@ const CartPage = () => {
                     </div>
                   </div>
 
-                  <div className=" xs:hidden mt-4">
+                  <div className="pl-2 xs:hidden mt-1">
                     <DiamondDetailDrawer
                       cartItem={cartItem}
                       openDiamondDetailDrawer={openDiamondDetailDrawer}

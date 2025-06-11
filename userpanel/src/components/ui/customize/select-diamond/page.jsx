@@ -6,7 +6,7 @@ import {
   messageType,
 } from "@/_helper/constants";
 import { AccordionTabs, ProgressiveImg } from "@/components/dynamiComponents";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { PrimaryLinkButton } from "../../button";
 import {
@@ -16,9 +16,7 @@ import {
 } from "@/store/slices/selectDiamondSlice";
 import { useRouter } from "next/navigation";
 import { setSelectedDiamondInfoModel } from "@/store/slices/commonSlice";
-import ring from "@/assets/images/customize/customize-ring-black.svg";
-import diamond from "@/assets/images/customize/customize-diamond-black.svg";
-import ringWithDiamondBlack from "@/assets/images/customize/customize-ringWithDiamond-black.svg";
+
 import StepsGrid from "../StepsGrid";
 import { fetchUniqueShapesAndCaratBounds } from "@/_actions/customize.action";
 import CustomImg from "../../custom-img";
@@ -34,7 +32,6 @@ import {
 import { helperFunctions } from "@/_helper";
 export default function SelectDiamondPage() {
   const router = useRouter();
-  const { productLoading } = useSelector(({ product }) => product);
   const { customProductDetails } = useSelector(({ common }) => common);
   const { uniqueDiamondShapesAndCaratBounds } = useSelector(
     ({ common }) => common
@@ -43,7 +40,6 @@ export default function SelectDiamondPage() {
     ({ selectedDiamond }) => selectedDiamond
   );
   const dispatch = useDispatch();
-  // const [isLoading, setIsLoading] = useState(false);
   const caratWeightRange = uniqueDiamondShapesAndCaratBounds?.caratBounds;
   const minCarat = caratWeightRange?.[0] || 0;
   const maxCarat = caratWeightRange?.[1] || 0;
@@ -71,7 +67,6 @@ export default function SelectDiamondPage() {
           id: 3,
           label: "Completed",
           labelDetail: "Ring",
-          iconBlack: ringWithDiamondBlack,
           disabled: true,
         },
       ];
@@ -105,7 +100,6 @@ export default function SelectDiamondPage() {
           id: 3,
           label: "Completed",
           labelDetail: "Ring",
-          iconBlack: ringWithDiamondBlack,
           subOption: [
             {
               label: "View",
@@ -117,8 +111,6 @@ export default function SelectDiamondPage() {
     }
   }, [customProductDetails]);
 
-  // Get initial values from localStorage or set defaults
-  // Get initial values from localStorage
   const initialCustomProduct =
     JSON.parse(localStorage.getItem("customProduct")) || {};
   const initialShape = initialCustomProduct?.diamondDetails?.shape || null;
@@ -310,7 +302,8 @@ export default function SelectDiamondPage() {
                     <CustomImg
                       srcAttr={question3steps}
                       altAttr="Question Marks"
-                      className="w-5 h-5 "
+                      className="w-5 h-5"
+                      titleAttr="Shape"
                     />
                   </button>
                 </div>
@@ -399,7 +392,7 @@ export default function SelectDiamondPage() {
                   <div className="">
                     <div className="flex items-center gap-3 mb-4">
                       <h3 className="font-semibold text-base uppercase">
-                        Clarity
+                        CLARITY
                       </h3>
                       <button
                         onClick={() =>
@@ -410,6 +403,7 @@ export default function SelectDiamondPage() {
                           srcAttr={question3steps}
                           altAttr="Question Marks"
                           className="w-5 h-5"
+                          titleAttr="Clarity"
                         />
                       </button>
                     </div>
@@ -441,7 +435,7 @@ export default function SelectDiamondPage() {
                   <div>
                     <div className="flex items-center gap-3 mb-4">
                       <h3 className="font-semibold text-base uppercase">
-                        Color
+                        COLOR
                       </h3>
                       <button
                         onClick={() =>
@@ -450,8 +444,8 @@ export default function SelectDiamondPage() {
                       >
                         <CustomImg
                           srcAttr={question3steps}
-                          altAttr="Question Marks"
-                          className="w-5 h-5 "
+                          className="w-5 h-5"
+                          titleAttr="Color"
                         />
                       </button>
                     </div>
