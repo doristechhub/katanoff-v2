@@ -28,17 +28,13 @@ const collections = [
     title: "Badgley Mischka",
     image: home26,
     btnText: "Shop Now",
-    btnLink: `/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-      "Badgley Mischka"
-    )}`,
+    btnLink: `/collections/categories/Jewelry`,
   },
   {
     title: "Naas Jewelry",
     image: home27,
     btnText: "Shop Now",
-    btnLink: `/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-      "Naas Jewelry"
-    )}`,
+    btnLink: `/collections/categories/Jewelry`,
   },
   {
     title: "High Jewelry",
@@ -52,33 +48,25 @@ const collections = [
     title: "Curve Collection",
     image: home29,
     btnText: "Shop Now",
-    btnLink: `/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-      "Curve Collection"
-    )}`,
+    btnLink: `/collections/categories/Jewelry`,
   },
   {
     title: "Nostalgia Collection",
     image: home30,
     btnText: "Shop Now",
-    btnLink: `/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-      "Nostalgia Collection"
-    )}`,
+    btnLink: `/collections/categories/Jewelry`,
   },
   {
     title: "Mossiac Collection",
     image: home31,
     btnText: "Shop Now",
-    btnLink: `/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-      "Mossiac Collection"
-    )}`,
+    btnLink: `/collections/categories/Jewelry`,
   },
   {
     title: "Boundless Collection",
     image: home32,
     btnText: "Shop Now",
-    btnLink: `/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-      "Boundless Collection"
-    )}`,
+    btnLink: `/collections/categories/Jewelry`,
   },
   {
     title: "Trending Collection",
@@ -92,17 +80,13 @@ const collections = [
     title: "Toi Et Moi",
     image: home34,
     btnText: "Shop Now",
-    btnLink: `/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-      "Toi Et Moi"
-    )}`,
+    btnLink: `/collections/categories/Jewelry`,
   },
   {
     title: "Ether Diamond Collection",
     image: home35,
     btnText: "Shop Now",
-    btnLink: `/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-      "Ether Diamond Collection"
-    )}`,
+    btnLink: `/collections/categories/Jewelry`,
   },
 ];
 

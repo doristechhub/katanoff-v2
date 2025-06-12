@@ -209,11 +209,13 @@ const exchangeSections = [
 const ReturnPolicy = () => {
   return (
     <>
+      <div className="pt-12 md:pt-16">
       <CommonBgHeading
         title="Return Policy"
         backText="Back To Home"
         backHref="/"
       />
+      </div>
 
       <div className="container normal-case mb-10">
        <h2 className="pl-4 lg:pl-0 text-lg xxs:text-2xl md:text-3xl xl:text-4xl text-baseblack font-castoro pt-8 xxs:pt-12 lg:pt-20">

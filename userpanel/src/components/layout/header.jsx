@@ -146,7 +146,7 @@ export default function Header() {
     }
   bg-white`}
       >
-        <div className="flex justify-between items-center pt-4 pb-2 !px-5 lg:pt-[30px] lg:px-0 2xl:px-4 container">
+        <div className="flex justify-between items-center pt-4 pb-1 !px-5 lg:pt-[30px] lg:px-0 2xl:px-4 container">
           <div className="items-center gap-6 font-extralight text-[#2B2B2B] text-[14px] 2xl:text-base hidden lg:flex">
             <Link href={"/contact-us"} className="flex items-center gap-1">
               <CustomImg

@@ -9,6 +9,7 @@ import {
   setProductMessage,
   setSearchedProductList,
   setSelectedPrices,
+  setSearchResults,
 } from "@/store/slices/productSlice";
 import { productService, recentlyViewedService } from "@/_services";
 import {
@@ -419,7 +420,7 @@ export const fetchSearchedProducts = (params) => async (dispatch) => {
     dispatch(setProductLoading(true));
     const response = await productService.searchProducts(params);
     if (!response) {
-      return [];
+      return []
     }
     return response;
   } catch (error) {

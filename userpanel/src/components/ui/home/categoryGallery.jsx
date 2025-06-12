@@ -1,9 +1,3 @@
-import gemora from "@/assets/images/home/gemora.webp";
-import auralis from "@/assets/images/home/auralis.webp";
-import brightborn from "@/assets/images/home/brightborn.webp";
-import glowState from "@/assets/images/home/glow-state.webp";
-import nuvana from "@/assets/images/home/nuvana.webp";
-import veloura from "@/assets/images/home/veloura.webp";
 import tennis from "@/assets/images/home/tennis.webp";
 import newArrival from "@/assets/images/home/newArrival.webp";
 import fashion from "@/assets/images/home/fashion.webp";
@@ -24,14 +18,12 @@ const categories = [
     img: fashion,
     title: "Fashion",
     altAttr: "",
-
     titleAttr: "",
   },
   {
     img: bangle,
     title: "Bangle",
     altAttr: "",
-
     titleAttr: "",
   },
   {
@@ -48,9 +40,16 @@ export default function CategoryGallery() {
       {categories?.map((category, index) => {
         return (
           <Link
-            href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-              category?.title
-            )}`}
+            // href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+            //   category?.title
+            // )}`}
+            href={`${
+              category?.title === "Bangle"
+                ? "/collections/categories/Jewelry"
+                : `/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                    category?.title
+                  )}`
+            }`}
             key={`category-${index}`}
           >
             <CustomImg

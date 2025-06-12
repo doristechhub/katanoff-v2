@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { Country, State } from "country-state-city";
-import { defaultCountry } from "@/store/slices/addressSlice";
+import { defaultCountry, defaultCountryDisplay } from "@/store/slices/addressSlice";
 import {
   handleAddressMessage,
   handleInvalidAddressDetail,
@@ -388,7 +388,7 @@ const CheckoutForm = () => {
                   name="country"
                   onChange={(event) => handleCountryChange(event.target.value)}
                   onBlur={handleBlur}
-                  value={values?.country || ""}
+                  value={defaultCountryDisplay || ""}
                 />
                 {touched?.country && errors?.country && (
                   <ErrorMessage message={errors?.country}></ErrorMessage>
