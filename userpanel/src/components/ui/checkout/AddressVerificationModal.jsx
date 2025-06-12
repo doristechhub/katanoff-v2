@@ -178,7 +178,8 @@ const AddressVerificationModal = () => {
               }}
             />
             <label htmlFor="entered-address" className="cursor-pointer">
-              Yes, I want to proceed with the entered address.
+              Yes, I proceed with the{" "}
+              <span className="font-semibold">entered address.</span>
             </label>
           </div>
 
@@ -196,7 +197,8 @@ const AddressVerificationModal = () => {
               onChange={() => dispatch(setSelectedAddressType("verified"))}
             />
             <label htmlFor="verified-address" className="cursor-pointer">
-              Yes, I want to proceed with the verified address.
+              Yes, I proceed with the{" "}
+              <span className="font-semibold">verified address.</span>
             </label>
           </div>
         </div>

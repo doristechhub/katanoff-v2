@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 export const defaultCountry = "US";
+export const defaultCountryDisplay = "United States";
 
 export const addressObj = {
   isDefault: false,

@@ -111,7 +111,30 @@ export default function ProductFilter({
 
   const updateURL = useCallback(
     (newFilters) => {
-      const params = new URLSearchParams();
+      // Start with existing URL parameters to preserve non-filter params
+      const params = new URLSearchParams(searchParams.toString());
+
+      // Define filter-related parameter keys that we manage
+      const filterParamKeys = [
+        "setting_style",
+        "min_price",
+        "max_price",
+        "sort_by",
+        "gender",
+      ];
+
+      // Add variation keys dynamically
+      uniqueFilterOptions?.uniqueVariations?.forEach((variation) => {
+        const key = helperFunctions?.stringReplacedWithUnderScore(
+          variation.variationName
+        );
+        filterParamKeys.push(key);
+      });
+
+      // Remove existing filter parameters to avoid duplicates
+      filterParamKeys.forEach((key) => {
+        params.delete(key);
+      });
 
       // Handle variations
       if (
@@ -164,6 +187,7 @@ export default function ProductFilter({
         );
       }
 
+      // Handle genders
       if (newFilters.genders && newFilters.genders.length > 0) {
         newFilters.genders.forEach((gender) => {
           params.append(
@@ -177,7 +201,7 @@ export default function ProductFilter({
       const newURL = queryString ? `?${queryString}` : window.location.pathname;
       router.replace(newURL, { scroll: false });
     },
-    [router, uniqueFilterOptions]
+    [router, uniqueFilterOptions, searchParams]
   );
   const onPriceChange = useCallback(
     (value) => {
@@ -798,7 +822,7 @@ export default function ProductFilter({
         className={`z-30 transition-all duration-700 ease-in-out ${
           isFilterFixed
             ? "fixed top-[110px] lg:top-[50px] clear-both w-full pt-6 bg-white shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] animate-slideDown animate-duration-900 animate-ease-in-out"
-            : "top-0  bg-transparent "
+            : "top-0  bg-transparent border-b-2 "
         }`}
       >
         <div className="container">
@@ -865,7 +889,11 @@ export default function ProductFilter({
                           <li
                             key={item?.value}
                             style={{ textTransform: "capitalize" }}
-                            className={`px-4 py-2 hover:bg-gray-100 cursor-pointer`}
+                            className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${
+                              selectedSortByValue === item?.value
+                                ? "bg-gray-200 font-bold"
+                                : ""
+                            }`}
                             onClick={() => onSelectSortBy(item?.value)}
                           >
                             {item.title}
@@ -882,7 +910,7 @@ export default function ProductFilter({
         {isFilterMenuOpen ? (
           <div
             // className="w-full bg-white shadow-md border-t-2 z-50 border-baseblack text-baseblack pt-2"
-            className="w-full bg-white shadow-md text-baseblack pt-2"
+            className="w-full bg-white shadow-md text-baseblack border-t-2 pt-2"
             ref={filterMenuRef}
           >
             <div className={`max-h-[65vh] overflow-y-auto`}>

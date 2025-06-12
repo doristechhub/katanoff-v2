@@ -425,7 +425,7 @@ export default function SearchBar({
           className={`${
             lastScrollY > 50
               ? "top-[54px] h-[calc(100vh-54px)]"
-              : "top-[170px] h-[calc(100vh-170px)] opacity-0 translate-y-6 animate-enter"
+              : "top-[162px] h-[calc(100vh-162px)] opacity-0 translate-y-6 animate-enter"
           }
           fixed left-0 w-full bg-white shadow-lg overflow-y-auto z-40
           hidden lg:block

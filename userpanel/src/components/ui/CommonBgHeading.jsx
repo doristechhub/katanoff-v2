@@ -1,32 +1,44 @@
-import Link from "next/link";
+import Breadcrumb from "./Breadcrumb";
 
 const CommonBgHeading = ({
   title,
-  backText,
+  breadcrumb = false,
+  // backText,
   rightText,
   rightTextHref = "/",
-  backHref = "/",
+  // backHref = "/",
   bgColor = true,
+  showSelectAll = false,
+  allSelected = false,
+  onSelectAllChange = () => {},
 }) => {
   return (
-    <div>
-      <div className=" mx-auto px-4 flex items-center justify-center relative container">
-        {backText && (
-          <Link
-            href={backHref}
-            className="text-basegray text-base hover:underline absolute left-10 hidden xs:block"
-          >
-            &lt; {backText}
-          </Link>
-        )}
+    <div className="relative w-full">
+      <div className="px-4 container w-full relative flex justify-between items-center">
+        {breadcrumb && <Breadcrumb currentPage={title} />}
 
-        <h1 className="text-2xl xl:text-3xl font-medium font-castoro text-baseblack">
+        {/* Centered Title */}
+        <h1
+          className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                   text-2xl xl:text-2xl font-medium font-castoro text-baseblack"
+        >
           {title}
         </h1>
 
+        {showSelectAll && (
+          <label className="absolute left-5 flex items-center gap-2 text-baseblack text-base lg:text-lg xs:flex cursor-pointer">
+            <input
+              type="checkbox"
+              checked={allSelected}
+              onChange={(e) => onSelectAllChange(e.target.checked)}
+              className="w-4 h-4 rounded-full border-2 border-gray-400 text-primary accent-primary focus:ring-primary checked:bg-primary checked:border-primary"
+            />
+            <span className="hidden xs:inline">Select All</span>
+          </label>
+        )}
+        {/* Right Text */}
         {rightText && (
-          <p className="text-baseblack font-castoro text-base lg:text-lg 2xl:text-xl  absolute right-0 xl:right-10 hidden xs:block">
-            {" "}
+          <p className="text-baseblack font-castoro text-base lg:text-lg 2xl:text-xl hidden xs:block">
             {rightText}
           </p>
         )}

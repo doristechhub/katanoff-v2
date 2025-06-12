@@ -234,7 +234,7 @@ const CombinationDialog = ({
       ? getCombiDetailWithQty(combinationsDetail)
       : combinationsDetail;
     setFieldValue('variComboWithQuantity', finalCombinationDetail);
-  }, [combinationsDetail, productId, setFieldValue]);
+  }, [productId, setFieldValue]);
 
   return (
     <Dialog

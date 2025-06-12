@@ -89,7 +89,7 @@ export default function CollectionPage() {
     }
 
     // Final fallback
-    return defaultBanner;
+    return null;
   };
 
   useEffect(() => {
@@ -105,12 +105,12 @@ export default function CollectionPage() {
         altAttr=""
         titleAttr=""
       />
-
-      <h2 className="text-center text-[20px] leading-6 md:text-3xl lg:text-[26px] lg:leading-[33px] 2xl:text-5xl font-castoro capitalize pt-6 lg:pt-10 2xl:pt-12">
+      <h2 className="text-[26px] leading-[33px] font-normal font-castoro text-center pt-6 lg:pt-6 2xl:pt-10 capitalize tracking-[0.02em] text-[#2B2B2B] max-[767px]:text-[16px] max-[767px]:leading-[20px]">
         {collectionTitle}
       </h2>
+
       {collectionTypeProductList?.length ? (
-        <section className="pt-10 2xl:pt-12">
+        <section className="pt-6 2xl:pt-10">
           <ProductFilter productList={collectionTypeProductList} />
         </section>
       ) : null}

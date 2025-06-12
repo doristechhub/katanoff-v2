@@ -1,14 +1,22 @@
 "use client";
 
-import { ProductGrid, SwipperHomePageBig } from "@/components/dynamiComponents";
+import {
+  ProductFilter,
+  ProductGrid,
+  SwipperHomePageBig,
+} from "@/components/dynamiComponents";
 import KeyFeatures from "@/components/ui/KeyFeatures";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchSearchedProducts } from "@/_actions/product.actions";
+import {
+  fetchSearchedProducts,
+  getUniqueFilterOptions,
+} from "@/_actions/product.actions";
 import {
   resetFilters,
   setCurrentPage,
   setSearchResults,
+  setUniqueFilterOptions,
 } from "@/store/slices/productSlice";
 import CommonNotFound from "./CommonNotFound";
 import { useSearchParams } from "next/navigation";
@@ -18,7 +26,7 @@ const SearchProductPage = () => {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get("q") || "";
-  const { searchResults, productLoading } = useSelector(
+  const { searchResults, productLoading, filteredProducts } = useSelector(
     ({ product }) => product
   );
   const resultCount = searchResults?.length || 0;
@@ -28,14 +36,17 @@ const SearchProductPage = () => {
     dispatch(setCurrentPage(0));
     const fetchResults = async () => {
       try {
-        dispatch(setSearchResults([]));
-        const results = await dispatch(
+        const result = await dispatch(
           fetchSearchedProducts({
             searchValue: searchQuery,
           })
         );
-        dispatch(setSearchResults(results));
-      } catch (error) {}
+        const tempUniqueFilterOptions = getUniqueFilterOptions(result);
+        dispatch(setSearchResults(result));
+        dispatch(setUniqueFilterOptions(tempUniqueFilterOptions));
+      } catch (error) {
+        dispatch(setSearchResults([]));
+      }
     };
 
     fetchResults();
@@ -43,7 +54,7 @@ const SearchProductPage = () => {
 
   return (
     <>
-      <section className="container lg:pt-4">
+      <section className="lg:pt-4">
         {searchQuery ? (
           <>
             {!productLoading && resultCount ? (
@@ -51,12 +62,18 @@ const SearchProductPage = () => {
                 {resultCount} Products Matched Your Search
               </p>
             ) : null}
-            <ProductGrid
-              productsList={searchResults}
-              pagination={true}
-              isLoading={productLoading}
-              showFilter={false}
-            />
+            {searchResults?.length ? (
+              <section className="pt-6 2xl:pt-10">
+                <ProductFilter productList={searchResults} />
+              </section>
+            ) : null}
+            <div className="container mt-8">
+              <ProductGrid
+                productsList={filteredProducts}
+                pagination={true}
+                isLoading={productLoading}
+              />
+            </div>
           </>
         ) : (
           <CommonNotFound

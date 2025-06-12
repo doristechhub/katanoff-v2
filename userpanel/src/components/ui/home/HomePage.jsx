@@ -1,7 +1,8 @@
 "use client";
 import "swiper/css";
 import "swiper/css/navigation";
-import freeGiftBanner from "@/assets/images/home/free-gift-banner.webp";
+import desktopFreeGift from "@/assets/images/home/desktop-free-gift.webp";
+import mobileFreeGift from "@/assets/images/home/mobile-free-gift.webp";
 import ring1 from "@/assets/images/home/ring-1.webp";
 import ring2 from "@/assets/images/home/ring-2.webp";
 import ring3 from "@/assets/images/home/ring-3.webp";
@@ -12,14 +13,6 @@ import home20 from "@/assets/images/home/home-20.webp";
 import home21 from "@/assets/images/home/home-21.webp";
 import home22 from "@/assets/images/home/home-22.webp";
 import home36 from "@/assets/images/home/home-36.webp";
-
-import marquee1 from "@/assets/images/home/marquee-1.webp";
-import marquee2 from "@/assets/images/home/marquee-2.webp";
-import marquee3 from "@/assets/images/home/marquee-3.webp";
-import marquee4 from "@/assets/images/home/marquee-4.webp";
-import marquee5 from "@/assets/images/home/marquee-5.webp";
-import marquee6 from "@/assets/images/home/marquee-6.webp";
-import marquee7 from "@/assets/images/home/marquee-7.webp";
 
 import {
   AccordionDropdown,
@@ -47,7 +40,6 @@ import { setAppointmentMessage } from "@/store/slices/appointmentSlice";
 import { setCustomJewelryMessage } from "@/store/slices/customjewelrySlice";
 import { fetchUniqueShapesAndCaratBounds } from "@/_actions/customize.action";
 import GiftCollections from "../GiftCollections";
-import Marquee from "../Marquee";
 import fiveStar from "@/assets/icons/fiveStar.svg";
 import fourStar from "@/assets/icons/fourStar.svg";
 import fourAndHalfStar from "@/assets/icons/fourAndHalfStar.svg";
@@ -94,36 +86,6 @@ const faqData = [
 ];
 
 const images = [ring1, ring2, ring3];
-const marqueeItems = [
-  {
-    id: 1,
-    image: marquee1,
-  },
-  {
-    id: 2,
-    image: marquee2,
-  },
-  {
-    id: 3,
-    image: marquee3,
-  },
-  {
-    id: 4,
-    image: marquee4,
-  },
-  {
-    id: 5,
-    image: marquee5,
-  },
-  {
-    id: 6,
-    image: marquee6,
-  },
-  {
-    id: 7,
-    image: marquee7,
-  },
-];
 
 const mockReviews = [
   {
@@ -297,19 +259,19 @@ const Home = () => {
       </section>
 
       <section className="pt-10 lg:pt-12 2xl:pt-12">
-        <CustomImg
-          srcAttr={freeGiftBanner}
-          className="h-[20vh] lg:h-auto w-full"
-          altAttr=""
-          titleAttr=""
-        />
+        <picture>
+          <source media="(max-width: 1024px)" srcSet={mobileFreeGift?.src} />
+
+          <CustomImg
+            srcAttr={desktopFreeGift}
+            className="object-cover"
+            altAttr="Free Gift Banner"
+          />
+        </picture>
       </section>
 
       <section className="container pt-10 lg:pt-12 2xl:pt-12 ">
         <CategoryGallery />
-      </section>
-      <section className="pt-12 xl:pt-24 container">
-        <Marquee items={marqueeItems} />
       </section>
 
       <section className="container pt-10 lg:pt-16 2xl:pt-20">
