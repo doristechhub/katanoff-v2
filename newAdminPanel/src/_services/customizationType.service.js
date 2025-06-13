@@ -11,8 +11,6 @@ import {
   GOLD_COLOR,
   GOLD_TYPE_SUB_TYPES_LIST,
   GOLD_COLOR_SUB_TYPES_LIST,
-  SIZE_TYPE,
-  SIZE_TYPE_SUB_TYPES_LIST,
 } from 'src/_helpers/constants';
 
 const getAllCustomizationTypes = () => {
@@ -212,17 +210,15 @@ const checkAndInsertCustomizationSubTypes = async (subTypes, customizationTypeId
 const createCommonCustomizations = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const customizationsTypes = [GOLD_TYPE, GOLD_COLOR, SIZE_TYPE];
+      const customizationsTypes = [GOLD_TYPE, GOLD_COLOR];
       await Promise.all(customizationsTypes.map((type) => checkAndInsertCustomizationType(type)));
 
       const foundedGoldType = await fetchWrapperService.findOne(customizationTypeUrl, GOLD_TYPE);
       const foundedGoldColor = await fetchWrapperService.findOne(customizationTypeUrl, GOLD_COLOR);
-      const foundedRingSize = await fetchWrapperService.findOne(customizationTypeUrl, SIZE_TYPE);
 
       await Promise.all([
         checkAndInsertCustomizationSubTypes(GOLD_TYPE_SUB_TYPES_LIST, foundedGoldType.id),
         checkAndInsertCustomizationSubTypes(GOLD_COLOR_SUB_TYPES_LIST, foundedGoldColor.id),
-        checkAndInsertCustomizationSubTypes(SIZE_TYPE_SUB_TYPES_LIST, foundedRingSize.id),
       ]);
       resolve(true);
     } catch (e) {

@@ -45,8 +45,6 @@ export const GOLD_TYPE = { title: 'Gold Type' };
 
 export const GOLD_COLOR = { title: 'Gold Color' };
 
-export const SIZE_TYPE = { title: 'Size' };
-
 export const GOLD_TYPE_SUB_TYPES_LIST = [
   { title: '10K', type: 'default' },
   { title: '14K', type: 'default' },
@@ -56,18 +54,6 @@ export const GOLD_TYPE_SUB_TYPES_LIST = [
 export const INIT_GOLD_TYPE_SUB_TYPES_LIST = [
   { title: '10K', type: 'default' },
   { title: '14K', type: 'default' },
-];
-
-export const SIZE_TYPE_SUB_TYPES_LIST = [
-  { title: '6', type: 'default' },
-  { title: '7', type: 'default' },
-  { title: '8', type: 'default' },
-  { title: '9', type: 'default' },
-  { title: '10', type: 'default' },
-  { title: '11', type: 'default' },
-  { title: '12', type: 'default' },
-  { title: '13', type: 'default' },
-  { title: '14', type: 'default' },
 ];
 
 // export const GOLD_COLOR_SUB_TYPES_LIST = [

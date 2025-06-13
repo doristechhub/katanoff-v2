@@ -19,8 +19,6 @@ import {
   ALLOW_MIN_CARAT_WEIGHT,
   GOLD_COLOR,
   GOLD_TYPE,
-  SIZE_TYPE,
-  SIZE_TYPE_SUB_TYPES_LIST,
 } from 'src/_helpers/constants';
 import { isBoolean } from 'lodash';
 import axios from 'axios';
@@ -2416,9 +2414,8 @@ const setProductVariation = async ({ productItem, customizationTypeList }) => {
 
   const goldType = findCustomizationByName(customizationTypeList, GOLD_TYPE.title);
   const goldColor = findCustomizationByName(customizationTypeList, GOLD_COLOR.title);
-  const sizeType = findCustomizationByName(customizationTypeList, SIZE_TYPE.title);
 
-  if (!goldType || !goldColor || !sizeType) return variations;
+  if (!goldType || !goldColor) return variations;
 
   const customizationSubTypes = await customizationSubTypeService.getAllCustomizationSubTypes();
 
@@ -2456,7 +2453,6 @@ const setProductVariation = async ({ productItem, customizationTypeList }) => {
   await Promise.all([
     insertSubTypes(newGoldTypeSubTypes, goldType.id),
     insertSubTypes(newGoldColorSubTypes, goldColor.id),
-    insertSubTypes(newSizeSubtypes, sizeType.id),
   ]);
 
   const latestSubTypes = await customizationSubTypeService.getAllCustomizationSubTypes();
@@ -2474,14 +2470,14 @@ const setProductVariation = async ({ productItem, customizationTypeList }) => {
     createVariation({ matchedType: goldColor, matchedSubTypes: matchSubTypes(metalColor) })
   );
 
-  if (category === 'RING') {
-    variations.push(
-      createVariation({
-        matchedType: sizeType,
-        matchedSubTypes: matchSubTypes(SIZE_TYPE_SUB_TYPES_LIST.map((x) => x?.title)),
-      })
-    );
-  }
+  // if (category === 'RING') {
+  //   variations.push(
+  //     createVariation({
+  //       matchedType: sizeType,
+  //       matchedSubTypes: matchSubTypes(SIZE_TYPE_SUB_TYPES_LIST.map((x) => x?.title)),
+  //     })
+  //   );
+  // }
 
   if (['BRACELET', 'CHAIN', 'EARRING', 'PENDENT'].includes(category)) {
     const sizeTitle = category === 'PENDENT' ? `${length} * ${width}` : length;

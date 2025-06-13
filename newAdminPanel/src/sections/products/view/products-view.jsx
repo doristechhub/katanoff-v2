@@ -31,14 +31,7 @@ import {
   processBulkProductsWithApi,
 } from 'src/actions';
 import { Button, LoadingButton } from 'src/components/button';
-import {
-  GOLD_COLOR,
-  GOLD_COLOR_SUB_TYPES_LIST,
-  GOLD_TYPE,
-  INIT_GOLD_TYPE_SUB_TYPES_LIST,
-  perPageCountOptions,
-  productStatusOptions,
-} from 'src/_helpers/constants';
+import { perPageCountOptions, productStatusOptions } from 'src/_helpers/constants';
 import { getCollectionList } from 'src/actions/collectionActions';
 import {
   setCrudProductLoading,
