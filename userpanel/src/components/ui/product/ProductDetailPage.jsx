@@ -38,8 +38,11 @@ import {
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import { setCartMessage } from "@/store/slices/cartSlice";
 import {
+  GOLD_COLOR,
+  GOLD_TYPES,
   MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT,
   messageType,
+  RING_SIZE,
 } from "@/_helper/constants";
 import { paymentOptions } from "@/_utils/paymentOptions";
 import appointment from "@/assets/icons/appointment.svg";
@@ -115,7 +118,7 @@ const ProductDetailPage = ({ customizePage }) => {
         dispatch(addUpdateRecentlyViewedProducts({ productName }));
         const initialSelections = response?.variations?.map((variation) => {
           if (
-            variation?.variationName?.toLowerCase() === "gold color" &&
+            variation?.variationName?.toLowerCase() === GOLD_COLOR &&
             goldColor
           ) {
             const matchedType = variation.variationTypes.find(
@@ -166,7 +169,7 @@ const ProductDetailPage = ({ customizePage }) => {
           initialSelections = response?.variations?.map((variation) => {
             // Handle Gold Color variation with goldColor from search params
             if (
-              variation?.variationName?.toLowerCase() === "gold color" &&
+              variation?.variationName?.toLowerCase() === GOLD_COLOR &&
               goldColor
             ) {
               const matchedType = variation.variationTypes.find(
@@ -279,7 +282,7 @@ const ProductDetailPage = ({ customizePage }) => {
         })
       );
       dispatch(setSelectedVariations(updated));
-      if (variationName?.toLowerCase() === "gold color") {
+      if (variationName?.toLowerCase() === GOLD_COLOR) {
         helperFunctions?.updateGoldColorInUrl(variationTypeName);
       }
     },
@@ -432,7 +435,7 @@ const ProductDetailPage = ({ customizePage }) => {
     });
   }
 
-  const variationLabels = ["Gold Type", "Gold Color", "Diamond Qualitiy"];
+  const variationLabels = [GOLD_TYPES, GOLD_COLOR, "Diamond Qualitiy"];
 
   const displayValues = variationLabels
     .map((label) =>
@@ -442,13 +445,13 @@ const ProductDetailPage = ({ customizePage }) => {
     .join(" ");
 
   return (
-    <div className="pt-5 2xl:pt-8">
+    <div className={` ${isCustomizePage ? "" : "pt-8 2xl:pt-12"}`}>
       {productLoading ? (
         <DetailPageSkeleton />
       ) : productDetail && Object.keys(productDetail).length > 0 ? (
         <>
           <div className="container grid grid-cols-1 md:grid-cols-2 gap-6 xs:gap-8">
-            <div className="flex h-fit">
+            <div className="flex h-fit w-full">
               <ProductDetailPageImage
                 productDetail={productDetail}
                 selectedVariations={selectedVariations}
@@ -612,19 +615,21 @@ const ProductDetailPage = ({ customizePage }) => {
                 )}
 
               <section className="pt-8">
-                <div className="grid grid-cols-2 lg:grid-cols-3 lg:gap-y-8 gap-x-4 md:gap-x-8 max-w-7xl mx-auto">
+                <div className="grid grid-cols-2 lg:grid-cols-3 max-w-4xl">
                   {supportItems.map((item) => (
-                    <Link href={item.link} key={item.label}>
-                      <div className="flex items-start gap-3">
-                        <CustomImg
-                          srcAttr={item.icon}
-                          altAttr={item.label}
-                          titleAttr={item.label}
-                          className="w-6 h-6 object-contain self-start"
-                        />
-                        <p className="text-sm md:text-base font-medium text-black">
-                          {item.label}
-                        </p>
+                    <Link href={item.link} key={item.label} className="h-full">
+                      <div className="flex flex-col h-full p-2 rounded-md">
+                        <div className="flex items-start gap-3">
+                          <CustomImg
+                            srcAttr={item.icon}
+                            altAttr={item.label}
+                            titleAttr={item.label}
+                            className="w-6 h-6 object-contain self-start"
+                          />
+                          <p className="text-sm md:text-base font-medium text-black">
+                            {item.label}
+                          </p>
+                        </div>
                       </div>
                     </Link>
                   ))}
@@ -636,7 +641,7 @@ const ProductDetailPage = ({ customizePage }) => {
           <div className="container pt-10 lg:pt-12 2xl:pt-16 md:p-6">
             <ProductDetailTabs selectedVariations={selectedVariations} />
           </div>
-          <section className="pt-10 lg:pt-20 2xl:pt-24 container">
+          <section className="pt-10 lg:pt-12 xl:pt-16 container">
             <KeyFeatures />
           </section>
           {!isCustomizePage &&
@@ -712,9 +717,9 @@ const AddToBagBar = ({
     <>
       <div className={`${baseClasses} ${visibility}`}>
         <div
-          className={`mx-auto py-4 px-4 grid lg:grid-cols-3 justify-center  items-center gap-4  container`}
+          className={`mx-auto py-4 px-4 grid xs:grid-cols-2  lg:grid-cols-3 justify-center items-center gap-4 container`}
         >
-          <div className="hidden lg:block">
+          <div className="hidden xs:block">
             <p className="font-medium font-castoro text-xl">
               Estimated Ship Date
             </p>
@@ -890,22 +895,25 @@ const ProductDetailTabs = ({ selectedVariations = [] }) => {
             {selectedVariations?.length > 0 ? (
               <>
                 {renderInfoRow(
-                  "Gold Type",
+                  GOLD_TYPES,
                   helperFunctions?.getVariationValue(
                     selectedVariations,
-                    "Gold Type"
+                    GOLD_TYPES
                   )
                 )}
                 {renderInfoRow(
-                  "Gold Color",
+                  GOLD_COLOR,
                   helperFunctions?.getVariationValue(
                     selectedVariations,
-                    "Gold Color"
+                    GOLD_COLOR
                   )
                 )}
                 {renderInfoRow(
-                  "Size",
-                  helperFunctions?.getVariationValue(selectedVariations, "Size")
+                  RING_SIZE,
+                  helperFunctions?.getVariationValue(
+                    selectedVariations,
+                    RING_SIZE
+                  )
                 )}
                 {renderInfoRow(
                   "Approx Net Wt",
@@ -983,6 +991,7 @@ const ProductDetailTabs = ({ selectedVariations = [] }) => {
       tabs={tabData}
       forceResetKey={selectedVariations}
       // labelCustomClass="!uppercase"
+
       alwaysOpenFirst={true}
       hideFirstToggleIcon={true}
     />

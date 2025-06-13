@@ -826,7 +826,7 @@ export default function ProductFilter({
         }`}
       >
         <div className="container">
-          <div className="gap-2 flex flex-col lg:flex-row lg:items-center lg:justify-between lg:h-[45px] relative pb-6">
+          <div className="gap-2 flex flex-col lg:flex-row lg:items-center lg:justify-between lg:h-[45px] relative pb-4">
             <div className="flex flex-wrap items-center w-[90%] lg:w-[45%] gap-x-2 lg:gap-x-6 gap-y-1.5">
               {/* Display selected filters */}
               {selectedFilters.map((filter) => (

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import { HiOutlineShoppingBag } from "react-icons/hi2";
 import dropdownArrow from "@/assets/icons/dropdownArrow.svg";
 import effect from "@/assets/icons/effect.png";
@@ -8,7 +8,7 @@ import {
   removeProductIntoCart,
   updateProductQuantityIntoCart,
 } from "@/_actions/cart.action";
-import { helperFunctions } from "@/_helper";
+import { helperFunctions, RING_SIZE } from "@/_helper";
 import Link from "next/link";
 import { LinkButton } from "@/components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
@@ -30,6 +30,7 @@ const minQuantity = 1;
 const CartPopup = () => {
   const dispatch = useDispatch();
   const contentRef = useRef(null);
+  const [viewportHeight, setViewportHeight] = useState("100vh");
   const { isCartOpen, isChecked, isSubmitted, openDiamondDetailDrawer } =
     useSelector(({ common }) => common);
   const {
@@ -73,6 +74,17 @@ const CartPopup = () => {
     },
     [dispatch]
   );
+  useEffect(() => {
+    const setVH = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty("--vh", `${vh}px`);
+      setViewportHeight(`${vh * 100}px`);
+    };
+
+    setVH();
+    window.addEventListener("resize", setVH);
+    return () => window.removeEventListener("resize", setVH);
+  }, []);
 
   const removeFromCart = useCallback(
     (cartItem) => {
@@ -153,12 +165,13 @@ const CartPopup = () => {
       )}
 
       <div
-        className={`fixed top-0 right-0 h-screen w-full md:w-[450px] bg-offwhite xl:w-[480px] 3xl:w-[500px] shadow-xl z-50 transform transition-transform duration-300 ${
+        className={`fixed top-0 right-0 w-full md:w-[450px] bg-offwhite xl:w-[480px] 3xl:w-[500px] shadow-xl z-50 transform transition-transform duration-300 ${
           isCartOpen ? "translate-x-0" : "translate-x-full"
         }`}
+        style={{ height: viewportHeight }}
       >
         <div className="flex flex-col h-full">
-          <div className="shrink-0 p-4 border-b border-black flex justify-between items-center pt-8 xl:pt-8 2xl:pt-6">
+          <div className="shrink-0 p-4 border-b border-black flex justify-between items-center pt-4">
             <h2 className="text-xl md:text-2xl font-medium font-castoro text-baseblack mx-auto">
               My Bag {cartList?.length ? "(" + cartList.length + ")" : null}
             </h2>
@@ -176,7 +189,7 @@ const CartPopup = () => {
               <div className="flex flex-col h-full min-h-0 px-4">
                 <div
                   ref={contentRef}
-                  className="flex-1 min-h-0 overflow-y-auto px-2 pt-6 relative"
+                  className="flex-1 overflow-y-auto px-2 pt-6 relative"
                 >
                   {cartList?.map((cartItem) => (
                     <div className="pb-6 xl:pb-8" key={cartItem?.id}>
@@ -245,12 +258,15 @@ const CartPopup = () => {
                           </div>
 
                           {cartItem?.variations?.some(
-                            (v) => v.variationName === "Size"
+                            (v) => v.variationName === RING_SIZE
                           ) && (
                             <p className="text-sm font-medium">
-                              Size:{" "}
                               {cartItem.variations.find(
-                                (v) => v.variationName === "Size"
+                                (v) => v.variationName === RING_SIZE
+                              )?.variationName || "N/A"}
+                              :{" "}
+                              {cartItem.variations.find(
+                                (v) => v.variationName === RING_SIZE
                               )?.variationTypeName || "N/A"}
                             </p>
                           )}
@@ -378,7 +394,7 @@ const CartPopup = () => {
                   </div>
                 </div>
 
-                <div className="shrink-0 px-2 xs:px-6 bg-offwhite border-t-2 border-black_opacity_10 pb-2 pt-2">
+                <div className="shrink-0 px-2 xs:px-6 bg-offwhite border-t-2 border-black_opacity_10 pb-4 pt-2">
                   <p className="text-base text-baseblack flex justify-between font-semibold pt-2">
                     Order Total: <span>${getSubTotal()}</span>
                   </p>

@@ -1,6 +1,18 @@
-import { memo } from "react";
+import { memo, useCallback, useRef } from "react";
 import { CustomImg } from "../dynamiComponents";
 import dropdownArrow from "@/assets/icons/dropdownArrow.svg";
+import { RING_SIZE } from "@/_helper";
+
+const useDebounce = (callback, delay) => {
+  const timeoutRef = useRef(null);
+  return useCallback(
+    (...args) => {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => callback(...args), delay);
+    },
+    [callback, delay]
+  );
+};
 
 const VariationsList = ({
   variations,
@@ -9,6 +21,7 @@ const VariationsList = ({
   setHoveredColor,
   hoveredColor,
 }) => {
+  const debouncedSetHoveredColor = useDebounce(setHoveredColor, 100);
   const isSelected = (variationId, variationTypeId) =>
     selectedVariations?.length &&
     selectedVariations?.some(
@@ -23,7 +36,7 @@ const VariationsList = ({
           (v) => v?.variationId === variation?.variationId
         );
 
-        const isSizeVariation = variation?.variationName === "Size";
+        const isSizeVariation = variation?.variationName === RING_SIZE;
 
         return (
           <div key={variation?.variationId} className="flex flex-col gap-2">
@@ -37,7 +50,7 @@ const VariationsList = ({
             {isSizeVariation ? (
               <div className="relative w-fit">
                 <select
-                  className={`appearance-none px-4 py-2 pr-10 border border-grayborder rounded-sm text-sm font-semibold bg-transparent cursor-pointer`}
+                  className={`appearance-none px-3 py-2 pr-6  border border-grayborder rounded-sm text-sm font-semibold bg-transparent cursor-pointer`}
                   value={selectedType?.variationTypeId || ""}
                   onChange={(e) => {
                     const selectedOption = variation.variationTypes.find(
@@ -63,7 +76,7 @@ const VariationsList = ({
                     </option>
                   ))}
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-1 flex items-center px-2 text-black">
+                <div className="pointer-events-none absolute inset-y-0 right-1 flex items-center px-1 text-black">
                   <CustomImg
                     srcAttr={dropdownArrow}
                     altAttr="Arrow"
@@ -112,11 +125,17 @@ const VariationsList = ({
                                 type?.variationTypeName
                               )
                             }
+                            // onMouseEnter={() => {
+                            //   setHoveredColor(type.variationTypeName);
+                            // }}
+                            // onMouseLeave={() => {
+                            //   if (setHoveredColor) setHoveredColor("");
+                            // }}
                             onMouseEnter={() => {
                               setHoveredColor(type.variationTypeName);
                             }}
                             onMouseLeave={() => {
-                              if (setHoveredColor) setHoveredColor("");
+                              setHoveredColor("");
                             }}
                           />
                         </div>

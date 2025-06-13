@@ -47,11 +47,7 @@ import Iconify from 'src/components/iconify';
 import Spinner from 'src/components/spinner';
 import Scrollbar from 'src/components/scrollbar';
 import { Button, LoadingButton } from 'src/components/button';
-import {
-  GOLD_TYPE_SUB_TYPES_LIST,
-  GOLD_COLOR_SUB_TYPES_LIST,
-  SIZE_TYPE_SUB_TYPES_LIST,
-} from 'src/_helpers/constants';
+import { GOLD_TYPE_SUB_TYPES_LIST, GOLD_COLOR_SUB_TYPES_LIST } from 'src/_helpers/constants';
 import { FileDrop } from 'src/components/file-drop';
 import ProgressiveImg from 'src/components/progressive-img';
 
@@ -75,7 +71,6 @@ const isColorType = (type) => {
 const NON_EDITABLE_DELETABLE_SUBTYPE = [
   ...GOLD_TYPE_SUB_TYPES_LIST.map((subType) => subType.title),
   ...GOLD_COLOR_SUB_TYPES_LIST.map((subType) => subType.title),
-  ...SIZE_TYPE_SUB_TYPES_LIST.map((subType) => subType.title),
 ];
 const CustomizationSubType = () => {
   const dispatch = useDispatch();

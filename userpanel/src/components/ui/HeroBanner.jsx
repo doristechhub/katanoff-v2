@@ -17,6 +17,8 @@ const HeroBanner = ({
   title,
   description,
   imageSrc,
+  imageSrcDesktop,
+  imageSrcMobile,
   videoSrc,
   textAlignment = "center",
   isHomePage = false,
@@ -59,6 +61,17 @@ const HeroBanner = ({
             />
           </picture>
         </div>
+      ) : imageSrcDesktop && imageSrcMobile ? (
+        <picture>
+          <source media="(max-width: 1024px)" srcSet={imageSrcMobile?.src} />
+
+          <CustomImg
+            srcAttr={imageSrcDesktop}
+            className={`object-cover w-full`}
+            altAttr={altAttr}
+            titleAttr={titleAttr}
+          />
+        </picture>
       ) : imageSrc ? (
         <CustomImg
           srcAttr={imageSrc}
@@ -104,7 +117,6 @@ const HeroBanner = ({
                 Free 1ct Diamond Pendant with Purchase<sup>*</sup>
               </p>
               <div className="mt-4 md:mt-4 flex flex-col md:flex-row items-center md:justify-center gap-2.5 md:gap-4">
-
                 <LinkButton
                   href="/customize/start-with-setting"
                   className="lg:!h-0 w-fit lg:py-[16px] 2xl:py-[20px] 2xl:!min-w-[250px]   lg:!text-sm !font-bold rounded-none !border-baseblack md:!border-white !border-1 !text-baseblack md:!text-white !bg-transparent  hover:!bg-[#030817] hover:!text-white"

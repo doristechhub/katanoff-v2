@@ -34,7 +34,7 @@ const ProgressiveVed = ({
           alt={"Loading..."}
           width={width}
           height={height}
-          className={`object-cover image-rendering-optimize ${customClass} ${className}`}
+          className={`object-cover !w-full h-full image-rendering-optimize ${customClass} ${className}`}
           priority
           {...props}
         />
