@@ -45,27 +45,23 @@ export const GOLD_TYPE = { title: 'Gold Type' };
 
 export const GOLD_COLOR = { title: 'Gold Color' };
 
+export const RING_SIZE = { title: 'Ring Size' };
+
 export const GOLD_TYPE_SUB_TYPES_LIST = [
   { title: '10K', type: 'default' },
   { title: '14K', type: 'default' },
   { title: '18K', type: 'default' },
 ];
 
-export const INIT_GOLD_TYPE_SUB_TYPES_LIST = [
-  { title: '10K', type: 'default' },
-  { title: '14K', type: 'default' },
-];
-
-// export const GOLD_COLOR_SUB_TYPES_LIST = [
-//   { title: 'Yellow', type: 'color', hexCode: '#eeae3f' },
-//   { title: 'White', type: 'color', hexCode: '#b3b2af' },
-//   { title: 'Rose', type: 'color', hexCode: '#e5785d' },
-// ];
-
 export const GOLD_COLOR_SUB_TYPES_LIST = [
   { title: 'Yellow Gold', type: 'color', hexCode: '#E5CE83' },
   { title: 'White Gold', type: 'color', hexCode: '#E5E4E2' },
   { title: 'Rose Gold', type: 'color', hexCode: '#E7BA9A' },
+];
+
+export const INIT_GOLD_TYPE_SUB_TYPES_LIST = [
+  // { title: '10K', type: 'default' },
+  { title: '14K', type: 'default' },
 ];
 
 // Object map for gold color to thumbnail field

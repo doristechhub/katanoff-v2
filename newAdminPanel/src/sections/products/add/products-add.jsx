@@ -72,6 +72,7 @@ import {
   GOLD_COLOR_SUB_TYPES_LIST,
   GOLD_TYPE,
   INIT_GOLD_TYPE_SUB_TYPES_LIST,
+  RING_SIZE,
 } from 'src/_helpers/constants';
 import ClearIcon from '@mui/icons-material/Clear';
 
@@ -316,47 +317,63 @@ export default function AddProductPage() {
   // set  default variations selected
   const setInitVariation = useCallback(
     ({ customizationTypesList, customizationSubTypesList }) => {
-      const findCustomizationByName = (list, name) =>
-        list.find(
-          (customization) =>
-            customization.title === name || customization.customizationTypeName === name
+      const findCustomization = (name) =>
+        customizationTypesList.find(
+          (item) => item.title === name || item.customizationTypeName === name
         );
-      const foundedGoldType = findCustomizationByName(customizationTypesList, GOLD_TYPE.title);
-      const foundedGoldColor = findCustomizationByName(customizationTypesList, GOLD_COLOR.title);
-      if (foundedGoldType && foundedGoldColor) {
-        const foundedGoldTypeWiseSubTypes = customizationSubTypesList.filter(
-          (subType) => subType.customizationTypeName === GOLD_TYPE.title
+
+      const findSubTypesByTypeName = (typeName) =>
+        customizationSubTypesList.filter((subType) => subType.customizationTypeName === typeName);
+
+      const mapSubTypesFromList = (subTypeTitles) =>
+        subTypeTitles
+          .map(
+            (item) =>
+              customizationSubTypesList.find((subType) => subType.title === item.title) || null
+          )
+          .filter(Boolean);
+
+      const goldType = findCustomization(GOLD_TYPE.title);
+      const goldColor = findCustomization(GOLD_COLOR.title);
+      const ringSize = findCustomization(RING_SIZE.title);
+
+      const newVariations = [];
+
+      if (goldType) {
+        const goldTypeSubTypes = findSubTypesByTypeName(GOLD_TYPE.title);
+        const matchedGoldTypeSubTypes = mapSubTypesFromList(INIT_GOLD_TYPE_SUB_TYPES_LIST);
+        newVariations.push(createVariation(goldType.id, goldTypeSubTypes, matchedGoldTypeSubTypes));
+      }
+
+      if (goldColor) {
+        const goldColorSubTypes = findSubTypesByTypeName(goldColor.title);
+        const matchedGoldColorSubTypes = mapSubTypesFromList(GOLD_COLOR_SUB_TYPES_LIST);
+        newVariations.push(
+          createVariation(goldColor.id, goldColorSubTypes, matchedGoldColorSubTypes)
         );
-        const foundedGoldColorWiseSubTypes = customizationSubTypesList.filter(
-          (subType) => subType.customizationTypeName === foundedGoldColor.title
+      }
+
+      if (ringSize) {
+        const ringSizeSubTypes = findSubTypesByTypeName(ringSize.title);
+        const sortedRingSizes = [...ringSizeSubTypes].sort(
+          (a, b) => parseFloat(a.title) - parseFloat(b.title)
         );
-        const matchedGoldTypeSubTypes = INIT_GOLD_TYPE_SUB_TYPES_LIST.map(
-          (goldType) =>
-            customizationSubTypesList.find((subType) => subType.title === goldType.title) || null
-        ).filter(Boolean);
-        const matchedGoldColorSubTypes = GOLD_COLOR_SUB_TYPES_LIST.map(
-          (goldType) =>
-            customizationSubTypesList.find((subType) => subType.title === goldType.title) || null
-        ).filter(Boolean);
-        const createVariation = (variationId, foundedSubTypes, matchedSubTypes) => ({
+        newVariations.push(createVariation(ringSize.id, ringSizeSubTypes, sortedRingSizes));
+      }
+
+      const newPayload = { ...selectedProduct, variations: newVariations };
+
+      if (JSON.stringify(newPayload) !== JSON.stringify(selectedProduct)) {
+        dispatch(setSelectedProduct(newPayload));
+      }
+
+      // Helper inside callback for reuse
+      function createVariation(variationId, subTypes, matchedSubTypes) {
+        return {
           variationId,
-          subTypes: foundedSubTypes,
-          variationTypes: matchedSubTypes.map((subType) => ({
-            variationTypeId: subType.id,
-          })),
-        });
-        const newVariations = [
-          createVariation(foundedGoldType.id, foundedGoldTypeWiseSubTypes, matchedGoldTypeSubTypes),
-          createVariation(
-            foundedGoldColor.id,
-            foundedGoldColorWiseSubTypes,
-            matchedGoldColorSubTypes
-          ),
-        ];
-        const newPayload = { ...selectedProduct, variations: newVariations };
-        if (JSON.stringify(newPayload) !== JSON.stringify(selectedProduct)) {
-          dispatch(setSelectedProduct(newPayload));
-        }
+          subTypes,
+          variationTypes: matchedSubTypes.map(({ id }) => ({ variationTypeId: id })),
+        };
       }
     },
     [dispatch, selectedProduct]
