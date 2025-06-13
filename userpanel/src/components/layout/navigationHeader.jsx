@@ -1024,333 +1024,284 @@ export default function NavigationHeader() {
                       />
                     </div>
                   </div>
-                  {customizeOptionLoading ? (
-                    <div className="block lg:hidden animate-pulse">
-                      <div className="grid grid-cols-1 gap-4 max-h-[600px] overflow-hidden transition-all duration-300 ease-in-out">
-                        {[1, 2, 3].map((i) => (
-                          <div
-                            key={i}
-                            className="flex flex-col gap-2 mt-2 ms-4"
-                          >
-                            <SkeletonLoader width="w-32" height="h-4" />
-                            <div className="flex flex-col gap-2 mt-2 ms-3">
-                              {[...Array(3)].map((_, idx) => (
-                                <div
+                  <div
+                    className={`grid grid-cols-1 overflow-hidden transition-all duration-300 ease-in-out mt-1 ${
+                      openDropdownMobile === ENGAGEMENT
+                        ? "max-h-fit opacity-100 translate-y-0"
+                        : "max-h-0 opacity-0 -translate-y-2"
+                    }`}
+                  >
+                    {/* PRE-DESIGNED RINGS Section */}
+                    <div className="ps-3">
+                      <button
+                        onClick={() =>
+                          setActiveNestedMobile(
+                            activeNestedMobile === "predesigned"
+                              ? null
+                              : "predesigned"
+                          )
+                        }
+                        className="w-full flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="relative">
+                            <h3 className="text-sm font-castoro p-[8px]">
+                              PRE-DESIGNED RINGS
+                            </h3>
+                          </div>
+                        </div>
+
+                        <div className="px-[20px]">
+                          {" "}
+                          <IoIosArrowDown
+                            className={`transition-all duration-300 ease-in-out transform ${
+                              activeNestedMobile === "predesigned"
+                                ? "rotate-180 scale-110"
+                                : "rotate-0 scale-100"
+                            }`}
+                          />
+                        </div>
+                      </button>
+
+                      <div
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                          activeNestedMobile === "predesigned"
+                            ? "max-h-fit opacity-100"
+                            : "max-h-0 opacity-0"
+                        }`}
+                      >
+                        {engagementHeaderLoader ? (
+                          <>
+                            <div className="flex flex-col gap-2">
+                              <SkeletonLoader
+                                height="h-4"
+                                className="ms-[10px]"
+                                width="!w-[80px]"
+                              />
+
+                              {[...Array(6)].map((_, idx) => (
+                                <SkeletonLoader
+                                  height="h-3.5"
                                   key={idx}
-                                  className="flex items-center gap-2"
-                                >
-                                  <SkeletonLoader
-                                    width="w-4"
-                                    height="h-4"
-                                    rounded="rounded-full"
-                                  />
-                                  <SkeletonLoader width="w-24" height="h-4" />
-                                </div>
+                                  className="ms-[10px]"
+                                  width="!w-[130px]"
+                                />
                               ))}
                             </div>
-                          </div>
-                        ))}
-                        <div className="flex flex-col gap-2 mt-2 ms-4">
-                          <SkeletonLoader width="w-40" height="h-4" />
-                          <div className="grid grid-cols-4 gap-4 mt-3 text-center">
-                            {[...Array(4)].map((_, index) => (
-                              <div
-                                key={index}
-                                className="flex flex-col items-center gap-1"
+                          </>
+                        ) : (
+                          <>
+                            {engagementHeaderUniqueFilterOptions
+                              ?.uniqueSettingStyles?.length ||
+                            engagementHeaderUniqueFilterOptions
+                              ?.uniqueVariations?.length ? (
+                              <Link
+                                href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                                  ENGAGEMENT_RINGS
+                                )}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  closeAllDropdown();
+                                }}
+                                className="border-b border-baseblack hover:border-b-primary text-[0.875em] mx-3"
                               >
-                                <SkeletonLoader
-                                  width="w-8"
-                                  height="h-8"
-                                  rounded="rounded-full"
-                                />
-                                <SkeletonLoader width="w-12" height="h-3" />
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div
-                      className={`grid grid-cols-1 overflow-hidden transition-all duration-300 ease-in-out ${
-                        openDropdownMobile === ENGAGEMENT
-                          ? "max-h-fit opacity-100 translate-y-0"
-                          : "max-h-0 opacity-0 -translate-y-2"
-                      }`}
-                    >
-                      {/* PRE-DESIGNED RINGS Section */}
-                      <div>
-                        <button
-                          onClick={() =>
-                            setActiveNestedMobile(
-                              activeNestedMobile === "predesigned"
-                                ? null
-                                : "predesigned"
-                            )
-                          }
-                          className="w-full flex items-center justify-between"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="relative">
-                              <h3 className="text-sm font-castoro p-[10px]">
-                                PRE-DESIGNED RINGS
-                              </h3>
-                            </div>
-                          </div>
-
-                          <div className="px-[20px]">
-                            {" "}
-                            <IoIosArrowDown
-                              className={`transition-all duration-300 ease-in-out transform ${
-                                activeNestedMobile === "predesigned"
-                                  ? "rotate-180 scale-110"
-                                  : "rotate-0 scale-100"
-                              }`}
-                            />
-                          </div>
-                        </button>
-
-                        <div
-                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                            activeNestedMobile === "predesigned"
-                              ? "max-h-fit opacity-100"
-                              : "max-h-0 opacity-0"
-                          }`}
-                        >
-                          {engagementHeaderLoader ? (
-                            <>
-                              <div className="flex flex-col gap-2">
-                                <SkeletonLoader
-                                  height="h-4"
-                                  className="ms-[10px]"
-                                  width="!w-[80px]"
-                                />
-
-                                {[...Array(6)].map((_, idx) => (
-                                  <SkeletonLoader
-                                    height="h-3.5"
-                                    key={idx}
-                                    className="ms-[10px]"
-                                    width="!w-[130px]"
-                                  />
-                                ))}
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              {engagementHeaderUniqueFilterOptions
-                                ?.uniqueSettingStyles?.length ||
-                              engagementHeaderUniqueFilterOptions
-                                ?.uniqueVariations?.length ? (
-                                <Link
-                                  href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-                                    ENGAGEMENT_RINGS
-                                  )}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    closeAllDropdown();
-                                  }}
-                                  className="border-b border-baseblack hover:border-b-primary text-[0.875em] mx-3"
-                                >
-                                  View All
-                                </Link>
-                              ) : null}
-                              {/* Mobile Setting Style */}
-                              {engagementHeaderUniqueFilterOptions
-                                ?.uniqueSettingStyles?.length ? (
-                                <div>
-                                  <h3 className="font-semibold text-[14px] p-[10px] uppercase">
-                                    Shop by Style
-                                  </h3>
-                                  <div className="ps-3 flex flex-col gap-1">
-                                    {engagementHeaderUniqueFilterOptions?.uniqueSettingStyles.map(
-                                      (item, index) => (
-                                        <HeaderLinkButton
-                                          key={`variation-${index}4`}
-                                          href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-                                            ENGAGEMENT_RINGS
-                                          )}?setting_style=${helperFunctions.stringReplacedWithUnderScore(
-                                            item.title
-                                          )}`}
-                                          className="!text-[14px] font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            closeAllDropdown();
-                                          }}
-                                        >
-                                          {item.title}
-                                        </HeaderLinkButton>
-                                      )
-                                    )}
-                                  </div>
+                                View All
+                              </Link>
+                            ) : null}
+                            {/* Mobile Setting Style */}
+                            {engagementHeaderUniqueFilterOptions
+                              ?.uniqueSettingStyles?.length ? (
+                              <div>
+                                <h3 className="font-semibold text-[14px] p-[10px] uppercase">
+                                  Shop by Style
+                                </h3>
+                                <div className="ps-3 flex flex-col gap-1">
+                                  {engagementHeaderUniqueFilterOptions?.uniqueSettingStyles.map(
+                                    (item, index) => (
+                                      <HeaderLinkButton
+                                        key={`variation-${index}4`}
+                                        href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                                          ENGAGEMENT_RINGS
+                                        )}?setting_style=${helperFunctions.stringReplacedWithUnderScore(
+                                          item.title
+                                        )}`}
+                                        className="!text-[14px] font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          closeAllDropdown();
+                                        }}
+                                      >
+                                        {item.title}
+                                      </HeaderLinkButton>
+                                    )
+                                  )}
                                 </div>
-                              ) : null}
+                              </div>
+                            ) : null}
 
-                              {/* Mobile Diamond Shape */}
-                              {engagementHeaderUniqueFilterOptions
-                                ?.uniqueVariations?.length ? (
-                                <div>
-                                  <h3 className="font-semibold text-[14px] p-[10px] uppercase">
-                                    Shop by Shape
-                                  </h3>
-                                  <div className="ps-3 grid grid-cols-2 ">
-                                    {engagementHeaderUniqueFilterOptions.uniqueVariations
-                                      .filter(
-                                        (variation) =>
-                                          variation.variationName ===
-                                          "Diamond Shape"
-                                      )
-                                      .flatMap((variation) =>
-                                        variation.variationTypes.map(
-                                          (item, index) => (
-                                            <HeaderLinkButton
-                                              key={`mobile-variation-${index}`}
-                                              href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-                                                ENGAGEMENT_RINGS
-                                              )}?Diamond_Shape=${helperFunctions.stringReplacedWithUnderScore(
-                                                item.variationTypeName
-                                              )}`}
-                                              className="!text-[14px] font-medium flex items-center !gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                closeAllDropdown();
-                                              }}
-                                            >
-                                              {" "}
-                                              {item?.variationTypeImage ? (
-                                                <ProgressiveImg
-                                                  src={item?.variationTypeImage}
-                                                  alt={item?.variationTypeName}
-                                                  className="w-5 h-5 inline-block"
-                                                />
-                                              ) : null}
-                                              {item.variationTypeName}
-                                            </HeaderLinkButton>
-                                          )
+                            {/* Mobile Diamond Shape */}
+                            {engagementHeaderUniqueFilterOptions
+                              ?.uniqueVariations?.length ? (
+                              <div>
+                                <h3 className="font-semibold text-[14px] p-[10px] uppercase">
+                                  Shop by Shape
+                                </h3>
+                                <div className="ps-3 grid grid-cols-2 ">
+                                  {engagementHeaderUniqueFilterOptions.uniqueVariations
+                                    .filter(
+                                      (variation) =>
+                                        variation.variationName ===
+                                        "Diamond Shape"
+                                    )
+                                    .flatMap((variation) =>
+                                      variation.variationTypes.map(
+                                        (item, index) => (
+                                          <HeaderLinkButton
+                                            key={`mobile-variation-${index}`}
+                                            href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                                              ENGAGEMENT_RINGS
+                                            )}?Diamond_Shape=${helperFunctions.stringReplacedWithUnderScore(
+                                              item.variationTypeName
+                                            )}`}
+                                            className="!text-[14px] font-medium flex items-center !gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              closeAllDropdown();
+                                            }}
+                                          >
+                                            {" "}
+                                            {item?.variationTypeImage ? (
+                                              <ProgressiveImg
+                                                src={item?.variationTypeImage}
+                                                alt={item?.variationTypeName}
+                                                className="w-5 h-5 inline-block"
+                                              />
+                                            ) : null}
+                                            {item.variationTypeName}
+                                          </HeaderLinkButton>
                                         )
-                                      )}
-                                  </div>
-                                </div>
-                              ) : null}
-
-                              {/* Mobile Shop by Metal */}
-                              {engagementHeaderUniqueFilterOptions
-                                ?.uniqueSettingStyles?.length ? (
-                                <div>
-                                  <h3 className="font-semibold text-[14px] p-[10px] uppercase">
-                                    Shop by Metal
-                                  </h3>
-                                  <div className="ps-3 flex flex-col gap-1">
-                                    {engagementHeaderUniqueFilterOptions?.uniqueVariations?.map(
-                                      (variation, index) => (
-                                        <div
-                                          className="flex flex-col"
-                                          key={`sm-variation-${index}-parent`}
-                                        >
-                                          {variation.variationName ===
-                                          GOLD_COLOR
-                                            ? variation.variationTypes.map(
-                                                (item, index) => (
-                                                  <HeaderLinkButton
-                                                    key={`sm-variation-${index}-child`}
-                                                    href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-                                                      ENGAGEMENT_RINGS
-                                                    )}?Gold_Color=${helperFunctions.stringReplacedWithUnderScore(
-                                                      item.variationTypeName
-                                                    )}`}
-                                                    className="!text-[14px] flex items-center font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
-                                                    onClick={(e) => {
-                                                      e.stopPropagation();
-                                                      closeAllDropdown();
-                                                      dispatch(
-                                                        setIsMenuOpen(false)
-                                                      );
-                                                    }}
-                                                  >
-                                                    <div
-                                                      className="w-5 h-5 rounded-full"
-                                                      style={{
-                                                        background:
-                                                          item?.variationTypeHexCode,
-                                                      }}
-                                                    ></div>{" "}
-                                                    {item.variationTypeName}
-                                                  </HeaderLinkButton>
-                                                )
-                                              )
-                                            : null}
-                                        </div>
                                       )
                                     )}
-                                  </div>
                                 </div>
-                              ) : null}
-                            </>
-                          )}
-                        </div>
+                              </div>
+                            ) : null}
+
+                            {/* Mobile Shop by Metal */}
+                            {engagementHeaderUniqueFilterOptions
+                              ?.uniqueSettingStyles?.length ? (
+                              <div>
+                                <h3 className="font-semibold text-[14px] p-[10px] uppercase">
+                                  Shop by Metal
+                                </h3>
+                                <div className="ps-3 flex flex-col gap-1">
+                                  {engagementHeaderUniqueFilterOptions?.uniqueVariations?.map(
+                                    (variation, index) => (
+                                      <div
+                                        className="flex flex-col"
+                                        key={`sm-variation-${index}-parent`}
+                                      >
+                                        {variation.variationName === GOLD_COLOR
+                                          ? variation.variationTypes.map(
+                                              (item, index) => (
+                                                <HeaderLinkButton
+                                                  key={`sm-variation-${index}-child`}
+                                                  href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                                                    ENGAGEMENT_RINGS
+                                                  )}?Gold_Color=${helperFunctions.stringReplacedWithUnderScore(
+                                                    item.variationTypeName
+                                                  )}`}
+                                                  className="!text-[14px] flex items-center font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    closeAllDropdown();
+                                                    dispatch(
+                                                      setIsMenuOpen(false)
+                                                    );
+                                                  }}
+                                                >
+                                                  <div
+                                                    className="w-5 h-5 rounded-full"
+                                                    style={{
+                                                      background:
+                                                        item?.variationTypeHexCode,
+                                                    }}
+                                                  ></div>{" "}
+                                                  {item.variationTypeName}
+                                                </HeaderLinkButton>
+                                              )
+                                            )
+                                          : null}
+                                      </div>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+                            ) : null}
+                          </>
+                        )}
                       </div>
+                    </div>
 
-                      {/* DESIGN YOUR RING Section */}
-                      <div>
-                        <button
-                          onClick={() =>
-                            setActiveNestedMobile(
-                              activeNestedMobile === "design" ? null : "design"
-                            )
-                          }
-                          className="w-full flex items-center justify-between "
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="relative">
-                              <h3 className="text-sm font-castoro p-[10px]">
-                                DESIGN YOUR RING
-                              </h3>
-                            </div>
+                    {/* DESIGN YOUR RING Section */}
+                    <div className="ps-3">
+                      <button
+                        onClick={() =>
+                          setActiveNestedMobile(
+                            activeNestedMobile === "design" ? null : "design"
+                          )
+                        }
+                        className="w-full flex items-center justify-between "
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="relative">
+                            <h3 className="text-sm font-castoro p-[8px]">
+                              DESIGN YOUR RING
+                            </h3>
                           </div>
+                        </div>
 
-                          <div className="px-[20px]">
-                            {" "}
-                            <IoIosArrowDown
-                              className={`transition-all duration-300 ease-in-out transform ${
-                                activeNestedMobile === "design"
-                                  ? "rotate-180 scale-110"
-                                  : "rotate-0 scale-100"
-                              }`}
-                            />
-                          </div>
-                        </button>
-
-                        <div
-                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                            activeNestedMobile === "design"
-                              ? "max-h-fit opacity-100 mt-2"
-                              : "max-h-0 opacity-0"
-                          }`}
-                        >
-                          {/* Shop By Metal Nested Section */}
-                          <CustomImg
-                            srcAttr={engagementHeader}
-                            altAttr=""
-                            titleAttr=""
-                            className="w-full h-[150px] object-cover ps-[10px] pe-[20px]"
+                        <div className="px-[20px]">
+                          {" "}
+                          <IoIosArrowDown
+                            className={`transition-all duration-300 ease-in-out transform ${
+                              activeNestedMobile === "design"
+                                ? "rotate-180 scale-110"
+                                : "rotate-0 scale-100"
+                            }`}
                           />
-                          <div className="ps-[10px] pe-[20px] mt-4">
-                            {" "}
-                            <HeaderLinkButton
-                              href={"/customize/select-diamond"}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                closeAllDropdown();
-                              }}
-                              className={` transition-all !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
-                            >
-                              DESIGN WITH DIAMOND
-                            </HeaderLinkButton>
-                          </div>
+                        </div>
+                      </button>
+
+                      <div
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                          activeNestedMobile === "design"
+                            ? "max-h-fit opacity-100 pt-2 pb-4"
+                            : "max-h-0 opacity-0"
+                        }`}
+                      >
+                        {/* Shop By Metal Nested Section */}
+                        <CustomImg
+                          srcAttr={engagementHeader}
+                          altAttr=""
+                          titleAttr=""
+                          className="w-full h-[150px] object-cover ps-[10px] pe-[20px]"
+                        />
+                        <div className="ps-[10px] pe-[20px] mt-4">
+                          {" "}
+                          <HeaderLinkButton
+                            href={"/customize/select-diamond"}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              closeAllDropdown();
+                            }}
+                            className={` transition-all !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
+                          >
+                            DESIGN WITH DIAMOND
+                          </HeaderLinkButton>
                         </div>
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
 
                 <div className="flex flex-col border-t py-3.5">

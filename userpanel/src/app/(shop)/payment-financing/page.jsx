@@ -1,122 +1,155 @@
-import CommonBgHeading from "@/components/ui/CommonBgHeading";
-import { companyPhoneNo } from "@/_helper";
 import { AccordionTabs } from "@/components/dynamiComponents";
+import CommonBgHeading from "@/components/ui/CommonBgHeading";
 
-const paymentFinancingSections = [
+const PaymentFinancingContent = [
   {
-    label: "What payment options are available?",
+    label: "Flexible Payment Options",
     content: (
-      <>
-        <div className="flex flex-col gap-3">
-          <p>
-            For U.S. orders, Katanoff accepts all major US credit cards, Paypal,
-            Venmo (mobile checkout only), Apple Pay, and Google Pay.
-          </p>
-          <p>
-            We have financing available through Affirm. Choose up to 36 monthly
-            payments, from 0% APR financing.
-          </p>
-          <p>
-            For customers with low or no credit, we offer a lease-to-own option
-            through Katapult. There is no credit required, no surprises, and
-            never a late fee, ever.
-          </p>
-          <p>
-            We also accept Bank Wire Transfers. Note that ACH payments are not
-            accepted at this time. Only direct wire transfers are supported.
-            Your bank may charge you a fee to send a wire transfer. If you wish
-            to make a payment via wire transfer, please contact us {companyPhoneNo}.
-          </p>
-          <p>
-            For International orders, we accept all major credit cards, PayPal,
-            Apple Pay and Google Pay in most countries. Some countries may offer
-            additional payment options.
-          </p>
-        </div>
-      </>
+      <div className="flex flex-col gap-3">
+        <p>
+          At <b>Katanoff</b>, we believe that exceptional jewelry should be
+          within reach—without having to compromise your financial comfort.
+          That’s why we offer a variety of{" "}
+          <b>secure and flexible payment methods</b> designed to make your
+          shopping experience smooth, accessible, and worry- free. Whether you
+          choose to pay upfront or prefer to break up your purchase over time,
+          we’re here to help make luxury more manageable.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Do you offer financing?",
+    label: "Multiple Ways to Pay Securely",
     content: (
-      <>
-        <div className="flex flex-col gap-3">
-          <p>
-            For U.S. customers, we offer financing through Affirm. If qualified,
-            choose up to 36 monthly payments, from 0% APR financing. At
-            checkout, choose Affirm as your payment method, then create an
-            account and answer a few questions. You will be notified immediately
-            whether you’ve been approved. All future monthly payments and
-            financing terms will be handled through your Affirm account.
-          </p>
-         <p>
-          To learn more about Affirm financing.
-         </p>
-          </div>
-         <p>
-          You may pre-qualify for Affirm financing.
-         </p>
+      <div className="flex flex-col gap-3">
         <p>
-          To speak to Affirm directly, contact them at Affirm.com or call{" "}
-          {companyPhoneNo}
+          To accommodate your preferences, we accept several trusted payment
+          methods. You can complete your purchase using:
         </p>
-      
-      </>
+        <ul className="ps-5 list-disc">
+          <li>
+            <b>All major credit and debit cards</b>, including Visa, Mastercard,
+            American Express, and Discover.
+          </li>
+          <li>
+            <b>PayPal,</b> which offers a safe and seamless way to check out
+            using your PayPal balance, linked bank account, or preferred card.
+          </li>
+          <li>
+            <b>Shop Pay,</b> an accelerated checkout option that securely saves
+            your details for faster future purchases.
+          </li>
+          <li>
+            <b>Apple Pay and Google Pay,</b> enabling one-touch mobile payments
+            through your smartphone or device.
+          </li>
+          <li>
+            <b>Klarna and Afterpay,</b> which offer buy-now-pay-later options so
+            you can spread out the cost over time with no hidden fees.
+          </li>
+        </ul>
+        <p>
+          Each payment method is processed securely using encryption and fraud
+          protection tools, so you can shop with complete peace of mind.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Can I make a split tender payment?",
+    label: "Buy Now, Pay Later with Klarna and Afterpay",
     content: (
-      <>
+      <div className="flex flex-col gap-3">
         <p>
-          Unfortunately, we do not offer split payments between two different
-          credit cards or payment types at this time.
+          We understand that investing in fine jewelry is a personal decision,
+          and sometimes it&#39;s easier to manage when payments are divided over
+          time. That’s why we’ve partnered with <b>Klarna </b> and{" "}
+          <b>Afterpay</b>, two leading providers of flexible financing.
         </p>
-      </>
+        <p>With these services, you can:</p>
+        <ul className="ps-5 list-disc">
+          <li>
+            Split your purchase into <b>4 interest-free payments</b>,
+            automatically billed every two weeks.
+          </li>
+          <li>
+            Enjoy the freedom of <b>no hard credit checks</b> and{" "}
+            <b>no additional fees</b> as long as payments are made on time.
+          </li>
+          <li>
+            Instantly get approved at checkout without lengthy application
+            processes.
+          </li>
+        </ul>
+        <p>
+          Selecting Klarna or Afterpay is simple—just choose your preferred
+          option during checkout, complete a quick setup, and finalize your
+          order with confidence.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Do you offer wire transfer payments?",
+    label: "Transparent and Easy Financing",
     content: (
-      <>
+      <div className="flex flex-col gap-3">
         <p>
-          We accept Bank Wire Transfers. Note that ACH payments are not accepted
-          at this time. Only direct bank wire transfers are supported. Your bank
-          may charge you a fee to send a wire transfer. If you wish to make a
-          payment via wire transfer, contact a customer service representative,
-          and we will assist you.
+          There are no hidden costs or confusing terms when using our financing
+          options. You’ll see the full breakdown of your installment plan,
+          including payment amounts and due dates, before you complete your
+          order. As long as payments are made on time, you will never be charged
+          interest or late fees. It’s our way of helping you enjoy your jewelry
+          now while paying at a pace that works for you.
         </p>
-      </>
+      </div>
+    ),
+  },
+  {
+    label: "Safe and Secure Checkout",
+    content: (
+      <div className="flex flex-col gap-3">
+        <p>
+          At Katanoff, we take your security seriously. Every transaction on our
+          site is protected by advanced encryption technology and
+          industry-standard safeguards. Your personal and payment information is
+          never shared, sold, or stored without your consent. We continuously
+          monitor our systems to ensure a safe shopping experience every time
+          you visit.
+        </p>
+      </div>
+    ),
+  },
+  {
+    label: "Questions or Assistance?",
+    content: (
+      <div className="flex flex-col gap-3">
+        <p>
+          If you have any questions about payment options, need help choosing a
+          financing plan, or experience any issues during checkout, our customer
+          support team is always here to help. We’re happy to walk you through
+          your options so that you feel confident and informed every step of the
+          way.
+        </p>
+      </div>
     ),
   },
 ];
 
-const PaymentFinancing = () => {
+const PaymentAndFinancing = () => {
   return (
-    <>
-      <div className="pt-12 md:pt-16">
-      <CommonBgHeading
-        title="Payment and Financing"
-        backText="Back To Home"
-        backHref="/"
-      />
+    <div className="flex flex-col">
+      <div className="pt-10 md:pt-14">
+        <CommonBgHeading title="Payment And Financing" breadcrumb={true} titleClassName="uppercase" />
       </div>
-
-      <div className="container normal-case mb-10">
-        <h2 className="pl-4 lg:pl-0 text-lg xxs:text-2xl md:text-3xl xl:text-4xl text-baseblack font-castoro pt-8 xxs:pt-12 lg:pt-20">
-          Payment & Financing Questions
-        </h2>
-        <div className="border-t border-t-grayborder mt-6 md:mt-10 lg:mt-12"/>
-
+      <div className="container mt-10">
         <AccordionTabs
-          tabs={paymentFinancingSections}
-          defaultOpenLabel="What payment options are available?"
+          tabs={PaymentFinancingContent}
+          defaultOpenLabel="Flexible Payment Options"
           forceResetKey="payment-financing"
-          contentCustomClass="md:text-lg"
+          contentCustomClass="md:text-lg !ps-5"
         />
       </div>
-    </>
+    </div>
   );
 };
 
-export default PaymentFinancing;
+export default PaymentAndFinancing;

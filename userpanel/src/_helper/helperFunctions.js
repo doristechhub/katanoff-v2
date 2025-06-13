@@ -443,27 +443,29 @@ const calculateCenterDiamondPrice = ({ caratWeight, clarity, color }) => {
   return centerDiamondPrice;
 };
 
-// Calculate the price of metal and side diamonds
-const calculateMetalAndSideDiamondPrice = ({
-  netWeight,
-  sideDiamondWeight,
-}) => {
+// Calculate the metal price
+const calculateMetalPrice = ({ netWeight }) => {
   const goldWithLabor = netWeight * METAL_PRICE_PER_GRAM;
+  return goldWithLabor;
+};
+
+// Calculate the side diamond price
+const calculateSideDiamondPrice = ({ sideDiamondWeight }) => {
   const sideDiamondPrice = sideDiamondWeight * SIDE_DIAMOND_PRICE_PER_CARAT;
-  const basePrice = goldWithLabor + sideDiamondPrice;
-  return basePrice;
+  return sideDiamondPrice;
 };
 
 /**
  * Calculates the total price of a customized product based on center diamond details and product specifications.
  *
  * Pricing formula:
- *   totalBasePrice = centerDiamondPrice + metalAndSideDiamondPrice + (centerDiamondPrice + metalAndSideDiamondPrice) / 2
+ *   totalBasePrice = centerDiamondPrice + metalPrice + sideDiamondPrice + (centerDiamondPrice + metalPrice + sideDiamondPrice) / 2
  *   finalPrice = totalBasePrice * PRICE_MULTIPLIER
  *
  * - centerDiamondPrice is determined by carat weight, clarity, and color from ALLOWED_DIA_COLORS, ALLOWED_DIA_CLARITIES, and CARAT_RANGE_PRICES.
- * - metalAndSideDiamondPrice includes metal cost (netWeight * METAL_PRICE_PER_GRAM) and side diamond cost (sideDiamondWeight * SIDE_DIAMOND_PRICE_PER_CARAT).
- * - A 50% markup is added to the sum of centerDiamondPrice and metalAndSideDiamondPrice.
+ * - metalPrice includes metal cost (netWeight * METAL_PRICE_PER_GRAM).
+ * - sideDiamondPrice includes side diamond cost (sideDiamondWeight * SIDE_DIAMOND_PRICE_PER_CARAT).
+ * - A 50% markup is added to the sum of centerDiamondPrice, metalPrice, and sideDiamondPrice.
  * - PRICE_MULTIPLIER accounts for additional charges (e.g., labor, design complexity).
  *
  * @param {Object} params - The input parameters for the calculation.
@@ -512,17 +514,19 @@ const calculateCustomizedProductPrice = ({
   // Calculate center diamond price based on carat weight, clarity, and color
   const centerDiamondPrice = calculateCenterDiamondPrice(centerDiamondDetail);
 
-  // Calculate metal and side diamond price based on net weight and side diamond weight
-  const metalAndSideDiamondPrice =
-    calculateMetalAndSideDiamondPrice(productDetail);
+  // Calculate metal price based on net weight
+  const metalPrice = calculateMetalPrice(productDetail);
 
-  // Apply 50% markup to the sum of center diamond and metal/side diamond prices
+  // Calculate side diamond price based on side diamond weight
+  const sideDiamondPrice = calculateSideDiamondPrice(productDetail);
+
+  // Apply 50% markup to the sum of center diamond, metal, and side diamond prices
   const fiftyPercentMarkup =
-    (centerDiamondPrice + metalAndSideDiamondPrice) / 2;
+    (centerDiamondPrice + metalPrice + sideDiamondPrice) / 2;
 
   // Calculate total base price
   const totalBasePrice =
-    centerDiamondPrice + metalAndSideDiamondPrice + fiftyPercentMarkup;
+    centerDiamondPrice + metalPrice + sideDiamondPrice + fiftyPercentMarkup;
 
   // Apply PRICE_MULTIPLIER and round to 2 decimal places
   const finalPrice = Number((totalBasePrice * PRICE_MULTIPLIER).toFixed(2));
@@ -598,6 +602,7 @@ export const helperFunctions = {
   shouldHideCartPopup,
   updateGoldColorInUrl,
   calculateCustomizedProductPrice,
-  calculateMetalAndSideDiamondPrice,
+  calculateMetalPrice,
+  calculateSideDiamondPrice,
   setCustomProductInLocalStorage,
 };

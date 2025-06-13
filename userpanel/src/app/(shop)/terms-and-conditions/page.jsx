@@ -1,245 +1,233 @@
-import { companyPhoneNo } from "@/_helper";
 import { AccordionTabs } from "@/components/dynamiComponents";
 import CommonBgHeading from "@/components/ui/CommonBgHeading";
-const sections = [
+
+const TermsAndConditionContent = [
   {
-    label: "Introduction",
+    label: "1. General Use of the Website",
     content: (
-      <p>
-        Welcome to Katanoff (“Company,” “we,” “our,” or “us”). These Terms &
-        Conditions govern your use of our website, products, and services. By
-        accessing or using our website, you agree to be bound by these terms. If
-        you do not agree, please refrain from using our website.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          The <b>Katanoff website</b>, including all content, features, and
+          services offered through it, is intended for individuals who are 18
+          years of age or older, or the legal age of majority in their
+          jurisdiction. By using this site, you confirm that you meet this age
+          requirement. You agree to use the site only for lawful purposes and in
+          a manner that does not infringe upon the rights of others or restrict
+          their ability to enjoy the site.
+        </p>
+        <p>
+          All content on this website, including product images, text, logos,
+          and designs, is the property of Katanoff and is protected by
+          intellectual property laws. Unauthorized use, reproduction, or
+          distribution of this content is strictly prohibited without prior
+          written consent.
+        </p>
+      </div>
+    ),
+  },
+
+  {
+    label: "2. Product Availability and Pricing",
+    content: (
+      <div className="flex flex-col gap-3">
+        <p>
+          We strive to keep our product listings up-to-date and accurate;
+          however, all items shown on our website are subject to availability.
+          In rare cases, products may become unavailable after an order has been
+          placed. In such situations, we will promptly notify you and provide
+          alternatives or offer a full refund.
+        </p>
+        <p>
+          Prices listed on the website are in <b>in U.S. Dollars (USD) </b> and
+          are subject to change at any time without prior notice. While we make
+          every effort to ensure pricing is accurate, errors may occasionally
+          occur. If we discover a pricing error after you’ve placed an order, we
+          reserve the right to correct it and either cancel the order or provide
+          you the option to proceed with the corrected price.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Eligibility & Use of the Website",
+    label: "3. Orders and Payments",
     content: (
-      <p>
-        You must be at least 18 years old to use this website. By accessing our
-        site, you confirm that you have the legal authority to enter into these
-        Terms & Conditions. You agree to use the website solely for lawful
-        purposes and in compliance with all applicable laws and regulations.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          When you place an order on our website, it constitutes an offer to
+          purchase the selected items in accordance with these terms. Katanoff
+          reserves the right to accept or decline any order at our sole
+          discretion, including in cases where payment information cannot be
+          verified or shipping restrictions apply.
+        </p>
+        <p>
+          We accept a variety of payment methods including major credit cards,
+          PayPal, and buy-now-pay- later services like Klarna or Afterpay. By
+          providing your payment details, you represent and warrant that you are
+          authorized to use the method and that the information provided is
+          complete and accurate.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Account Registration & Security",
+    label: "4. Shipping, Delivery & Risk of Loss",
     content: (
-      <p>
-        To access certain features, you may be required to create an account.
-        You are responsible for maintaining the confidentiality of your login
-        credentials. Any activity under your account is your responsibility. If
-        you suspect unauthorized access, notify us immediately.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          Katanoff offers free standard shipping within the United States on all
+          orders, unless otherwise stated. We work with reputable carriers to
+          ensure that your package is delivered securely and on time. Shipping
+          timelines may vary depending on product availability, customization,
+          and your location.
+        </p>
+        <p>
+          All orders are fully insured during transit and require a signature
+          upon delivery. Once an item has been delivered and signed for, the
+          risk of loss transfers to the customer. Please inspect your order upon
+          receipt and notify us immediately if anything appears to be missing or
+          damaged.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Product Information & Pricing",
+    label: "5. Returns and Exchanges",
     content: (
-      <p>
-        We strive to provide accurate product descriptions, pricing, and
-        availability. However, errors may occur, and we reserve the right to
-        correct inaccuracies, update pricing, or cancel orders at our
-        discretion. Prices are subject to change without prior notice.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          We want you to be completely satisfied with your purchase. Katanoff
+          offers a flexible return and exchange policy, details of which can be
+          found on our dedicated <b>Returns & Exchanges</b> page. Items eligible
+          for return must be in unused, unworn condition and returned within the
+          specified time frame along with all original packaging and
+          certificates.
+        </p>
+        <p>
+          Custom, engraved, or made-to-order pieces may not be eligible for
+          return unless they arrive defective or damaged. Katanoff reserves the
+          right to inspect returned items and may deny a refund or exchange if
+          the item does not meet our return criteria.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Order Acceptance & Cancellation",
+    label: "6. Lifetime Warranty and Repairs",
     content: (
-      <p>
-        Placing an order on our website constitutes an offer to purchase. We
-        reserve the right to accept or reject any order at our discretion. We
-        may cancel orders due to unavailability, pricing errors, suspected
-        fraud, or other reasons. If payment has been processed for a canceled
-        order, a full refund will be issued.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          All eligible jewelry purchases are covered under our{" "}
+          <b>Free Lifetime Warranty</b>, which protects against manufacturing
+          defects in materials or workmanship. For more information about what
+          is covered, exclusions, and how to request a warranty service, please
+          refer to our <b>Lifetime Warranty</b> policy page.
+        </p>
+        <p>
+          While the warranty covers craftsmanship-related issues, it does not
+          include damage from accidents, normal wear, unauthorized repairs, or
+          loss/theft. Customers are responsible for shipping costs associated
+          with non-warranty repairs.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Payment & Billing",
+    label: "7. Promotions and Discount Codes",
     content: (
-      <p>
-        By providing your payment information, you confirm that you are
-        authorized to use the selected payment method. We reserve the right to
-        refuse or cancel transactions in cases of suspected fraud or
-        unauthorized activity. Payments are processed securely through
-        third-party payment providers.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          From time to time, Katanoff may offer promotional codes, seasonal
+          discounts, or exclusive offers. These promotions are limited-time
+          offers and may not be combined with other discounts unless explicitly
+          stated. All promotions are subject to terms specific to the offer and
+          may be modified or discontinued at our discretion.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Shipping & Delivery",
+    label: "8. Privacy and Data Security",
     content: (
-      <p>
-        We strive to process and ship orders promptly. However, shipping times
-        may vary due to factors beyond our control, such as carrier delays,
-        customs processing, or unforeseen circumstances. We are not responsible
-        for delays caused by third-party shipping providers.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          Your privacy is important to us. Katanoff collects and uses your
+          personal information in accordance with our <b>Privacy Policy</b>,
+          which outlines how we handle data including names, email addresses,
+          payment information, and browsing activity. By using our site, you
+          consent to the collection and use of this information as described.
+        </p>
+        <p>
+          We use industry-standard security measures to protect your data and
+          ensure secure transactions on our website. However, no system is
+          completely immune to risk, and you acknowledge that transmission of
+          information over the internet is at your own risk.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Returns, Exchanges & Refunds",
+    label: "9. Limitation of Liability",
     content: (
-      <p>
-        We accept returns within [XX] days of delivery, provided the item is in
-        its original condition. Refunds will be issued per our Return Policy.
-        Certain items, such as custom or final sale products, may not be
-        eligible for returns or exchanges.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          To the fullest extent permitted by law, Katanoff shall not be liable
+          for any direct, indirect, incidental, or consequential damages that
+          arise from your use of this website or purchase of any of our
+          products. This includes but is not limited to loss of profits, data,
+          or business opportunities, even if we have been advised of such
+          potential damages.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Intellectual Property Rights",
+    label: "10. Governing Law",
     content: (
-      <p>
-        All content on this website, including text, images, logos, graphics,
-        and designs, is our intellectual property or licensed to us.
-        Unauthorized use, reproduction, or distribution of our content is
-        strictly prohibited.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          These terms and any transactions conducted with Katanoff shall be
+          governed by and interpreted in accordance with the laws of the{" "}
+          <b>State of [Insert State, e.g., New York],</b> without regard to its
+          conflict of law provisions. Any legal action or proceeding related to
+          this website or its terms shall be brought exclusively in the courts
+          located in [Insert County or State].
+        </p>
+      </div>
     ),
   },
   {
-    label: "User Conduct & Restrictions",
+    label: "11. Updates to These Terms",
     content: (
-      <p>
-        You agree not to:
-        <br />• Use the website for unlawful, fraudulent, or malicious
-        activities.
-        <br />• Post or distribute harmful, defamatory, or offensive content.
-        <br />• Interfere with website functionality, security, or access.
-        <br />• Engage in unauthorized data collection or scraping.
-      </p>
-    ),
-  },
-  {
-    label: "Disclaimer of Warranties",
-    content: (
-      <p>
-        Our website, products, and services are provided “as is” and “as
-        available” without warranties of any kind. We do not guarantee
-        uninterrupted access, error-free content, or specific results from using
-        our website.
-      </p>
-    ),
-  },
-  {
-    label: "Limitation of Liability",
-    content: (
-      <p>
-        To the fullest extent permitted by law, Katanoff is not liable for any
-        direct, indirect, incidental, or consequential damages arising from the
-        use of our website, products, or services. Our total liability shall not
-        exceed the amount paid for the specific order in dispute.
-      </p>
-    ),
-  },
-  {
-    label: "Indemnification",
-    content: (
-      <p>
-        You agree to indemnify and hold Katanoff harmless from any claims,
-        damages, or legal actions arising from your use of our website,
-        violation of these Terms & Conditions, or infringement of any rights.
-      </p>
-    ),
-  },
-  {
-    label: "Privacy Policy",
-    content: (
-      <p>
-        Your use of our website is also governed by our Privacy Policy, which
-        outlines how we collect, use, and protect your personal information.
-      </p>
-    ),
-  },
-  {
-    label: "Third-Party Links & Services",
-    content: (
-      <p>
-        Our website may contain links to third-party sites. We are not
-        responsible for the content, privacy policies, or practices of these
-        external sites. Accessing third-party services is at your own risk.
-      </p>
-    ),
-  },
-  {
-    label: "Modification of Terms",
-    content: (
-      <p>
-        We reserve the right to update or modify these Terms & Conditions at any
-        time. Continued use of our website after changes are posted constitutes
-        acceptance of the revised terms.
-      </p>
-    ),
-  },
-  {
-    label: "Governing Law & Dispute Resolution",
-    content: (
-      <p>
-        These Terms & Conditions are governed by the laws of New York, USA. Any
-        disputes shall be resolved in the courts of New York, USA. You agree to
-        resolve disputes through binding arbitration before pursuing legal
-        action.
-      </p>
-    ),
-  },
-  {
-    label: "Termination",
-    content: (
-      <p>
-        We reserve the right to terminate your access to our website and
-        services at any time if you violate these Terms & Conditions or engage
-        in prohibited activities.
-      </p>
-    ),
-  },
-  {
-    label: "Force Majeure",
-    content: (
-      <p>
-        We are not liable for delays or failures due to causes beyond our
-        control, including natural disasters, government actions, labor
-        disputes, or technical failures.
-      </p>
-    ),
-  },
-  {
-    label: "Contact Information",
-    content: (
-      <p>
-        For any questions or concerns regarding these Terms & Conditions, please
-        contact us at: {companyPhoneNo}
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          Katanoff reserves the right to modify or update these Terms &amp;
+          Conditions at any time, without prior notice. Changes will be
+          effective immediately upon posting to the website. We encourage users
+          to review this page regularly to stay informed about any updates or
+          changes.
+        </p>
+      </div>
     ),
   },
 ];
 
-const TermsAndConditions = () => {
+const TermsAndCondition = () => {
   return (
     <div className="flex flex-col">
-      <div className="pt-12 md:pt-16">
-        <CommonBgHeading
-          title="Terms and Conditions"
-          backText="Back To Home"
-          backHref="/"
-        />
+      <div className="pt-10 md:pt-14">
+        <CommonBgHeading title="Terms And Condition" breadcrumb={true} titleClassName="uppercase" />
       </div>
-      <div className="container mb-10">
-        <div className="border-t border-t-grayborder mt-6 md:mt-10 lg:mt-12" />
+      <div className="container mt-10">
+        
         <AccordionTabs
-          tabs={sections}
-          defaultOpenLabel="Introduction"
-          forceResetKey="warranty"
-          contentCustomClass="md:text-lg"
+          tabs={TermsAndConditionContent}
+          defaultOpenLabel="1. General Use of the Website"
+          forceResetKey="term-and-condition"
+          contentCustomClass="md:text-lg !ps-5"
         />
       </div>
     </div>
   );
 };
 
-export default TermsAndConditions;
+export default TermsAndCondition;

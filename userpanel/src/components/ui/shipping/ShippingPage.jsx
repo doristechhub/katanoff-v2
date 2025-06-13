@@ -25,7 +25,6 @@ const Shippingpage = () => {
             title="Secure Checkout"
             backText="Back to Checkout"
             backHref="/checkout"
-            bgColor={false}
           />
           <div className="px-4 container mt-8 lg:mt-12">
             <CheckoutBreadCrumbs currentStep={1} />

@@ -26,7 +26,6 @@ const Checkout = () => {
             title="Secure Checkout"
             backText="Back to Cart"
             backHref="/cart"
-            bgColor={false}
           />
           <div className="px-4 container md:mt-6 lg:mt-12">
             <CheckoutBreadCrumbs currentStep={0} />
