@@ -13,14 +13,15 @@ export default function ZoomImage({ src, alt, placeholderSrc }) {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // Clamp inside bounds
     const constrainedX = Math.max(0, Math.min(rect.width, x));
     const constrainedY = Math.max(0, Math.min(rect.height, y));
     setLensPosition({ x: constrainedX, y: constrainedY });
   };
 
   const handleClick = () => {
-    setIsZoomed((prev) => !prev);
+    if (typeof window !== "undefined" && window.innerWidth >= 1240) {
+      setIsZoomed((prev) => !prev);
+    }
   };
 
   const zoomLevel = 2;
@@ -41,34 +42,23 @@ export default function ZoomImage({ src, alt, placeholderSrc }) {
 
   return (
     <div
-      className={`zoom-container w-full relative overflow-hidden ${
+      className={`zoom-container w-full h-full relative overflow-hidden ${
         isZoomed ? "cursor-zoom-out" : "cursor-zoom-in"
       }`}
       style={{ display: "flex", flexDirection: "column" }}
       onMouseMove={handleMouseMove}
       onClick={handleClick}
     >
-      {/* Base Image */}
       <ProgressiveImg
-        key={src}
         ref={imageRef}
         src={src}
         alt={alt}
         placeholderSrc={placeholderSrc}
-        width={imageWidth}
-        height={imageHeight}
-        className="object-contain w-full"
-        style={{
-          height: "auto",
-          width: "100%",
-          display: "block",
-          opacity: isZoomed ? 0 : 1,
-          transition: "opacity 0.2s ease-in-out",
-        }}
+        className="w-full h-full object-cover"
+        style={{ aspectRatio: "4/3", display: "block" }}
         onError={() => console.error("Image failed to load:", src)}
       />
 
-      {/* Zoomed Area */}
       {isZoomed && (
         <div
           className="absolute top-0 left-0 w-full h-full pointer-events-none z-10"

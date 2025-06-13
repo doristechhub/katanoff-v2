@@ -163,7 +163,7 @@ const SwipperHomePageBig = ({ navigation = true }) => {
       </Swiper>
 
       {navigation && (
-        <div className="hidden xs:block">
+        <div className="hidden lg:block">
           <button
             className={`absolute -left-10   lg:-left-4 2xl:-left-10 top-1/2 -translate-y-1/2 z-10 p-2${
               isBeginning ? "opacity-50 cursor-not-allowed" : ""

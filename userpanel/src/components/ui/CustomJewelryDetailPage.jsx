@@ -8,6 +8,7 @@ import customJewelry3 from "@/assets/images/custom-jewelry/custom-jewelry-3.webp
 import { AccordionTabs, CustomImg } from "@/components/dynamiComponents";
 import { LinkButton } from "@/components/ui/button";
 import CustomJewelryCommon from "@/components/ui/CustomJewelryCommon";
+import breadCrumb from "@/assets/icons/breadCrumbBigArrow.svg";
 
 const accordianContent = [
   {
@@ -110,15 +111,46 @@ const CustomJewelryDetailPage = () => {
       </section>
 
       {showStickyButton && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white shadow-md z-50 flex">
+        <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg z-40 flex">
           <div className="flex items-center gap-4 px-6 xss:justify-between container py-2">
             <p className="hidden xss:block text-3xl font-semibold">
               Custom Jewelry
             </p>
-            <div className="hidden md:flex flex-col gap-1 font-medium">
-              <p className="text-sm">1. Describe Your Custom Jewelry</p>
-              <p className="text-sm">2. Upload Reference Images</p>
-              <p className="text-sm">3. Review & Submit</p>
+            <div className="hidden lg:flex gap-3 font-medium text-black">
+              <div className="flex gap-1.5 items-center">
+                <span className="text-4xl 2xl:text-5xl text-gray-66 font-semibold">
+                  1
+                </span>
+                <h4 className="text-xs 2xl:text-sm">
+                  Describe Your <br /> Custom Jewelry
+                </h4>
+              </div>
+              <CustomImg
+                srcAttr={breadCrumb}
+                className="w-24"
+                altAttr=""
+                titleAttr=""
+              />
+              <div className="flex gap-1.5 items-center">
+                <span className="text-4xl 2xl:text-5xl text-gray-66 font-semibold">
+                  2
+                </span>
+                <h4 className="text-xs 2xl:text-sm">
+                  Upload Reference <br /> Images
+                </h4>
+              </div>
+              <CustomImg
+                srcAttr={breadCrumb}
+                className="w-24"
+                altAttr=""
+                titleAttr=""
+              />
+              <div className="flex gap-1.5 items-center">
+                <span className="text-4xl 2xl:text-5xl text-gray-66 font-semibold">
+                  3
+                </span>
+                <h4 className="text-xs 2xl:text-sm">Review & Submit</h4>
+              </div>
             </div>
             <div className="flex flex-col md:flex-row gap-6 mx-auto xss:mx-0">
               <LinkButton

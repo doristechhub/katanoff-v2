@@ -17,7 +17,7 @@ import {
   removeProductIntoCart,
   updateProductQuantityIntoCart,
 } from "@/_actions/cart.action";
-import { helperFunctions } from "@/_helper";
+import { helperFunctions, RING_SIZE } from "@/_helper";
 import Link from "next/link";
 import { LinkButton, PrimaryButton } from "@/components/ui/button";
 import { setDeleteLoader } from "@/store/slices/cartSlice";
@@ -168,7 +168,7 @@ const CartPage = () => {
               {cartList?.map((cartItem, index) => (
                 <div
                   className={`py-6 md:py-8 pr-2 xs:pr-6 ${
-                    index !== cartList.length - 1
+                    index !== cartList?.length - 1
                       ? "border-b border-grayborder"
                       : ""
                   }`}
@@ -339,19 +339,19 @@ const CartPage = () => {
                       </div>
 
                       {cartItem?.variations?.some(
-                        (v) => v.variationName === "Size"
+                        (v) => v.variationName === RING_SIZE
                       ) && (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 pt-2 sm:pt-0">
                           <p className="text-sm items-center md:text-base font-medium text-baseblack">
-                            Size:{" "}
+                            {v?.variationName}:{" "}
                             {cartItem?.variations?.find(
-                              (v) => v.variationName === "Size"
+                              (v) => v.variationName === RING_SIZE
                             )?.variationTypeName || "N/A"}
                           </p>
                         </div>
                       )}
 
-                      <div className="hidden xs:block mt-4">
+                      <div className="hidden xs:block mt-2">
                         <DiamondDetailDrawer
                           cartItem={cartItem}
                           openDiamondDetailDrawer={openDiamondDetailDrawer}

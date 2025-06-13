@@ -11,6 +11,9 @@ const initialState = {
   sendOtpLoading: false,
   sendOtpMessage: { message: "", type: "" },
   verifyOTPLoading: false,
+  userList: [],
+  userLoading: false,
+  updateProfileLoader: false,
   loginMessage: { message: "", type: "" },
   userRegisterLoading: false,
   userRegisterMessage: { message: "", type: "" },
@@ -46,6 +49,15 @@ const userSlice = createSlice({
     setUserProfile: (state, action) => {
       state.userProfile = action.payload;
     },
+    setUserList: (state, action) => {
+      state.userList = action.payload;
+    },
+    setUserLoading: (state, action) => {
+      state.userLoading = action.payload;
+    },
+    setUpdateProfileLoader: (state, action) => {
+      state.updateProfileLoader = action.payload;
+    },
   },
 });
 
@@ -61,6 +73,10 @@ export const {
 
   setUserProfileMessage,
   setUserProfile,
+
+  setUserList,
+  setUserLoading,
+  setUpdateProfileLoader,
 } = userSlice.actions;
 
 export default userSlice.reducer;

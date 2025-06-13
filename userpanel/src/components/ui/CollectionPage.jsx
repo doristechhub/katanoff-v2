@@ -89,23 +89,30 @@ export default function CollectionPage() {
     }
 
     // Final fallback
-    return null;
+    return {
+      desktop: null,
+      mobile: null,
+    };
   };
+  const banner = getBannerImage(collectionType, collectionTitle);
 
   useEffect(() => {
     if (collectionType && collectionTitle) {
       loadData();
     }
   }, [collectionType, collectionTitle, loadData]);
+
   return (
     <>
       {/* Swiper Section */}
       <HeroBanner
-        imageSrc={getBannerImage(collectionType, collectionTitle)}
+        imageSrcDesktop={banner?.desktop}
+        imageSrcMobile={banner?.mobile}
         altAttr=""
         titleAttr=""
       />
-      <h2 className="text-[26px] leading-[33px] font-normal font-castoro text-center pt-6 lg:pt-6 2xl:pt-10 capitalize tracking-[0.02em] text-[#2B2B2B] max-[767px]:text-[16px] max-[767px]:leading-[20px]">
+
+      <h2 className="sm:text-[20px] sm:leading-[24px]  md:text-[16px] md:leading-[20px] lg:text-[30px] lg:leading-[35px] 2xl:text-[35px] 2xl:leading-[40px] text-[26px] leading-[33px] font-normal font-castoro text-center pt-10 2xl:pt-12 capitalize text-[#2B2B2B]">
         {collectionTitle}
       </h2>
 
@@ -130,9 +137,9 @@ export default function CollectionPage() {
           isLoading={productLoading}
         />
       </section>
-      <section className="container pt-16 lg:pt-20 2xl:pt-20">
+      {/* <section className="container pt-16 lg:pt-20 2xl:pt-20">
         <SwipperHomePageBig navigation={true} />
-      </section>
+      </section> */}
       <section className="container pt-16 lg:pt-20 2xl:pt-20">
         <KeyFeatures />
       </section>

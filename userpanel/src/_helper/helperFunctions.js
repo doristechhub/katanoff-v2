@@ -3,8 +3,11 @@ import {
   ALLOWED_DIA_CLARITIES,
   ALLOWED_DIA_COLORS,
   CARAT_RANGE_PRICES,
+  GOLD_COLOR,
+  GOLD_TYPES,
   METAL_PRICE_PER_GRAM,
   PRICE_MULTIPLIER,
+  RING_SIZE,
   SIDE_DIAMOND_PRICE_PER_CARAT,
 } from "./constants";
 
@@ -210,29 +213,35 @@ const getStatusCustomBadge = (status) => {
 };
 
 const getStatusColor = (status) => {
+  const grayFilter =
+    "invert(35%) sepia(6%) saturate(336%) hue-rotate(174deg) brightness(95%) contrast(90%)";
   switch (status?.toLowerCase()) {
     case "rejected":
       return {
         colorClass: "text-red-600",
-        filter:
-          "invert(42%) sepia(93%) saturate(1352%) hue-rotate(340deg) brightness(95%) contrast(90%)",
+        // filter:
+        //   "invert(42%) sepia(93%) saturate(1352%) hue-rotate(340deg) brightness(95%) contrast(90%)",
+        filter: grayFilter,
       };
     case "approved":
       return {
         colorClass: "text-green-600",
-        filter:
-          "invert(35%) sepia(85%) saturate(1350%) hue-rotate(85deg) brightness(95%) contrast(90%)",
+        // filter:
+        //   "invert(35%) sepia(85%) saturate(1350%) hue-rotate(85deg) brightness(95%) contrast(90%)",
+        filter: grayFilter,
       };
     case "received":
       return {
         colorClass: "text-blue-600",
-        filter:
-          "invert(35%) sepia(85%) saturate(2000%) hue-rotate(190deg) brightness(95%) contrast(90%)",
+        // filter:
+        //   "invert(35%) sepia(85%) saturate(2000%) hue-rotate(190deg) brightness(95%) contrast(90%)",
+        filter: grayFilter,
       };
     default:
       return {
         colorClass: "text-gray-600",
-        filter: "none",
+        // filter: "none",
+        filter: grayFilter,
       };
   }
 };
@@ -362,14 +371,14 @@ const getVariationValue = (selectedVariations, key) => {
 export const displayVariationsLabel = (variations) => {
   if (!Array.isArray(variations)) return "";
 
-  const desiredOrder = ["Gold Type", "Gold Color", "Diamond Shape"];
+  const desiredOrder = [GOLD_TYPES, GOLD_COLOR, "Diamond Shape"];
   const variationMap = {};
   const remaining = [];
 
   variations.forEach((item) => {
     const { variationName, variationTypeName } = item;
 
-    if (variationName === "Size") return;
+    if (variationName === RING_SIZE) return;
 
     if (desiredOrder.includes(variationName)) {
       variationMap[variationName] = variationTypeName;

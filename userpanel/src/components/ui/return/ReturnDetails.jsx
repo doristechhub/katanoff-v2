@@ -123,7 +123,9 @@ const ReturnDetails = ({
         <ProductNotFound message="Sorry, no order found." />
       ) : (
         <>
-          <div className={`px-6 my-8 ${isShadow ? "shadow-lg" : null}`}>
+          <div
+            className={`md:px-2 lg:px-6 my-8 ${isShadow ? "shadow-lg" : null}`}
+          >
             <div className="flex justify-end">
               <div className="flex gap-4 mb-2">
                 {returnDetail?.status === "pending" &&
@@ -137,7 +139,7 @@ const ReturnDetails = ({
 
             {/* Left Panel: Products */}
             <div className="relative flex flex-col lg:flex-row">
-              <div className="flex flex-col gap-4 pr-6 w-full lg:w-1/2">
+              <div className="flex flex-col gap-4 lg:pr-6 w-full lg:w-1/2">
                 <div
                   className="px-4 flex-1 overflow-y-auto max-h-[55vh] custom-scrollbar relative pt-6"
                   ref={cartContentRef}
@@ -159,7 +161,7 @@ const ReturnDetails = ({
                           </div>
 
                           <div className="w-full">
-                            <div className="flex justify-between text-sm md:text-base">
+                            <div className="flex flex-col xs:flex-row xs:justify-between text-sm md:text-base gap-1 xs:gap-0">
                               <h3 className="font-medium">
                                 {product?.productName}
                               </h3>

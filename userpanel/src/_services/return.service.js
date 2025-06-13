@@ -1,6 +1,7 @@
 import { uid } from "uid";
 import {
   fetchWrapperService,
+  GOLD_COLOR,
   GOLD_COLOR_MAP,
   helperFunctions,
   ordersUrl,
@@ -17,6 +18,7 @@ const validateKeys = (objects, keys) =>
   keys.every((key) => helperFunctions.isValidKeyName(objects, key));
 
 const hasInvalidProductsKey = (products) => {
+  console.log("products", products);
   const requiredProductKeys = [
     "productId",
     "unitAmount",
@@ -24,13 +26,7 @@ const hasInvalidProductsKey = (products) => {
     "variations",
   ];
   const requiredVariationKeys = ["variationId", "variationTypeId"];
-  const requiredDiamondKeys = [
-    "shapeId",
-    "caratWeight",
-    "clarity",
-    "color",
-    "price",
-  ];
+  const requiredDiamondKeys = ["shapeId", "caratWeight", "clarity", "color"];
 
   const isInvalidProduct = !validateKeys(products, requiredProductKeys);
   const isInvalidVariation = !validateKeys(
@@ -558,7 +554,7 @@ const processReturnProductItem = ({
     : null;
 
   const goldColor = variationArray
-    .find((v) => v.variationName === "Gold Color")
+    .find((v) => v.variationName === GOLD_COLOR)
     ?.variationTypeName?.toLowerCase();
   const thumbnailField =
     GOLD_COLOR_MAP[goldColor] || "yellowGoldThumbnailImage";

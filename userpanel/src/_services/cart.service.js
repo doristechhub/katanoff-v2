@@ -8,6 +8,7 @@ import {
 } from "../_helper";
 import { productService } from "./product.service";
 import {
+  GOLD_COLOR,
   GOLD_COLOR_MAP,
   MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT,
 } from "@/_helper/constants";
@@ -109,7 +110,7 @@ const getAllCartWithProduct = () => {
             : null;
 
           const goldColor = variationArray
-            .find((v) => v.variationName === "Gold Color")
+            .find((v) => v.variationName === GOLD_COLOR)
             ?.variationTypeName?.toLowerCase();
           const thumbnailField =
             GOLD_COLOR_MAP[goldColor] || "yellowGoldThumbnailImage";

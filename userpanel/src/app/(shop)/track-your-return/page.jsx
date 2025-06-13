@@ -42,7 +42,9 @@ const ReturnAccordion = ({
   return (
     <div className="border !bg-none border-gray-200 mb-4 rounded-lg">
       <div
-        className="flex justify-between items-center bg-gray-100 p-4 cursor-pointer hover:bg-gray-200 transition-colors"
+        className={`flex justify-between items-center  p-4 cursor-pointer hover:bg-gray-200 transition-colors ${
+          isExpanded ? "border-b  border-gray-200" : ""
+        } `}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         tabIndex={0}
@@ -50,9 +52,14 @@ const ReturnAccordion = ({
         aria-expanded={isExpanded}
         aria-controls={`return-panel-${returnItem?.id}`}
       >
-        <span className="text-sm font-semibold">
-          {helperFunctions?.formatDate(returnItem?.createdDate)}
-        </span>
+        <div className="flex gap-6">
+          <span className="text-sm font-semibold">
+            {helperFunctions?.formatDate(returnItem?.createdDate)}
+          </span>
+          <span className="text-sm font-semibold hidden sm:block">
+            Order Number:- {returnItem?.orderNumber}
+          </span>
+        </div>
         <div className="flex items-center space-x-2">
           <span className={`text-sm font-semibold ${colorClass}`}>
             {helperFunctions?.capitalizeCamelCase(returnItem?.status)}

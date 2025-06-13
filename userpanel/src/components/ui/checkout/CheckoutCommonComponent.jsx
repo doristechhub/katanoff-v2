@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { helperFunctions } from "@/_helper";
+import { helperFunctions, RING_SIZE } from "@/_helper";
 import { CustomImg, ProgressiveImg } from "../../dynamiComponents";
 import { fetchCart } from "@/_actions/cart.action";
 import { setIsNewYorkState } from "@/store/slices/checkoutSlice";
@@ -30,7 +30,7 @@ const CheckoutCommonComponent = () => {
   useEffect(() => {
     const address = localStorage.getItem("address");
     const getParsedAddress = address ? JSON.parse(address) : null;
-    console.log("getParsedAddress", getParsedAddress);
+
     const newYorkState = getParsedAddress?.stateCode?.toLowerCase() === "ny";
 
     if (newYorkState !== isNewYorkState) {
@@ -53,7 +53,7 @@ const CheckoutCommonComponent = () => {
     }
     return 0;
   }, [cartList, getSubTotal, isNewYorkState]);
-  console.log("isNewYorkState", isNewYorkState);
+
   useEffect(() => {
     const contentElement = cartContentRef.current;
     if (!contentElement) return;
@@ -138,12 +138,12 @@ const CheckoutCommonComponent = () => {
                       </p>
 
                       {cartItem?.variations?.some(
-                        (v) => v.variationName === "Size"
+                        (v) => v.variationName === RING_SIZE
                       ) && (
                         <p className="text-baseblack flex flex-wrap text-sm xs:text-[15px]">
-                          Size:{" "}
+                          {v?.variationName}:{" "}
                           {cartItem.variations.find(
-                            (v) => v.variationName === "Size"
+                            (v) => v.variationName === RING_SIZE
                           )?.variationTypeName || "N/A"}
                         </p>
                       )}
@@ -225,7 +225,9 @@ const CheckoutCommonComponent = () => {
                     Shipping
                   </p>
                   <span className="text-lg text-baseblack font-medium">
-                    ${selectedShippingCharge}
+                    {selectedShippingCharge > 0
+                      ? "$" + selectedShippingCharge
+                      : "Free"}
                   </span>
                 </div>
               )}
@@ -320,12 +322,12 @@ const CheckoutCommonComponent = () => {
                         )}
                       </p>
                       {cartItem?.variations?.some(
-                        (v) => v.variationName === "Size"
+                        (v) => v.variationName === RING_SIZE
                       ) && (
                         <p className="text-baseblack flex flex-wrap text-sm xs:text-[15px]">
-                          Size:{" "}
+                          {v?.variationName}:{" "}
                           {cartItem.variations.find(
-                            (v) => v.variationName === "Size"
+                            (v) => v.variationName === RING_SIZE
                           )?.variationTypeName || "N/A"}
                         </p>
                       )}

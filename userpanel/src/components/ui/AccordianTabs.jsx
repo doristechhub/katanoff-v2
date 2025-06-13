@@ -54,7 +54,9 @@ const AccordionTabs = ({
 
             {isOpen && (
               <div
-                className={`px-4 pb-8 text-sm text-baseblack ${contentCustomClass}`}
+                className={`px-4 pb-8 text-sm text-baseblack ${
+                  label === "Product Detail" ? "lg:pb-16" : ""
+                } ${contentCustomClass}`}
               >
                 {content}
               </div>
