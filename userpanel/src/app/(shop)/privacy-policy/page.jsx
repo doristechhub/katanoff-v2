@@ -1,188 +1,305 @@
-import { companyEmail, companyPhoneNo } from "@/_helper";
 import { AccordionTabs } from "@/components/dynamiComponents";
 import CommonBgHeading from "@/components/ui/CommonBgHeading";
+import { companyEmail } from "@/_helper";
 
-const privacySections = [
+const PrivacyPolicyContent = [
   {
-    label: "Introduction",
+    label: "1. Information We Collect",
     content: (
-      <p>
-        Katanoff ("Company", "we", "our", or "us") is committed to safeguarding
-        your personal information. This Privacy Policy explains how we collect,
-        use, disclose, and protect your data when you visit our website. By
-        accessing our website, you consent to the practices described in this
-        policy. If you do not agree with these terms, please discontinue the use
-        of our website.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          We collect both personal and non-personal information from users in a
+          variety of ways, including when you browse our website, create an
+          account, sign up for our mailing list, place an order, or contact us
+          for support.
+        </p>
+        <p>
+          <b>Personal Information </b> may include:
+        </p>
+        <ul className="ps-5 list-disc">
+          <li>Full name</li>
+          <li>Email address</li>
+          <li>Shipping and billing addresses</li>
+          <li>Phone number</li>
+          <li>
+            Payment information (processed securely through third-party
+            providers)
+          </li>
+          <li>Order history and product preferences</li>
+        </ul>
+        <p>
+          <b>Non-Personal Information</b> may include:
+        </p>
+        <ul className="ps-5 list-disc">
+          <li>IP address</li>
+          <li>Browser type and device information</li>
+          <li>Geographic location (based on IP)</li>
+          <li>
+            Browsing behavior, such as the pages visited and time spent on the
+            site
+          </li>
+        </ul>
+        <p>
+          This information helps us provide a personalized, secure, and
+          efficient shopping experience.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Information We Collect",
+    label: "2. How We Use Your Information",
     content: (
-      <p>
-        We collect different types of personal and non-personal information,
-        including: Personal Information: Name, email address, phone number,
-        billing/shipping address, and payment details (processed securely
-        through third-party providers). Account Information: Login credentials
-        and preferences for registered users. Transaction Information: Order
-        history, purchase details, and payment confirmations. Device & Browsing
-        Information: IP address, browser type, operating system, and cookies to
-        enhance your website experience. Communications: Customer service
-        inquiries, reviews, and survey responses.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          Katanoff uses the information we collect in order to operate our
+          business effectively, provide excellent customer service, and deliver
+          a seamless shopping experience. Specifically, we use your data to:
+        </p>
+        <ul className="ps-5 list-disc">
+          <li>
+            Process and fulfill orders, including shipping and delivery
+            notifications
+          </li>
+          <li>
+            Communicate order confirmations, product updates, or customer
+            service responses
+          </li>
+          <li>
+            Personalize your shopping experience and recommend products based on
+            your preferences
+          </li>
+          <li>
+            Improve our website’s functionality, performance, and content based
+            on user behavior
+          </li>
+          <li>Administer promotions, contests, or marketing campaigns</li>
+          <li>
+            Prevent fraudulent transactions and protect against unauthorized
+            access or misuse
+          </li>
+        </ul>
+
+        <p>
+          Your personal information will never be sold or rented to third
+          parties. We only share data with trusted partners when it is necessary
+          to provide our services to you.
+        </p>
+      </div>
     ),
   },
   {
-    label: "How We Collect Your Information",
+    label: "3. Sharing Information with Third Parties",
     content: (
-      <p>
-        We collect information through various methods, including: When you
-        create an account, place an order, or contact customer support.
-        Automatically through cookies and tracking technologies. From
-        third-party partners such as payment processors, marketing platforms,
-        and analytics providers.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          We may share your personal information with select third parties in
+          limited circumstances and only when required to complete essential
+          business functions. These third parties include:
+        </p>
+        <ul className="ps-5 list-disc">
+          <li>
+            <b>Payment processors </b>to securely handle your transactions
+          </li>
+          <li>
+            <b>Shipping and logistics providers </b>to ensure timely and
+            accurate delivery of your orders
+          </li>
+          <li>
+            <b>Marketing and advertising partners </b>(such as email service
+            platforms or analytics tools) to help us improve our outreach and
+            website experience
+          </li>
+          <li>
+            <b>Legal or regulatory authorities </b> when required by law or to
+            protect the rights, safety, or property of Katanoff, our customers,
+            or others
+          </li>
+        </ul>
+        <p>
+          All third-party partners are carefully vetted and are contractually
+          obligated to protect your personal information and use it only for the
+          purpose specified.
+        </p>
+      </div>
     ),
   },
   {
-    label: "How We Use Your Information",
+    label: "4. Email Marketing and Communication Preferences",
     content: (
-      <p>
-        We use your personal data for the following purposes: Order Processing:
-        To process transactions, confirm orders, and arrange shipping. Customer
-        Support: To respond to inquiries and provide support. Marketing &
-        Promotions: To send personalized offers, newsletters, and promotional
-        materials (you can opt out at any time). Website Enhancement: To improve
-        user experience, track performance, and analyze trends. Fraud
-        Prevention: To detect unauthorized transactions and secure our website.
-        Legal Compliance: To meet regulatory requirements and protect our
-        business.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          If you sign up to receive updates from us, we may send you
+          newsletters, promotional offers, or product announcements via email.
+          You may unsubscribe from these communications at any time by clicking
+          the “unsubscribe” link found at the bottom of every marketing email or
+          by contacting us directly.
+        </p>
+        <p>
+          Please note that even if you opt out of promotional emails, we may
+          still contact you with essential updates related to your purchases,
+          such as order confirmations or shipment tracking.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Sharing Your Information",
+    label: "5. Cookies and Tracking Technologies",
     content: (
-      <p>
-        We do not sell your personal information. However, we may share it with:
-        Service Providers: Payment processors, shipping companies, IT support,
-        and analytics providers. Legal Authorities: If required by law or to
-        enforce our policies. Business Transfers: If Katanoff is involved in a
-        merger, sale, or acquisition.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          Our website uses cookies and similar technologies to enhance your
+          browsing experience, collect analytical data, and personalize content
+          and ads. Cookies are small data files stored on your device that help
+          remember your preferences and behavior on our site.
+        </p>
+        <p>We use cookies to:</p>
+        <ul className="ps-5 list-disc">
+          <li>Recognize you when you return to our website</li>
+          <li>Store items in your shopping cart between visits</li>
+          <li>
+            Analyze traffic patterns and performance through tools like Google
+            Analytics
+          </li>
+          <li>
+            Deliver tailored ads via remarketing services such as Facebook Ads
+            or Google Ads
+          </li>
+        </ul>
+        <p>
+          You can control or disable cookies through your browser settings,
+          though doing so may affect the functionality of certain features on
+          the site.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Cookies & Tracking Technologies",
+    label: "6. Data Security",
     content: (
-      <p>
-        We use cookies and similar technologies to: Remember your preferences
-        and enhance your browsing experience. Analyze website traffic and user
-        behavior. Deliver relevant advertisements and promotions. You can manage
-        or disable cookies through your browser settings, but this may affect
-        website functionality.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          We take your data security seriously and implement industry-standard
+          measures to protect your information from loss, misuse, unauthorized
+          access, or disclosure. Our website uses secure socket layer (SSL)
+          encryption technology during checkout and data transmission, and we
+          partner with PCI-compliant payment gateways for all transactions.
+        </p>
+        <p>
+          While we do our best to safeguard your information, please understand
+          that no method of internet transmission or electronic storage is
+          completely secure. Therefore, we cannot guarantee absolute security,
+          but we continuously monitor and update our systems to ensure your
+          privacy is maintained.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Data Security",
+    label: "7. Data Retention",
     content: (
-      <p>
-        We take security seriously and implement appropriate measures to protect
-        your data, including: Encryption of sensitive information. Secure
-        payment processing through third-party providers. Regular security
-        audits and threat monitoring. However, no method of data transmission is
-        100% secure, and we cannot guarantee absolute security.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          We retain your personal data only for as long as necessary to fulfill
+          the purposes outlined in this policy or to comply with applicable
+          legal, regulatory, or tax requirements. When your information is no
+          longer needed, we will securely delete, anonymize, or otherwise
+          dispose of it in accordance with industry best practices.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Your Rights & Choices",
+    label: "8. Your Rights and Choices",
     content: (
-      <p>
-        You have the right to: Access, update, or correct your personal
-        information. Request deletion of your data, subject to legal
-        obligations. Opt out of marketing communications at any time. Restrict
-        processing of certain data. Withdraw consent for data collection. To
-        exercise these rights, contact us at contact@katanoff.com.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          Depending on where you reside, you may have specific rights under
+          local privacy laws, including:
+        </p>
+        <ul className="ps-5 list-disc">
+          <li>
+            The right to access or request a copy of the personal information we
+            hold about you
+          </li>
+          <li>
+            The right to request correction or deletion of inaccurate or
+            outdated information
+          </li>
+          <li>
+            The right to opt out of certain data processing or marketing
+            activities
+          </li>
+          <li>
+            The right to request that we limit or restrict how we use your
+            information
+          </li>
+        </ul>
+        <p>
+          To exercise any of these rights, please contact us at{" "}
+          <b>{companyEmail}</b>. We will respond to your request in a timely
+          manner, in accordance with applicable laws.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Retention of Information",
+    label: "9. Children's Privacy",
     content: (
-      <p>
-        We retain personal information as long as necessary for business
-        operations, legal compliance, and fraud prevention. When no longer
-        required, data is securely deleted or anonymized.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          Our website and services are not intended for use by children under
+          the age of 13. We do not knowingly collect personal information from
+          anyone under this age. If we become aware that we have inadvertently
+          gathered personal data from a child, we will take immediate steps to
+          delete the information.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Third-Party Links & Services",
+    label: "10. Changes to This Policy",
     content: (
-      <p>
-        Our website may contain links to third-party websites. We are not
-        responsible for their privacy policies or content. Please review their
-        policies before providing any personal information.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          Katanoff reserves the right to update or revise this Privacy Policy at
+          any time. Any changes will be posted on this page with a revised
+          effective date. We encourage you to review this page periodically to
+          stay informed about how we are protecting your information.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Children’s Privacy",
+    label: "11. Contact Us",
     content: (
-      <p>
-        Our website is not intended for individuals under the age of 18. We do
-        not knowingly collect data from minors. If we become aware of such
-        collection, we will take appropriate steps to remove the data.
-      </p>
-    ),
-  },
-  {
-    label: "Changes to This Privacy Policy",
-    content: (
-      <p>
-        We may update this Privacy Policy periodically to reflect changes in our
-        practices. Any modifications will be posted on this page with the
-        updated date. Continued use of our website constitutes acceptance of the
-        revised policy.
-      </p>
-    ),
-  },
-  {
-    label: "Contact Information",
-    content: (
-      <p>
-        For questions or concerns regarding this Privacy Policy, please contact
-        us: <br />
-        Phone: {companyPhoneNo} <br />
-        Email: {companyEmail}
-      </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          If you have any questions about this Privacy Policy, your personal
+          information, or our data practices, please don’t hesitate to contact
+          us. We’re here to provide clarity and ensure that your privacy is
+          respected at every step.
+        </p>
+      </div>
     ),
   },
 ];
 
-const TermsAndConditions = () => {
+const PrivacyPolicy = () => {
   return (
     <div className="flex flex-col">
-      <div className="pt-12 md:pt-16">
-        <CommonBgHeading
-          title="Privacy Policy"
-          backText="Back To Home"
-          backHref="/"
-        />
+      <div className="pt-10 md:pt-14">
+        <CommonBgHeading title="Privacy Policy" breadcrumb={true} titleClassName="uppercase" />
       </div>
-      <div className="container mb-10">
-        <div className="border-t border-t-grayborder mt-6 md:mt-10 lg:mt-12" />
+      <div className="container mt-10">
         <AccordionTabs
-          tabs={privacySections}
-          defaultOpenLabel="Introduction"
-          forceResetKey="warranty"
-          contentCustomClass="md:text-lg"
+          tabs={PrivacyPolicyContent}
+          defaultOpenLabel="1. Information We Collect"
+          forceResetKey="privacy-policy"
+          contentCustomClass="md:text-lg !ps-5"
         />
       </div>
     </div>
   );
 };
 
-export default TermsAndConditions;
+export default PrivacyPolicy;

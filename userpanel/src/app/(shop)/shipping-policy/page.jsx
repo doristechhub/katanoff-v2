@@ -3,147 +3,107 @@ import CommonBgHeading from "@/components/ui/CommonBgHeading";
 
 const shipingPolicyContent = [
   {
-    label: "Free 30-Day Returns & Exchanges",
+    label: "Free Shipping on Every Order",
     content: (
       <div className="flex flex-col gap-3">
         <p>
-          At <b>Katanoff</b>, we believe that buying jewelry should be a joyful
-          and worry-free experience. We understand that sometimes an item may
-          not be exactly what you envisioned—and that’s okay. That’s why we
-          offer <b>free returns and exchanges within 30 days</b> from the date
-          of delivery. If you're not fully satisfied with your purchase, we're
-          here to help you make it right. We want you to feel confident and
-          comfortable with every order you place with us. Whether you’re
-          returning a gift, exchanging a ring for a better fit, or simply had a
-          change of heart, our return process is designed to be smooth, secure,
-          and completely hassle-free.
+          At <b>Katanoff</b>, we’re committed to providing an exceptional
+          shopping experience from start to finish. That’s why we offer{" "}
+          <b>free shipping on all orders,</b> no minimum required. Whether
+          you’re shopping for a gift or treating yourself, your jewelry will
+          arrive safely, securely, and at no extra cost to you.
         </p>
       </div>
     ),
   },
   {
-    label: "What Items Are Eligible for Return or Exchange?",
+    label: "Fast, Free, and Insured",
     content: (
       <div className="flex flex-col gap-3">
         <p>
-          Most jewelry purchased from Katanoff is eligible for a{" "}
-          <b>free return or exchange within 30 days</b> of the delivery date. To
-          qualify, the item must meet the following conditions:
+          Every Katanoff order ships
+          <b> free of charge</b> and includes <b>insurance and tracking</b> for
+          your peace of mind. We work with trusted carriers such as <b>FedEx</b>{" "}
+          and <b>UPS</b> to ensure that your package arrives securely and on
+          time. Once your order ships, you’ll receive tracking information via
+          email so you can follow your delivery every step of the way.
         </p>
+        <p>
+          All packages require a <b>signature upon delivery</b>, helping ensure
+          that your fine jewelry is placed in the right hands.
+        </p>
+      </div>
+    ),
+  },
+  {
+    label: "Shipping Within the United States",
+    content: (
+      <div className="flex flex-col gap-3">
         <ul className="ps-5 list-disc">
           <li>
-            The jewelry must be in <b>new, unworn condition</b>, free from any
-            signs of wear, damage, or alteration.
+            <b>Standard Shipping</b> (Free): Orders typically ship within{" "}
+            <b>3–7 business days,</b> depending on the item.
           </li>
           <li>
-            All <b>original packaging</b>, including the jewelry box,
-            certificates (such as diamond grading reports), and any paperwork,
-            must be returned with the item.
+            <b>Expedited Shipping:</b> Need it sooner? Expedited options may be
+            available at checkout for an additional cost.
           </li>
           <li>
-            The return must be initiated within <b>30 days</b> of receiving your
-            order.
+            All shipments are <b>fully insured</b> and require a{" "}
+            <b>signature upon delivery.</b>
           </li>
           <li>
-            The return shipment must be <b>postmarked within 7 days</b> after
-            the return label is issued.
+            We do not ship to <b>PO Boxes</b> or <b>APO/FPO</b> addresses at
+            this time.
           </li>
         </ul>
         <p>
-          We provide <b>free prepaid return shipping labels</b> for all approved
-          returns within the United States, so you don’t have to worry about
-          shipping costs or hidden fees.
+          Please note that delivery timelines may vary depending on product
+          availability, customization, and your location. You&#39;ll receive
+          email updates along the way.
         </p>
       </div>
     ),
   },
   {
-    label: "What Items Are Not Eligible for Return?",
+    label: "Made-to-Order & Custom Pieces",
     content: (
       <div className="flex flex-col gap-3">
         <p>
-          While we do our best to offer flexible return options, there are
-          certain items that are <b>not eligible for return or exchange</b> due
-          to their custom nature or final sale status. These include:
+          Many of our items are handcrafted or made to order, which may require
+          a bit more time before shipping. If your item is custom or
+          personalized, we’ll clearly communicate the estimated production and
+          delivery timelines during checkout.
         </p>
-        <ul className="ps-5 list-disc">
-          <li>
-            <b>Custom-designed or engraved jewelry</b>, including pieces that
-            have been made to your specific size, stone, or metal preferences.
-          </li>
-          <li>
-            Any item that has been <b>resized, modified, or altered</b> after
-            delivery.
-          </li>
-          <li>
-            <b>Final sale</b> or clearance items, which are noted as
-            non-returnable at the time of purchase.
-          </li>
-          <li>
-            Jewelry that shows any{" "}
-            <b>visible signs of wear, misuse, or damage.</b>
-          </li>
-        </ul>
         <p>
-          If you're unsure whether your item qualifies for a return or exchange,
-          please don’t hesitate to reach out to us before starting the process.
-          Our team is happy to review your order and guide you accordingly.
+          If you're placing a custom order with a specific deadline in mind
+          (e.g., a gift or special occasion), feel free to reach out to our team
+          in advance—we’ll do our best to meet your timeline.
         </p>
       </div>
     ),
   },
   {
-    label: "How to Initiate a Return or Exchange",
+    label: "International Shipping",
     content: (
       <div className="flex flex-col gap-3">
         <p>
-          Returning or exchanging a piece of jewelry at Katanoff is simple and
-          secure. Here’s how the process works:
+          At this time, Katanoff <b>only ships within the United States.</b> We
+          are working to expand our shipping options internationally in the near
+          future. If you are located outside the U.S. and would like to place an
+          order, please contact us for possible solutions.
         </p>
-        <div className="ps-5 list-decimal flex flex-col gap-3">
-          <li>
-            <b>Contact Our Support Team</b>
-            <br />
-            <p className="ps-5">
-              Email us at support@katanoff.com within 30 days of delivery to let
-              us know you'd like to return or exchange your item. Be sure to
-              include your order number and reason for the return or exchange in
-              your message.
-            </p>
-          </li>
-          <li>
-            <b>Receive Your Free Prepaid Return Label</b>
-            <br />
-            <p className="ps-5">
-              Once your return is approved, we’ll send you a prepaid shipping
-              label via email. Please print the label and pack your item
-              securely using its original packaging, including all documents and
-              certificates.
-            </p>
-          </li>
-          <li>
-            <b>Ship the Item Back to Us</b>
-            <br />
-            <p className="ps-5">
-              Drop off your package at any approved shipping carrier location.
-              We recommend keeping your drop-off receipt and tracking number for
-              your records.
-            </p>
-          </li>
-          <li>
-            <b>Inspection & Refund/Exchange</b>
-            <br />
-            <p className="ps-5">
-              Once your item arrives, our quality control team will inspect it
-              to ensure it meets our return standards. If everything checks out,
-              we’ll issue your refund to the original payment method or process
-              your exchange within 7–10 business days.
-            </p>
-          </li>
-        </div>
+      </div>
+    ),
+  },
+  {
+    label: "Order Updates & Support",
+    content: (
+      <div className="flex flex-col gap-3">
         <p>
-          Please note that depending on your bank or credit card provider, the
-          refund may take a few additional days to reflect in your account.
+          As soon as your order ships, you’ll receive an email with tracking
+          details. If you have any questions about your order status, shipping
+          timeline, or delivery, our customer service team is here to help.
         </p>
       </div>
     ),
@@ -154,18 +114,12 @@ const ShippingPolicy = () => {
   return (
     <div className="flex flex-col">
       <div className="pt-10 md:pt-14">
-        <CommonBgHeading title="Shipping Policy" breadcrumb={true} />
+        <CommonBgHeading title="Shipping Policy" breadcrumb={true} titleClassName="uppercase" />
       </div>
       <div className="container mt-10">
-        {/* <PolicyContent sections={privacySections} /> */}
-        <p className="text-baseblack font-normal text-base leading-relaxed">
-          We’re committed to delivering your jewelry safely, quickly, and at no
-          extra cost to you. That’s why every order ships free—no matter the
-          value, no matter the destination (within the U.S.).
-        </p>
         <AccordionTabs
           tabs={shipingPolicyContent}
-          defaultOpenLabel="shipping policy"
+          defaultOpenLabel="Free Shipping on Every Order"
           forceResetKey="shipping policy"
           contentCustomClass="md:text-lg !ps-5"
         />

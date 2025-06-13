@@ -3,13 +3,10 @@ import Breadcrumb from "./Breadcrumb";
 const CommonBgHeading = ({
   title,
   breadcrumb = false,
-  // backText,
   rightText,
-  rightTextHref = "/",
-  // backHref = "/",
-  bgColor = true,
   showSelectAll = false,
   allSelected = false,
+  titleClassName = '',
   onSelectAllChange = () => {},
 }) => {
   return (
@@ -19,8 +16,8 @@ const CommonBgHeading = ({
 
         {/* Centered Title */}
         <h1
-          className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                   text-2xl xl:text-2xl font-medium font-castoro text-baseblack"
+          className={`absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                   text-2xl xl:text-2xl font-medium font-castoro text-baseblack ${titleClassName}`}
         >
           {title}
         </h1>

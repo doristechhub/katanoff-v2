@@ -11,6 +11,15 @@ import engagementRings from "@/assets/images/banners/engagement-rings.webp";
 import flashDeals from "@/assets/images/banners/flash-deals.webp";
 import necklaces from "@/assets/images/banners/necklaces.webp";
 
+
+// Fashion
+import desktopFashion from "@/assets/images/banners/desktop-fashion.webp";
+import mobileFashion from "@/assets/images/banners/mobile-fashion.webp";
+
+// Quick Ship Gift
+import desktopQuickShipGift from "@/assets/images/banners/desktop-quick-ship-gift.webp";
+import mobileQuickShipGift from "@/assets/images/banners/mobile-quick-ship-gift.webp";
+
 // Jewelry
 import desktopJewelry from "@/assets/images/banners/desktop-jewelry.webp";
 import mobileJewelry from "@/assets/images/banners/mobile-jewelry.webp";
@@ -26,6 +35,24 @@ export const bannerList = [
             banner: {
                 desktop: wedding,
                 mobile: wedding,
+            },
+        },
+    },
+    {
+        collection: {
+            title: "Quick Ship Gifts",
+            banner: {
+                desktop: desktopQuickShipGift,
+                mobile: mobileQuickShipGift,
+            },
+        },
+    },
+    {
+        collection: {
+            title: "Fashion",
+            banner: {
+                desktop: desktopFashion,
+                mobile: mobileFashion   ,
             },
         },
     },

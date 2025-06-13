@@ -1,144 +1,213 @@
-import CommonBgHeading from "@/components/ui/CommonBgHeading";
-import { companyEmail, companyPhoneNo, companyUrl } from "@/_helper";
 import { AccordionTabs } from "@/components/dynamiComponents";
+import CommonBgHeading from "@/components/ui/CommonBgHeading";
+import { companyEmail } from "@/_helper";
 
-
-const warrantySections = [
+const warrantyContent = [
   {
-    label: "Is a warranty included with my purchase?",
+    label: "Free Lifetime Warranty",
     content: (
-      <>
+      <div className="flex flex-col gap-3">
         <p>
-          KatanOff includes a Limited Lifetime Warranty with every jewelry purchase, regardless of price and type of item. We warrant that all
-          jewelry purchased from our website will be free from manufacturing defects in materials and workmanship at the time of delivery and the
-          optical properties of the lab grown diamonds will never fade or cloud over time. Other restrictions and exclusions apply.
+          At <b>Katanoff</b>, we stand behind the craftsmanship and quality of
+          every piece of jewelry we create. Each item is designed and made with
+          exceptional care, using high-quality materials and precise techniques
+          to ensure beauty, strength, and lasting value. Because we’re committed
+          to your long- term satisfaction, we proudly offer a{" "}
+          <b>Free Lifetime Warranty</b> on all Katanoff jewelry. This warranty
+          is our promise that your investment in fine jewelry will be protected
+          for years to come.
         </p>
-      </>
+      </div>
     ),
   },
   {
-    label: "How do I report a warranty claim or quality issue?",
+    label: "What Our Lifetime Warranty Covers",
     content: (
-      <>
+      <div className="flex flex-col gap-3">
         <p>
-          For warranty claims or other quality-related issues, we will utilize our repair process to evaluate your jewelry and, if necessary, we may
-          be able to repair or replace the item at no cost to you. To report a warranty claim or other quality issue, please contact a customer service agent via email at {companyEmail} or call us at {companyPhoneNo}.
+          We understand how important it is for your jewelry to stand the test
+          of time—not just in appearance, but in durability and structural
+          integrity. That’s why our lifetime warranty covers{" "}
+          <b>manufacturing defects</b> and issues related to{" "}
+          <b>workmanship or materials</b> under normal wear. If you experience
+          any such issues, we will repair or replace the item at no cost to you.
         </p>
-      </>
-    ),
-  },
-  {
-    label: "Can I purchase an Extended Service Plan?",
-    content: (
-      <>
-        <div className="flex flex-col gap-y-3">
-          <p>
-            Yes! We offer Extended Service Plans from Extend. For all jewelry items, you can purchase this plan when you check out on the website.  Check the My Bag page, or the checkout page to see the available coverage options and prices.  Once you choose the coverage that is right for you, you can add the service plan to your order at checkout.
-          </p>
-          <p>
-            Alternatively, you can add an Extended Service Plan for your items up to 30 days from when it ships.You may receive an email from
-            Katanoff with instructions on how to add the service plan to your item. However, you can also log into your account
-            at <a  href={`/auth/login`}><u>Login Here</u></a>, choose the item that you want to cover, and then purchase the Extended Service Plan. If you don't have an account created, you can also visit <a  href={`/auth/login`}className="underline"> {`${companyUrl}/auth/login`}</a> and then enter your order number and billing email address to find the item you want to cover, and then purchase the coverage. Please note that Extended Service Plans may only be purchased within 30 days from when your item has shipped. After 30 days, we no longer have the
-            ability to add coverage to your items.
-          </p>  
-          <p>
-            To learn more about Extended Service plans from Extend.
-          </p>
-        </div>
-      </>
-    ),
-  },
-];
+        <p>Covered services under our warranty include:</p>
 
-const repairSections = [
-  {
-    label: "What is your repair process?",
-    content: (
-      <>
-        <div className="flex flex-col gap-y-3">
-          <p>
-            We utilize our repair process for many post-purchase processes: warranty claims, quality issues, ring sizing, or other sizing issues. For this process, we send you a shipping label, repair work order, and instructions on how to ship the item to our repair facility. Once the repair or re-make is complete, we ship the item back to you via FedEx 2Day service. We cover the cost of the shipping to our repair facility and back to you when the work is complete.
-          </p>
-          <p>
-            Not all situations will be able to utilize the repair process. For example, if you decide you want a larger carat weight or a different
-            metal type, the item may need to be returned, and the new item re-ordered.
-          </p>
-          <p>
-            Our agents can help advise you of the next steps for any of the above situations. To report a quality or sizing issue, please contact a customer service agent via email at {companyEmail} or call us at {companyPhoneNo}.
-          </p>
-        </div>
-      </>
+        <ul className="ps-5 list-disc">
+          <li>
+            Tightening or re-tipping of prongs that have become loose due to
+            normal usage over time
+          </li>
+          <li>
+            Repair or replacement of small accent stones (also known as melee
+            diamonds) that have come loose or fallen out due to craftsmanship
+            flaws
+          </li>
+          <li>
+            Adjustments or repairs to clasps, links, or chains that malfunction
+            under normal wear
+          </li>
+          <li>
+            Corrections to any design or construction flaw resulting from how
+            the piece was originally made
+          </li>
+        </ul>
+        <p>
+          This warranty reflects our belief that jewelry should not only look
+          beautiful but also remain dependable and structurally sound with
+          everyday wear
+        </p>
+      </div>
     ),
   },
   {
-    label: "Can I have my ring re-sized?",
+    label: "What the Warranty Does Not Cover",
     content: (
-      <>
-        <div className="flex flex-col gap-y-3">
-          <p>
-            For U.S. customers, Katanoff offers one free ring sizing within 30 days of your purchase, and up to one time per year after that (excluding eternity-style rings), as long as we can maintain the quality of the ring. Eternity bands will need to be re-made in the correct size, which we offer one time only within 30 days of your purchase. In all cases, we utilize our repair process to receive and size or remake your ring.
-          </p>
-          <p>
-            To request to have your ring re-sized, please contact a customer service agent via email at {companyEmail} or call us at {companyPhoneNo}.
-          </p>
-          <p>
-            For International customers, you must return your item within the return policy, and re-purchase in the correct size. We do not offer
-            free annual ring re-sizing on international orders.
-          </p>
-        </div>
-      </>
+      <div className="flex flex-col gap-3">
+        <p>
+          While we are proud to offer a generous and comprehensive lifetime
+          warranty, it is important to note that there are limitations to what
+          is included. This warranty does not cover damage caused by{" "}
+          <b>accidental impact, improper use, excessive force,</b> or{" "}
+          <b> neglect.</b> Additionally, it does not include:
+        </p>
+        <ul className="ps-5 list-disc">
+          <li>Loss or theft of the jewelry, whether partial or complete</li>
+          <li>
+            Damage resulting from unauthorized repairs or services completed by
+            third-party jewelers
+          </li>
+          <li>
+            Surface wear such as scratches, dents, or fading that naturally
+            occur over time
+          </li>
+          <li>
+            Resizing requests that go beyond the range of what the setting can
+            safely accommodate
+          </li>
+          <li>
+            Damage caused by exposure to chemicals, rough handling, or other
+            external elements
+          </li>
+        </ul>
+        <p>
+          To keep your warranty valid, we recommend that all maintenance,
+          repairs, and cleaning services be performed through Katanoff or an
+          authorized service partner only.
+        </p>
+      </div>
     ),
   },
   {
-    label: "Can I have my bracelet re-sized?",
+    label: "Complimentary Jewelry Cleaning and Maintenance",
     content: (
-      <>
-        <div className="flex flex-col gap-y-3">
-          <p>
-            For U.S. customers, some bracelets may be able to be re-sized and some may not. For example, if you ordered a tennis bracelet, and it is too long, it may be possible to remove links from your bracelet. For these instances, we will utilize our repair process for this. Our repair facility will remove the necessary links to achieve the nearest required length, and return the bracelet to you along with any links that were removed. This service is provided for 30 days after your purchase. If a bracelet is too short, we may need to have you return the bracelet, and re-order the correct length. We may also be able to process a new special order for you, if required. Some bracelets, like bangles or cuff bracelets, may not be re-sized at all. In all cases, our agents will be able to advise you on the next steps. Contact a customer service agent via email at {companyEmail} or call us at {companyPhoneNo}.
-          </p>
-          <p>
-            For International customers, you must return your item, and re-purchase in the correct size.
-          </p>
+      <div className="flex flex-col gap-3">
+        <p>
+          In addition to warranty protection, we’re pleased to offer{" "}
+          <b>complimentary jewelry care services </b> to help you maintain the
+          brilliance and structural condition of your piece over time. This
+          includes thorough inspections of prongs and settings, professional
+          steam cleaning, polishing, and general upkeep. We encourage customers
+          to take advantage of these services periodically, especially if the
+          item is worn daily.
+        </p>
+        <p>
+          To access these complimentary services, simply contact our support
+          team. While the cleaning itself is free of charge, we kindly ask that
+          you cover the cost of shipping the item to us. Once the service is
+          completed, we will return your jewelry with{" "}
+          <b>free insured shipping, </b> along with a refreshed sparkle and
+          peace of mind.
+        </p>
+      </div>
+    ),
+  },
+  {
+    label: "How to Request Warranty Repair or Jewelry Maintenance",
+    content: (
+      <div className="flex flex-col gap-3">
+        <p>
+          If you believe your piece is experiencing an issue covered by our
+          lifetime warranty or if you would like to schedule routine maintenance
+          or professional cleaning, please follow the steps below:
+        </p>
+        <div className="ps-5 list-decimal flex flex-col gap-3">
+          <li>
+            Reach out to us by sending an email to <b>{companyEmail}.</b> Please
+            include your order number, a detailed description of the issue, and
+            clear photos that show the area of concern. The more information you
+            provide, the faster we can assist you.
+          </li>
+          <li>
+            Once our customer care team has reviewed your request, we will
+            confirm whether the issue is covered under the warranty or recommend
+            the appropriate service. If your request is approved, we will
+            provide you with a <b>prepaid, fully insured shipping label </b>so
+            you can safely send the item to our service center.
+          </li>
+          <li>
+            Upon receiving your jewelry, our in-house team of expert jewelers
+            will conduct a careful inspection and begin the necessary repair or
+            care process. You will be updated once the work is completed and
+            your item is ready for return shipment.
+          </li>
         </div>
-      </>
-    ), 
+        <p>
+          Most repair and cleaning services are completed within{" "}
+          <b>7 to 14 business days,</b> depending on the complexity of the work
+          and the condition of the piece.
+        </p>
+      </div>
+    ),
+  },
+  {
+    label: "Consider Insuring Your Jewelry Separately",
+    content: (
+      <div className="flex flex-col gap-3">
+        <p>
+          While our lifetime warranty provides excellent coverage for
+          manufacturing-related issues and maintenance, it does not cover
+          accidental damage, loss, or theft. For complete peace of mind, we
+          recommend protecting your investment with a separate jewelry insurance
+          policy through your homeowners’ or renters’ insurance provider, or
+          through a specialized jewelry insurer.
+        </p>
+      </div>
+    ),
+  },
+  {
+    label: "We're Always Here for You",
+    content: (
+      <div className="flex flex-col gap-3">
+        <p>
+          Your experience with Katanoff doesn’t end once your jewelry arrives—it
+          continues for life. We are committed to helping you care for your
+          jewelry and supporting you through every stage of ownership. If you
+          ever have questions about your piece, need assistance with a service,
+          or want to schedule a cleaning or repair, our dedicated customer care
+          team is always ready to help.
+        </p>
+      </div>
+    ),
   },
 ];
 
 const Warranty = () => {
   return (
-<>
-      <div className="pt-12 md:pt-16">
-      <CommonBgHeading title="Warranty" 
-      backText="Back To Home" 
-      backHref="/" />
+    <div className="flex flex-col">
+      <div className="pt-10 md:pt-14">
+        <CommonBgHeading title="Warranty" breadcrumb={true} titleClassName="uppercase" />
       </div>
-
-      <div className="container normal-case mb-10">
-       <h2 className="pl-4 lg:pl-0 text-lg xxs:text-2xl md:text-3xl xl:text-4xl text-baseblack font-castoro pt-8 xxs:pt-12 lg:pt-20">
-          Warranty Questions
-        </h2>
-<div className="border-t border-t-grayborder mt-6 md:mt-10 lg:mt-12"/>
+      <div className="container mt-10">
         <AccordionTabs
-          tabs={warrantySections}
-          defaultOpenLabel="Is a warranty included with my purchase?"
+          tabs={warrantyContent}
+          defaultOpenLabel="Free Lifetime Warranty"
           forceResetKey="warranty"
-          contentCustomClass="md:text-lg"
-        />
-  
-        <h2 className="pl-4 lg:pl-0 text-4xl text-baseblack font-castoro mt-20 border-b border-grayborder pb-12">
-          Repair Questions
-        </h2>
-
-        <AccordionTabs
-          tabs={repairSections}
-          defaultOpenLabel="repair"
-          forceResetKey="repair"
-          contentCustomClass="md:text-lg"
+          contentCustomClass="md:text-lg !ps-5"
         />
       </div>
-      </>
+    </div>
   );
 };
 
