@@ -395,6 +395,15 @@ export const displayVariationsLabel = (variations) => {
   return [...orderedValues, ...remaining].join(", ");
 };
 
+export const getVariationDisplay = (variations, variationName) => {
+  const variation = variations?.find((v) => v?.variationName === variationName);
+  return {
+    name: variation?.variationName || "N/A",
+    type: variation?.variationTypeName || "N/A",
+    exists: !!variation,
+  };
+};
+
 const shouldHideCartPopup = (pathname) => {
   return (
     pathname === "/checkout" ||
@@ -600,6 +609,7 @@ export const helperFunctions = {
   capitalizeCamelCase,
   getVariationValue,
   displayVariationsLabel,
+  getVariationDisplay,
   shouldHideCartPopup,
   updateGoldColorInUrl,
   calculateCustomizedProductPrice,
