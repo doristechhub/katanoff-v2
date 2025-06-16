@@ -93,7 +93,7 @@ export default function ZoomImage({ src, alt }) {
       <ProgressiveImg
         ref={imageRef}
         src={src}
-        className="w-full h-full object-cover"
+        className="w-full h-full !object-cover"
         style={{ aspectRatio: "4/4", display: "block" }}
         alt={alt}
       />

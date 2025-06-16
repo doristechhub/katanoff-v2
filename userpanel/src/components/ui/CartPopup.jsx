@@ -385,13 +385,15 @@ const CartPopup = () => {
                       </div>
                     </div>
                   ))}
-                  <div className="sticky bottom-0 w-full h-24 pointer-events-none">
-                    <CustomImg
-                      src={effect}
-                      alt="Effect"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                  {cartList?.length > 3 && (
+                    <div className="sticky bottom-0 w-full h-24 pointer-events-none">
+                      <CustomImg
+                        src={effect}
+                        alt="Effect"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="shrink-0 px-2 xs:px-6 bg-offwhite border-t-2 border-black_opacity_10 pb-4 pt-2">

@@ -37,7 +37,7 @@ const MemoizedSlide = memo(({ src, alt, isVideo, videoType }) => (
       <ProgressiveVed
         src={src}
         type={videoType}
-        className="w-full h-full object-cover"
+        className="!object-cover"
         style={{ aspectRatio: "4/4", objectFit: "cover" }}
       />
     ) : (
