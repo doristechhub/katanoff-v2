@@ -31,7 +31,7 @@ const ProgressiveImg = ({
       alt={alt}
       width={width}
       height={height}
-      className={`w-full h-full object-contain image-rendering-optimize ${customClass} ${className}`}
+      className={`object-contain image-rendering-optimize ${customClass} ${className}`}
       priority
       {...props}
     />

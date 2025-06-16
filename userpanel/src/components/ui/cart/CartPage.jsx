@@ -339,13 +339,13 @@ const CartPage = () => {
                       </div>
 
                       {cartItem?.variations?.some(
-                        (v) => v.variationName === RING_SIZE
+                        (v) => v?.variationName === RING_SIZE
                       ) && (
                         <div className="flex items-center gap-2 pt-2 sm:pt-0">
                           <p className="text-sm items-center md:text-base font-medium text-baseblack">
                             {v?.variationName}:{" "}
                             {cartItem?.variations?.find(
-                              (v) => v.variationName === RING_SIZE
+                              (v) => v?.variationName === RING_SIZE
                             )?.variationTypeName || "N/A"}
                           </p>
                         </div>
