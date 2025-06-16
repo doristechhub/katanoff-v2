@@ -10,7 +10,6 @@ const companyInfo = {
   INSTAGRAM_URL: process.env.INSTAGRAM_URL,
   FACEBOOK: process.env.FACEBOOK,
   FACEBOOK_URL: process.env.FACEBOOK_URL,
-  TEMPLATE_BG: process.env.TEMPLATE_BG,
 };
 
 module.exports = companyInfo;
