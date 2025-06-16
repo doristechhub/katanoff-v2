@@ -1,16 +1,35 @@
 import trending from "@/assets/images/banners/trending.webp";
-import giftForHim from "@/assets/images/banners/gift-for-him.webp";
-import giftForHer from "@/assets/images/banners/gift-for-her.webp";
-import newArrivals from "@/assets/images/banners/new-arrivals.webp";
 import under500 from "@/assets/images/banners/under-500.webp";
 import wedding from "@/assets/images/banners/wedding.webp";
-import bracelets from "@/assets/images/banners/bracelets.webp";
 import earrings from "@/assets/images/banners/earrings.webp";
 import mensJewelry from "@/assets/images/banners/mens-jewelry.webp";
-import engagementRings from "@/assets/images/banners/engagement-rings.webp";
-import flashDeals from "@/assets/images/banners/flash-deals.webp";
 import necklaces from "@/assets/images/banners/necklaces.webp";
 
+
+
+// New Arrivals
+import desktopNewArrivals from "@/assets/images/banners/desktop-new-arrivals.webp";
+import mobileNewArrivals from "@/assets/images/banners/mobile-new-arrivals.webp";
+
+// Flash Deals
+import desktopFlashDeals from "@/assets/images/banners/desktop-flash-deals.webp";
+import mobileFlashDeals from "@/assets/images/banners/mobile-flash-deals.webp";
+
+// Gift For Him
+import desktopGiftForHim from "@/assets/images/banners/desktop-gift-for-him.webp";
+import mobileGiftForHim from "@/assets/images/banners/mobile-gift-for-him.webp";
+
+// Gift For Her
+import desktopGiftForHer from "@/assets/images/banners/desktop-gift-for-her.webp";
+import mobileGiftForHer from "@/assets/images/banners/mobile-gift-for-her.webp";
+
+// Engagement Rings
+import desktopEngagementRings from "@/assets/images/banners/desktop-engagement-rings.webp";
+import mobileEngagementRings from "@/assets/images/banners/mobile-engagement-rings.webp";
+
+// Bracelets
+import desktopBracelets from "@/assets/images/banners/desktop-bracelets.webp";
+import mobileBracelets from "@/assets/images/banners/mobile-bracelets.webp";
 
 // Fashion
 import desktopFashion from "@/assets/images/banners/desktop-fashion.webp";
@@ -28,12 +47,51 @@ import mobileJewelry from "@/assets/images/banners/mobile-jewelry.webp";
 import desktopRings from "@/assets/images/banners/desktop-rings.webp"
 import mobileRings from "@/assets/images/banners/mobile-rings.webp"
 
+// High Jewelry
+import desktopHighJewelry from "@/assets/images/banners/desktop-high-jewelry.webp"
+import mobileHighJewelry from "@/assets/images/banners/mobile-high-jewelry.webp"
+
+// Tennis
+import desktopTennis from "@/assets/images/banners/desktop-tennis.webp"
+import mobileTennis from "@/assets/images/banners/mobile-tennis.webp"
+
+// Special Buys
+import desktopSpecialBuys from "@/assets/images/banners/desktop-special-buys.webp"
+import mobileSpecialBuys from "@/assets/images/banners/mobile-special-buys.webp"
+
 export const bannerList = [
+    {
+        collection: {
+            title: "High Jewelry",
+            banner: {
+                desktop: desktopHighJewelry,
+                mobile: mobileHighJewelry,
+            },
+        },
+    },
+    {
+        collection: {
+            title: "Tennis",
+            banner: {
+                desktop: desktopTennis,
+                mobile: mobileTennis,
+            },
+        },
+    },
+    {
+        collection: {
+            title: "Special Buys",
+            banner: {
+                desktop: desktopSpecialBuys,
+                mobile: mobileSpecialBuys,
+            },
+        },
+    },
     {
         collection: {
             title: "Wedding Rings",
             banner: {
-                desktop: wedding,
+                desktop: desktopRings,
                 mobile: wedding,
             },
         },
@@ -52,7 +110,7 @@ export const bannerList = [
             title: "Fashion",
             banner: {
                 desktop: desktopFashion,
-                mobile: mobileFashion   ,
+                mobile: mobileFashion,
             },
         },
     },
@@ -60,8 +118,8 @@ export const bannerList = [
         collection: {
             title: "Engagement Rings",
             banner: {
-                desktop: engagementRings,
-                mobile: engagementRings,
+                desktop: desktopEngagementRings,
+                mobile: mobileEngagementRings,
             },
         },
     },
@@ -69,8 +127,8 @@ export const bannerList = [
         collection: {
             title: "Flash Deals",
             banner: {
-                desktop: flashDeals,
-                mobile: flashDeals,
+                desktop: desktopFlashDeals,
+                mobile: mobileFlashDeals,
             },
         },
     },
@@ -87,8 +145,8 @@ export const bannerList = [
         collection: {
             title: "Gifts For Her",
             banner: {
-                desktop: giftForHer,
-                mobile: giftForHer,
+                desktop: desktopGiftForHer,
+                mobile: mobileGiftForHer,
             },
         },
     },
@@ -96,8 +154,8 @@ export const bannerList = [
         collection: {
             title: "Gifts For Him",
             banner: {
-                desktop: giftForHim,
-                mobile: giftForHim,
+                desktop: desktopGiftForHim,
+                mobile: mobileGiftForHim,
             },
         },
     },
@@ -105,8 +163,8 @@ export const bannerList = [
         collection: {
             title: "New Arrival",
             banner: {
-                desktop: newArrivals,
-                mobile: newArrivals,
+                desktop: desktopNewArrivals,
+                mobile: mobileNewArrivals,
             },
         },
     },
@@ -147,8 +205,8 @@ export const bannerList = [
                 title: "Bracelets",
                 type: "subCategories",
                 banner: {
-                    desktop: bracelets,
-                    mobile: bracelets,
+                    desktop: desktopBracelets,
+                    mobile: mobileBracelets,
                 },
             },
             {

@@ -30,7 +30,10 @@ export const GOLD_TYPES = "Gold Type";
 export const GOLD_COLOR = "Gold Color";
 
 export const RING_SIZE = "Ring Size";
-
+export const LENGTH = "Length";
+export const DIAMOND_SHAPE = "Diamond Shape";
+export const DIAMOND_QUALITY = "Diamond Quality";
+export const SETTING_STYLE = "Setting Style";
 export const TOP_SELLING_PRODUCTS = "Top Selling Products";
 export const FLASH_DEALS = "Flash Deals";
 export const CUSTOM = "Custom";

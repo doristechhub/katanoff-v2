@@ -1,10 +1,43 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ProgressiveImg } from "../dynamiComponents";
 
-export default function ZoomImage({ src, alt, placeholderSrc }) {
+export default function ZoomImage({ src, alt }) {
   const [lensPosition, setLensPosition] = useState({ x: 0, y: 0 });
   const [isZoomed, setIsZoomed] = useState(false);
+  const [imageDimensions, setImageDimensions] = useState({
+    width: 0,
+    height: 0,
+  });
   const imageRef = useRef(null);
+
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (imageRef.current) {
+        const { width, height } = imageRef.current.getBoundingClientRect();
+        setImageDimensions({ width, height });
+        if (isZoomed) {
+          setLensPosition({
+            x: width / 2,
+            y: height / 2,
+          });
+        }
+      }
+    };
+
+    updateDimensions();
+    window.addEventListener("resize", updateDimensions);
+
+    const img = imageRef.current?.querySelector("img");
+    if (img) {
+      img.onload = updateDimensions;
+      img.onerror = () => console.error("Image failed to load:", src);
+    }
+
+    return () => {
+      window.removeEventListener("resize", updateDimensions);
+      if (img) img.onload = null;
+    };
+  }, [src, isZoomed]);
 
   const handleMouseMove = (e) => {
     if (!isZoomed || !imageRef.current) return;
@@ -20,16 +53,25 @@ export default function ZoomImage({ src, alt, placeholderSrc }) {
 
   const handleClick = () => {
     if (typeof window !== "undefined" && window.innerWidth >= 1240) {
-      setIsZoomed((prev) => !prev);
+      setIsZoomed((prev) => {
+        const newZoomed = !prev;
+        if (newZoomed && imageRef.current) {
+          const { width, height } = imageRef.current.getBoundingClientRect();
+          setLensPosition({
+            x: width / 2,
+            y: height / 2,
+          });
+        }
+        return newZoomed;
+      });
     }
   };
 
   const zoomLevel = 2;
-  const imageWidth = imageRef.current?.width || 100;
-  const imageHeight = imageRef.current?.height || 100;
+  const { width: imageWidth, height: imageHeight } = imageDimensions;
 
-  const bgPosX = lensPosition.x * zoomLevel - imageWidth / 2;
-  const bgPosY = lensPosition.y * zoomLevel - imageHeight / 2;
+  const bgPosX = lensPosition.x * (zoomLevel - 1);
+  const bgPosY = lensPosition.y * (zoomLevel - 1);
 
   const boundedBgPosX = Math.max(
     0,
@@ -42,24 +84,21 @@ export default function ZoomImage({ src, alt, placeholderSrc }) {
 
   return (
     <div
-      className={`zoom-container w-full h-full relative overflow-hidden ${
+      className={`zoom-container w-full h-full relative ${
         isZoomed ? "cursor-zoom-out" : "cursor-zoom-in"
       }`}
-      style={{ display: "flex", flexDirection: "column" }}
       onMouseMove={handleMouseMove}
       onClick={handleClick}
     >
       <ProgressiveImg
         ref={imageRef}
         src={src}
-        alt={alt}
-        placeholderSrc={placeholderSrc}
         className="w-full h-full object-cover"
-        style={{ aspectRatio: "4/3", display: "block" }}
-        onError={() => console.error("Image failed to load:", src)}
+        style={{ aspectRatio: "4/4", display: "block" }}
+        alt={alt}
       />
 
-      {isZoomed && (
+      {isZoomed && imageWidth > 0 && imageHeight > 0 && (
         <div
           className="absolute top-0 left-0 w-full h-full pointer-events-none z-10"
           style={{

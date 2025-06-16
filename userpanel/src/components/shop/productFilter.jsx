@@ -19,7 +19,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import filterIcon from "@/assets/icons/filter.svg";
 import settingsSlidersIcon from "@/assets/icons/settings-sliders.svg";
 import { CustomImg, ProgressiveImg, RangeSlider } from "../dynamiComponents";
-import { GOLD_COLOR, helperFunctions, sortByList } from "@/_helper";
+import {
+  DIAMOND_SHAPE,
+  GOLD_COLOR,
+  helperFunctions,
+  sortByList,
+} from "@/_helper";
 import { RxCross1 } from "react-icons/rx";
 import * as Yup from "yup";
 import { useFormik } from "formik";
@@ -1010,15 +1015,14 @@ export default function ProductFilter({
                                 {uniqueFilterOptions.uniqueVariations
                                   .filter(
                                     (variation) =>
-                                      variation.variationName ===
-                                      "Diamond Shape"
+                                      variation.variationName === DIAMOND_SHAPE
                                   )
                                   .flatMap((variation) =>
                                     variation.variationTypes.map(
                                       (item, index) => {
                                         const selectedDiamondShape =
                                           selectedFilterVariations[
-                                            "Diamond Shape"
+                                            DIAMOND_SHAPE
                                           ] || [];
                                         const isSelected =
                                           selectedDiamondShape.includes(
@@ -1036,7 +1040,7 @@ export default function ProductFilter({
                                               }`}
                                               onClick={() =>
                                                 onSelectVariant(
-                                                  "Diamond Shape",
+                                                  DIAMOND_SHAPE,
                                                   item.variationTypeName
                                                 )
                                               }
@@ -1328,12 +1332,12 @@ export default function ProductFilter({
                             {uniqueFilterOptions.uniqueVariations
                               .filter(
                                 (variation) =>
-                                  variation.variationName === "Diamond Shape"
+                                  variation.variationName === DIAMOND_SHAPE
                               )
                               .flatMap((variation) =>
                                 variation.variationTypes.map((item, index) => {
                                   const selectedDiamondShape =
-                                    selectedFilterVariations["Diamond Shape"] ||
+                                    selectedFilterVariations[DIAMOND_SHAPE] ||
                                     [];
                                   const isSelected =
                                     selectedDiamondShape.includes(
@@ -1345,7 +1349,7 @@ export default function ProductFilter({
                                       className={`flex items-center gap-2 group cursor-pointer`}
                                       onClick={() =>
                                         onSelectVariant(
-                                          "Diamond Shape",
+                                          DIAMOND_SHAPE,
                                           item.variationTypeName
                                         )
                                       }

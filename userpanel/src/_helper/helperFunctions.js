@@ -5,6 +5,7 @@ import {
   CARAT_RANGE_PRICES,
   GOLD_COLOR,
   GOLD_TYPES,
+  DIAMOND_SHAPE,
   METAL_PRICE_PER_GRAM,
   PRICE_MULTIPLIER,
   RING_SIZE,
@@ -371,7 +372,7 @@ const getVariationValue = (selectedVariations, key) => {
 export const displayVariationsLabel = (variations) => {
   if (!Array.isArray(variations)) return "";
 
-  const desiredOrder = [GOLD_TYPES, GOLD_COLOR, "Diamond Shape"];
+  const desiredOrder = [GOLD_TYPES, GOLD_COLOR, DIAMOND_SHAPE];
   const variationMap = {};
   const remaining = [];
 
