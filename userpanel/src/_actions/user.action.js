@@ -2,6 +2,8 @@ import { userService } from "@/_services";
 import {
   setLoginMessage,
   setSendOtpLoading,
+  setUpdateProfileLoader,
+  setUserProfile,
   setSendOtpMessage,
   setUserRegisterLoading,
   setUserRegisterMessage,
@@ -32,6 +34,31 @@ export const SendOTPForEmailVerification = (payload) => async (dispatch) => {
   }
 };
 
+export const fetchUserProfile = (userId) => async (dispatch) => {
+  try {
+    const userProfile = await userService.getUserProfile(userId);
+    dispatch(setUserProfile(userProfile || {}));
+  } catch (e) {
+    dispatch(setUserProfile({}));
+  }
+};
+
+export const updateUserProfile = (payload, userData) => async (dispatch) => {
+  try {
+    dispatch(setUpdateProfileLoader(true));
+    const updatedUserProfile = await userService.updateUserProfile(payload);
+    dispatch(setUpdateProfileLoader(false));
+
+    if (updatedUserProfile) {
+      dispatch(setUserProfile(updatedUserProfile));
+      return true;
+    }
+    return false;
+  } catch (e) {
+    dispatch(setUpdateProfileLoader(false));
+    return false;
+  }
+};
 export const createUser = (payload) => async (dispatch) => {
   try {
     dispatch(setUserRegisterMessage({ message: "", type: "" }));

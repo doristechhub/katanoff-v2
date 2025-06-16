@@ -23,6 +23,7 @@ import {
 } from "@/components/dynamiComponents";
 import CartPopup from "../ui/CartPopup";
 import {
+  DIAMOND_SHAPE,
   ENGAGEMENT,
   ENGAGEMENT_RINGS,
   FLASH_DEALS,
@@ -344,8 +345,7 @@ export default function NavigationHeader() {
                                 {engagementHeaderUniqueFilterOptions.uniqueVariations
                                   .filter(
                                     (variation) =>
-                                      variation.variationName ===
-                                      "Diamond Shape"
+                                      variation.variationName === DIAMOND_SHAPE
                                   )
                                   .flatMap((variation) =>
                                     variation.variationTypes.map(
@@ -625,8 +625,7 @@ export default function NavigationHeader() {
                                 {weddingHeaderUniqueFilterOptions?.femaleFilters?.variations
                                   ?.filter(
                                     (variation) =>
-                                      variation.variationName ===
-                                      "Diamond Shape"
+                                      variation.variationName === DIAMOND_SHAPE
                                   )
                                   .flatMap((variation) =>
                                     variation.variationTypes.map(
@@ -883,7 +882,7 @@ export default function NavigationHeader() {
                         </div>
                         <div className="ps-10 w-[30%]">
                           <HeaderLinkButton
-                            href={item.href}
+                            href={`/collections/collection/Special_Buys`}
                             className="block text-sm !font-semibold capitalize !py-[10px] !px-0 mb-3"
                             onClick={(e) => {
                               e.stopPropagation();
@@ -900,7 +899,7 @@ export default function NavigationHeader() {
                           />
                           <div className="text-sm flex justify-center pt-5">
                             <Link
-                              href={item.href}
+                              href={`/collections/collection/Special_Buys`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 closeAllDropdown();
@@ -1151,7 +1150,7 @@ export default function NavigationHeader() {
                                     .filter(
                                       (variation) =>
                                         variation.variationName ===
-                                        "Diamond Shape"
+                                        DIAMOND_SHAPE
                                     )
                                     .flatMap((variation) =>
                                       variation.variationTypes.map(

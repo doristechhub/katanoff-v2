@@ -3,11 +3,11 @@
 import { memo, useCallback, useMemo, useState } from "react";
 import Image from "next/image";
 import logo from "@/assets/images/logo.webp";
+import CustomImg from "./custom-img";
 
 const ProgressiveVed = ({
   placeholderSrc = logo,
   src,
-
   type = "video/mp4",
   className = "",
   width = 200, // default width
@@ -29,8 +29,8 @@ const ProgressiveVed = ({
   return (
     <>
       {isVideoLoading && (
-        <Image
-          src={placeholderSrc}
+        <CustomImg
+          srcAttr={placeholderSrc}
           alt={"Loading..."}
           width={width}
           height={height}

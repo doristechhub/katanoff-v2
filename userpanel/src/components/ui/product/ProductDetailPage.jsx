@@ -38,11 +38,14 @@ import {
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import { setCartMessage } from "@/store/slices/cartSlice";
 import {
+  DIAMOND_QUALITY,
+  DIAMOND_SHAPE,
   GOLD_COLOR,
   GOLD_TYPES,
   MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT,
   messageType,
   RING_SIZE,
+  SETTING_STYLE,
 } from "@/_helper/constants";
 import { paymentOptions } from "@/_utils/paymentOptions";
 import appointment from "@/assets/icons/appointment.svg";
@@ -118,7 +121,8 @@ const ProductDetailPage = ({ customizePage }) => {
         dispatch(addUpdateRecentlyViewedProducts({ productName }));
         const initialSelections = response?.variations?.map((variation) => {
           if (
-            variation?.variationName?.toLowerCase() === GOLD_COLOR &&
+            variation?.variationName?.toLowerCase() ===
+              GOLD_COLOR.toLowerCase() &&
             goldColor
           ) {
             const matchedType = variation.variationTypes.find(
@@ -169,7 +173,8 @@ const ProductDetailPage = ({ customizePage }) => {
           initialSelections = response?.variations?.map((variation) => {
             // Handle Gold Color variation with goldColor from search params
             if (
-              variation?.variationName?.toLowerCase() === GOLD_COLOR &&
+              variation?.variationName?.toLowerCase() ===
+                GOLD_COLOR.toLowerCase() &&
               goldColor
             ) {
               const matchedType = variation.variationTypes.find(
@@ -932,23 +937,23 @@ const ProductDetailTabs = ({ selectedVariations = [] }) => {
             </p>
             {renderInfoRow("Diamond Type", "Lab Grown Diamond")}
             {renderInfoRow(
-              "Diamond Shape",
+              DIAMOND_SHAPE,
               helperFunctions?.getVariationValue(
                 selectedVariations,
-                "Diamond Shape"
+                DIAMOND_SHAPE
               )
             )}
             {renderInfoRow(
-              "Diamond Quality",
+              DIAMOND_QUALITY,
               helperFunctions?.getVariationValue(
                 selectedVariations,
-                "Diamond Quality"
+                DIAMOND_QUALITY
               )
             )}
 
             {productDetail?.settingStyleNamesWithImg?.length > 0 &&
               renderInfoRow(
-                "Setting Style",
+                SETTING_STYLE,
                 productDetail?.settingStyleNamesWithImg?.length > 0
                   ? productDetail?.settingStyleNamesWithImg
                       .map((s) => s.title)

@@ -120,7 +120,6 @@ export default function SelectDiamondPage() {
     : null;
   const initialCaratWeight =
     initialCustomProduct?.diamondDetails?.caratWeight || null;
-
   const loadData = useCallback(async () => {
     try {
       dispatch(setDiamondLoading(true));
@@ -228,7 +227,7 @@ export default function SelectDiamondPage() {
   const generateCaratOptions = (min, max, step = 0.5) => {
     const options = [];
     for (let i = min; i <= max; i += step) {
-      options.push(parseFloat(i.toFixed(2))); // avoid floating point issues
+      options.push(parseFloat(i.toFixed(2)));
     }
     return options;
   };
@@ -316,7 +315,7 @@ export default function SelectDiamondPage() {
                         key={`diamond-shape-${index}`}
                       >
                         <div
-                          className={`group flex flex-col justify-between items-center w-[70px] h-[72px] py-2 px-2 rounded-md cursor-pointer border  ${
+                          className={`group flex flex-col justify-between items-center w-[70px] h-[76px] py-2 px-2 rounded-md cursor-pointer border  ${
                             diamondSelection.shape?.id === item.id
                               ? "border-[1.5px] border-baseblack bg-opacity-10"
                               : "border-transparent hover:border-primary"
@@ -350,8 +349,6 @@ export default function SelectDiamondPage() {
                 </div>
 
                 <div className="hidden lg:block absolute right-0 top-6 h-[80%] w-px bg-[#0000001A]" />
-
-                {/* Horizontal line for below lg */}
                 <div className="block lg:hidden w-full h-px bg-[#0000001A] my-4" />
               </div>
               <div className="w-full flex flex-col pt-4 lg:pt-10 px-8 lg:px-4 relative lg:pb-4">
@@ -360,7 +357,6 @@ export default function SelectDiamondPage() {
                     TOTAL CARAT WEIGHT
                   </h3>
                 </div>
-
                 <div className="flex flex-wrap gap-2">
                   {caratOptions.map((value, index) => {
                     const isSelected =
@@ -369,11 +365,11 @@ export default function SelectDiamondPage() {
                       <div
                         key={`carat-option-${index}`}
                         className={`w-[50px] flex justify-center items-center px-2 py-1.5 cursor-pointer transition-all duration-100
-         rounded-[3px] border ${
-           isSelected
-             ? "text-baseblack border-baseblack"
-             : "border-transparent hover:border-baseblack"
-         }`}
+                            rounded-[3px] border ${
+                              isSelected
+                                ? "text-baseblack border-baseblack"
+                                : "border-transparent hover:border-baseblack"
+                            }`}
                         onClick={() => {
                           dispatch(setDiamondSelection({ caratWeight: value }));
                           if (diamondMessage?.type === messageType.ERROR) {
@@ -592,7 +588,6 @@ const SelectDiamondSkeleton = () => {
         className="grid lg:grid-cols-[27%_44%_27%] gap-8 lg:gap-4  w-full rounded-md p-4 lg:p-6 bg-white"
         style={{ boxShadow: "0px 4px 15px rgba(112, 112, 112, 0.53)" }}
       >
-        {/* Column 1 - Shape */}
         <div className="flex-1 min-w-[200px] px-6">
           {renderLabel("w-40")}
           <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-3 2xl:grid-cols-5 gap-6 mt-4">
@@ -600,21 +595,16 @@ const SelectDiamondSkeleton = () => {
           </div>
         </div>
 
-        {/* Column 2 - Carat, Clarity, Color */}
         <div className="flex-1 min-w-[300px] px-6">
-          {renderLabel("w-40")} {/* Carat Label */}
+          {renderLabel("w-40")}
           <div className="flex flex-wrap gap-2 mt-4">
             {renderCaratSkeletons}
           </div>
-          {/* Clarity & Color in one line */}
           <div className="flex flex-col sm:flex-row lg:flex-col 3xl:flex-row gap-4 mt-4">
-            {/* Clarity Group */}
             <div>
               {renderLabel("w-24")}
               <div className="flex gap-2 mt-4">{renderOptionGroup(3)}</div>
             </div>
-
-            {/* Color Group */}
             <div>
               {renderLabel("w-20")}
               <div className="flex gap-2 mt-4">{renderOptionGroup(3)}</div>

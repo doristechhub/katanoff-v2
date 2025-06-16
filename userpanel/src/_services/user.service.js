@@ -97,6 +97,70 @@ const insertUser = (params) => {
     }
   });
 };
+const getUserProfile = (userId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      userId = sanitizeValue(userId) ? userId.trim() : null;
+
+      if (userId) {
+        const getUserData = await fetchWrapperService.findOne(userUrl, {
+          id: userId,
+        });
+        if (getUserData) {
+          resolve(getUserData);
+        } else {
+          reject(new Error("User does not exist"));
+        }
+      } else {
+        reject(new Error("Invalid data"));
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+const updateUserProfile = (params) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let { userId, firstName, lastName } = sanitizeObject(params);
+      firstName = firstName ? firstName.trim() : null;
+      lastName = lastName ? lastName.trim() : null;
+      if (userId) {
+        const userData = await fetchWrapperService.findOne(userUrl, {
+          id: userId,
+        });
+        if (userData) {
+          const payload = {
+            firstName: firstName ? firstName : userData.firstName,
+            lastName: lastName ? lastName : userData.lastName,
+            updatedDate: Date.now(),
+          };
+          const updatePattern = {
+            url: `${userUrl}/${userId}`,
+            payload: payload,
+          };
+          fetchWrapperService
+            ._update(updatePattern)
+            .then((response) => {
+              resolve(payload);
+            })
+            .catch((e) => {
+              reject(
+                new Error("An error occurred during update user profile.")
+              );
+            });
+        } else {
+          reject(new Error("user not found!"));
+        }
+      } else {
+        reject(new Error("Invalid Data"));
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 
 // const verifyOtp = (payload, abortController) => async (dispatch) => {
 //   try {
@@ -276,6 +340,6 @@ export const userService = {
   insertUser,
   sendOTPForVerificationEmail,
   verifyOtp,
-  //   getUserProfile,
-  //   updateUserProfile,
+  getUserProfile,
+  updateUserProfile,
 };

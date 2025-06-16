@@ -1,7 +1,7 @@
 import { memo, useCallback, useRef } from "react";
 import { CustomImg } from "../dynamiComponents";
 import dropdownArrow from "@/assets/icons/dropdownArrow.svg";
-import { RING_SIZE } from "@/_helper";
+import { LENGTH, RING_SIZE } from "@/_helper";
 
 const useDebounce = (callback, delay) => {
   const timeoutRef = useRef(null);
@@ -37,6 +37,7 @@ const VariationsList = ({
         );
 
         const isSizeVariation = variation?.variationName === RING_SIZE;
+        const isLengthVariation = variation?.variationName === LENGTH;
 
         return (
           <div key={variation?.variationId} className="flex flex-col gap-2">
@@ -47,7 +48,7 @@ const VariationsList = ({
                 : ":"}
             </p>
 
-            {isSizeVariation ? (
+            {isSizeVariation || isLengthVariation ? (
               <div className="relative w-fit">
                 <select
                   className={`appearance-none px-3 py-2 pr-6  border border-grayborder rounded-sm text-sm font-semibold bg-transparent cursor-pointer`}
@@ -65,7 +66,11 @@ const VariationsList = ({
                   }}
                 >
                   <option value="" disabled>
-                    Size
+                    {isSizeVariation
+                      ? "Size"
+                      : isLengthVariation
+                      ? "Length"
+                      : null}
                   </option>
                   {variation?.variationTypes?.map((type) => (
                     <option

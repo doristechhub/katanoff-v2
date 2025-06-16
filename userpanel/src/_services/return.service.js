@@ -18,7 +18,6 @@ const validateKeys = (objects, keys) =>
   keys.every((key) => helperFunctions.isValidKeyName(objects, key));
 
 const hasInvalidProductsKey = (products) => {
-  console.log("products", products);
   const requiredProductKeys = [
     "productId",
     "unitAmount",
