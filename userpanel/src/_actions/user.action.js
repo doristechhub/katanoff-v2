@@ -8,6 +8,8 @@ import {
   setUserRegisterLoading,
   setUserRegisterMessage,
   setVerifyOtpLoading,
+  setUserProfileMessage,
+  setUserLoading,
 } from "@/store/slices/userSlice";
 import { messageType } from "@/_helper/constants";
 
@@ -36,10 +38,20 @@ export const SendOTPForEmailVerification = (payload) => async (dispatch) => {
 
 export const fetchUserProfile = (userId) => async (dispatch) => {
   try {
+    dispatch(setUserLoading(true));
     const userProfile = await userService.getUserProfile(userId);
     dispatch(setUserProfile(userProfile || {}));
+    dispatch(setUserLoading(false));
   } catch (e) {
+    dispatch(
+      setUserProfileMessage({
+        message: e?.message || "something went wrong",
+        type: messageType.ERROR,
+      })
+    );
     dispatch(setUserProfile({}));
+  } finally {
+    dispatch(setUserLoading(false));
   }
 };
 
@@ -55,8 +67,15 @@ export const updateUserProfile = (payload, userData) => async (dispatch) => {
     }
     return false;
   } catch (e) {
-    dispatch(setUpdateProfileLoader(false));
+    dispatch(
+      setUserProfileMessage({
+        message: e?.message || "something went wrong",
+        type: messageType.ERROR,
+      })
+    );
     return false;
+  } finally {
+    dispatch(setUpdateProfileLoader(false));
   }
 };
 export const createUser = (payload) => async (dispatch) => {

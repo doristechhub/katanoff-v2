@@ -353,3 +353,10 @@ export const DiamondInfoModel = dynamic(
     ssr: false,
   }
 );
+
+export const ProfileDetailPage = dynamic(
+  () => import("./ui/ProfileDetailPage.jsx"),
+  {
+    ssr: false,
+  }
+);
