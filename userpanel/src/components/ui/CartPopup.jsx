@@ -8,7 +8,7 @@ import {
   removeProductIntoCart,
   updateProductQuantityIntoCart,
 } from "@/_actions/cart.action";
-import { helperFunctions, RING_SIZE } from "@/_helper";
+import { helperFunctions, LENGTH, RING_SIZE } from "@/_helper";
 import Link from "next/link";
 import { LinkButton } from "@/components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
@@ -257,19 +257,23 @@ const CartPopup = () => {
                             </div>
                           </div>
 
-                          {cartItem?.variations?.some(
-                            (v) => v.variationName === RING_SIZE
-                          ) && (
-                            <p className="text-sm font-medium">
-                              {cartItem.variations.find(
-                                (v) => v.variationName === RING_SIZE
-                              )?.variationName || "N/A"}
-                              :{" "}
-                              {cartItem.variations.find(
-                                (v) => v.variationName === RING_SIZE
-                              )?.variationTypeName || "N/A"}
-                            </p>
-                          )}
+                          {[RING_SIZE, LENGTH].map((variationName) => {
+                            const { name, type, exists } =
+                              helperFunctions?.getVariationDisplay(
+                                cartItem?.variations,
+                                variationName
+                              );
+                            return exists ? (
+                              <div
+                                key={variationName}
+                                className="flex items-center gap-2 pt-2 sm:pt-0"
+                              >
+                                <p className="text-sm items-center md:text-base font-medium text-baseblack">
+                                  {name}: {type}
+                                </p>
+                              </div>
+                            ) : null;
+                          })}
 
                           <div className="flex items-center justify-between gap-x-1 pt-1 md:pt-2">
                             <div className="flex items-center gap-2">
