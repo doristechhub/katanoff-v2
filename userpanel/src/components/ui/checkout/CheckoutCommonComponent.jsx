@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { helperFunctions, RING_SIZE } from "@/_helper";
+import { helperFunctions, LENGTH, RING_SIZE } from "@/_helper";
 import { CustomImg, ProgressiveImg } from "../../dynamiComponents";
 import { fetchCart } from "@/_actions/cart.action";
 import { setIsNewYorkState } from "@/store/slices/checkoutSlice";
@@ -137,16 +137,23 @@ const CheckoutCommonComponent = () => {
                         )}
                       </p>
 
-                      {cartItem?.variations?.some(
-                        (v) => v.variationName === RING_SIZE
-                      ) && (
-                        <p className="text-baseblack flex flex-wrap text-sm xs:text-[15px]">
-                          {v?.variationName}:{" "}
-                          {cartItem.variations.find(
-                            (v) => v.variationName === RING_SIZE
-                          )?.variationTypeName || "N/A"}
-                        </p>
-                      )}
+                      {[RING_SIZE, LENGTH].map((variationName) => {
+                        const { name, type, exists } =
+                          helperFunctions?.getVariationDisplay(
+                            cartItem?.variations,
+                            variationName
+                          );
+                        return exists ? (
+                          <div
+                            key={variationName}
+                            className="flex items-center gap-2 pt-2 sm:pt-0"
+                          >
+                            <p className="text-sm items-center md:text-base font-medium text-baseblack">
+                              {name}: {type}
+                            </p>
+                          </div>
+                        ) : null;
+                      })}
                       <p className="text-sm font-semibold xs:text-base w-fit">
                         $
                         {cartItem?.productSellingPrice?.toLocaleString(
@@ -321,16 +328,23 @@ const CheckoutCommonComponent = () => {
                           cartItem?.variations
                         )}
                       </p>
-                      {cartItem?.variations?.some(
-                        (v) => v.variationName === RING_SIZE
-                      ) && (
-                        <p className="text-baseblack flex flex-wrap text-sm xs:text-[15px]">
-                          {v?.variationName}:{" "}
-                          {cartItem.variations.find(
-                            (v) => v.variationName === RING_SIZE
-                          )?.variationTypeName || "N/A"}
-                        </p>
-                      )}
+                      {[RING_SIZE, LENGTH].map((variationName) => {
+                        const { name, type, exists } =
+                          helperFunctions?.getVariationDisplay(
+                            cartItem?.variations,
+                            variationName
+                          );
+                        return exists ? (
+                          <div
+                            key={variationName}
+                            className="flex items-center gap-2 pt-2 sm:pt-0"
+                          >
+                            <p className="text-sm items-center md:text-base font-medium text-baseblack">
+                              {name}: {type}
+                            </p>
+                          </div>
+                        ) : null;
+                      })}
 
                       <p className="text-sm font-semibold xs:text-base w-fit mt-1">
                         $
