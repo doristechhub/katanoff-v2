@@ -16,6 +16,7 @@ module.exports = {
         "gray-e2": "var(--gray-e2)",
         grayborder: "var(--grayborder)",
         isabelline: "var(--isabelline)",
+        whitesmoke: "var(--whitesmoke)",
       },
       imageRendering: {
         pixelated: "pixelated",

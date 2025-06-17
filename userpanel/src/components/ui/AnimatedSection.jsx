@@ -106,7 +106,7 @@ const AnimatedSection = ({
                       key={`point-${i}`}
                       className="text-[14px] font-medium md:text-sm 2xl:text-lg leading-relaxed"
                     >
-                      <span className="font-bold">{point?.title}</span> :{" "}
+                      <span className="font-semibold">{point?.title}</span> :{" "}
                       {point?.description}
                     </p>
                   );

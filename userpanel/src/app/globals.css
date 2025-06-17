@@ -27,6 +27,14 @@
 }
 
 @font-face {
+  font-family: "Figtree";
+  src: url("/fonts/Figtree/static/Figtree-Black.ttf") format("woff2"),
+    url("/fonts/Figtree/static/Figtree-Black.ttf") format("woff");
+  font-weight: 900;
+  font-style: black;
+}
+
+@font-face {
   font-family: "Castoro";
   src: url("/fonts/Castoro/Castoro-Regular.ttf") format("woff2"),
     url("/fonts/Castoro/Castoro-Regular.ttf") format("woff");
@@ -55,6 +63,7 @@
   --gray-e2: #e2e2e2;
   --grayborder: #d4d4d4;
   --isabelline: #f3f2ed;
+  --whitesmoke: #EAEAEA;
 }
 
 html,
