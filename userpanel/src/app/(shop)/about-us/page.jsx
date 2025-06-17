@@ -10,13 +10,20 @@ import about7 from "@/assets/images/about-us/about-7.webp";
 import about8 from "@/assets/images/about-us/about-8.webp";
 import about9 from "@/assets/images/about-us/about-9.webp";
 import about10 from "@/assets/images/about-us/about-10.webp";
+import ringImage from "@/assets/images/about-us/ringImage.webp";
+import craftingImage from "@/assets/images/about-us/craftingImage.webp";
+import diamondImage from "@/assets/images/about-us/diamondImage.webp";
+import tranperencyImg from "@/assets/images/about-us/transperency.webp";
+import SustainImg from "@/assets/images/about-us/sustainability.webp";
+import Compassion from "@/assets/images/about-us/compassion.webp";
+import Inclusion from "@/assets/images/about-us/inclusion.webp";
 
 import { AnimatedSection, CustomImg } from "@/components/dynamiComponents";
 import { LinkButton } from "@/components/ui/button";
 import Link from "next/link";
 import { helperFunctions } from "@/_helper";
 
-const animatedContent = [
+const aboutUsContent = [
   {
     img: about1,
     titleAttr: "",
@@ -28,24 +35,57 @@ const animatedContent = [
       "To learn more about our commitment and path toward sustainability check out our 2023 Sustainability Report Clickhereto open a Sustainability Report in a new webpage.",
     ],
 
-    imgClassName: "lg:!h-[100vh] h-auto w-auto",
-    descriptionClassName: "!text-sm lg:!text-sm",
-    titleClassName: "!text-2xl xl:!text-3xl lg:!w-[50%] 2xl:!w-[35%]",
+    // imgClassName: "lg:!h-[100vh] h-auto w-auto",
+    // descriptionClassName: "!text-sm lg:!text-sm",
+    // titleClassName: "!text-2xl xl:!text-3xl lg:!w-[50%] 2xl:!w-[35%]",
   },
   {
-    img: about3,
+    img: ringImage,
     titleAttr: "",
     direction: "LTR",
     altAttr: "",
-    title: "Brilliantly-Set: Our Designs",
+    title: "Our Beginning",
     description: [
-      "No two people are the same, and only they know what styles make them shine the brightest",
-      "Our premade collections are designed by hand, featuring a modern take on classic styles. And our custom pieces are truly custom: from the diamond to the setting, our expert craftspeople will create a stunning piece to exactly your specifications. Because your jewelry should represent you, no one else.",
-      "These are diamonds that deserve you.",
+      "Jewelry Is More Than Adornment—It’s A Story, A Legacy, A Timeless Connection To Moments That Matter. Our Journey Began With A Passion For Exquisite Craftsmanship And A Love For The Artistry That Turns Precious Metals And Gemstones Into Wearable Treasures.From The Very Beginning, We Set Out To Redefine Elegance, Sourcing Only The Finest Materials And Working With Master Artisans To Create Jewelry That Is Both Luxurious And Enduring. Each Piece In Our Collection Is A Testament To Our Commitment To Quality, Innovation, And Timeless Beauty.",
+
+      "Welcome To Katanoff, Where Craftsmanship Meets Emotion, And Every Piece Of Jewelry Tells A Story. Founded During A Time Of Global Change, We Set Out To Revolutionize How Jewelry Is Experienced Online. Rooted In A Legacy Of Craftsmanship Yet Driven By A Spirit Of Innovation, Katanoff Blends Tradition With Modernity, Creating Timeless Pieces For Every Milestone In Life.",
     ],
-    imgClassName: "lg:!h-full h-auto w-auto",
-    descriptionClassName: "!text-sm lg:!text-sm",
-    titleClassName: "!text-2xl xl:!text-3xl",
+  },
+  {
+    img: craftingImage,
+    titleAttr: "",
+    altAttr: "",
+    direction: "RTL",
+    title: "From Legacy To Innovation",
+    description: [
+      "For Over 10 Years, A Family Deeply Rooted In Jewelry Craftsmanship Has Been Creating Timeless Pieces, Serving Communities Through Offline Stores And Wholesale Operations. During The Pandemic, When The World Came To A Standstill, Their Passion For Connection And Innovation Sparked A New Chapter.",
+      "In 2020, Amidst The Challenges Of Lockdown, Katanoff Was Born To Bring Generations Of Expertise And Artistry Directly To Customers’ Homes. Designed As An Online Platform, It Offers Fine Jewelry With The Comfort And Safety Of Shopping From Home—Without Compromising On Quality Or Craftsmanship.",
+      "As A Family-Run Operation, Katanoff Ensures Every Piece Reflects A Legacy Of Trust, Meticulous Attention To Detail, And Strong Values. With No Middlemen, Customers Benefit From Better Prices, Ethical Practices, And A Dedication To Excellence Honed Over Decades. Today, Katanoff Bridges Tradition And Modern Convenience, Celebrating Life’s Most Cherished Moments With Jewelry Crafted From The Heart.",
+    ],
+  },
+  {
+    img: diamondImage,
+    titleAttr: "",
+    altAttr: "",
+    title: "Our Value",
+    pointsDescription: "Rooted in Tradition, Inspired by Tomorrow",
+    points: [
+      {
+        title: "Innovation",
+        description:
+          "We Embrace Technology To Redefine How You Experience Jewelry Online.",
+      },
+      {
+        title: "Transparency",
+        description:
+          "From Materials To Pricing, We Believe In Complete Honesty.",
+      },
+      {
+        title: "Connection",
+        description:
+          "Every Design Fosters A Connection—Between You And Your Cherished Moments, And Between Us And Our Community.",
+      },
+    ],
   },
 ];
 
@@ -97,6 +137,41 @@ const sustainabilityFeatures = [
   "Recycled <br /> Gold",
 ];
 
+const missionPillars = [
+  {
+    title: "Transparency",
+    img: tranperencyImg,
+    altAttr: "",
+    titleAttr: "",
+    description:
+      "We know where our precious metals and gemstones come from and how our jewelry is made.",
+  },
+  {
+    title: "Sustainability",
+    img: SustainImg,
+    altAttr: "",
+    titleAttr: "",
+    description:
+      "We use recycled and sustainable materials, apply energy-efficient practices, and minimize our carbon footprint.",
+  },
+  {
+    title: "Compassion",
+    img: Compassion,
+    altAttr: "",
+    titleAttr: "",
+    description:
+      "We care about and are committed to our communities, our employees, and the people who help to bring our jewelry to life.",
+  },
+  {
+    title: "Inclusion",
+    img: Inclusion,
+    altAttr: "",
+    titleAttr: "",
+    description:
+      "We support and invest in our diverse teams to ensure every employee knows that they belong, and our designs are always crafted with inclusivity in mind..",
+  },
+];
+
 export default function AboutPage() {
   return (
     <>
@@ -110,7 +185,7 @@ export default function AboutPage() {
         textAlignment="left"
         customClass="text-!left !justify-left !pl-12"
       />
-      <section className="mt-12 lg:mt-16 flex flex-col gap-8 container text-sm">
+      <section className="mt-12 lg:mt-16 flex flex-col gap-4 text-center container text-base lg:text-lg">
         <p>
           Diamonds are a celebration, a memento of life’s most brilliant
           moments. The jewelry that represents you should be every bit as
@@ -126,23 +201,24 @@ export default function AboutPage() {
           diamonds that deserve you
         </p>
       </section>
-      <section className="mt-16 lg:mt-20 container">
-        <AnimatedSection
-          img={animatedContent[0]?.img}
-          titleAttr={animatedContent[0]?.titleAttr}
-          altAttr={animatedContent[0]?.altAttr}
-          title={animatedContent[0]?.title}
-          description={animatedContent[0]?.description}
-          pointsDescription={animatedContent[0]?.pointsDescription}
-          points={animatedContent[0]?.points}
-          direction={animatedContent[0]?.direction}
-          imgClassName={animatedContent[0]?.imgClassName}
-          titleClassName={animatedContent[0]?.titleClassName}
-          descriptionClassName={animatedContent[0]?.descriptionClassName}
-        />
-      </section>
 
-      <section className="mt-12 lg:mt-20 container 2xl:px-24 4xl:px-32">
+      <div className="mt-16 lg:mt-28 container">
+        {aboutUsContent.map((content, index) => (
+          <AnimatedSection
+            key={index}
+            img={content?.img}
+            titleAttr={content?.titleAttr}
+            altAttr={content?.altAttr}
+            title={content?.title}
+            description={content?.description}
+            pointsDescription={content?.pointsDescription}
+            points={content?.points}
+            direction={content?.direction}
+          />
+        ))}
+      </div>
+
+      {/* <section className="mt-12 lg:mt-20 container 2xl:px-24 4xl:px-32">
         <div className="flex flex-col xxs:flex-row divide-y xxs:divide-y-0 xxs:divide-x divide-black">
           {sustainabilityFeatures.map((text, index) => (
             <div
@@ -154,9 +230,9 @@ export default function AboutPage() {
             />
           ))}
         </div>
-      </section>
+      </section> */}
 
-      <section className="-mt-24 3xl:-mt-12">
+      <section className="-mt-36 sm:-mt-24 3xl:-mt-12">
         <div className="container mx-auto px-4">
           <div className="relative w-auto h-72 sm:h-96 max-w-[400px] sm:max-w-[500px] md:max-w-[650px] lg:max-w-[900px] xl:max-w-[1050px] 2xl:max-w-[1250px] 4xl:max-w-[1500px] lg:h-[80vh] top-40 px-12 container">
             <CustomImg
@@ -167,15 +243,15 @@ export default function AboutPage() {
               priority={false}
             />
           </div>
-          <div className="border-baseblack xs:border pt-48 sm:pt-60 pb-20">
+          <div className="border-baseblack xs:border pt-48 sm:pt-48 pb-10 md:pb-12">
             <div className="mx-auto justify-center grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 max-w-[400px] sm:max-w-[500px] md:max-w-[650px] lg:max-w-[900px] xl:max-w-[1050px] 2xl:max-w-[1250px] 4xl:max-w-[1500px]">
               <div className="w-full ">
                 <h2 className="text-2xl 2xl:text-3xl font-castoro text-gray-800 leading-tight">
                   Classically-Inspired. Our Story
                 </h2>
               </div>
-              <div className="w-full">
-                <p className="text-sm leading-relaxed">
+              <div className="w-full flex flex-col gap-2">
+                <p className="text-sm lg:text-base leading-relaxed">
                   Grown with love by Nourish Farms, this 1.5 ct. pear-shaped
                   diamond is a celebration of sustainable luxury. Inspired by
                   the terroir of the Okanagan Valley, its brilliance mirrors the
@@ -183,7 +259,7 @@ export default function AboutPage() {
                   innovation into a timeless gem that radiates elegance and
                   environmental responsibility.
                 </p>
-                <p className="text-sm leading-relaxed">
+                <p className="text-sm lg:text-base leading-relaxed">
                   As the only global luxury brand founded by a 5th generation
                   farming family, Nourish Farms is proud to cultivate 100%
                   carbon-neutral diamonds. Grown in Canada, we are committed to
@@ -196,7 +272,41 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="mt-12 lg:mt-16 container">
+      <section className="bg-alabaster py-0.3 px-2 sm:px-8 lg:px-5 lg:mt-24 text-baseblack xxs:mt-12 md:mt-16 leading-relaxed 2xl:pt-10">
+        <div className="text-center max-w-4xl px-2 mx-auto py-2">
+          <h2 className="text-3xl lg:text-4xl 2xl:text-5xl mb-4 mt-10 lg:mt-12 font-chong-modern">
+            Our Mission Pillars
+          </h2>
+          <p className="font-medium sm:mb-0 xxs:mb-4 lg:mb-0">
+            Our Mission To Cultivate A More Transparent, Sustainable,
+            Compassionate, And Inclusive Jewelry Industry Has Been At The Core
+            Of Everything We Do From Day One. It’s In Our DNA.
+          </p>
+        </div>
+
+        <div className="container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-6 py-10 lg:py-20 2xl:py-24">
+          {missionPillars.map((pillar, index) => (
+            <div
+              key={index}
+              className="flex flex-col items-center md:items-start text-center lg:text-start"
+            >
+              <CustomImg
+                srcAttr={pillar.img}
+                altAttr={pillar.altAttr}
+                titleAttr={pillar.titleAttr}
+              />
+              <h3 className="text-2xl 2xl:text-3xl font-castoro py-3">
+                {pillar.title}
+              </h3>
+              <p className="font-medium text-base 2xl:text-base">
+                {pillar.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* <section className="mt-12 lg:mt-16 container">
         <AnimatedSection
           img={animatedContent[1]?.img}
           titleAttr={animatedContent[1]?.titleAttr}
@@ -206,13 +316,13 @@ export default function AboutPage() {
           pointsDescription={animatedContent[1]?.pointsDescription}
           points={animatedContent[1]?.points}
           direction={animatedContent[1]?.direction}
-          imgClassName={animatedContent[1]?.imgClassName}
-          titleClassName={animatedContent[1]?.titleClassName}
-          descriptionClassName={animatedContent[1]?.descriptionClassName}
+          // imgClassName={animatedContent[1]?.imgClassName}
+          // titleClassName={animatedContent[1]?.titleClassName}
+          // descriptionClassName={animatedContent[1]?.descriptionClassName}
         />
-      </section>
+      </section> */}
 
-      <section className="relative w-full h-[90vh] md:h-[80vh] lg:h-[70vh] mt-12 lg:mt-20">
+      {/* <section className="relative w-full h-[90vh] md:h-[80vh] lg:h-[70vh] mt-12 lg:mt-20">
         <CustomImg
           src={about4}
           alt="Sustainability Report"
@@ -238,9 +348,9 @@ export default function AboutPage() {
             </LinkButton>
           </div>
         </div>
-      </section>
+      </section> */}
 
-      <section className="pt-12 sm:pt-16 lg:pt-20">
+      {/* <section className="pt-12 sm:pt-16 lg:pt-24">
         <h2 className="text-center text-sm font-semibold uppercase tracking-wide mb-8">
           Explore More
         </h2>
@@ -279,7 +389,7 @@ export default function AboutPage() {
             </Link>
           ))}
         </div>
-      </section>
+      </section> */}
 
       <section className="pt-12 lg:pt-20 container">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl mx-auto px-4">
