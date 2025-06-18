@@ -16,7 +16,7 @@ const Shippingpage = () => {
   const { cartLoading, cartList } = useSelector(({ cart }) => cart);
 
   return (
-    <div className="mx-auto pt-10 2xl:pt-12">
+    <div className="mx-auto pt-10 xl:pt-12">
       {cartLoading ? (
         <ShippingSkeleton />
       ) : (
@@ -26,7 +26,7 @@ const Shippingpage = () => {
             backText="Back to Checkout"
             backHref="/checkout"
           />
-          <div className="px-4 container mt-8 lg:mt-12">
+          <div className="px-4 container mt-4 md:mt-8 lg:mt-12">
             <CheckoutBreadCrumbs currentStep={1} />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-[55%_auto] lg:gap-6 container mx-auto h-full">

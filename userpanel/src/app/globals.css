@@ -26,6 +26,15 @@
   font-style: semi-bold;
 }
 
+
+@font-face {
+  font-family: "Figtree";
+  src: url("/fonts/Figtree/static/Figtree-Bold.ttf") format("woff2"),
+    url("/fonts/Figtree/static/Figtree-Bold.ttf") format("woff");
+  font-weight: 700;
+  font-style: bold;
+}
+
 @font-face {
   font-family: "Figtree";
   src: url("/fonts/Figtree/static/Figtree-Black.ttf") format("woff2"),

@@ -223,7 +223,7 @@ const PaymentPage = () => {
             backText="Back to Shipping"
             backHref="/shipping"
           />
-          <div className="px-4 container mt-8 lg:mt-12">
+          <div className="px-4 container mt-4 md:mt-8 lg:mt-12">
             <CheckoutBreadCrumbs currentStep={2} />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-[55%_auto] lg:gap-6 container mx-auto h-full">

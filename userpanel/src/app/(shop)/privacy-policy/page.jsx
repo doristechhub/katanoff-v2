@@ -288,9 +288,13 @@ const PrivacyPolicy = () => {
   return (
     <div className="flex flex-col">
       <div className="pt-10 md:pt-14">
-        <CommonBgHeading title="Privacy Policy" breadcrumb={true} titleClassName="uppercase" />
+        <CommonBgHeading
+          title="Privacy Policy"
+          breadcrumb={true}
+          titleClassName="uppercase"
+        />
       </div>
-      <div className="container mt-10">
+      <div className="container mt-4 sm:mt-10">
         <AccordionTabs
           tabs={PrivacyPolicyContent}
           defaultOpenLabel="1. Information We Collect"

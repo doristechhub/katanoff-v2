@@ -138,9 +138,13 @@ const PaymentAndFinancing = () => {
   return (
     <div className="flex flex-col">
       <div className="pt-10 md:pt-14">
-        <CommonBgHeading title="Payment And Financing" breadcrumb={true} titleClassName="uppercase" />
+        <CommonBgHeading
+          title="Payment And Financing"
+          breadcrumb={true}
+          titleClassName="uppercase"
+        />
       </div>
-      <div className="container mt-10">
+      <div className="container mt-4 sm:mt-10">
         <AccordionTabs
           tabs={PaymentFinancingContent}
           defaultOpenLabel="Flexible Payment Options"
