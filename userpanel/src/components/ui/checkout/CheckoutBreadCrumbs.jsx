@@ -4,7 +4,7 @@ import { CustomImg } from "@/components/dynamiComponents";
 
 const CheckoutBreadCrumbs = ({ currentStep }) => {
   return (
-    <div className="flex items-center px-3 py-2 rounded-md w-fit">
+    <div className="flex  items-center px-3 py-2 rounded-md w-fit">
       {steps.map((step, index) => (
         <div key={`breadcrumb-${index}`} className="flex items-center">
           <span

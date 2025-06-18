@@ -17,7 +17,7 @@ const Checkout = () => {
   const { showModal } = useSelector(({ common }) => common);
 
   return (
-    <div className="mx-auto pt-10 2xl:pt-12">
+    <div className="mx-auto pt-6 md:pt-10 2xl:pt-12">
       {cartLoading ? (
         <CheckoutSkeleton />
       ) : (
@@ -27,7 +27,7 @@ const Checkout = () => {
             backText="Back to Cart"
             backHref="/cart"
           />
-          <div className="px-4 container md:mt-6 lg:mt-12">
+          <div className="px-4 container mt-4 md:mt-8 lg:mt-12">
             <CheckoutBreadCrumbs currentStep={0} />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-[55%_auto] lg:gap-16 4xl:gap-36 container mx-auto h-full">

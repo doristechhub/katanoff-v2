@@ -197,9 +197,13 @@ const Warranty = () => {
   return (
     <div className="flex flex-col">
       <div className="pt-10 md:pt-14">
-        <CommonBgHeading title="Warranty" breadcrumb={true} titleClassName="uppercase" />
+        <CommonBgHeading
+          title="Warranty"
+          breadcrumb={true}
+          titleClassName="uppercase"
+        />
       </div>
-      <div className="container mt-10">
+      <div className="container mt-4 sm:mt-10">
         <AccordionTabs
           tabs={warrantyContent}
           defaultOpenLabel="Free Lifetime Warranty"

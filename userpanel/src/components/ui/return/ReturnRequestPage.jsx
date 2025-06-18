@@ -209,8 +209,10 @@ const ReturnRequestPage = () => {
   );
 
   const bgHeadingText = ` ${
-    selectedProducts?.length ? selectedProducts?.length : ""
-  }  Selected Products`;
+    selectedProducts?.length
+      ? `${selectedProducts?.length} Products Selected`
+      : ""
+  } `;
 
   return (
     <>
@@ -224,6 +226,9 @@ const ReturnRequestPage = () => {
             showSelectAll={true}
             allSelected={allSelected}
             onSelectAllChange={handleSelectAllChange}
+            countMobileText={
+              selectedProducts?.length ? selectedProducts?.length : ""
+            }
           />
           <div className="max-w-5xl justify-center flex flex-col mx-auto container">
             {orderDetail?.products?.map((cartItem, index) => (

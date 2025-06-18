@@ -5,8 +5,6 @@ import earrings from "@/assets/images/banners/earrings.webp";
 import mensJewelry from "@/assets/images/banners/mens-jewelry.webp";
 import necklaces from "@/assets/images/banners/necklaces.webp";
 
-
-
 // New Arrivals
 import desktopNewArrivals from "@/assets/images/banners/desktop-new-arrivals.webp";
 import mobileNewArrivals from "@/assets/images/banners/mobile-new-arrivals.webp";
@@ -44,187 +42,187 @@ import desktopJewelry from "@/assets/images/banners/desktop-jewelry.webp";
 import mobileJewelry from "@/assets/images/banners/mobile-jewelry.webp";
 
 // Rings
-import desktopRings from "@/assets/images/banners/desktop-rings.webp"
-import mobileRings from "@/assets/images/banners/mobile-rings.webp"
+import desktopRings from "@/assets/images/banners/desktop-rings.webp";
+import mobileRings from "@/assets/images/banners/mobile-rings.webp";
 
 // High Jewelry
-import desktopHighJewelry from "@/assets/images/banners/desktop-high-jewelry.webp"
-import mobileHighJewelry from "@/assets/images/banners/mobile-high-jewelry.webp"
+import desktopHighJewelry from "@/assets/images/banners/desktop-high-jewelry.webp";
+import mobileHighJewelry from "@/assets/images/banners/mobile-high-jewelry.webp";
 
 // Tennis
-import desktopTennis from "@/assets/images/banners/desktop-tennis.webp"
-import mobileTennis from "@/assets/images/banners/mobile-tennis.webp"
+import desktopTennis from "@/assets/images/banners/desktop-tennis.webp";
+import mobileTennis from "@/assets/images/banners/mobile-tennis.webp";
 
 // Special Buys
-import desktopSpecialBuys from "@/assets/images/banners/desktop-special-buys.webp"
-import mobileSpecialBuys from "@/assets/images/banners/mobile-special-buys.webp"
+import desktopSpecialBuys from "@/assets/images/banners/desktop-special-buys.webp";
+import mobileSpecialBuys from "@/assets/images/banners/mobile-special-buys.webp";
 
 export const bannerList = [
-    {
-        collection: {
-            title: "High Jewelry",
-            banner: {
-                desktop: desktopHighJewelry,
-                mobile: mobileHighJewelry,
-            },
-        },
+  {
+    collection: {
+      title: "High Jewelry",
+      banner: {
+        desktop: desktopHighJewelry,
+        mobile: mobileHighJewelry,
+      },
     },
-    {
-        collection: {
-            title: "Tennis",
-            banner: {
-                desktop: desktopTennis,
-                mobile: mobileTennis,
-            },
-        },
+  },
+  {
+    collection: {
+      title: "Tennis",
+      banner: {
+        desktop: desktopTennis,
+        mobile: mobileTennis,
+      },
     },
-    {
-        collection: {
-            title: "Special Buys",
-            banner: {
-                desktop: desktopSpecialBuys,
-                mobile: mobileSpecialBuys,
-            },
-        },
+  },
+  {
+    collection: {
+      title: "Special Buys",
+      banner: {
+        desktop: desktopSpecialBuys,
+        mobile: mobileSpecialBuys,
+      },
     },
-    {
-        collection: {
-            title: "Wedding Rings",
-            banner: {
-                desktop: desktopRings,
-                mobile: wedding,
-            },
-        },
+  },
+  {
+    collection: {
+      title: "Wedding Rings",
+      banner: {
+        desktop: desktopRings,
+        mobile: wedding,
+      },
     },
-    {
-        collection: {
-            title: "Quick Ship Gifts",
-            banner: {
-                desktop: desktopQuickShipGift,
-                mobile: mobileQuickShipGift,
-            },
-        },
+  },
+  {
+    collection: {
+      title: "Quick Ship Gifts",
+      banner: {
+        desktop: desktopQuickShipGift,
+        mobile: mobileQuickShipGift,
+      },
     },
-    {
-        collection: {
-            title: "Fashion",
-            banner: {
-                desktop: desktopFashion,
-                mobile: mobileFashion,
-            },
-        },
+  },
+  {
+    collection: {
+      title: "Fashion",
+      banner: {
+        desktop: desktopFashion,
+        mobile: mobileFashion,
+      },
     },
-    {
-        collection: {
-            title: "Engagement Rings",
-            banner: {
-                desktop: desktopEngagementRings,
-                mobile: mobileEngagementRings,
-            },
-        },
+  },
+  {
+    collection: {
+      title: "Engagement Rings",
+      banner: {
+        desktop: desktopEngagementRings,
+        mobile: mobileEngagementRings,
+      },
     },
-    {
-        collection: {
-            title: "Flash Deals",
-            banner: {
-                desktop: desktopFlashDeals,
-                mobile: mobileFlashDeals,
-            },
-        },
+  },
+  {
+    collection: {
+      title: "Flash Deals",
+      banner: {
+        desktop: desktopFlashDeals,
+        mobile: mobileFlashDeals,
+      },
     },
-    {
-        collection: {
-            title: "Gifts Under $500",
-            banner: {
-                desktop: under500,
-                mobile: under500,
-            },
-        },
+  },
+  {
+    collection: {
+      title: "Gifts Under $500",
+      banner: {
+        desktop: under500,
+        mobile: under500,
+      },
     },
-    {
-        collection: {
-            title: "Gifts For Her",
-            banner: {
-                desktop: desktopGiftForHer,
-                mobile: mobileGiftForHer,
-            },
-        },
+  },
+  {
+    collection: {
+      title: "Gifts For Her",
+      banner: {
+        desktop: desktopGiftForHer,
+        mobile: mobileGiftForHer,
+      },
     },
-    {
-        collection: {
-            title: "Gifts For Him",
-            banner: {
-                desktop: desktopGiftForHim,
-                mobile: mobileGiftForHim,
-            },
-        },
+  },
+  {
+    collection: {
+      title: "Gifts For Him",
+      banner: {
+        desktop: desktopGiftForHim,
+        mobile: mobileGiftForHim,
+      },
     },
-    {
-        collection: {
-            title: "New Arrival",
-            banner: {
-                desktop: desktopNewArrivals,
-                mobile: mobileNewArrivals,
-            },
-        },
+  },
+  {
+    collection: {
+      title: "New Arrival",
+      banner: {
+        desktop: desktopNewArrivals,
+        mobile: mobileNewArrivals,
+      },
     },
-    {
-        collection: {
-            title: "Trending",
-            banner: {
-                desktop: trending,
-                mobile: trending,
-            },
-        },
+  },
+  {
+    collection: {
+      title: "Trending",
+      banner: {
+        desktop: trending,
+        mobile: trending,
+      },
     },
-    {
-        type: "categories",
-        title: "Jewelry",
+  },
+  {
+    type: "categories",
+    title: "Jewelry",
+    banner: {
+      desktop: desktopJewelry,
+      mobile: mobileJewelry,
+    },
+    subCategories: [
+      {
+        title: "Rings",
+        type: "subCategories",
         banner: {
-            desktop: desktopJewelry,
-            mobile: mobileJewelry,
+          desktop: desktopRings,
+          mobile: mobileRings,
         },
-        subCategories: [
-            {
-                title: "Rings",
-                type: "subCategories",
-                banner: {
-                    desktop: desktopRings,
-                    mobile: mobileRings,
-                },
-            },
-            {
-                title: "Earrings",
-                type: "subCategories",
-                banner: {
-                    desktop: earrings,
-                    mobile: mobileRings,
-                },
-            },
-            {
-                title: "Bracelets",
-                type: "subCategories",
-                banner: {
-                    desktop: desktopBracelets,
-                    mobile: mobileBracelets,
-                },
-            },
-            {
-                title: "Necklaces",
-                type: "subCategories",
-                banner: {
-                    desktop: necklaces,
-                    mobile: necklaces,
-                },
-            },
-            {
-                title: "Men’s",
-                type: "subCategories",
-                banner: {
-                    desktop: mensJewelry,
-                    mobile: mensJewelry,
-                },
-            },
-        ],
-    },
+      },
+      {
+        title: "Earrings",
+        type: "subCategories",
+        banner: {
+          desktop: earrings,
+          mobile: mobileRings,
+        },
+      },
+      {
+        title: "Bracelets",
+        type: "subCategories",
+        banner: {
+          desktop: desktopBracelets,
+          mobile: mobileBracelets,
+        },
+      },
+      {
+        title: "Necklaces",
+        type: "subCategories",
+        banner: {
+          desktop: necklaces,
+          mobile: necklaces,
+        },
+      },
+      {
+        title: "Men’s",
+        type: "subCategories",
+        banner: {
+          desktop: mensJewelry,
+          mobile: mensJewelry,
+        },
+      },
+    ],
+  },
 ];

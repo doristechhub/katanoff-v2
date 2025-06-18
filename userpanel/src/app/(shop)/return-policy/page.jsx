@@ -155,9 +155,13 @@ const ReturnPolicy = () => {
   return (
     <div className="flex flex-col">
       <div className="pt-10 md:pt-14">
-        <CommonBgHeading title="Return Policy" breadcrumb={true} titleClassName="uppercase"/>
+        <CommonBgHeading
+          title="Return Policy"
+          breadcrumb={true}
+          titleClassName="uppercase"
+        />
       </div>
-      <div className="container mt-10">
+      <div className="container mt-4 sm:mt-10">
         <AccordionTabs
           tabs={ReturnPolicyContent}
           defaultOpenLabel="Free 30-Day Returns & Exchanges"

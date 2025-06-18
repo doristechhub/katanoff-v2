@@ -114,9 +114,13 @@ const ShippingPolicy = () => {
   return (
     <div className="flex flex-col">
       <div className="pt-10 md:pt-14">
-        <CommonBgHeading title="Shipping Policy" breadcrumb={true} titleClassName="uppercase" />
+        <CommonBgHeading
+          title="Shipping Policy"
+          breadcrumb={true}
+          titleClassName="uppercase"
+        />
       </div>
-      <div className="container mt-10">
+      <div className="container mt-4 sm:mt-10">
         <AccordionTabs
           tabs={shipingPolicyContent}
           defaultOpenLabel="Free Shipping on Every Order"

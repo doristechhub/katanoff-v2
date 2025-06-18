@@ -215,10 +215,13 @@ const TermsAndCondition = () => {
   return (
     <div className="flex flex-col">
       <div className="pt-10 md:pt-14">
-        <CommonBgHeading title="Terms And Condition" breadcrumb={true} titleClassName="uppercase" />
+        <CommonBgHeading
+          title="Terms And Condition"
+          breadcrumb={true}
+          titleClassName="uppercase"
+        />
       </div>
-      <div className="container mt-10">
-        
+      <div className="container mt-4 sm:mt-10">
         <AccordionTabs
           tabs={TermsAndConditionContent}
           defaultOpenLabel="1. General Use of the Website"
