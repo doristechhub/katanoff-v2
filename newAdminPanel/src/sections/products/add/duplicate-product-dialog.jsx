@@ -130,6 +130,12 @@ const DuplicateProductDialog = ({ open, setOpen, loading }) => {
           payload[field] = selectedProduct[field];
         }
       });
+
+      // Include tempVariComboWithQuantity if variations is selected and it exists in selectedProduct
+      if (selectedFields.variations && selectedProduct.variComboWithQuantity?.length) {
+        payload.variComboWithQuantity = selectedProduct.variComboWithQuantity;
+      }
+
       dispatch(setSelectedProduct(payload));
       dispatch(setIsDuplicateProduct(true));
       navigate(`/product/add`);

@@ -61,7 +61,7 @@ import { helperFunctions } from 'src/_helpers';
 import { FileDrop } from 'src/components/file-drop';
 import { Button, LoadingButton } from 'src/components/button';
 import { getCollectionList } from 'src/actions/collectionActions';
-import CombinationDialog, { generateCombinations } from './combination-dialog';
+import CombinationDialog from './combination-dialog';
 import DiamondFilters from './diamond-filters';
 import DuplicateProductDialog from './duplicate-product-dialog';
 import {
@@ -75,6 +75,7 @@ import {
   RING_SIZE,
 } from 'src/_helpers/constants';
 import ClearIcon from '@mui/icons-material/Clear';
+import GroupBySection from './GroupBySection';
 
 // ----------------------------------------------------------------------
 
@@ -233,18 +234,6 @@ export default function AddProductPage() {
     [dispatch, menuList]
   );
 
-  const getCombinationDetail = useCallback(
-    (values) => {
-      const customizations = {
-        customizationType: customizationTypesList,
-        customizationSubType: customizationSubTypesList,
-      };
-      const newVariation = helperFunctions.getVariationsArray(values.variations, customizations);
-      return generateCombinations(newVariation);
-    },
-    [customizationTypesList, customizationSubTypesList]
-  );
-
   const changeProductStatus = useCallback(
     async (values, setFieldValue) => {
       const payload = { productId, active: !values.active };
@@ -361,11 +350,23 @@ export default function AddProductPage() {
         newVariations.push(createVariation(ringSize.id, ringSizeSubTypes, sortedRingSizes));
       }
 
-      const newPayload = { ...selectedProduct, variations: newVariations };
+      const newPayload = {
+        ...selectedProduct,
+        variations: newVariations,
+      };
 
       if (JSON.stringify(newPayload) !== JSON.stringify(selectedProduct)) {
         dispatch(setSelectedProduct(newPayload));
       }
+      const customizations = {
+        customizationType: customizationTypesList,
+        customizationSubType: customizationSubTypesList,
+      };
+      const tempVariComboWithQuantity = helperFunctions?.getCombinationDetail({
+        variations: newVariations,
+        customizations,
+      });
+      dispatch(setSelectedProduct({ ...newPayload, tempVariComboWithQuantity }));
 
       // Helper inside callback for reuse
       function createVariation(variationId, subTypes, matchedSubTypes) {
@@ -497,9 +498,10 @@ export default function AddProductPage() {
                   if (
                     Object.keys(selectedProduct)?.length &&
                     customizationTypesList?.length &&
-                    customizationSubTypesList?.length
+                    customizationSubTypesList?.length &&
+                    (productId || isDuplicateProduct)
                   ) {
-                    const tempCombinationArray = selectedProduct?.variComboWithQuantity?.map(
+                    const tempVariComboWithQuantity = selectedProduct?.variComboWithQuantity?.map(
                       (mainItem) => {
                         return {
                           ...mainItem,
@@ -519,7 +521,7 @@ export default function AddProductPage() {
                         };
                       }
                     );
-                    setFieldValue('tempVariComboWithQuantity', tempCombinationArray);
+                    setFieldValue('tempVariComboWithQuantity', tempVariComboWithQuantity);
                   }
                 }, [selectedProduct, customizationTypesList, customizationSubTypesList]);
 
@@ -1151,6 +1153,7 @@ export default function AddProductPage() {
                         <Grid xs={12} sm={8} md={8}>
                           <Card sx={{ p: 1.5, borderRadius: 2 }} spacing={2} component={Stack}>
                             <Variations formik={formik} />
+                            <GroupBySection formik={formik} />
                           </Card>
                         </Grid>
                       </Grid>
@@ -1229,7 +1232,7 @@ export default function AddProductPage() {
                         productId={productId}
                         openDialog={openCombinationDialog}
                         onCloseDialog={setCombinantionDialog}
-                        combinationsDetail={getCombinationDetail(values)}
+                        combinationsDetail={values?.tempVariComboWithQuantity}
                       />
                     )}
                     {statusConfirmationDialog && (

@@ -9,7 +9,13 @@ export const menuCategoryModel = {
     unique: true,
   },
   position: {
-    type: Number, // Add a new field for display position
-    unique: true, // Ensure the order is unique to avoid duplicates
+    type: Number,
+    unique: true,
+  },
+  desktopBannerImage: {
+    type: String, // 1920*448
+  },
+  mobileBannerImage: {
+    type: String, // 1500*738
   },
 };

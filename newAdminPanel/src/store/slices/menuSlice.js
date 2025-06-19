@@ -8,6 +8,12 @@ export const initMenuProductType = {
 
 export const initMenuCategory = {
   title: '',
+  desktopBannerFile: [],
+  desktopBannerPreviewImage: [],
+  desktopBannerUploadedDeletedImage: [],
+  mobileBannerFile: [],
+  mobileBannerPreviewImage: [],
+  mobileBannerUploadedDeletedImage: [],
 };
 
 export const initMenuSubCategory = {

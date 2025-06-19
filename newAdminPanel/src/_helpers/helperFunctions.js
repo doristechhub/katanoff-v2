@@ -375,6 +375,76 @@ const capitalizeCamelCase = (status) => {
   return status.charAt(0).toUpperCase() + status.slice(1);
 };
 
+const generateCombinations = (arrayOfVariation) => {
+  const variationNames = arrayOfVariation.map((item) =>
+    item.variationTypes.map((type) => ({
+      variationName: item.variationName,
+      variationTypeName: type.variationTypeName,
+      variationId: item.variationId,
+      variationTypeId: type.variationTypeId,
+    }))
+  );
+
+  const result = [];
+  const temp = [];
+
+  const combine = (arr, index) => {
+    if (index === variationNames.length) {
+      result.push({
+        id: helperFunctions.getRandomValue(),
+        combination: [...temp],
+        price: 0,
+        quantity: 0,
+      });
+      return;
+    }
+
+    for (let i = 0; i < arr[index].length; i++) {
+      temp.push({
+        id: helperFunctions.getRandomValue(),
+        variationId: arr[index][i].variationId,
+        variationName: arr[index][i].variationName,
+        variationTypeId: arr[index][i].variationTypeId,
+        variationTypeName: arr[index][i].variationTypeName,
+      });
+      combine(arr, index + 1);
+      temp.pop();
+    }
+  };
+
+  combine(variationNames, 0);
+  return result;
+};
+
+const getCombinationDetail = ({ variations, customizations }) => {
+  const newVariation = getVariationsArray(variations, customizations);
+  return generateCombinations(newVariation);
+};
+
+const getArrayWithoutIds = (arrayWithIds) =>
+  arrayWithIds?.map((obj) => {
+    const { id, ...rest } = obj;
+    return rest;
+  });
+
+const getCombiDetailWithPriceAndQty = ({ arrayOfCombinations, oldCombinations }) => {
+  if (!oldCombinations) {
+    return arrayOfCombinations; // Return original combinations if no previous data
+  }
+  return arrayOfCombinations.map((mainItem) => {
+    const array1 = getArrayWithoutIds(mainItem.combination);
+    const findedCombination = oldCombinations?.find((tempMainCombiItem) => {
+      const array2 = getArrayWithoutIds(tempMainCombiItem?.combination);
+      return areArraysEqual(array1, array2);
+    });
+    return {
+      ...mainItem,
+      price: findedCombination ? findedCombination?.price : 0,
+      quantity: findedCombination ? findedCombination?.quantity : 0,
+    };
+  });
+};
+
 export const helperFunctions = {
   getCurrentUser,
   getVariationsArray,
@@ -410,4 +480,7 @@ export const helperFunctions = {
   getDiamondDetailArray,
   isReturnValid,
   capitalizeCamelCase,
+  generateCombinations,
+  getCombinationDetail,
+  getCombiDetailWithPriceAndQty,
 };
