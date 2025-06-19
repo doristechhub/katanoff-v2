@@ -13,8 +13,8 @@ import { productInitDetails } from 'src/store/slices/productSlice';
 
 // ----------------------------------------------------------------------
 
-const VariantionTypes = memo(({ index, formik }) => {
-  const { touched, errors, values, handleBlur, handleChange } = formik;
+const VariantionTypes = memo(({ index, formik, updateCombinations }) => {
+  const { touched, errors, values, handleBlur, setFieldValue } = formik;
 
   const addVariationTypesHandler = useCallback(
     (push, variationTypes) => {
@@ -25,17 +25,58 @@ const VariantionTypes = memo(({ index, formik }) => {
 
       let types = productInitDetails?.variations?.[0]?.variationTypes;
 
-      // Check if all of the fields in the field array are filled
       const areAllFieldsFilled = variationTypes?.filter((type) => !type?.variationTypeId);
 
-      // If all of the fields in the field array are filled, push a new value into the field array
       if (!areAllFieldsFilled.length) {
         push(types?.[0]);
+        // Generate combinations after adding variation type
+        const updatedVariations = values.variations.map((vari, i) =>
+          i === index ? { ...vari, variationTypes: [...vari.variationTypes, types?.[0]] } : vari
+        );
+        updateCombinations(updatedVariations);
       } else {
         toast.error('please fill all variationsTypes value');
       }
     },
-    [productInitDetails, index, values]
+    [productInitDetails, index, values, updateCombinations]
+  );
+
+  const handleVariationTypeChange = useCallback(
+    (event, j) => {
+      const newVariationTypeId = event.target.value;
+
+      setFieldValue(`variations.${index}.variationTypes.${j}.variationTypeId`, newVariationTypeId);
+      // Generate combinations with updated variations
+      const updatedVariations = values.variations.map((vari, i) =>
+        i === index
+          ? {
+              ...vari,
+              variationTypes: vari.variationTypes.map((vt, k) =>
+                k === j ? { ...vt, variationTypeId: newVariationTypeId } : vt
+              ),
+            }
+          : vari
+      );
+      updateCombinations(updatedVariations);
+    },
+    [index, setFieldValue, updateCombinations, values.variations]
+  );
+
+  const removeVariationTypeHandler = useCallback(
+    (j, remove) => {
+      remove(j);
+      // Generate combinations after removing variation type
+      const updatedVariations = values.variations.map((vari, i) =>
+        i === index
+          ? {
+              ...vari,
+              variationTypes: vari.variationTypes.filter((_, k) => k !== j),
+            }
+          : vari
+      );
+      updateCombinations(updatedVariations);
+    },
+    [index, updateCombinations, values.variations]
   );
 
   const renderPlusBtn = (i, push) =>
@@ -80,7 +121,7 @@ const VariantionTypes = memo(({ index, formik }) => {
                       width: '100%',
                     }}
                     onBlur={handleBlur}
-                    onChange={handleChange}
+                    onChange={(event) => handleVariationTypeChange(event, j)}
                     label="Variation Type Name"
                     name={`variations.${index}.variationTypes.${j}.variationTypeId`}
                     value={values?.variations?.[index]?.variationTypes?.[j]?.variationTypeId}
@@ -140,9 +181,7 @@ const VariantionTypes = memo(({ index, formik }) => {
                           },
                         }}
                         disabled={values.variations[index].variationTypes.length === 1}
-                        onClick={() => {
-                          remove(j);
-                        }}
+                        onClick={() => removeVariationTypeHandler(j, remove)}
                       >
                         <Iconify icon="solar:trash-bin-trash-bold" sx={{ color: 'error.main' }} />
                       </IconButton>

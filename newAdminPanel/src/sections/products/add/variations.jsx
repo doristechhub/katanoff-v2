@@ -38,6 +38,32 @@ const Variations = memo(({ formik }) => {
     ({ product }) => product
   );
 
+  // Function to generate and update combinations
+  const updateCombinations = useCallback(
+    (newVariations) => {
+      const arrayOfCombinations = helperFunctions?.getCombinationDetail({
+        variations: newVariations,
+        customizations: {
+          customizationType: customizationTypesList,
+          customizationSubType: customizationSubTypesList,
+        },
+      });
+      const tempVariComboWithQuantity = helperFunctions?.getCombiDetailWithPriceAndQty({
+        arrayOfCombinations,
+        oldCombinations: values?.tempVariComboWithQuantity,
+      });
+
+      // Update Formik field with combinations
+      setFieldValue('tempVariComboWithQuantity', tempVariComboWithQuantity);
+    },
+    [
+      customizationTypesList,
+      customizationSubTypesList,
+      setFieldValue,
+      values?.tempVariComboWithQuantity,
+    ]
+  );
+
   const variationChangeHandler = useCallback(
     (variationId, index) => {
       setFieldValue(`variations.${index}.variationId`, variationId);
@@ -49,8 +75,20 @@ const Variations = memo(({ formik }) => {
         `variations.${index}.variationTypes`,
         productInitDetails?.variations?.[0]?.variationTypes
       );
+      // Generate combinations after variation change
+      const updatedVariations = values.variations.map((vari, i) =>
+        i === index
+          ? {
+              ...vari,
+              variationId,
+              subTypes: customizationTypeWiseCustomizationSubTypes,
+              variationTypes: productInitDetails?.variations?.[0]?.variationTypes,
+            }
+          : vari
+      );
+      updateCombinations(updatedVariations);
     },
-    [customizationSubTypesList, values, productInitDetails]
+    [customizationSubTypesList, setFieldValue, updateCombinations, values?.variations]
   );
 
   const addVariationsHandler = useCallback(
@@ -60,21 +98,33 @@ const Variations = memo(({ formik }) => {
         return;
       }
 
-      // Check if all of the fields in the field array are filled
       const checkVariationTypesFilled = (variationTypes) => {
         return variationTypes.filter((variType) => !variType.variationTypeId).length;
       };
       const areAllFieldsFilled = values?.variations.filter(
         (variItem) => !variItem.variationId || checkVariationTypesFilled(variItem.variationTypes)
       );
-      // If all of the fields in the field array are filled, push a new value into the field array
+
       if (!areAllFieldsFilled?.length) {
-        push(productInitDetails?.variations?.[0]);
+        const newVariation = productInitDetails?.variations?.[0];
+        push(newVariation);
+        // Generate combinations after adding variation
+        updateCombinations([...values.variations, newVariation]);
       } else {
         toast.error('please fill all variations value');
       }
     },
-    [customizationTypesList, values, productInitDetails]
+    [customizationTypesList, values, productInitDetails, updateCombinations]
+  );
+
+  const removeVariationHandler = useCallback(
+    (index, remove) => {
+      remove(index);
+      // Generate combinations after removing variation
+      const newVariations = values.variations.filter((_, i) => i !== index);
+      updateCombinations(newVariations);
+    },
+    [values?.variations, updateCombinations]
   );
 
   return (
@@ -137,12 +187,16 @@ const Variations = memo(({ formik }) => {
                       )}
                     </TextField>
                   </Grid>
-                  <VariantionTypes index={index} formik={formik} />
+                  <VariantionTypes
+                    index={index}
+                    formik={formik}
+                    updateCombinations={updateCombinations}
+                  />
                   <Grid xs={12} sm={12} md={12}>
                     <Stack direction={'row'} justifyContent={'end'} alignItems={'center'} gap={2}>
                       <Button
                         size="small"
-                        onClick={() => remove(index)}
+                        onClick={() => removeVariationHandler(index, remove)}
                         disabled={values?.variations?.length === 1}
                         startIcon={
                           <Iconify icon="solar:trash-bin-trash-bold" sx={{ color: 'error.main' }} />

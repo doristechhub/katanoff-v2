@@ -49,47 +49,6 @@ const validationSchema = Yup.object({
   ),
 });
 
-export const generateCombinations = (arrayOfVariation) => {
-  const variationNames = arrayOfVariation.map((item) =>
-    item.variationTypes.map((type) => ({
-      variationName: item.variationName,
-      variationTypeName: type.variationTypeName,
-      variationId: item.variationId,
-      variationTypeId: type.variationTypeId,
-    }))
-  );
-
-  const result = [];
-  const temp = [];
-
-  const combine = (arr, index) => {
-    if (index === variationNames.length) {
-      result.push({
-        id: helperFunctions.getRandomValue(),
-        combination: [...temp],
-        price: 0,
-        quantity: 0,
-      });
-      return;
-    }
-
-    for (let i = 0; i < arr[index].length; i++) {
-      temp.push({
-        id: helperFunctions.getRandomValue(),
-        variationId: arr[index][i].variationId,
-        variationName: arr[index][i].variationName,
-        variationTypeId: arr[index][i].variationTypeId,
-        variationTypeName: arr[index][i].variationTypeName,
-      });
-      combine(arr, index + 1);
-      temp.pop();
-    }
-  };
-
-  combine(variationNames, 0);
-  return result;
-};
-
 const getCulumnList = (arrayOfCombinations) => {
   const columnList = [];
   arrayOfCombinations?.forEach((item) => {
@@ -101,35 +60,6 @@ const getCulumnList = (arrayOfCombinations) => {
   });
   return columnList;
 };
-
-function sortArrays(arr1, arr2) {
-  const sortFunc = (a, b) => {
-    if (a.variationId < b.variationId) return -1;
-    if (a.variationId > b.variationId) return 1;
-    if (a.variationTypeId < b.variationTypeId) return -1;
-    if (a.variationTypeId > b.variationTypeId) return 1;
-    return 0;
-  };
-
-  arr1.sort(sortFunc);
-  arr2.sort(sortFunc);
-}
-
-function areArraysEqual(arr1, arr2) {
-  if (arr1.length !== arr2.length) return false;
-
-  sortArrays(arr1, arr2);
-
-  for (let i = 0; i < arr1.length; i++) {
-    if (
-      arr1[i].variationId !== arr2[i].variationId ||
-      arr1[i].variationTypeId !== arr2[i].variationTypeId
-    ) {
-      return false;
-    }
-  }
-  return true;
-}
 
 // ----------------------------------------------------------------------
 
@@ -143,6 +73,16 @@ const CombinationDialog = ({
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { combinations, crudProductLoading } = useSelector(({ product }) => product);
+
+  // Handler to select input value on click
+  const handleInputClick = (event) => {
+    event.target.select();
+  };
+
+  // Handler to disable mouse wheel value change
+  const handleWheel = (event) => {
+    event.target.blur();
+  };
 
   const onSubmit = async (values, { setStatus }) => {
     const payload = {
@@ -205,33 +145,12 @@ const CombinationDialog = ({
       onSubmit,
     });
 
-  const getArrayWithoutIds = (arrayWithIds) =>
-    arrayWithIds?.map((obj) => {
-      const { id, ...rest } = obj;
-      return rest;
-    });
-
-  const getCombiDetailWithQty = (arrayOfCombinations) => {
-    if (!fields?.tempVariComboWithQuantity) {
-      return arrayOfCombinations; // Return original combinations if no previous data
-    }
-    return arrayOfCombinations.map((mainItem) => {
-      const array1 = getArrayWithoutIds(mainItem.combination);
-      const findedCombination = fields?.tempVariComboWithQuantity?.find((tempMainCombiItem) => {
-        const array2 = getArrayWithoutIds(tempMainCombiItem?.combination);
-        return areArraysEqual(array1, array2);
-      });
-      return {
-        ...mainItem,
-        price: findedCombination ? findedCombination?.price : 0,
-        quantity: findedCombination ? findedCombination?.quantity : 0,
-      };
-    });
-  };
-
   useEffect(() => {
     const finalCombinationDetail = productId
-      ? getCombiDetailWithQty(combinationsDetail)
+      ? helperFunctions.getCombiDetailWithPriceAndQty({
+          arrayOfCombinations: combinationsDetail,
+          oldCombinations: fields?.tempVariComboWithQuantity,
+        })
       : combinationsDetail;
     setFieldValue('variComboWithQuantity', finalCombinationDetail);
   }, [productId, setFieldValue]);
@@ -274,8 +193,14 @@ const CombinationDialog = ({
                               size="small"
                               type="number"
                               label="Price"
+                              min={0}
                               onBlur={handleBlur}
-                              onChange={handleChange}
+                              onChange={(e) => {
+                                const value = Math.max(0, parseInt(e.target.value) || 0);
+                                setFieldValue(`variComboWithQuantity.${index}.price`, value);
+                              }}
+                              onClick={handleInputClick}
+                              onWheel={handleWheel}
                               name={`variComboWithQuantity.${index}.price`}
                               value={getIn(values, `variComboWithQuantity.${index}.price`)}
                               error={
@@ -297,8 +222,14 @@ const CombinationDialog = ({
                               size="small"
                               type="number"
                               label="Quantity"
+                              min={0}
                               onBlur={handleBlur}
-                              onChange={handleChange}
+                              onChange={(e) => {
+                                const value = Math.max(0, parseInt(e.target.value) || 0);
+                                setFieldValue(`variComboWithQuantity.${index}.quantity`, value);
+                              }}
+                              onClick={handleInputClick}
+                              onWheel={handleWheel}
                               id={`variComboWithQuantity.${index}.quantity`}
                               name={`variComboWithQuantity.${index}.quantity`}
                               value={getIn(values, `variComboWithQuantity.${index}.quantity`)}

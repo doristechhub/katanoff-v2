@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { useFormik } from 'formik';
+import { Form, Formik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -36,12 +36,16 @@ import Iconify from 'src/components/iconify';
 import Spinner from 'src/components/spinner';
 import Scrollbar from 'src/components/scrollbar';
 import { Button, LoadingButton } from 'src/components/button';
+import { FileDrop } from 'src/components/file-drop';
 import {
   initMenuCategory,
   setCategoryList,
   setSelectedMenuCategory,
 } from 'src/store/slices/menuSlice';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
+import { validateImageResolution } from 'src/_helpers';
+import Grid from '@mui/material/Unstable_Grid2';
+import ProgressiveImg from 'src/components/progressive-img';
 
 // ----------------------------------------------------------------------
 
@@ -86,10 +90,46 @@ const Category = () => {
   const handleEdit = useCallback(async () => {
     const category = categoryList?.find((x) => x?.id === selectedCategoryId);
     if (category) {
-      dispatch(setSelectedMenuCategory(category));
+      let updatedCategory = { ...initMenuCategory, ...category };
+      // Desktop Banner Image
+      const desktopBannerImageUrl = category?.desktopBannerImage;
+      if (desktopBannerImageUrl) {
+        const url = new URL(desktopBannerImageUrl);
+        const fileExtension = url.pathname.split('.').pop();
+        const desktopBannerPreviewImageObj = {
+          type: 'old',
+          mimeType: `image/${fileExtension}`,
+          image: desktopBannerImageUrl,
+        };
+        updatedCategory = {
+          ...updatedCategory,
+          desktopBannerFile: [],
+          desktopBannerPreviewImage: [desktopBannerPreviewImageObj],
+          desktopBannerUploadedDeletedImage: [],
+        };
+      }
+
+      // Mobile Banner Image
+      const mobileBannerImageUrl = category?.mobileBannerImage;
+      if (mobileBannerImageUrl) {
+        const url = new URL(mobileBannerImageUrl);
+        const fileExtension = url.pathname.split('.').pop();
+        const mobileBannerPreviewImageObj = {
+          type: 'old',
+          mimeType: `image/${fileExtension}`,
+          image: mobileBannerImageUrl,
+        };
+        updatedCategory = {
+          ...updatedCategory,
+          mobileBannerFile: [],
+          mobileBannerPreviewImage: [mobileBannerPreviewImageObj],
+          mobileBannerUploadedDeletedImage: [],
+        };
+      }
+      dispatch(setSelectedMenuCategory(updatedCategory));
       setOpenMenuCategoryDialog(true);
     }
-  }, [selectedCategoryId, categoryList]);
+  }, [selectedCategoryId, categoryList, dispatch]);
 
   const handleDelete = useCallback(async () => {
     const res = await dispatch(
@@ -108,7 +148,12 @@ const Category = () => {
     async (val, { resetForm }) => {
       let payload = {
         title: val?.title,
+        desktopBannerFile: val?.desktopBannerFile?.[0] || null,
+        mobileBannerFile: val?.mobileBannerFile?.[0] || null,
+        deletedDesktopBannerImage: val?.desktopBannerUploadedDeletedImage?.[0]?.image || null,
+        deletedMobileBannerImage: val?.mobileBannerUploadedDeletedImage?.[0]?.image || null,
       };
+
       let res;
       let cPage = 0;
       if (val?.id) {
@@ -125,21 +170,17 @@ const Category = () => {
         setOpen(null);
       }
     },
-    [loadData, page, categoryList]
+    [dispatch, loadData, page]
   );
 
-  const { values, errors, touched, handleChange, handleBlur, handleSubmit, resetForm } = useFormik({
-    enableReinitialize: true,
-    initialValues: selectedMenuCategory,
-    validationSchema,
-    onSubmit,
-  });
-
-  const closeMenuCategoryPopup = useCallback(() => {
-    setOpenMenuCategoryDialog(false);
-    dispatch(setSelectedMenuCategory(initMenuCategory));
-    resetForm();
-  }, [initMenuCategory]);
+  const closeMenuCategoryPopup = useCallback(
+    (resetForm) => {
+      setOpenMenuCategoryDialog(false);
+      dispatch(setSelectedMenuCategory(initMenuCategory));
+      resetForm();
+    },
+    [dispatch, initMenuCategory]
+  );
 
   const renderPopup = useMemo(() => {
     return !!open ? (
@@ -180,7 +221,7 @@ const Category = () => {
         </MenuItem>
       </Popover>
     ) : null;
-  }, [open, crudMenuLoading]);
+  }, [open, crudMenuLoading, handleEdit, handleDelete, handlePopup]);
 
   const handleDragEnd = useCallback(
     (event) => {
@@ -204,7 +245,7 @@ const Category = () => {
       // Dispatch action to update menu category positions
       dispatch(updateMenuCategoriesPosition(updatedPayload));
     },
-    [categoryList]
+    [categoryList, dispatch]
   );
 
   return (
@@ -246,6 +287,8 @@ const Category = () => {
                       <TableCell></TableCell>
                       <TableCell>Sr No.</TableCell>
                       <TableCell>Title</TableCell>
+                      <TableCell>Desktop Banner</TableCell>
+                      <TableCell>Mobile Banner</TableCell>
                       <TableCell></TableCell>
                     </TableRow>
                   </TableHead>
@@ -285,6 +328,28 @@ const Category = () => {
                                 </TableCell>
                                 <TableCell sx={{ minWidth: '100px' }}>{i + 1}</TableCell>
                                 <TableCell sx={{ width: '100%' }}>{x?.title}</TableCell>
+                                <TableCell sx={{ minWidth: '150px' }}>
+                                  {x?.desktopBannerImage ? (
+                                    <ProgressiveImg
+                                      src={x?.desktopBannerImage}
+                                      alt="Desktop Banner"
+                                      style={{ maxWidth: '100px', height: 'auto' }}
+                                    />
+                                  ) : (
+                                    'No Image'
+                                  )}
+                                </TableCell>
+                                <TableCell sx={{ minWidth: '150px' }}>
+                                  {x?.mobileBannerImage ? (
+                                    <ProgressiveImg
+                                      src={x?.mobileBannerImage}
+                                      alt="Mobile Banner"
+                                      style={{ maxWidth: '100px', height: 'auto' }}
+                                    />
+                                  ) : (
+                                    'No Image'
+                                  )}
+                                </TableCell>
                                 <TableCell sx={{ width: '50px' }}>
                                   <Iconify
                                     className={'cursor-pointer'}
@@ -319,41 +384,101 @@ const Category = () => {
       )}
 
       {renderPopup}
-
       {openMenuCategoryDialog ? (
-        <Dialog
-          open={openMenuCategoryDialog}
-          handleOpen={() => setOpenMenuCategoryDialog(true)}
-          handleClose={closeMenuCategoryPopup}
+        <Formik
+          enableReinitialize
+          onSubmit={onSubmit}
+          initialValues={selectedMenuCategory}
+          validationSchema={validationSchema}
         >
-          <StyledDialogTitle>
-            {selectedMenuCategory?.id ? 'Update' : 'Add New'} Category
-          </StyledDialogTitle>
-          <StyledDialogContent>
-            <TextField
-              sx={{
-                minWidth: '300px',
-                width: '100%',
-                mt: '10px',
-              }}
-              name="title"
-              label="Menu Category Title"
-              onBlur={handleBlur}
-              onChange={handleChange}
-              value={values.title || ''}
-              error={!!(touched.title && errors.title)}
-              helperText={touched.title && errors.title ? errors.title : ''}
-            />
-          </StyledDialogContent>
-          <StyledDialogActions>
-            <Button variant="outlined" onClick={closeMenuCategoryPopup} disabled={crudMenuLoading}>
-              Cancel
-            </Button>
-            <LoadingButton variant="contained" loading={crudMenuLoading} onClick={handleSubmit}>
-              {selectedMenuCategory?.id ? 'Update' : 'Save'}
-            </LoadingButton>
-          </StyledDialogActions>
-        </Dialog>
+          {(formik) => {
+            const {
+              values,
+              touched,
+              errors,
+              handleBlur,
+              handleChange,
+              handleSubmit,
+              resetForm,
+              setFieldValue,
+            } = formik;
+            return (
+              <Form onSubmit={handleSubmit}>
+                <Dialog
+                  open={openMenuCategoryDialog}
+                  handleOpen={() => setOpenMenuCategoryDialog(true)}
+                  handleClose={() => closeMenuCategoryPopup(resetForm)}
+                  maxWidth="md"
+                  fullWidth
+                >
+                  <StyledDialogTitle>
+                    {selectedMenuCategory?.id ? 'Update' : 'Add New'} Category
+                  </StyledDialogTitle>
+                  <StyledDialogContent>
+                    <Stack spacing={2} sx={{ mt: 2 }}>
+                      <TextField
+                        name="title"
+                        label="Menu Category Title"
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        value={values.title || ''}
+                        error={!!(touched.title && errors.title)}
+                        helperText={touched.title && errors.title ? errors.title : ''}
+                        sx={{ minWidth: '300px', width: '100%' }}
+                      />
+                      <Grid container spacing={3}>
+                        <Grid xs={12} sm={6} md={6}>
+                          <Typography variant="subtitle2" gutterBottom>
+                            Desktop Banner (1920x448)
+                          </Typography>
+                          <FileDrop
+                            mediaLimit={1}
+                            formik={formik}
+                            productId={selectedCategoryId}
+                            fileKey="desktopBannerFile"
+                            previewKey="desktopBannerPreviewImage"
+                            deleteKey="desktopBannerUploadedDeletedImage"
+                            loading={crudMenuLoading}
+                          />
+                        </Grid>
+                        <Grid xs={12} sm={6} md={6}>
+                          <Typography variant="subtitle2" gutterBottom>
+                            Mobile Banner (1500x738)
+                          </Typography>
+                          <FileDrop
+                            mediaLimit={1}
+                            formik={formik}
+                            productId={selectedCategoryId}
+                            fileKey="mobileBannerFile"
+                            previewKey="mobileBannerPreviewImage"
+                            deleteKey="mobileBannerUploadedDeletedImage"
+                            loading={crudMenuLoading}
+                          />
+                        </Grid>
+                      </Grid>
+                    </Stack>
+                  </StyledDialogContent>
+                  <StyledDialogActions>
+                    <Button
+                      variant="outlined"
+                      onClick={() => closeMenuCategoryPopup(resetForm)}
+                      disabled={crudMenuLoading}
+                    >
+                      Cancel
+                    </Button>
+                    <LoadingButton
+                      variant="contained"
+                      loading={crudMenuLoading}
+                      onClick={handleSubmit}
+                    >
+                      {selectedMenuCategory?.id ? 'Update' : 'Save'}
+                    </LoadingButton>
+                  </StyledDialogActions>
+                </Dialog>
+              </Form>
+            );
+          }}
+        </Formik>
       ) : null}
     </>
   );

@@ -88,3 +88,10 @@ export const GENDER_LIST = [
     value: 'unisex',
   },
 ];
+
+export const IMAGE_RESOLUTIONS = {
+  DESKTOP: { width: 1920, height: 448 },
+  MOBILE: { width: 1500, height: 738 },
+};
+
+export const DEFAULT_QTY = 10;
