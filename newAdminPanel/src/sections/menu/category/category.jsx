@@ -392,16 +392,8 @@ const Category = () => {
           validationSchema={validationSchema}
         >
           {(formik) => {
-            const {
-              values,
-              touched,
-              errors,
-              handleBlur,
-              handleChange,
-              handleSubmit,
-              resetForm,
-              setFieldValue,
-            } = formik;
+            const { values, touched, errors, handleBlur, handleChange, handleSubmit, resetForm } =
+              formik;
             return (
               <Form onSubmit={handleSubmit}>
                 <Dialog

@@ -2,6 +2,12 @@ import { createSlice } from '@reduxjs/toolkit';
 
 export const initCollection = {
   title: '',
+  desktopBannerFile: [],
+  desktopBannerPreviewImage: [],
+  desktopBannerUploadedDeletedImage: [],
+  mobileBannerFile: [],
+  mobileBannerPreviewImage: [],
+  mobileBannerUploadedDeletedImage: [],
 };
 
 const initialState = {
