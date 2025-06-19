@@ -19,6 +19,13 @@ export const initMenuCategory = {
 export const initMenuSubCategory = {
   title: '',
   categoryId: undefined,
+  position: undefined,
+  desktopBannerFile: [],
+  desktopBannerPreviewImage: [],
+  desktopBannerUploadedDeletedImage: [],
+  mobileBannerFile: [],
+  mobileBannerPreviewImage: [],
+  mobileBannerUploadedDeletedImage: [],
 };
 
 const initialState = {
