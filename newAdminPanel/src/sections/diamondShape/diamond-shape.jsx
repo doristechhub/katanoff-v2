@@ -303,7 +303,7 @@ const DiamondShape = () => {
                                   <ProgressiveImg
                                     src={x?.image}
                                     alt={'diamond-shape-img'}
-                                    customClassName="w-full h-full rounded-md"
+                                    customClassName="w-full h-full rounded-md !object-contain"
                                     // placeHolderClassName={'h-[75px]'}
                                   />
                                 </Box>

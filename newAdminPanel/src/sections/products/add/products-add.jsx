@@ -567,7 +567,7 @@ export default function AddProductPage() {
                                     : ''
                                 }
                               />
-                              <TextField
+                              {/* <TextField
                                 rows={4}
                                 multiline
                                 sx={{ mb: 2, width: '100%' }}
@@ -582,7 +582,7 @@ export default function AddProductPage() {
                                     ? errors?.shortDescription
                                     : ''
                                 }
-                              />
+                              /> */}
                               <Stack sx={{ my: 1, mb: 3 }}>
                                 <Typography variant="subtitle2" sx={{ mb: 1 }}>
                                   Description

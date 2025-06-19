@@ -1,6 +1,7 @@
 import moment from 'moment';
 import { authenticationService } from '../_services';
 import navConfig from 'src/layouts/dashboard/config-navigation';
+import { DEFAULT_QTY } from './constants';
 
 const getCurrentUser = () => {
   const currentUserJson = localStorage.getItem('adminCurrentUser');
@@ -394,7 +395,7 @@ const generateCombinations = (arrayOfVariation) => {
         id: helperFunctions.getRandomValue(),
         combination: [...temp],
         price: 0,
-        quantity: 0,
+        quantity: DEFAULT_QTY,
       });
       return;
     }
@@ -440,7 +441,7 @@ const getCombiDetailWithPriceAndQty = ({ arrayOfCombinations, oldCombinations })
     return {
       ...mainItem,
       price: findedCombination ? findedCombination?.price : 0,
-      quantity: findedCombination ? findedCombination?.quantity : 0,
+      quantity: findedCombination ? findedCombination?.quantity : DEFAULT_QTY,
     };
   });
 };
