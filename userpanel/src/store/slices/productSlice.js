@@ -33,6 +33,11 @@ const initialState = {
   productsPerPage: 8,
   filteredProducts: [],
   visibleItemCount: 10,
+  bannerLoading: false,
+  banners: {
+    desktop: "",
+    mobile: "",
+  },
 };
 
 const productSlice = createSlice({
@@ -158,6 +163,13 @@ const productSlice = createSlice({
     setFilteredProducts: (state, action) => {
       state.filteredProducts = action.payload;
     },
+
+    setBannerLoading: (state, action) => {
+      state.bannerLoading = action.payload;
+    },
+    setBanners: (state, action) => {
+      state.banners = action.payload;
+    },
   },
 });
 
@@ -196,6 +208,8 @@ export const {
   setVisibleItemCount,
   toggleSMOpenFilter,
   setFilteredProducts,
+  setBannerLoading,
+  setBanners,
 } = productSlice.actions;
 
 export default productSlice.reducer;
