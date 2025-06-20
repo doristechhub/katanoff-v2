@@ -9,19 +9,17 @@ const CARD_DATA = [
     title: "About Katanoff",
     link: "/about-us",
     image: getToKnowUs1,
-    textColor: "text-white",
   },
   {
     title: "Education",
     link: "/education",
     image: getToKnowUs2,
-    textColor: "text-white",
   },
 ];
 
 export default function GetToKnowUsSection() {
   return (
-    <section className="pt-8 md:pt-10 px-4">
+    <section className="pt-8 md:pt-10 lg:pt-12 2xl:pt-16 px-4">
       <div className="text-center mb-10">
         <p className="uppercase text-sm tracking-wider">Get to know us</p>
         <h2 className="text-2xl md:text-4xl font-castoro mt-2">
@@ -44,13 +42,13 @@ export default function GetToKnowUsSection() {
               />
             </div>
 
-            <div className="relative z-10 flex flex-col items-center top-[55%] text-center h-full px-6">
+            <div className="relative z-10 flex flex-col left-[5%] top-[47%] h-full px-6 text-black">
               <h3
-                className={`text-lg md:text-2xl 2xl:text-4xl 4xl:text-4xl font-castoro font-medium mb-4 ${card.textColor}`}
+                className={`text-2xl md:text-3xl 2xl:text-4xl 4xl:text-4xl font-medium mb-4 uppercase`}
               >
                 {card.title}
               </h3>
-              <span className="uppercase pt-[10%] text-sm font-medium tracking-wider underline hover:opacity-80 transition text-white">
+              <span className="uppercase pt-[4%] text-sm md:text-base xl:text-lg font-medium tracking-wider underline hover:opacity-80 transition ">
                 Explore
               </span>
             </div>

@@ -1,71 +1,104 @@
 "use client";
+import { useEffect, useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Autoplay } from "swiper/modules";
+
+import { Navigation, Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { CustomImg } from "../dynamiComponents";
-
+import { FaStar, FaRegStar } from "react-icons/fa";
 export default function ReviewSlider({ reviews = [], totalCount = 0 }) {
-  return (
-    <section className="pb-6 md:pb-10 pt-16 container">
-      {/* Header Row */}
-      <div className="flex justify-between items-center border-b">
-        <h3 className="text-sm font-semibold">
-          Real Reviews From Real Customers
-        </h3>
-        <div className="flex items-center gap-3 text-sm">
-          <span>{totalCount} Reviews</span>
+  const [currentPage, setCurrentPage] = useState(0);
+  const swiperRef = useRef(null);
 
-          <div className="flex items-center gap-1">
-            <button className="swiper-prev text-black hover:text-primary transition-colors">
-              <ChevronLeft size={18} />
-            </button>
-            <button className="swiper-next text-black hover:text-primary transition-colors">
-              <ChevronRight size={18} />
-            </button>
-          </div>
-        </div>
+  const getSlidesPerView = () => {
+    const width = window.innerWidth;
+    if (width < 640) return 1;
+    if (width < 768) return 2;
+    if (width < 1024) return 3;
+    return 4;
+  };
+
+  const totalPages = Math.ceil(reviews.length / getSlidesPerView());
+
+  return (
+    <section className="py-20 container">
+      {/* Header */}
+      <div className="text-center mb-12">
+        <h3 className="text-base md:text-lg font-bold text-[#BE944B] uppercase">
+          Testimonials
+        </h3>
+        <h2 className="text-2xl md:text-3xl lg:text-4xl italic font-medium mt-3 font-castoro">
+          WHAT CLIENTS SAY ABOUT OUR WORK
+        </h2>
+        <p className="mt-3 text-sm text-gray-500">Our 100+ People Trust Us</p>
       </div>
 
-      {/* Swiper Carousel */}
-      <Swiper
-        modules={[Navigation, Autoplay]}
-        navigation={{
-          nextEl: ".swiper-next",
-          prevEl: ".swiper-prev",
-        }}
-        autoplay={{ delay: 5000, disableOnInteraction: false }}
-        slidesPerView={3}
-        slidesPerGroup={1}
-        loop={true}
-        speed={600}
-        spaceBetween={20}
-        breakpoints={{
-          0: { slidesPerView: 1 },
-          768: { slidesPerView: 2 },
-          1024: { slidesPerView: 3 },
-        }}
-        className="mt-6"
-      >
-        {reviews.map((review, index) => (
-          <SwiperSlide key={index}>
-            <div className="text-sm gap-2 flex flex-col">
-              <div className="flex items-center gap-2">
-                <CustomImg
-                  srcAttr={review.starImage}
-                  altAttr="Star"
-                  className="w-16 h-auto"
-                />
-                <p className="text-xs text-gray-500">{review.date}</p>
+      {/* Swiper */}
+      <div className="px-6  mx-auto">
+        <Swiper
+          modules={[Autoplay]}
+          spaceBetween={20}
+          autoplay={{ delay: 4000, disableOnInteraction: false }}
+          breakpoints={{
+            0: { slidesPerView: 1 },
+            640: { slidesPerView: 2 },
+            768: { slidesPerView: 3 },
+            1240: { slidesPerView: 4 },
+          }}
+          onSwiper={(swiper) => {
+            swiperRef.current = swiper;
+          }}
+          onSlideChange={(swiper) => {
+            const activeIndex = swiper.activeIndex;
+            const perPage =
+              typeof swiper.params.slidesPerView === "number"
+                ? swiper.params.slidesPerView
+                : 4;
+            setCurrentPage(Math.floor(activeIndex / perPage));
+          }}
+        >
+          {reviews.map((item, index) => (
+            <SwiperSlide key={index}>
+              <div className="bg-white rounded-xl p-6 h-[300px] flex flex-col gap-8 shadow-lg">
+                <div className="pt-4 xl:pt-5">
+                  <h4 className="font-semibold text-lg mb-2">{item.author}</h4>
+                  <div className="flex gap-1 mb-2">
+                    {[...Array(5)].map((_, i) =>
+                      i < item.rating ? (
+                        <FaStar key={i} size={16} className="text-[#B58C08]" />
+                      ) : (
+                        <FaStar key={i} size={16} className="text-black" />
+                      )
+                    )}
+                  </div>
+                </div>
+                <p className="text-sm md:text-base text-[#6B6B6B] leading-relaxed line-clamp-5">
+                  {item.content}
+                </p>
               </div>
-              <p className="font-semibold">{review.title}</p>
-              <p className=" w-[70%]">{review.content}</p>
-              <p className="font-bold">{review.author}</p>
-            </div>
-          </SwiperSlide>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center gap-2 mt-10">
+        {Array.from({ length: totalPages }).map((_, i) => (
+          <button
+            key={i}
+            onClick={() => {
+              const perPage = getSlidesPerView();
+              swiperRef.current?.slideTo(i * perPage);
+              setCurrentPage(i);
+            }}
+            className={`w-3 h-3 rounded-full ${
+              currentPage === i ? "bg-primary" : "bg-gray-300"
+            } transition-all duration-300`}
+          />
         ))}
-      </Swiper>
+      </div>
     </section>
   );
 }

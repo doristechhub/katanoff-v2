@@ -360,3 +360,24 @@ export const ProfileDetailPage = dynamic(
     ssr: false,
   }
 );
+
+export const CenterFocusSlider = dynamic(
+  () => import("./ui/CenterFocusSlider.jsx"),
+  {
+    ssr: false,
+  }
+);
+
+export const RingSettingCenterStone = dynamic(
+  () => import("./ui/RingSettingCenterStone.jsx"),
+  {
+    ssr: false,
+  }
+);
+
+export const JewelryAppointment = dynamic(
+  () => import("./ui/JewelryAppointment.jsx"),
+  {
+    ssr: false,
+  }
+);

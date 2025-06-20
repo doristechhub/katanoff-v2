@@ -1,7 +1,7 @@
 import { ReturnRequestPage } from "@/components/dynamiComponents";
 const ReturnRequest = () => {
   return (
-    <div className="pt-8 xl:pt-12">
+    <div className="sm:pt-8 xl:pt-12">
       <ReturnRequestPage />;
     </div>
   );
