@@ -308,7 +308,7 @@ const Home = () => {
                 variant="whiteHover"
                 className="!uppercase !rounded-full"
                 href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
-                  "Anniversary Gifts"
+                  "New Arrival"
                 )}`}
               >
                 Explore Collection
