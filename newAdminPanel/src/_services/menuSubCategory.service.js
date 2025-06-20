@@ -36,16 +36,15 @@ const getAllMenuSubCategory = () => {
 
 const sanitizeAndValidateInput = (params) => {
   const sanitized = sanitizeObject(params);
-  sanitized.title = sanitized.title?.trim() || null;
-  sanitized.categoryId = sanitized.categoryId?.trim() || null;
-  sanitized.position = sanitized.position ? Number(sanitized.position) : null;
+  sanitized.title = sanitized?.title?.trim() || null;
+  sanitized.categoryId = sanitized?.categoryId?.trim() || null;
   sanitized.desktopBannerFile =
-    sanitized.desktopBannerFile && typeof sanitized.desktopBannerFile === 'object'
-      ? [sanitized.desktopBannerFile]
+    sanitized?.desktopBannerFile && typeof sanitized?.desktopBannerFile === 'object'
+      ? [sanitized?.desktopBannerFile]
       : [];
   sanitized.mobileBannerFile =
-    sanitized.mobileBannerFile && typeof sanitized.mobileBannerFile === 'object'
-      ? [sanitized.mobileBannerFile]
+    sanitized?.mobileBannerFile && typeof sanitized?.mobileBannerFile === 'object'
+      ? [sanitized?.mobileBannerFile]
       : [];
   return sanitized;
 };
@@ -115,7 +114,7 @@ const insertMenuSubCategory = (params) => {
   return new Promise(async (resolve, reject) => {
     try {
       const uuid = uid();
-      const { title, categoryId, desktopBannerFile, mobileBannerFile, position } =
+      const { title, categoryId, desktopBannerFile, mobileBannerFile } =
         sanitizeAndValidateInput(params);
 
       if (!title || !categoryId) {
@@ -143,10 +142,6 @@ const insertMenuSubCategory = (params) => {
         throw new Error('An error occurred during banner image uploading.');
       });
 
-      const maxPosition = allSubCategoryData.reduce(
-        (max, item) => Math.max(item?.position || 0, max),
-        0
-      );
       const insertPattern = {
         id: uuid,
         title,
@@ -154,7 +149,6 @@ const insertMenuSubCategory = (params) => {
         createdDate: Date.now(),
         desktopBannerImage: desktopBannerUrl,
         mobileBannerImage: mobileBannerUrl,
-        position: position || maxPosition + 1,
       };
 
       const createPattern = {
@@ -182,7 +176,6 @@ const updateMenuSubCategory = (params) => {
         subCategoryId,
         title,
         categoryId,
-        position,
         desktopBannerFile,
         mobileBannerFile,
         deletedDesktopBannerImage,
@@ -201,28 +194,21 @@ const updateMenuSubCategory = (params) => {
       }
 
       const allSubCategoryData = await getAllMenuSubCategory();
-      const duplicateData = allSubCategoryData.filter(
+      const duplicateData = allSubCategoryData?.filter(
         (x) =>
-          x?.categoryId === (categoryId || subCategoryData.categoryId) &&
+          x?.categoryId === (categoryId || subCategoryData?.categoryId) &&
           x?.title?.toLowerCase() === title?.toLowerCase() &&
           x?.id !== subCategoryId
       );
-      if (duplicateData.length) {
+      if (duplicateData?.length) {
         return reject(new Error('Title already exists for this category'));
       }
 
-      if (
-        position &&
-        allSubCategoryData.find((x) => x.position === position && x.id !== subCategoryId)
-      ) {
-        return reject(new Error('Position already exists'));
-      }
-
-      let desktopBannerImage = subCategoryData.desktopBannerImage || null;
+      let desktopBannerImage = subCategoryData?.desktopBannerImage || null;
       if (deletedDesktopBannerImage && desktopBannerImage === deletedDesktopBannerImage) {
         desktopBannerImage = null;
       }
-      let mobileBannerImage = subCategoryData.mobileBannerImage || null;
+      let mobileBannerImage = subCategoryData?.mobileBannerImage || null;
       if (deletedMobileBannerImage && mobileBannerImage === deletedMobileBannerImage) {
         mobileBannerImage = null;
       }
@@ -241,8 +227,7 @@ const updateMenuSubCategory = (params) => {
 
       const payload = {
         title,
-        categoryId: categoryId || subCategoryData.categoryId,
-        position: position || subCategoryData?.position,
+        categoryId: categoryId || subCategoryData?.categoryId,
         desktopBannerImage: desktopBannerUrl || desktopBannerImage,
         mobileBannerImage: mobileBannerUrl || mobileBannerImage,
       };
