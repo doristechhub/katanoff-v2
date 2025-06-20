@@ -13,15 +13,18 @@ import home20 from "@/assets/images/home/home-20.webp";
 import home21 from "@/assets/images/home/home-21.webp";
 import home22 from "@/assets/images/home/home-22.webp";
 import home36 from "@/assets/images/home/home-36.webp";
-
+import newArrivalBanner from "@/assets/images/home/newArrivalBanner.webp";
 import {
   AccordionDropdown,
   AnimatedSection,
+  CenterFocusSlider,
   CustomImg,
   DiamondShapeSwipper,
   GetToKnowUsSection,
+  JewelryAppointment,
   LatestProduct,
   ReviewSlider,
+  RingSettingCenterStone,
   SwipperHomePageBig,
 } from "@/components/dynamiComponents";
 
@@ -43,6 +46,7 @@ import GiftCollections from "../GiftCollections";
 import fiveStar from "@/assets/icons/fiveStar.svg";
 import fourStar from "@/assets/icons/fourStar.svg";
 import fourAndHalfStar from "@/assets/icons/fourAndHalfStar.svg";
+import { PrimaryLinkButton } from "../button";
 const categoryData = [
   {
     title: "Quick Ship Gifts",
@@ -52,7 +56,7 @@ const categoryData = [
     btnText: "SHOP NOW",
   },
   {
-    title: "Special Buys",
+    title: "Gifts For Her",
     image: home18,
     titleAttr: "",
     altAttr: "",
@@ -91,6 +95,7 @@ const mockReviews = [
   {
     date: "10/21/24",
     title: "Love my heart shaped ring.",
+    rating: 3,
     content:
       "Love my heart shaped ring. The band is nice and thick very comfortable. The diamond is spectacular.",
     author: "Anamaria M.",
@@ -99,6 +104,7 @@ const mockReviews = [
   {
     date: "10/25/24",
     title: "Best purchase ever! Fast shipping",
+    rating: 4,
     content:
       "Best purchase ever! Fast shipping got it to my door in time even after a last minute decision. The diamonds are dazzling and brilliant.",
     author: "Mark T.",
@@ -107,6 +113,7 @@ const mockReviews = [
   {
     date: "11/04/24",
     title: "Best site out there",
+    rating: 3,
     content:
       "The ring was everything and more. My fiancé loves it 💍. Cheapest price and best quality. I shopped around multiple stores who weren’t even close.",
     author: "Evan B.",
@@ -117,11 +124,99 @@ const mockReviews = [
     title: "Love my heart shaped ring.",
     content: "Love my ",
     author: "Anamaria M.",
+    rating: 3,
     starImage: fiveStar,
   },
   {
     date: "10/25/24",
     title: "Best purchase ever! Fast shipping",
+    rating: 3,
+    content: "Best purchase ever! Fast shipping got it to my door in ",
+    author: "Mark T.",
+    starImage: fourStar,
+  },
+  {
+    date: "10/21/24",
+    title: "Love my heart shaped ring.",
+    rating: 3,
+    content:
+      "Love my heart shaped ring. The band is nice and thick very comfortable. The diamond is spectacular.",
+    author: "Anamaria M.",
+    starImage: fiveStar,
+  },
+  {
+    date: "10/25/24",
+    title: "Best purchase ever! Fast shipping",
+    rating: 4,
+    content:
+      "Best purchase ever! Fast shipping got it to my door in time even after a last minute decision. The diamonds are dazzling and brilliant.",
+    author: "Mark T.",
+    starImage: fourStar,
+  },
+  {
+    date: "11/04/24",
+    title: "Best site out there",
+    rating: 3,
+    content:
+      "The ring was everything and more. My fiancé loves it 💍. Cheapest price and best quality. I shopped around multiple stores who weren’t even close.",
+    author: "Evan B.",
+    starImage: fourAndHalfStar,
+  },
+  {
+    date: "10/21/24",
+    title: "Love my heart shaped ring.",
+    content: "Love my ",
+    author: "Anamaria M.",
+    rating: 3,
+    starImage: fiveStar,
+  },
+  {
+    date: "10/25/24",
+    title: "Best purchase ever! Fast shipping",
+    rating: 3,
+    content: "Best purchase ever! Fast shipping got it to my door in ",
+    author: "Mark T.",
+    starImage: fourStar,
+  },
+  {
+    date: "10/21/24",
+    title: "Love my heart shaped ring.",
+    rating: 3,
+    content:
+      "Love my heart shaped ring. The band is nice and thick very comfortable. The diamond is spectacular.",
+    author: "Anamaria M.",
+    starImage: fiveStar,
+  },
+  {
+    date: "10/25/24",
+    title: "Best purchase ever! Fast shipping",
+    rating: 4,
+    content:
+      "Best purchase ever! Fast shipping got it to my door in time even after a last minute decision. The diamonds are dazzling and brilliant.",
+    author: "Mark T.",
+    starImage: fourStar,
+  },
+  {
+    date: "11/04/24",
+    title: "Best site out there",
+    rating: 3,
+    content:
+      "The ring was everything and more. My fiancé loves it 💍. Cheapest price and best quality. I shopped around multiple stores who weren’t even close.",
+    author: "Evan B.",
+    starImage: fourAndHalfStar,
+  },
+  {
+    date: "10/21/24",
+    title: "Love my heart shaped ring.",
+    content: "Love my ",
+    author: "Anamaria M.",
+    rating: 3,
+    starImage: fiveStar,
+  },
+  {
+    date: "10/25/24",
+    title: "Best purchase ever! Fast shipping",
+    rating: 3,
     content: "Best purchase ever! Fast shipping got it to my door in ",
     author: "Mark T.",
     starImage: fourStar,
@@ -129,6 +224,7 @@ const mockReviews = [
   {
     date: "11/04/24",
     title: "Best site out there",
+    rating: 3,
     content: "The ring was everything and more. My fiancé loves it 💍",
     author: "Evan B.",
     starImage: fourAndHalfStar,
@@ -154,9 +250,7 @@ const Home = () => {
   const dispatch = useDispatch();
   const [currentIndex, setCurrentIndex] = useState(0);
   const { loginMessage } = useSelector(({ user }) => user);
-  const { uniqueDiamondShapesAndCaratBounds } = useSelector(
-    ({ common }) => common
-  );
+
   const { appointmentMessage } = useSelector(({ appointment }) => appointment);
   const { customJewelryMessage } = useSelector(
     ({ customJewelry }) => customJewelry
@@ -191,19 +285,67 @@ const Home = () => {
   return (
     <>
       <HeroBanner isHomePage={true} titleAttr="" altAttr="Hero Banner" />
+      <section className="bg-white pt-16 lg:pt-32 xl:pt-36 xl:pb-24 2xl:pb-16 4xl:pb-12">
+        <RingSettingCenterStone />
+      </section>
+      <section className="relative w-full h-[60vh] xss:h-[70vh] md:h-[80vh] lg:h-[95vh] overflow-hidden">
+        <CustomImg
+          srcAttr={newArrivalBanner}
+          altAttr="New Arrivals Banner"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
 
-      {uniqueDiamondShapesAndCaratBounds?.distinctShapes ? (
+        <div className="relative z-10 container mx-auto h-full flex pb-10 xs:pb-0 items-end xs:items-center">
+          <div className="text-white max-w-xl">
+            <h2 className="text-3xl md:text-5xl xl:text-7xl font-bold uppercase">
+              New Arrivals
+            </h2>
+            <p className="mt-2 text-base md:text-lg xl:text-xl tracking-widest text-center">
+              NEW Designer Collection
+            </p>
+            <div className="flex justify-center mt-2 lg:mt-6">
+              <PrimaryLinkButton
+                variant="whiteHover"
+                className="!uppercase !rounded-full"
+                href={"/"}
+              >
+                Explore Collection
+              </PrimaryLinkButton>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section className="container pt-12 lg:pt-16 2xl:pt-20 ">
+        <CategoryGallery />
+      </section>
+
+      <section className=" pt-12 lg:pt-16 2xl:pt-20">
+        <CenterFocusSlider />
+      </section>
+      <section className="bg-[#F2F2F2] mt-0 sm:mt-2 md:mt-8 lg:mt-12 xl:mt-16">
+        <ReviewSlider reviews={mockReviews} totalCount={120} />
+      </section>
+      <section className="container pt-12 lg:pt-20 2xl:pt-24">
+        <KeyFeatures />
+      </section>
+      <section className="container pt-12 md:pt-16 2xl:pt-20 4xl:pt-24">
+        <TextAboveImage categoryData={categoryData} textClassName={"castoro"} />
+      </section>
+      <section className="container mx-auto pt-8 lg:pt-6 2xl:pt-6">
+        <GiftCollections />
+      </section>
+
+      {/* {uniqueDiamondShapesAndCaratBounds?.distinctShapes ? (
         <section className="mt-10 lg:mt-12 2xl:mt-12">
           <DiamondShapeSwipper
             shapes={uniqueDiamondShapesAndCaratBounds?.distinctShapes || []}
             title="Shop for Lab Grown Diamonds"
           />
         </section>
-      ) : null}
+      ) : null} */}
 
-      <section className="bg-alabaster mt-10 lg:mt-12 2xl:mt-12 container">
+      {/* <section className="bg-alabaster mt-10 lg:mt-12 2xl:mt-12 container">
         <div className="container grid grid-cols-1 lg:grid-cols-[40%_60%] items-center py-6 md:py-16 lg:py-0 lg:h-[100vh]">
-          {/* Left Image */}
           <div className="relative w-full h-auto lg:h-full flex justify-center items-center">
             <CustomImg
               srcAttr={home20}
@@ -241,13 +383,11 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Description */}
             <p className="text-sm md:text-base mb-6 pt-8 md:pt-12 xl:pt-16">
               Design your engagement ring. Receive a free setting with the
               purchase of a 3.0 ct or larger diamond.
             </p>
 
-            {/* Button */}
             <Link
               href="/customize/start-with-setting"
               className="py-2 text-sm md:text-base xl:text-lg font-semibold border-b border-black text-black tracking-wide hover:border-primary hover:text-primary transition-all"
@@ -256,9 +396,9 @@ const Home = () => {
             </Link>
           </div>
         </div>
-      </section>
+      </section> */}
 
-      <section className="pt-10 lg:pt-12 2xl:pt-12">
+      {/* <section className="pt-10 lg:pt-12 2xl:pt-12">
         <picture>
           <source media="(max-width: 1024px)" srcSet={mobileFreeGift?.src} />
 
@@ -268,31 +408,19 @@ const Home = () => {
             altAttr="Free Gift Banner"
           />
         </picture>
-      </section>
+      </section> */}
 
-      <section className="container pt-10 lg:pt-12 2xl:pt-12 ">
-        <CategoryGallery />
-      </section>
-
-      <section className="container pt-10 lg:pt-16 2xl:pt-20">
-        <TextAboveImage categoryData={categoryData} textClassName={"castoro"} />
-      </section>
-      <section className="container mx-auto pt-8 lg:pt-6 2xl:pt-6">
-        <GiftCollections />
-      </section>
-      <section className="bg-[#f1eee7] mt-8">
-        <ReviewSlider reviews={mockReviews} totalCount={120} />
-      </section>
-      <section className="mx-auto pt-10 lg:pt-12 2xl:pt-12 container">
+      {/* <section className="mx-auto pt-10 lg:pt-12 2xl:pt-12 container">
         <SwipperHomePageBig />
+      </section> */}
+      <section className="pt-12 lg:pt-16 2xl:pt-24">
+        <JewelryAppointment />
       </section>
       <section className="container pt-10">
         <GetToKnowUsSection />
       </section>
-      <section className="container pt-8 lg:pt-10 2xl:pt-12">
-        <KeyFeatures />
-      </section>
 
+      {/* 
       <section className="mt-16 lg:mt-28 container">
         {animatedContent.map((content, index) => (
           <AnimatedSection
@@ -309,7 +437,7 @@ const Home = () => {
             btnLink={content.btnLink}
           />
         ))}
-      </section>
+      </section> */}
       <section className="pt-10 lg:pt-12 2xl:pt-12 container">
         <LatestProduct />
       </section>

@@ -46,8 +46,8 @@ const categories = [
 export default function CategoryGallery() {
   return (
     <section>
-      <h2 className="text-center text-xl md:text-2xl font-semibold uppercase">
-        Shop by Category
+      <h2 className="text-center text-xl md:text-2xl xl:text-3xl 2xl:text-4xl font-semibold uppercase font-castoro">
+        OUR SELECTIONS
       </h2>
 
       <div className="relative mt-8 lg:mt-12">
@@ -92,14 +92,14 @@ export default function CategoryGallery() {
             return (
               <SwiperSlide key={`category-${index}`}>
                 <Link href={href}>
-                  <div className="flex flex-col items-center text-center">
+                  <div className="flex flex-col">
                     <CustomImg
                       srcAttr={category.img}
                       titleAttr={category.titleAttr}
                       altAttr={category.altAttr}
                       className="w-full h-full"
                     />
-                    <p className="uppercase mt-4 text-sm font-medium text-baseblack">
+                    <p className="uppercase mt-3 text-sm lg:text-base 6xl:text-lg font-medium text-baseblack">
                       {category.title}
                     </p>
                   </div>

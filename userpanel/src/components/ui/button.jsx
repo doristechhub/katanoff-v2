@@ -120,6 +120,8 @@ export const PrimaryLinkButton = ({
   const variantClass =
     variant === "blackHover"
       ? "!bg-transparent !h-12 lg:!h-[2.8rem] 2xl:!h-[3.5rem] font-semibold !tracking-wider !text-baseblack !border !border-baseblack px-6 py-2 !rounded-[8px] hover:!bg-black hover:!text-white"
+      : variant === "whiteHover"
+      ? "!bg-white !h-12 lg:!h-[2.8rem] 2xl:!h-[3.5rem] font-semibold !tracking-wider !text-baseblack !border !border-baseblack px-6 py-2 !rounded-[8px] hover:!bg-black hover:!text-white"
       : containedPrimaryBtn;
   return (
     <LinkButton
