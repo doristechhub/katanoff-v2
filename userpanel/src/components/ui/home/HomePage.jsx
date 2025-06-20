@@ -37,7 +37,7 @@ import { setLoginMessage } from "@/store/slices/userSlice";
 import { useAlertTimeout } from "@/hooks/use-alert-timeout";
 import HeroBanner from "../HeroBanner";
 import CategoryGallery from "./categoryGallery";
-import { messageType } from "@/_helper";
+import { helperFunctions, messageType } from "@/_helper";
 import KeyFeatures from "../KeyFeatures";
 import { setAppointmentMessage } from "@/store/slices/appointmentSlice";
 import { setCustomJewelryMessage } from "@/store/slices/customjewelrySlice";
@@ -307,7 +307,9 @@ const Home = () => {
               <PrimaryLinkButton
                 variant="whiteHover"
                 className="!uppercase !rounded-full"
-                href={"/"}
+                href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
+                  "Anniversary Gifts"
+                )}`}
               >
                 Explore Collection
               </PrimaryLinkButton>

@@ -7,7 +7,7 @@ import home25 from "@/assets/images/home/home-25.webp";
 import { helperFunctions } from "@/_helper";
 const giftCategories = [
   { title: "Anniversary Gifts", image: home24, altAttr: "", titleAttr: "" },
-  { title: "Gifts For $1000", image: home25, altAttr: "", titleAttr: "" },
+  { title: "Gifts Under $1000", image: home25, altAttr: "", titleAttr: "" },
   { title: "Gifts For Him", image: home23, altAttr: "", titleAttr: "" },
 ];
 export default function GiftCollections({ className }) {
