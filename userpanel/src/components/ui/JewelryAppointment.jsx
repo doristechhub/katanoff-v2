@@ -27,7 +27,7 @@ export default function JewelryAppointment() {
               <PrimaryLinkButton
                 variant="blackHover"
                 className="!uppercase !rounded-none !text-baseblack"
-                href={"/"}
+                href={"/book-appointment"}
               >
                 Book An Appointment
               </PrimaryLinkButton>
