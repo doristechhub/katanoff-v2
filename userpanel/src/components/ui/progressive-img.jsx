@@ -4,6 +4,7 @@ import logo from "@/assets/images/logo.webp";
 
 const ProgressiveImg = ({
   placeholderSrc = logo,
+  progressiveImgClassName = "",
   src,
   alt = "",
   className,
@@ -21,7 +22,7 @@ const ProgressiveImg = ({
 
   const customClass = useMemo(() => {
     return placeholderSrc && imgSrc === placeholderSrc
-      ? "progressive-img-loading"
+      ? `progressive-img-loading ${progressiveImgClassName}`
       : "progressive-img-loaded";
   }, [imgSrc, placeholderSrc]);
 

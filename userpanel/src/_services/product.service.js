@@ -281,6 +281,91 @@ const getCollectionsTypeWiseProduct = (
   });
 };
 
+/**
+ * Retrieves banner images for a specific collection type and title
+ * @param {string} collectionCategory - Type of collection (categories, subCategories, productTypes, collection)
+ * @param {string} collectionName - Title of the collection
+ * @returns {Promise<{desktop: string, mobile: string}>} Banner images for desktop and mobile
+ */
+const fetchCollectionBanners = async (collectionCategory, collectionName) => {
+  const sanitizedCategory = sanitizeValue(collectionCategory)
+    ? collectionCategory.trim().toLowerCase()
+    : null;
+  const sanitizedName = sanitizeValue(collectionName)
+    ? collectionName.trim().toLowerCase()
+    : null;
+
+  // Input validation
+  if (!sanitizedCategory || !sanitizedName) {
+    throw new Error("Invalid collection category or name");
+  }
+
+  // Default banner object
+  const banners = {
+    desktop: "",
+    mobile: "",
+  };
+
+  try {
+    // Fetch required data concurrently
+    const [menuData, collectionsData] = await Promise.all([
+      homeService.getAllMenuData(),
+      collectionService.getAllCollection(),
+    ]);
+
+    switch (sanitizedCategory) {
+      case "categories":
+        const category = menuData?.categories?.find(
+          (item) => item?.title?.toLowerCase() === sanitizedName
+        );
+        return {
+          desktop: category?.desktopBannerImage ?? "",
+          mobile: category?.mobileBannerImage ?? "",
+        };
+
+      case "subcategories":
+        const subcategory = menuData?.subCategories?.find(
+          (item) => item?.title?.toLowerCase() === sanitizedName
+        );
+        return {
+          desktop: subcategory?.desktopBannerImage ?? "",
+          mobile: subcategory?.mobileBannerImage ?? "",
+        };
+
+      case "producttypes":
+        const productType = menuData?.productTypes?.find(
+          (item) => item?.title?.toLowerCase() === sanitizedName
+        );
+        if (!productType) return banners;
+
+        const relatedSubcategory = menuData?.subCategories?.find(
+          (item) =>
+            item?.id?.toLowerCase() ===
+            productType?.subCategoryId?.toLowerCase()
+        );
+        return {
+          desktop: relatedSubcategory?.desktopBannerImage ?? "",
+          mobile: relatedSubcategory?.mobileBannerImage ?? "",
+        };
+
+      case "collection":
+        const collection = collectionsData?.find(
+          (item) => item?.title?.toLowerCase() === sanitizedName
+        );
+        return {
+          desktop: collection?.desktopBannerImage ?? "",
+          mobile: collection?.mobileBannerImage ?? "",
+        };
+
+      default:
+        throw new Error("Invalid collection category");
+    }
+  } catch (error) {
+    console.error("Error fetching banners:", error);
+    throw error;
+  }
+};
+
 const getProcessProducts = async (singleProductData) => {
   try {
     const collectionData = await collectionService.getAllCollection();
@@ -935,6 +1020,7 @@ export const productService = {
   getLatestProducts,
   getAllCustomizations,
   getCollectionsTypeWiseProduct,
+  fetchCollectionBanners,
   getSingleProduct,
   getReletedProducts,
   getFilteredDiamondProducts,

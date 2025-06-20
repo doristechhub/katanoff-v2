@@ -1,4 +1,4 @@
-import { CustomImg } from "../dynamiComponents";
+import { CustomImg, ProgressiveImg } from "../dynamiComponents";
 import { LinkButton } from "./button";
 
 // Responsive Banners
@@ -61,16 +61,20 @@ const HeroBanner = ({
             />
           </picture>
         </div>
-      ) : imageSrcDesktop && imageSrcMobile ? (
+      ) : imageSrcDesktop || imageSrcMobile ? (
         <picture>
-          <source media="(max-width: 1024px)" srcSet={imageSrcMobile?.src} />
-
-          <CustomImg
-            srcAttr={imageSrcDesktop}
-            className={`object-cover w-full`}
-            altAttr={altAttr}
-            titleAttr={titleAttr}
-          />
+          {imageSrcMobile ? (
+            <source media="(max-width: 1024px)" srcSet={imageSrcMobile} />
+          ) : null}
+          {imageSrcDesktop ? (
+            <ProgressiveImg
+              src={imageSrcDesktop}
+              title={titleAttr}
+              alt={altAttr}
+              className="object-cover  w-full"
+              progressiveImgClassName="h-[738px] lg:h-[448px] w-full"
+            />
+          ) : null}
         </picture>
       ) : imageSrc ? (
         <CustomImg
@@ -78,7 +82,7 @@ const HeroBanner = ({
           altAttr={altAttr}
           titleAttr={titleAttr}
           priority
-          className={`w-full  ${
+          className={`w-full ${
             isStaticBanner
               ? "object-cover h-[40vh] lg:h-auto"
               : isHomePage
@@ -107,25 +111,25 @@ const HeroBanner = ({
 
       {isHomePage ? (
         <>
-          <div className=" md:absolute md:inset-0 flex justify-center md:justify-normal items-center  w-full my-6">
+          <div className="md:absolute md:inset-0 flex justify-center md:justify-normal items-center w-full my-6">
             <div className="md:w-[60%] lg:w-[45%] 2xl:w-[40%] text-baseblack md:text-white text-center">
-              <h1 className="text-3xl 2xl:text-4xl font-medium  leading-tight font-castoro">
+              <h1 className="text-3xl 2xl:text-4xl font-medium leading-tight font-castoro">
                 Diamonds that <br />
                 Deserve You.
               </h1>
-              <p className="mt-2 md:mt-2 text-sm ">
+              <p className="mt-2 md:mt-2 text-sm">
                 Free 1ct Diamond Pendant with Purchase<sup>*</sup>
               </p>
               <div className="mt-4 md:mt-4 flex flex-col md:flex-row items-center md:justify-center gap-2.5 md:gap-4">
                 <LinkButton
                   href="/customize/start-with-setting"
-                  className="lg:!h-0 w-fit lg:py-[16px] 2xl:py-[20px] 2xl:!min-w-[250px]   lg:!text-sm !font-bold rounded-none !border-baseblack md:!border-white !border-1 !text-baseblack md:!text-white !bg-transparent  hover:!bg-[#030817] hover:!text-white"
+                  className="lg:!h-0 w-fit lg:py-[16px] 2xl:py-[20px] 2xl:!min-w-[250px] lg:!text-sm !font-bold rounded-none !border-baseblack md:!border-white !border-1 !text-baseblack md:!text-white !bg-transparent hover:!bg-[#030817] hover:!text-white"
                 >
                   SHOP ENGAGEMENT
                 </LinkButton>
                 <LinkButton
                   href="/collections/categories/Jewelry"
-                  className="lg:!h-0 w-fit lg:py-[16px] 2xl:py-[20px] 2xl:!min-w-[250px]  lg:!text-sm !font-bold rounded-none  !border-baseblack md:!border-white !border-1 !text-baseblack md:!text-white !bg-transparent  hover:!bg-[#030817] hover:!text-white"
+                  className="lg:!h-0 w-fit lg:py-[16px] 2xl:py-[20px] 2xl:!min-w-[250px] lg:!text-sm !font-bold rounded-none !border-baseblack md:!border-white !border-1 !text-baseblack md:!text-white !bg-transparent hover:!bg-[#030817] hover:!text-white"
                 >
                   SHOP ALL JEWELRY
                 </LinkButton>
@@ -140,11 +144,11 @@ const HeroBanner = ({
           >
             <div
               className={`flex flex-col items-${textAlignment} w-full 
-    max-w-[90%] sm:max-w-[70%] lg:max-w-[60%] text-${textAlignment}  md:gap-3`}
+    max-w-[90%] sm:max-w-[70%] lg:max-w-[60%] text-${textAlignment} md:gap-3`}
             >
               {title && description ? (
                 <>
-                  <h1 className="text-3xl md:text-5xl  2xl:text-6xl text-white font-castoro capitalize">
+                  <h1 className="text-3xl md:text-5xl 2xl:text-6xl text-white font-castoro capitalize">
                     {title}
                   </h1>
                   {description && (

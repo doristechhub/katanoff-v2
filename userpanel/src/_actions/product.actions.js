@@ -10,6 +10,8 @@ import {
   setSearchedProductList,
   setSelectedPrices,
   setSearchResults,
+  setBannerLoading,
+  setBanners,
 } from "@/store/slices/productSlice";
 import { productService, recentlyViewedService } from "@/_services";
 import {
@@ -131,6 +133,32 @@ export const fetchCollectionsTypeWiseProduct = (
     } catch (e) {
       dispatch(setCollectionTypeProductList([]));
       dispatch(setProductLoading(false));
+    }
+  };
+};
+
+export const fetchCollectionBannersAction = (
+  collectionCategory,
+  collectionName
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(setBannerLoading(true));
+      const banners = await productService?.fetchCollectionBanners(
+        collectionCategory,
+        collectionName
+      );
+
+      if (banners && (banners.desktop || banners.mobile)) {
+        dispatch(setBanners(banners));
+      } else {
+        dispatch(setBanners({ desktop: "", mobile: "" }));
+      }
+    } catch (error) {
+      console.error("Error in fetchCollectionBannersAction:", error);
+      dispatch(setBanners({ desktop: "", mobile: "" }));
+    } finally {
+      dispatch(setBannerLoading(false));
     }
   };
 };
@@ -420,7 +448,7 @@ export const fetchSearchedProducts = (params) => async (dispatch) => {
     dispatch(setProductLoading(true));
     const response = await productService.searchProducts(params);
     if (!response) {
-      return []
+      return [];
     }
     return response;
   } catch (error) {
