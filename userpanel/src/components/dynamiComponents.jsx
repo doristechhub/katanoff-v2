@@ -381,3 +381,7 @@ export const JewelryAppointment = dynamic(
     ssr: false,
   }
 );
+
+export const HomePagePopup = dynamic(() => import("./ui/HomePagePopup.jsx"), {
+  ssr: false,
+});

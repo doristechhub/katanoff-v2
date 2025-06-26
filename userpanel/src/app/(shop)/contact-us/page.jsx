@@ -1,5 +1,6 @@
 import HeroBanner from "@/components/ui/HeroBanner";
-import contactus from "@/assets/images/contact-us/contact.webp";
+import contactUsDesktop from "@/assets/images/contact-us/contact-us-desktop.webp";
+import contactUsMobile from "@/assets/images/contact-us/contact-us-mobile.webp";
 import { ContactForm } from "@/components/dynamiComponents";
 
 export default function ContactPage() {
@@ -7,7 +8,9 @@ export default function ContactPage() {
     <>
       <div className="relative w-full">
         <HeroBanner
-          imageSrc={contactus}
+          imageSrc={contactUsDesktop}
+          // imageSrcMobile={contactUsMobile}
+          // imageSrcDesktop={contactUsDesktop}
           title="Contact Us"
           description="We're here to help – reach out anytime!"
           isStaticBanner={true}
@@ -15,7 +18,6 @@ export default function ContactPage() {
           titleAttr=""
         />
       </div>
-
       <ContactForm />
     </>
   );

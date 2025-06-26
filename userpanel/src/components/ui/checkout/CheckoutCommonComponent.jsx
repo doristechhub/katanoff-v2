@@ -200,6 +200,20 @@ const CheckoutCommonComponent = () => {
               )}
             </section>
             <section className="px-2 xs:px-10 pt-6">
+              {pathname === "/checkout" && (
+                <div className="flex justify-between pt-4 text-baseblack">
+                  <p className="text-lg text-baseblack flex justify-between font-semibold pt-4">
+                    Coupon Code:
+                  </p>
+                  <input
+                    type="text"
+                    placeholder="Enter Coupon Code"
+                    className="w-fit bg-transparent border border-grayborder px-4 py-2 focus:outline-none"
+                    // value={couponCode}
+                    // onChange={(e) => setCouponCode(e.target.value)}
+                  />
+                </div>
+              )}
               <p className="text-lg text-baseblack flex justify-between font-semibold pt-4">
                 Subtotal: <span>${getSubTotal()}</span>
               </p>

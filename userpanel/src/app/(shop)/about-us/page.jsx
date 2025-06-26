@@ -1,5 +1,6 @@
 import HeroBanner from "@/components/ui/HeroBanner";
-import banner from "@/assets/images/about-us/banner.webp";
+import aboutUsDesktop from "@/assets/images/about-us/about-us-desktop.webp";
+import aboutUsMobile from "@/assets/images/about-us/about-us-mobile.webp";
 import about1 from "@/assets/images/about-us/about-1.webp";
 import about2 from "@/assets/images/about-us/about-2.webp";
 import about3 from "@/assets/images/about-us/about-3.webp";
@@ -176,7 +177,9 @@ export default function AboutPage() {
   return (
     <>
       <HeroBanner
-        imageSrc={banner}
+        // imageSrcMobile={aboutUsMobile}
+        // imageSrcDesktop={aboutUsDesktop}
+        imageSrc={aboutUsDesktop}
         title={"About Us."}
         description={"Celebrating Every Shade of You"}
         isStaticBanner={true}

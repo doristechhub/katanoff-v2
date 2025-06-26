@@ -31,6 +31,8 @@ const initialState = {
   uniqueDiamondShapesForHomePage: {},
   uniqueDiamondShapesAndCaratBounds: {},
   selectedDiamondInfoModel: "",
+  openHomePagePopup: false,
+  homePagePopupLoader: false,
 };
 
 const commonSlice = createSlice({
@@ -133,6 +135,12 @@ const commonSlice = createSlice({
     setSelectedDiamondInfoModel: (state, action) => {
       state.selectedDiamondInfoModel = action.payload;
     },
+    setOpenHomePagePopup: (state, action) => {
+      state.openHomePagePopup = action.payload;
+    },
+    setHomePagePopupLoader: (state, action) => {
+      state.homePagePopupLoader = action.payload;
+    },
   },
 });
 
@@ -167,6 +175,8 @@ export const {
   setUniqueDiamondShapesForHomePage,
   setUniqueDiamondShapesAndCaratBounds,
   setSelectedDiamondInfoModel,
+  setOpenHomePagePopup,
+  setHomePagePopupLoader,
 } = commonSlice.actions;
 
 export default commonSlice.reducer;
