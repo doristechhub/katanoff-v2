@@ -13,7 +13,9 @@ import home20 from "@/assets/images/home/home-20.webp";
 import home21 from "@/assets/images/home/home-21.webp";
 import home22 from "@/assets/images/home/home-22.webp";
 import home36 from "@/assets/images/home/home-36.webp";
-import newArrivalBanner from "@/assets/images/home/newArrivalBanner.webp";
+import newArrivalBannerDesktop from "@/assets/images/home/newArrivalBanner-desktop.webp";
+import newArrivalBannerMobile from "@/assets/images/home/newArrivalBanner-mobile.webp";
+
 import {
   AccordionDropdown,
   AnimatedSection,
@@ -21,6 +23,7 @@ import {
   CustomImg,
   DiamondShapeSwipper,
   GetToKnowUsSection,
+  HomePagePopup,
   JewelryAppointment,
   LatestProduct,
   ReviewSlider,
@@ -47,6 +50,7 @@ import fiveStar from "@/assets/icons/fiveStar.svg";
 import fourStar from "@/assets/icons/fourStar.svg";
 import fourAndHalfStar from "@/assets/icons/fourAndHalfStar.svg";
 import { PrimaryLinkButton } from "../button";
+import ResponsiveImageAndContent from "../ResponsiveImageAndContent";
 const categoryData = [
   {
     title: "Quick Ship Gifts",
@@ -284,13 +288,14 @@ const Home = () => {
   }, []);
   return (
     <>
+      <HomePagePopup />
       <HeroBanner isHomePage={true} titleAttr="" altAttr="Hero Banner" />
-      <section className="bg-white pt-16 lg:pt-32 xl:pt-36 xl:pb-24 2xl:pb-16 4xl:pb-12">
+      <section className="bg-white pt-16 pb-16 xl:pb-24 2xl:pb-20">
         <RingSettingCenterStone />
       </section>
-      <section className="relative w-full h-[60vh] xss:h-[70vh] md:h-[80vh] lg:h-[95vh] overflow-hidden">
+      {/* <section className="hidden lg:block relative w-full h-[60vh] xss:h-[70vh] md:h-[80vh] lg:h-[95vh] overflow-hidden">
         <CustomImg
-          srcAttr={newArrivalBanner}
+          srcAttr={newArrivalBannerDesktop}
           altAttr="New Arrivals Banner"
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -317,7 +322,47 @@ const Home = () => {
           </div>
         </div>
       </section>
-      <section className="container pt-12 lg:pt-16 2xl:pt-20 ">
+      <section className="lg:hidden relative w-full h-[90vh] overflow-hidden">
+        <CustomImg
+          srcAttr={newArrivalBannerMobile}
+          altAttr="New Arrivals Banner"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+
+        <div className="relative z-10 container mx-auto h-full flex pb-10 xs:pb-0 justify-center bottom-10 sm:bottom-16 md:bottom-12 items-end">
+          <div className="text-white max-w-xl">
+            <h2 className="text-3xl md:text-4xl font-bold uppercase">
+              New Arrivals
+            </h2>
+            <p className="mt-2 text-base md:text-lg xl:text-xl tracking-widest text-center">
+              NEW Designer Collection
+            </p>
+            <div className="flex justify-center mt-2 lg:mt-6">
+              <PrimaryLinkButton
+                variant="whiteHover"
+                className="!uppercase !rounded-full"
+                href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
+                  "New Arrival"
+                )}`}
+              >
+                Explore Collection
+              </PrimaryLinkButton>
+            </div>
+          </div>
+        </div>
+      </section> */}
+      <ResponsiveImageAndContent
+        desktopImage={newArrivalBannerDesktop}
+        mobileImage={newArrivalBannerMobile}
+        title="New Arrivals"
+        subtitle="NEW Designer Collection"
+        linkText="Explore Collection"
+        linkHref={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
+          "New Arrival"
+        )}`}
+      />
+
+      <section className="container pt-12 lg:pt-16 2xl:pt-24">
         <CategoryGallery />
       </section>
 

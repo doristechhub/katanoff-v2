@@ -99,6 +99,19 @@ export default function CenterFocusSlider() {
     },
   };
 
+  const getSlideClass = (index) => {
+    const total = ringData.length;
+    const left2 = (currentIndex - 2 + total) % total;
+    const left1 = (currentIndex - 1 + total) % total;
+    const right1 = (currentIndex + 1) % total;
+    const right2 = (currentIndex + 2) % total;
+
+    if (index === currentIndex) return "scale-center";
+    if (index === left1 || index === right1) return "scale-mid";
+    if (index === left2 || index === right2) return "scale-back";
+    return "scale-default";
+  };
+
   let sliderRef = null;
   return (
     <section className="relative py-16 overflow-hidden">
@@ -119,8 +132,11 @@ export default function CenterFocusSlider() {
         >
           {ringData.map((item, idx) => (
             <div key={idx} className="px-2 py-8">
-              <div className="slide-inner">
-                {/* <CustomImg srcAttr={item.img} altAttr={item.title} /> */}
+              <div
+                className={`transition-all duration-500 ease-in-out slide-inner ${getSlideClass(
+                  idx
+                )}`}
+              >
                 <CustomImg
                   srcAttr={item.img}
                   altAttr={item.title}

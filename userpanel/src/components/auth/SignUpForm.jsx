@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
@@ -33,21 +33,15 @@ const validationSchema = Yup.object().shape({
     .required("Confirm Password is Required"),
 });
 
-const initialValues = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  password: "",
-  confirmPassword: "",
-};
-
 // ----------------------------------------------------------------------
 
 const SignUpForm = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-
+  const searchParams = useSearchParams();
+  const encodedEmail = searchParams.get("email");
+  console.log("encodedEmail", encodedEmail);
   const { userRegisterLoading, userRegisterMessage } = useSelector(
     ({ user }) => user
   );
@@ -56,6 +50,9 @@ const SignUpForm = () => {
   useAlertTimeout(userRegisterMessage, () =>
     dispatch(setUserRegisterMessage({ message: "", type: "" }))
   );
+
+  const couponCode = sessionStorage.getItem("homePagePopup");
+  console.log("couponCode", couponCode);
 
   const onSubmit = useCallback(async (fields, { resetForm }) => {
     const payload = {
@@ -72,6 +69,14 @@ const SignUpForm = () => {
       router.push("/auth/login");
     }
   }, []);
+
+  const initialValues = {
+    firstName: "",
+    lastName: "",
+    email: encodedEmail ? encodedEmail : "",
+    password: "",
+    confirmPassword: "",
+  };
 
   const { values, errors, touched, handleChange, handleBlur, handleSubmit } =
     useFormik({

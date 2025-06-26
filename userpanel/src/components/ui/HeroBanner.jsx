@@ -1,18 +1,6 @@
 import { CustomImg, ProgressiveImg } from "../dynamiComponents";
 import { LinkButton } from "./button";
 
-// Responsive Banners
-import banner360W from "@/assets/images/home/banner-360w.webp";
-import banner375W from "@/assets/images/home/banner-375w.webp";
-import banner390W from "@/assets/images/home/banner-390w.webp";
-import banner414W from "@/assets/images/home/banner-414w.webp";
-import banner465W from "@/assets/images/home/banner-465w.webp";
-import banner480W from "@/assets/images/home/banner-480w.webp";
-import banner575W from "@/assets/images/home/banner-575w.webp";
-import banner1366W from "@/assets/images/home/banner-1366w.webp";
-import banner1920W from "@/assets/images/home/banner-1920w.webp";
-import defaultBanner from "@/assets/images/home/default-banner.webp";
-
 const HeroBanner = ({
   title,
   description,
@@ -34,9 +22,8 @@ const HeroBanner = ({
       }`}
     >
       {isHomePage ? (
-        <div className="w-full text-center">
-          <picture>
-            {/* Mobile Sources */}
+        <div className="w-full h-[100vh] text-center">
+          {/* <picture>
             <source media="(max-width:360px)" srcSet={banner360W?.src} />
             <source media="(max-width:375px)" srcSet={banner375W?.src} />
             <source media="(max-width:390px)" srcSet={banner390W?.src} />
@@ -45,11 +32,9 @@ const HeroBanner = ({
             <source media="(max-width:480px)" srcSet={banner480W?.src} />
             <source media="(max-width:575px)" srcSet={banner575W?.src} />
 
-            {/* Desktop Sources */}
             <source media="(max-width:1366px)" srcSet={banner1366W?.src} />
             <source media="(max-width:1920px)" srcSet={banner1920W?.src} />
 
-            {/* Fallback Image */}
             <CustomImg
               className="w-full h-auto object-cover"
               width="1920"
@@ -59,7 +44,19 @@ const HeroBanner = ({
               loading="eager"
               srcAttr={defaultBanner}
             />
-          </picture>
+          </picture> */}
+          <video
+            muted
+            preload="none"
+            aria-label="Homepage Banner Video"
+            playsInline
+            autoPlay
+            loop
+            className="w-full h-auto object-cover"
+          >
+            <source src={"/videos/home-page-video.mp4"} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
         </div>
       ) : imageSrcDesktop || imageSrcMobile ? (
         <picture>

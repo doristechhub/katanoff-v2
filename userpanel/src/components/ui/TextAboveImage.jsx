@@ -11,12 +11,12 @@ const TextAboveImage = ({ categoryData, className, textClassName }) => {
             srcAttr={item?.image}
             altAttr={item?.altAttr}
             titleAttr={item?.titleAttr}
-            className="h-[60vh] sm:h-[85vh] object-cover"
+            className="h-[60vh] sm:h-[75vh] w-full object-cover"
           />
 
           <div className="px-4 md:px-0 absolute bottom-16 left-1/2 -translate-x-1/2 inline-block lg:bottom-[15%] text-center  text-white gap-4 uppercase">
             <h3
-              className={`text-lg md:text-2xl tracking-wider font-castoro pb-6 ${textClassName}`}
+              className={`text-lg md:text-2xl xl:text-3xl tracking-wider font-castoro pb-6 ${textClassName}`}
             >
               {item?.title}
             </h3>
@@ -25,7 +25,7 @@ const TextAboveImage = ({ categoryData, className, textClassName }) => {
                 href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
                   item?.title
                 )}`}
-                className="font-bold text-sm border-white border py-3 px-4 hover:bg-basegray hover:border-basegray"
+                className="font-bold text-sm lg:text-base xl:text-lg border-white border py-3 px-4 hover:bg-basegray hover:border-basegray"
               >
                 {item?.btnText}
               </Link>

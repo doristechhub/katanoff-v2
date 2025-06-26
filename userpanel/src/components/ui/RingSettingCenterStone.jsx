@@ -8,40 +8,8 @@ import { PrimaryLinkButton } from "./button";
 const RingSettingCenterStone = () => {
   return (
     <>
-      {/* <div className="hidden md:block container">
-        <div className="grid grid-cols-3">
-          <CommonSectionContent
-            image={ringSetting}
-            title="Ring Setting"
-            description="Elevate your love story with our exquisite collection of engagement ring designs"
-            buttonText="Start With Setting"
-            href="/"
-          />
-          <div>
-            <video
-              muted
-              preload="none"
-              aria-label="Video player"
-              playsInline
-              autoPlay
-              loop
-              className="h-full w-full object-cover overflow-hidden"
-            >
-              <source src="/videos/center-stone-video.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-          </div>
-          <CommonSectionContent
-            image={centerStone}
-            title="Center Stone"
-            description="Explore our stunning diamond collection and discover the brilliance in every choice."
-            buttonText="Start With Stone"
-            href="/"
-          />
-        </div>
-      </div> */}
       <div className="hidden md:block container">
-        <div className="relative grid grid-cols-2 xl:grid-cols-3 items-start">
+        <div className="relative grid grid-cols-2 xl:grid-cols-3 items-center">
           {/* Left Content */}
           <CommonSectionContent
             image={ringSetting}
@@ -52,11 +20,11 @@ const RingSettingCenterStone = () => {
           />
 
           {/* Center GIF with overlap */}
-          <div className="hidden xl:relative xl:flex justify-center -mt-10 h-full w-full">
+          <div className="hidden xl:relative xl:flex justify-center h-full w-full !items-start">
             <CustomImg
               srcAttr={centerStoneVideo}
               altAttr="Center Stone Animation"
-              className="w-full h-auto object-cover"
+              className="w-full h-full object-cover"
             />
           </div>
 
@@ -70,7 +38,7 @@ const RingSettingCenterStone = () => {
           />
         </div>
         <div className="xl:hidden">
-          <div className=" h-full w-full flex justify-center">
+          <div className=" h-[600px] w-full flex justify-center">
             <CustomImg
               srcAttr={centerStoneVideo}
               altAttr="Center Stone Animation"
@@ -85,7 +53,7 @@ const RingSettingCenterStone = () => {
           <CustomImg
             srcAttr={centerStoneCombine}
             altAttr="Center Stone"
-            className="w-52 h-20 xss:w-60 xss:h-24 sm:w-72 sm:h-32"
+            className="w-52 h-24 xss:w-60 xss:h-24 sm:w-72 sm:h-32"
           />
           <h2 className="text-3xl sm:text-4xl font-semibold font-castoro uppercase text-black w-[80%]">
             Design Your Ring
@@ -100,11 +68,11 @@ const RingSettingCenterStone = () => {
               start With Diamond
             </PrimaryLinkButton>
           </div>
-          <div className="h-full w-full">
+          <div className="h-[400px] xss:h-[500px] xs:h-[600px] w-full flex justify-center">
             <CustomImg
               srcAttr={centerStoneVideo}
               altAttr="Center Stone Animation"
-              className="w-full h-auto object-cover"
+              className="w-full h-auto object-contain"
             />
           </div>
         </div>
@@ -128,15 +96,15 @@ const CommonSectionContent = ({
         <CustomImg
           srcAttr={image}
           altAttr="Center Stone"
-          className="w-full h-auto md:w-28 md:h-28 xl:w-36 xl:h-36"
+          className="w-full h-auto md:w-20 md:h-20 xl:w-28 xl:h-28"
         />
-        <div className="flex flex-col gap-6 justify-center items-center text-center pt-2 xl:pt-6">
-          <p className="text-3xl lg:text-4xl 2xl:text-5xl font-bold uppercase text-black">
+        <div className="flex flex-col gap-4 justify-center items-center text-center pt-2 xl:pt-4">
+          <p className="text-2xl lg:text-3xl font-bold uppercase text-black">
             {title}
           </p>
           <p className="w-[80%]">{description}</p>
         </div>
-        <div className="flex justify-center mt-2 2xl:mt-4">
+        <div className="flex justify-center mt-2">
           <PrimaryLinkButton
             variant="blackHover"
             className="!uppercase !rounded-none"
