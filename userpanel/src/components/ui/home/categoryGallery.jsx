@@ -13,9 +13,8 @@ import bangle from "@/assets/images/home/bangle.webp";
 import CustomImg from "../custom-img";
 import Link from "next/link";
 import { helperFunctions } from "@/_helper";
-import leftArrow from "@/assets/icons/leftArrow.svg";
-import rightArrow from "@/assets/icons/rightArrow.svg";
-
+import leftArrow from "@/assets/icons/centerFocusSliderLeftArrow.svg";
+import rightArrow from "@/assets/icons/centerFocusSliderRightArrow.svg";
 const categories = [
   {
     img: tennis,

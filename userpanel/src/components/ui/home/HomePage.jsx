@@ -18,20 +18,15 @@ import newArrivalBannerMobile from "@/assets/images/home/newArrivalBanner-mobile
 
 import {
   AccordionDropdown,
-  AnimatedSection,
   CenterFocusSlider,
-  CustomImg,
-  DiamondShapeSwipper,
   GetToKnowUsSection,
   HomePagePopup,
   JewelryAppointment,
   LatestProduct,
   ReviewSlider,
   RingSettingCenterStone,
-  SwipperHomePageBig,
 } from "@/components/dynamiComponents";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import TextAboveImage from "@/components/ui/TextAboveImage";
 import { useDispatch, useSelector } from "react-redux";
@@ -44,12 +39,10 @@ import { helperFunctions, messageType } from "@/_helper";
 import KeyFeatures from "../KeyFeatures";
 import { setAppointmentMessage } from "@/store/slices/appointmentSlice";
 import { setCustomJewelryMessage } from "@/store/slices/customjewelrySlice";
-import { fetchUniqueShapesAndCaratBounds } from "@/_actions/customize.action";
 import GiftCollections from "../GiftCollections";
 import fiveStar from "@/assets/icons/fiveStar.svg";
 import fourStar from "@/assets/icons/fourStar.svg";
 import fourAndHalfStar from "@/assets/icons/fourAndHalfStar.svg";
-import { PrimaryLinkButton } from "../button";
 import ResponsiveImageAndContent from "../ResponsiveImageAndContent";
 const categoryData = [
   {
@@ -65,23 +58,6 @@ const categoryData = [
     titleAttr: "",
     altAttr: "",
     btnText: "SHOP NOW",
-  },
-];
-
-const discoverOurWorld = [
-  {
-    title: "Sustainability Journey",
-    videoSrc: "/videos/journey.mp4",
-    thumbnailImage: home21,
-    titleAttr: "",
-    altAttr: "",
-  },
-  {
-    title: "Our Process",
-    videoSrc: "/videos/our-process.mp4",
-    thumbnailImage: home22,
-    titleAttr: "",
-    altAttr: "",
   },
 ];
 
@@ -233,26 +209,10 @@ const mockReviews = [
     author: "Evan B.",
     starImage: fourAndHalfStar,
   },
-  // Add more reviews as needed
 ];
 
-const animatedContent = [
-  {
-    img: home36,
-    titleAttr: "",
-    direction: "RTF",
-    altAttr: "",
-    title: "Meet our jewelry specialists",
-    description: [
-      "Book a Complimentary Virtual or In-Person appointment at one of our stores, and let our jewelry specialists guide you every step of the way.",
-    ],
-    btnText: "Book an Appointment",
-    btnLink: "/book-appointment",
-  },
-];
 const Home = () => {
   const dispatch = useDispatch();
-  const [currentIndex, setCurrentIndex] = useState(0);
   const { loginMessage } = useSelector(({ user }) => user);
 
   const { appointmentMessage } = useSelector(({ appointment }) => appointment);
@@ -264,14 +224,6 @@ const Home = () => {
     dispatch(setLoginMessage({ message: "", type: "" }))
   );
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   useAlertTimeout(appointmentMessage, () =>
     dispatch(setAppointmentMessage({ message: "", type: "" }))
   );
@@ -279,13 +231,6 @@ const Home = () => {
     dispatch(setCustomJewelryMessage({ message: "", type: "" }))
   );
 
-  const loadData = useCallback(async () => {
-    await dispatch(fetchUniqueShapesAndCaratBounds());
-  }, [dispatch]);
-
-  useEffect(() => {
-    loadData();
-  }, []);
   return (
     <>
       <HomePagePopup />
@@ -293,64 +238,7 @@ const Home = () => {
       <section className="bg-white pt-16 pb-16 xl:pb-24 2xl:pb-20">
         <RingSettingCenterStone />
       </section>
-      {/* <section className="hidden lg:block relative w-full h-[60vh] xss:h-[70vh] md:h-[80vh] lg:h-[95vh] overflow-hidden">
-        <CustomImg
-          srcAttr={newArrivalBannerDesktop}
-          altAttr="New Arrivals Banner"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
 
-        <div className="relative z-10 container mx-auto h-full flex pb-10 xs:pb-0 items-end xs:items-center">
-          <div className="text-white max-w-xl">
-            <h2 className="text-3xl md:text-5xl xl:text-7xl font-bold uppercase">
-              New Arrivals
-            </h2>
-            <p className="mt-2 text-base md:text-lg xl:text-xl tracking-widest text-center">
-              NEW Designer Collection
-            </p>
-            <div className="flex justify-center mt-2 lg:mt-6">
-              <PrimaryLinkButton
-                variant="whiteHover"
-                className="!uppercase !rounded-full"
-                href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
-                  "New Arrival"
-                )}`}
-              >
-                Explore Collection
-              </PrimaryLinkButton>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section className="lg:hidden relative w-full h-[90vh] overflow-hidden">
-        <CustomImg
-          srcAttr={newArrivalBannerMobile}
-          altAttr="New Arrivals Banner"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-
-        <div className="relative z-10 container mx-auto h-full flex pb-10 xs:pb-0 justify-center bottom-10 sm:bottom-16 md:bottom-12 items-end">
-          <div className="text-white max-w-xl">
-            <h2 className="text-3xl md:text-4xl font-bold uppercase">
-              New Arrivals
-            </h2>
-            <p className="mt-2 text-base md:text-lg xl:text-xl tracking-widest text-center">
-              NEW Designer Collection
-            </p>
-            <div className="flex justify-center mt-2 lg:mt-6">
-              <PrimaryLinkButton
-                variant="whiteHover"
-                className="!uppercase !rounded-full"
-                href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
-                  "New Arrival"
-                )}`}
-              >
-                Explore Collection
-              </PrimaryLinkButton>
-            </div>
-          </div>
-        </div>
-      </section> */}
       <ResponsiveImageAndContent
         desktopImage={newArrivalBannerDesktop}
         mobileImage={newArrivalBannerMobile}
@@ -382,84 +270,6 @@ const Home = () => {
         <GiftCollections />
       </section>
 
-      {/* {uniqueDiamondShapesAndCaratBounds?.distinctShapes ? (
-        <section className="mt-10 lg:mt-12 2xl:mt-12">
-          <DiamondShapeSwipper
-            shapes={uniqueDiamondShapesAndCaratBounds?.distinctShapes || []}
-            title="Shop for Lab Grown Diamonds"
-          />
-        </section>
-      ) : null} */}
-
-      {/* <section className="bg-alabaster mt-10 lg:mt-12 2xl:mt-12 container">
-        <div className="container grid grid-cols-1 lg:grid-cols-[40%_60%] items-center py-6 md:py-16 lg:py-0 lg:h-[100vh]">
-          <div className="relative w-full h-auto lg:h-full flex justify-center items-center">
-            <CustomImg
-              srcAttr={home20}
-              altAttr="Complimentary Ring"
-              className="object-contain w-full h-auto max-h-[400px] md:max-h-[500px] lg:max-h-[650px]"
-            />
-          </div>
-
-          <div className="flex flex-col justify-center items-center text-center px-4">
-            <h2 className="text-2xl lg:text-2xl 2xl:text-3xl 4xl:text-4xl font-castoro mb-6">
-              Complimentary Ring Setting
-            </h2>
-
-            <div className="flex items-center justify-center gap-6 text-sm md:text-base mb-6 pt-8 4xl:pt-20">
-              <div className="flex flex-col items-center">
-                <span className=" text-lg 3xl:text-2xl">1</span>
-                <span className="text-xs md:text-lg xl:text-xl mt-1">
-                  Pick your diamond
-                </span>
-              </div>
-              <div className="w-16 md:w-20 lg:w-24 2xl:w-28 4xl:w-32 h-px bg-black/40" />
-              <div className="flex flex-col items-center">
-                <span className="text-lg 3xl:text-2xl">2</span>
-                <span className="text-xs md:text-lg xl:text-xl mt-1">
-                  Add your unique touch
-                </span>
-              </div>
-              <div className="w-16 md:w-20 lg:w-24 2xl:w-28 4xl:w-32 h-px bg-black/40" />
-
-              <div className="flex flex-col items-center">
-                <span className="text-lg 3xl:text-2xl">3</span>
-                <span className="text-xs md:text-lg xl:text-xl mt-1">
-                  Find your setting
-                </span>
-              </div>
-            </div>
-
-            <p className="text-sm md:text-base mb-6 pt-8 md:pt-12 xl:pt-16">
-              Design your engagement ring. Receive a free setting with the
-              purchase of a 3.0 ct or larger diamond.
-            </p>
-
-            <Link
-              href="/customize/start-with-setting"
-              className="py-2 text-sm md:text-base xl:text-lg font-semibold border-b border-black text-black tracking-wide hover:border-primary hover:text-primary transition-all"
-            >
-              START DESIGNING
-            </Link>
-          </div>
-        </div>
-      </section> */}
-
-      {/* <section className="pt-10 lg:pt-12 2xl:pt-12">
-        <picture>
-          <source media="(max-width: 1024px)" srcSet={mobileFreeGift?.src} />
-
-          <CustomImg
-            srcAttr={desktopFreeGift}
-            className="object-cover"
-            altAttr="Free Gift Banner"
-          />
-        </picture>
-      </section> */}
-
-      {/* <section className="mx-auto pt-10 lg:pt-12 2xl:pt-12 container">
-        <SwipperHomePageBig />
-      </section> */}
       <section className="pt-12 lg:pt-16 2xl:pt-24">
         <JewelryAppointment />
       </section>
@@ -467,24 +277,6 @@ const Home = () => {
         <GetToKnowUsSection />
       </section>
 
-      {/* 
-      <section className="mt-16 lg:mt-28 container">
-        {animatedContent.map((content, index) => (
-          <AnimatedSection
-            key={index}
-            img={content.img}
-            titleAttr={content.titleAttr}
-            altAttr={content.altAttr}
-            title={content.title}
-            description={content.description}
-            pointsDescription={content.pointsDescription}
-            points={content.points}
-            direction={content.direction}
-            btnText={content.btnText}
-            btnLink={content.btnLink}
-          />
-        ))}
-      </section> */}
       <section className="pt-10 lg:pt-12 2xl:pt-12 container">
         <LatestProduct />
       </section>

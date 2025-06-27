@@ -37,6 +37,7 @@ import {
   customizationTypeUrl,
   customizationUrl,
   menuCategoriesUrl,
+  discountsUrl,
   menuSubCategoriesUrl,
   menuUrl,
   ordersUrl,
@@ -74,6 +75,7 @@ const getDBFromUrl = (url) => {
       showCaseBannerUrl,
       productSliderUrl,
       brandSliderUrl,
+      discountsUrl,
     ].includes(url)
   ) {
     return getDatabase(amsApp);
@@ -115,6 +117,7 @@ const getAppFromUrl = (url) => {
       showCaseBannerUrl,
       productSliderUrl,
       brandSliderUrl,
+      discountsUrl,
     ].includes(url)
   ) {
     return amsApp;

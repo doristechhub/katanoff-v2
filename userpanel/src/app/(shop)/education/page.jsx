@@ -1,6 +1,7 @@
 import React from "react";
 import HeroBanner from "@/components/ui/HeroBanner";
-import banner from "@/assets/images/education/banner.webp";
+import bannerDesktop from "@/assets/images/education/banner-desktop.webp";
+import bannerMobile from "@/assets/images/education/banner-mobile.webp";
 import img from "@/assets/images/education/Image.webp";
 import DiamondInspirationSection from "@/components/ui/DiamondInspirationSection";
 import LabGrownDiamondCare from "@/components/ui/LabGrownDiamondCare";
@@ -14,9 +15,8 @@ const EducationPage = () => {
   return (
     <>
       <HeroBanner
-        imageSrc={banner}
-        title={"Diamond Education"}
-        description={"Celebrating Every Shade of You"}
+        staticSrcDesktop={bannerDesktop}
+        staticSrcMobile={bannerMobile}
         isStaticBanner={true}
         altAttr=""
         titleAttr=""

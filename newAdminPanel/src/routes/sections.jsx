@@ -25,11 +25,13 @@ export const Unauthorized = lazy(() => import('src/pages/unauthorized'));
 export const Appointments = lazy(() => import('src/pages/appointments'));
 export const ReturnDetail = lazy(() => import('src/pages/return-detail'));
 export const Customization = lazy(() => import('src/pages/customization'));
-export const AddProductPage = lazy(() => import('src/pages/products/add'));
 export const CustomJewelry = lazy(() => import('src/pages/custom-jewelry'));
 export const OrderList = lazy(() => import('src/sections/orders/orderlist'));
 export const ReportAnalysis = lazy(() => import('src/pages/report-analysis'));
 export const ProductsPage = lazy(() => import('src/pages/products/products'));
+export const AddProductPage = lazy(() => import('src/pages/products/add'));
+export const DiscountsPage = lazy(() => import('src/pages/discounts/list'));
+export const AddDiscountPage = lazy(() => import('src/pages/discounts/add'));
 export const ForgetPassword = lazy(() => import('src/pages/forget-password'));
 export const ShowCaseBanner = lazy(() => import('src/pages/showcase-banner'));
 export const Contacts = lazy(() => import('src/pages/contacts'));
@@ -165,6 +167,22 @@ export default function Router() {
               ),
             },
           ],
+        },
+        {
+          path: '/discounts',
+          element: (
+            <ProtectedRoutes pageId={'discounts'}>
+              <DiscountsPage />
+            </ProtectedRoutes>
+          ),
+        },
+        {
+          path: '/discounts/add',
+          element: (
+            <ProtectedRoutes pageId={'discounts'}>
+              <AddDiscountPage />
+            </ProtectedRoutes>
+          ),
         },
         {
           path: '/showcase-banner',

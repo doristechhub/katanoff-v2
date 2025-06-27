@@ -8,11 +8,8 @@ export default function ContactPage() {
     <>
       <div className="relative w-full">
         <HeroBanner
-          imageSrc={contactUsDesktop}
-          // imageSrcMobile={contactUsMobile}
-          // imageSrcDesktop={contactUsDesktop}
-          title="Contact Us"
-          description="We're here to help – reach out anytime!"
+          staticSrcMobile={contactUsMobile}
+          staticSrcDesktop={contactUsDesktop}
           isStaticBanner={true}
           altAttr=""
           titleAttr=""

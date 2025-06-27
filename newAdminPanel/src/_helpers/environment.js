@@ -25,6 +25,7 @@ export const reviewAndRatingUrl = process.env.REACT_APP_REVIEW_AND_RATING;
 export const customizationTypeUrl = process.env.REACT_APP_CUSTOMIZATION_TYPE;
 export const menuSubCategoriesUrl = process.env.REACT_APP_MENU_SUB_CATEGORIES;
 export const customizationSubTypeUrl = process.env.REACT_APP_CUSTOMIZATION_SUB_TYPE;
+export const discountsUrl = process.env.REACT_APP_DISCOUNTS;
 
 export const storageUrl = process.env.REACT_APP_STORAGE;
 

@@ -1,5 +1,7 @@
 import { CustomImg, ProgressiveImg } from "../dynamiComponents";
 import { LinkButton } from "./button";
+import progressiveMobile from "@/assets/images/progressive-mobile.webp";
+import progressiveDesktop from "@/assets/images/progressive-desktop.webp";
 
 const HeroBanner = ({
   title,
@@ -14,6 +16,8 @@ const HeroBanner = ({
   titleAttr = "",
   altAttr = "",
   customClass = " justify-center",
+  staticSrcDesktop,
+  staticSrcMobile,
 }) => {
   return (
     <section
@@ -22,7 +26,7 @@ const HeroBanner = ({
       }`}
     >
       {isHomePage ? (
-        <div className="w-full h-[100vh] text-center">
+        <div className="w-full lg:h-[100vh] text-center">
           {/* <picture>
             <source media="(max-width:360px)" srcSet={banner360W?.src} />
             <source media="(max-width:375px)" srcSet={banner375W?.src} />
@@ -59,20 +63,47 @@ const HeroBanner = ({
           </video>
         </div>
       ) : imageSrcDesktop || imageSrcMobile ? (
-        <picture>
+        <>
           {imageSrcMobile ? (
-            <source media="(max-width: 1024px)" srcSet={imageSrcMobile} />
+            <ProgressiveImg
+              src={imageSrcMobile}
+              title={titleAttr}
+              alt={altAttr}
+              placeholderSrc={progressiveMobile}
+              className="object-cover  w-full lg:hidden"
+              progressiveImgClassName="h-[738px] w-full"
+            />
           ) : null}
           {imageSrcDesktop ? (
             <ProgressiveImg
               src={imageSrcDesktop}
               title={titleAttr}
               alt={altAttr}
-              className="object-cover  w-full"
-              progressiveImgClassName="h-[738px] lg:h-[448px] w-full"
+              placeholderSrc={progressiveDesktop}
+              className="object-cover  w-full hidden lg:block"
+              progressiveImgClassName="h-[448px] w-full"
             />
           ) : null}
-        </picture>
+        </>
+      ) : staticSrcMobile || staticSrcDesktop ? (
+        <>
+          {staticSrcDesktop ? (
+            <CustomImg
+              src={staticSrcDesktop}
+              title={titleAttr}
+              alt={altAttr}
+              className="object-cover  w-full h-full hidden lg:block"
+            />
+          ) : null}
+          {staticSrcMobile ? (
+            <CustomImg
+              src={staticSrcMobile}
+              title={titleAttr}
+              alt={altAttr}
+              className="object-cover  w-full h-full lg:hidden"
+            />
+          ) : null}
+        </>
       ) : imageSrc ? (
         <CustomImg
           srcAttr={imageSrc}

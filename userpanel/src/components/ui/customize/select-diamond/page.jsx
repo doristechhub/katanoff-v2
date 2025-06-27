@@ -10,11 +10,12 @@ import React, { useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { PrimaryLinkButton } from "../../button";
 import {
+  resetDiamondSelection,
   setDiamondLoading,
   setDiamondMessage,
   setDiamondSelection,
 } from "@/store/slices/selectDiamondSlice";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { setSelectedDiamondInfoModel } from "@/store/slices/commonSlice";
 
 import StepsGrid from "../StepsGrid";
@@ -30,8 +31,11 @@ import {
   DiamondShapeModal,
 } from "../DiamondInfoModel";
 import { helperFunctions } from "@/_helper";
+
 export default function SelectDiamondPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const shapeFromUrl = searchParams?.get("shape")?.toLowerCase();
   const { customProductDetails } = useSelector(({ common }) => common);
   const { uniqueDiamondShapesAndCaratBounds } = useSelector(
     ({ common }) => common
@@ -132,6 +136,12 @@ export default function SelectDiamondPage() {
   }, [dispatch]);
 
   useEffect(() => {
+    if (shapeFromUrl) {
+      dispatch(resetDiamondSelection());
+    }
+  }, [dispatch, shapeFromUrl]);
+
+  useEffect(() => {
     loadData();
   }, [loadData]);
 
@@ -144,7 +154,6 @@ export default function SelectDiamondPage() {
       return;
     }
 
-    // Only update selection if all are null/undefined
     const noSelection =
       !diamondSelection.shape &&
       !diamondSelection.clarity &&
@@ -152,14 +161,20 @@ export default function SelectDiamondPage() {
       !diamondSelection.caratWeight;
 
     if (noSelection) {
-      const defaultShape = uniqueDiamondShapesAndCaratBounds.distinctShapes[0];
+      const allShapes = uniqueDiamondShapesAndCaratBounds?.distinctShapes;
+      const urlShape =
+        allShapes?.find(
+          (shape) => shape?.title?.toLowerCase() === shapeFromUrl
+        ) || null;
+      const defaultShape = allShapes[0];
+      // const defaultShape = uniqueDiamondShapesAndCaratBounds.distinctShapes[0];
+      const finalShape = urlShape || initialShape || defaultShape;
       const defaultClarity = ALLOWED_DIA_CLARITIES[0] || null;
       const defaultColor = ALLOWED_DIA_COLORS[0] || null;
       const defaultCaratWeight =
         uniqueDiamondShapesAndCaratBounds?.caratBounds?.[0] || 0;
-
       const updatedSelection = {
-        shape: initialShape || defaultShape,
+        shape: finalShape,
         clarity: initialClarity || defaultClarity,
         color: initialColor || defaultColor,
         caratWeight: initialCaratWeight || defaultCaratWeight,
@@ -175,6 +190,7 @@ export default function SelectDiamondPage() {
     initialClarity,
     initialColor,
     initialCaratWeight,
+    shapeFromUrl,
   ]);
 
   const handleContinueClick = () => {

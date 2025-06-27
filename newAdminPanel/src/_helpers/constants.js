@@ -95,3 +95,85 @@ export const IMAGE_RESOLUTIONS = {
 };
 
 export const DEFAULT_QTY = 10;
+
+export const DATE_FORMAT = 'MM-DD-YYYY HH:mm';
+
+export const DISCOUNT_TYPES = [
+  {
+    label: 'Amount off products',
+    value: 'Product Discount',
+    disabled: true,
+  },
+  {
+    label: 'Buy X Get Y',
+    value: 'Buy X Get Y',
+    disabled: true,
+  },
+  {
+    label: 'Amount off order',
+    value: 'Order Discount',
+    disabled: false,
+  },
+  {
+    label: 'Free shipping',
+    value: 'Free Shipping',
+    disabled: true,
+  },
+];
+
+export const APPLICATION_METHODS = [
+  {
+    label: 'Discount code',
+    value: 'Code',
+    disabled: false,
+  },
+  {
+    label: 'Automatic discount',
+    value: 'Automatic',
+    disabled: true,
+  },
+];
+
+export const PURCHASE_TYPES = [
+  {
+    label: 'One-Time purchase',
+    value: 'One-Time',
+    disabled: false,
+  },
+  {
+    label: 'Subscription',
+    value: 'Subscription',
+    disabled: true,
+  },
+  {
+    label: 'Both',
+    value: 'All',
+    disabled: true,
+  },
+];
+
+export const ELIGIBILITY_TYPES = [
+  {
+    label: 'Everyone',
+    value: 'Everyone',
+    disabled: false,
+  },
+  {
+    label: 'Selected Customers',
+    value: 'Selected Customers',
+    disabled: true,
+  },
+];
+
+export const DISCOUNT_DETAILS_TYPES = [
+  {
+    label: 'Percentage',
+    value: 'Percentage',
+    disabled: false,
+  },
+  {
+    label: 'Fixed',
+    value: 'Fixed',
+    disabled: false,
+  },
+];

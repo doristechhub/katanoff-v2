@@ -21,6 +21,7 @@ import showCaseBanner from '../store/slices/showCaseBannerSlice';
 import reviewAndRating from '../store/slices/reviewAndRatingSlice';
 import reportAndAnalysis from '../store/slices/reportAndAnalysisSlice';
 import contacts from '../store/slices/contactSlice';
+import discounts from '../store/slices/discountSlice';
 
 // ----------------------------------------------------------------------
 
@@ -45,7 +46,8 @@ const reducers = combineReducers({
   showCaseBanner,
   reviewAndRating,
   reportAndAnalysis,
-  contacts
+  contacts,
+  discounts,
 });
 
 // ----------------------------------------------------------------------

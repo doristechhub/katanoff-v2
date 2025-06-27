@@ -20,13 +20,22 @@ const getAllMenuSubCategory = () => {
       const respData = await fetchWrapperService.getAll(menuSubCategoriesUrl);
       const tempSubTypeData = respData ? Object.values(respData) : [];
       const menuCategoryData = await menuCategoryService.getAllMenuCategory();
-      const menuSubCategoryData = tempSubTypeData.map((SubType) => {
-        const findedItem = menuCategoryData.find((category) => category.id === SubType.categoryId);
-        return {
-          ...SubType,
-          categoryName: findedItem?.title || '',
-        };
-      });
+      const menuSubCategoryData = tempSubTypeData
+        .map((SubType) => {
+          const findedItem = menuCategoryData.find(
+            (category) => category.id === SubType.categoryId
+          );
+          return {
+            ...SubType,
+            categoryName: findedItem?.title || '',
+          };
+        })
+        .sort((a, b) => {
+          if (a.categoryId === b.categoryId) {
+            return (a.position || 0) - (b.position || 0);
+          }
+          return a.categoryId.localeCompare(b.categoryId);
+        });
       resolve(menuSubCategoryData);
     } catch (e) {
       reject(e);
@@ -38,6 +47,7 @@ const sanitizeAndValidateInput = (params) => {
   const sanitized = sanitizeObject(params);
   sanitized.title = sanitized?.title?.trim() || null;
   sanitized.categoryId = sanitized?.categoryId?.trim() || null;
+  sanitized.position = sanitized?.position ? parseInt(sanitized.position, 10) : null;
   sanitized.desktopBannerFile =
     sanitized?.desktopBannerFile && typeof sanitized?.desktopBannerFile === 'object'
       ? [sanitized?.desktopBannerFile]
@@ -47,6 +57,20 @@ const sanitizeAndValidateInput = (params) => {
       ? [sanitized?.mobileBannerFile]
       : [];
   return sanitized;
+};
+
+const validatePosition = async (categoryId, position, excludeSubCategoryId = null) => {
+  if (!position) return;
+  const allSubCategories = await getAllMenuSubCategory();
+  const conflictingSubCategory = allSubCategories.find(
+    (subCategory) =>
+      subCategory.categoryId === categoryId &&
+      subCategory.position === position &&
+      subCategory.id !== excludeSubCategoryId
+  );
+  if (conflictingSubCategory) {
+    throw new Error(`Position ${position} is already taken for this category`);
+  }
 };
 
 const validateFiles = async (files, type, name) => {
@@ -114,7 +138,7 @@ const insertMenuSubCategory = (params) => {
   return new Promise(async (resolve, reject) => {
     try {
       const uuid = uid();
-      const { title, categoryId, desktopBannerFile, mobileBannerFile } =
+      const { title, categoryId, position, desktopBannerFile, mobileBannerFile } =
         sanitizeAndValidateInput(params);
 
       if (!title || !categoryId) {
@@ -128,6 +152,18 @@ const insertMenuSubCategory = (params) => {
         )
       ) {
         return reject(new Error('Title already exists for this category'));
+      }
+
+      let finalPosition = position;
+      if (!finalPosition) {
+        const categorySubCategories = allSubCategoryData.filter((x) => x.categoryId === categoryId);
+        const maxPosition = categorySubCategories.reduce(
+          (max, sub) => Math.max(max, sub.position || 0),
+          0
+        );
+        finalPosition = maxPosition + 1;
+      } else {
+        await validatePosition(categoryId, finalPosition);
       }
 
       await validateFiles(desktopBannerFile, 'IMAGE_FILE_NAME', 'desktop');
@@ -146,6 +182,7 @@ const insertMenuSubCategory = (params) => {
         id: uuid,
         title,
         categoryId,
+        position: finalPosition,
         createdDate: Date.now(),
         desktopBannerImage: desktopBannerUrl,
         mobileBannerImage: mobileBannerUrl,
@@ -176,6 +213,7 @@ const updateMenuSubCategory = (params) => {
         subCategoryId,
         title,
         categoryId,
+        position,
         desktopBannerFile,
         mobileBannerFile,
         deletedDesktopBannerImage,
@@ -204,6 +242,10 @@ const updateMenuSubCategory = (params) => {
         return reject(new Error('Title already exists for this category'));
       }
 
+      if (position !== null && position !== subCategoryData.position) {
+        await validatePosition(categoryId || subCategoryData.categoryId, position, subCategoryId);
+      }
+
       let desktopBannerImage = subCategoryData?.desktopBannerImage || null;
       if (deletedDesktopBannerImage && desktopBannerImage === deletedDesktopBannerImage) {
         desktopBannerImage = null;
@@ -228,6 +270,7 @@ const updateMenuSubCategory = (params) => {
       const payload = {
         title,
         categoryId: categoryId || subCategoryData?.categoryId,
+        position: position !== null ? position : subCategoryData.position,
         desktopBannerImage: desktopBannerUrl || desktopBannerImage,
         mobileBannerImage: mobileBannerUrl || mobileBannerImage,
       };

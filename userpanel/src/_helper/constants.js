@@ -129,3 +129,22 @@ export const GOLD_COLOR_MAP = {
   "yellow gold": "yellowGoldThumbnailImage",
   "white gold": "whiteGoldThumbnailImage",
 };
+
+// For Coupons
+export const FIXED = "Fixed";
+export const PERCENTAGE = "Percentage";
+export const ONE_TIME = "One-Time";
+export const SUBSCRIPTION = "Subscription";
+export const SELECTED_CUSTOMERS = "Selected Customers";
+
+// Diamond Shapes
+export const ROUND = "Round";
+export const OVAL = "Oval";
+export const PRINCESS = "Princess";
+export const EMERALD = "Emerald";
+export const HEART = "Heart";
+export const CUSHION = "Cushion";
+export const MARQUISE = "Marquise";
+export const ASSCHER = "Asscher";
+export const RADIANT = "Radiant";
+export const PEAR = "Pear";
