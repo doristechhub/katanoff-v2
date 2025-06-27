@@ -308,13 +308,6 @@ export const ContactForm = dynamic(() => import("./ui/ContactForm.jsx"), {
   ssr: false,
 });
 
-export const DiamondShapeSwipper = dynamic(
-  () => import("./ui/DiamondShapeSwipper.jsx"),
-  {
-    ssr: false,
-  }
-);
-
 export const ReviewSlider = dynamic(() => import("./ui/ReviewSlider.jsx"), {
   ssr: false,
 });

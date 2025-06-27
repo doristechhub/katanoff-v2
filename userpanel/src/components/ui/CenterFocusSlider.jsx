@@ -9,62 +9,81 @@ import centerFocusSliderRightArrow from "@/assets/icons/centerFocusSliderRightAr
 import asscher from "@/assets/images/home/asscher.webp";
 import cushion from "@/assets/images/home/cushion.webp";
 import emerald from "@/assets/images/home/emerald.webp";
-import heart from "@/assets/images/home/heart.png";
+import heart from "@/assets/images/home/heart.webp";
 import marquise from "@/assets/images/home/marquise.webp";
 import pearl from "@/assets/images/home/pearl.webp";
 import oval from "@/assets/images/home/oval.webp";
 import princess from "@/assets/images/home/princess.webp";
 import round from "@/assets/images/home/round.webp";
+import radiant from "@/assets/images/home/radiant.webp";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { useState } from "react";
+import Link from "next/link";
+import {
+  ASSCHER,
+  CUSHION,
+  EMERALD,
+  HEART,
+  MARQUISE,
+  OVAL,
+  PEAR,
+  PRINCESS,
+  RADIANT,
+  ROUND,
+} from "@/_helper";
 
 const ringData = [
   {
-    title: "Classic Oval",
-    subtitle: "Timeless elegance with a modern twist",
+    title: OVAL,
+    subtitle: "Graceful elongation with soft curves for timeless beauty",
     img: oval,
   },
   {
-    title: "Round",
-    subtitle: "Intriguing brilliance from a concealed Round",
+    title: ROUND,
+    subtitle: "Classic brilliance with unmatched sparkle and symmetry",
     img: round,
   },
   {
-    title: "Princess Cut",
-    subtitle: "A regal shape with dazzling sparkle",
+    title: PRINCESS,
+    subtitle: "A modern square cut with royal brilliance and bold edges",
     img: princess,
   },
   {
-    title: "Emerald Pearl",
-    subtitle: "Sharp lines with timeless sophistication",
+    title: PEAR,
+    subtitle: "Elegant teardrop shape blending tradition and flair",
     img: pearl,
   },
   {
-    title: "Classic emerald",
-    subtitle: "Timeless elegance with a modern twist",
+    title: EMERALD,
+    subtitle: "Sophisticated step cuts with a hall-of-mirrors effect",
     img: emerald,
   },
   {
-    title: "Hidden Merquise",
-    subtitle: "Intriguing brilliance from a concealed Merquise",
+    title: MARQUISE,
+    subtitle: "Elongated elegance with pointed tips for a regal look",
     img: marquise,
   },
   {
-    title: "Hidden heart",
-    subtitle: "Intriguing brilliance from a concealed heart",
+    title: HEART,
+    subtitle: "A romantic silhouette symbolizing love and devotion",
     img: heart,
   },
   {
-    title: "Hidden cushion",
-    subtitle: "Intriguing brilliance from a concealed Cushion",
+    title: CUSHION,
+    subtitle: "Vintage charm with rounded corners and a soft glow",
     img: cushion,
   },
   {
-    title: "Hidden Asscher",
-    subtitle: "Intriguing brilliance from a concealed Asscher",
+    title: ASSCHER,
+    subtitle: "Art Deco-inspired step cuts for geometric sophistication",
     img: asscher,
+  },
+  {
+    title: RADIANT,
+    subtitle: "Brilliant facets with a rectangular edge for extra fire",
+    img: radiant,
   },
 ];
 
@@ -132,23 +151,29 @@ export default function CenterFocusSlider() {
         >
           {ringData.map((item, idx) => (
             <div key={idx} className="px-2 py-8">
-              <div
-                className={`transition-all duration-500 ease-in-out slide-inner ${getSlideClass(
-                  idx
-                )}`}
+              <Link
+                href={`/customize/select-diamond?shape=${item.title
+                  .toLowerCase()
+                  .replace(/\s+/g, "-")}`}
               >
-                <CustomImg
-                  srcAttr={item.img}
-                  altAttr={item.title}
-                  className="w-full max-w-[120px] sm:max-w-[160px] md:max-w-[180px] lg:max-w-[200px] xl:max-w-[240px] mx-auto"
-                />
-              </div>
+                <div
+                  className={`transition-all duration-500 ease-in-out slide-inner ${getSlideClass(
+                    idx
+                  )}`}
+                >
+                  <CustomImg
+                    srcAttr={item.img}
+                    altAttr={item.title}
+                    className="w-full max-w-[120px] sm:max-w-[160px] md:max-w-[180px] lg:max-w-[200px] xl:max-w-[240px] mx-auto"
+                  />
+                </div>
+              </Link>
             </div>
           ))}
         </Slider>
 
         {/* Title + Subtitle + Navigation Arrows */}
-        <div className="mt-10 flex items-center justify-center gap-6">
+        <div className="lg:mt-10 flex items-center justify-center gap-6">
           <button
             onClick={() => sliderRef?.slickPrev()}
             className="slick-prev-custom"

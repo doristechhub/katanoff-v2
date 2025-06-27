@@ -15,6 +15,8 @@ import { useRouter } from "next/navigation";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import ErrorMessage from "./ErrorMessage";
+import { fetchCart } from "@/_actions/cart.action";
+import Cookies from "js-cookie";
 export default function HomePagePopup() {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -34,6 +36,9 @@ export default function HomePagePopup() {
       email: Yup.string().email("Invalid email").required("Email is required"),
     }),
     onSubmit: (values) => {
+      localStorage.removeItem("currentUser");
+      Cookies.remove("token");
+      dispatch(fetchCart());
       dispatch(setHomePagePopupLoader(true));
       dispatch(setOpenHomePagePopup(false));
       sessionStorage.setItem("homePagePopup", "true");
@@ -46,8 +51,8 @@ export default function HomePagePopup() {
   if (!openHomePagePopup) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
-      <div className="bg-[#FCFCFC] max-w-4xl w-full overflow-hidden flex flex-col md:flex-row relative">
+    <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center px-4 md:px-0">
+      <div className="bg-[#FCFCFC]  md:max-w-4xl w-full overflow-hidden flex flex-col md:flex-row relative">
         <button
           className="absolute top-4 right-4 text-gray-600 hover:text-black"
           onClick={() => {
@@ -57,17 +62,16 @@ export default function HomePagePopup() {
           <X size={24} />
         </button>
 
-        {/* Left Side: Text Content */}
-        <div className="w-full md:w-1/2 px-6 flex flex-col justify-center pl-10">
-          <h2 className="text-3xl md:text-4xl xl:text-5xl font-medium italic font-castoro text-[#202A4E] mb-3">
+        <div className="w-full md:w-1/2 px-6 flex flex-col justify-center pt-8 sm:pt-10 md:pt-0 md:pl-10">
+          <h2 className="text-2xl md:text-4xl xl:text-5xl font-medium italic font-castoro text-[#202A4E] mb-1 md:mb-3">
             GET 35% OFF
           </h2>
-          <p className="text-sm md:text-base xl:text-lg text-[#202A4E] mb-4">
+          <p className="text-sm md:text-base xl:text-lg text-[#202A4E] mb-2 md:mb-4">
             Enter your email address to get a discount on your purchase of $200
             or more
           </p>
 
-          <form onSubmit={handleSubmit} className="pt-4">
+          <form onSubmit={handleSubmit} className="pt-2 md:pt-4">
             <div className="mb-4">
               <input
                 type="email"
@@ -103,13 +107,13 @@ export default function HomePagePopup() {
               Sign Up
             </PrimaryLinkButton> */}
           </form>
-          <p className="text-sm md:text-base text-[#202A4E] mt-4">
+          <p className="text-sm md:text-base text-[#202A4E] mt-2 md:mt-4">
             By completing this form you are signing up to receive our emails and
             can unsubscribe at any time.
           </p>
         </div>
 
-        <div className="w-full md:w-1/2 h-[450px] bg-[#f9f9f9] flex items-center justify-center">
+        <div className="w-auto h-[200px] md:w-1/2 md:h-[450px] flex items-center justify-center pt-4 md:pt-0 pb-4 md:pb-0">
           <CustomImg
             src={HomePopupImg}
             alt="Offer Rings"
