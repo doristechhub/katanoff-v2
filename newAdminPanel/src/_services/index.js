@@ -21,3 +21,4 @@ export * from './appointment.service';
 export * from './customJewelry.service';
 export * from './subscribers.service';
 export * from './return.service';
+export * from './discount.service';

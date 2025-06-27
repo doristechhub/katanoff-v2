@@ -12,6 +12,7 @@ import AutoAwesomeTwoToneIcon from '@mui/icons-material/AutoAwesomeTwoTone';
 import InsertEmoticonTwoToneIcon from '@mui/icons-material/InsertEmoticonTwoTone';
 import Inventory2TwoToneIcon from '@mui/icons-material/Inventory2TwoTone';
 import PentagonTwoToneIcon from '@mui/icons-material/PentagonTwoTone';
+import DiscountIcon from '@mui/icons-material/Discount';
 
 import Iconify from 'src/components/iconify';
 import SvgColor from 'src/components/svg-color';
@@ -37,13 +38,13 @@ const navConfig = [
     icon: icon('ic_cart'),
     children: ['/product', '/product/add'],
   },
-  {
-    title: 'brand',
-    pageId: 'slider',
-    path: '/brand',
-    icon: <CategoryTwoToneIcon />,
-    children: [],
-  },
+  // {
+  //   title: 'brand',
+  //   pageId: 'slider',
+  //   path: '/brand',
+  //   icon: <CategoryTwoToneIcon />,
+  //   children: [],
+  // },
   {
     title: 'menu',
     pageId: 'menu',
@@ -80,12 +81,19 @@ const navConfig = [
     children: ['/customization', '/customization/type', '/customization/subtype'],
   },
   {
-    title: 'showcase banner',
-    pageId: 'showcasebanner',
-    path: '/showcase-banner',
-    icon: <SlideshowTwoToneIcon />,
-    children: [],
+    title: 'Discounts',
+    pageId: 'discounts',
+    path: '/discounts',
+    icon: <DiscountIcon />,
+    children: ['/discounts', '/discounts/add'],
   },
+  // {
+  //   title: 'showcase banner',
+  //   pageId: 'showcasebanner',
+  //   path: '/showcase-banner',
+  //   icon: <SlideshowTwoToneIcon />,
+  //   children: [],
+  // },
   {
     title: 'order',
     pageId: 'orders',

@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { authenticationService } from '../_services';
 import navConfig from 'src/layouts/dashboard/config-navigation';
-import { DEFAULT_QTY } from './constants';
+import { DATE_FORMAT, DEFAULT_QTY } from './constants';
 
 const getCurrentUser = () => {
   const currentUserJson = localStorage.getItem('adminCurrentUser');
@@ -446,6 +446,17 @@ const getCombiDetailWithPriceAndQty = ({ arrayOfCombinations, oldCombinations })
   });
 };
 
+const parseDateTime = (dateTimeStr) => {
+  if (!dateTimeStr || !moment(dateTimeStr, DATE_FORMAT, true).isValid()) {
+    return { date: null, time: null };
+  }
+  const momentObj = moment(dateTimeStr, DATE_FORMAT);
+  return {
+    date: momentObj.toDate(),
+    time: momentObj.toDate(),
+  };
+};
+
 export const helperFunctions = {
   getCurrentUser,
   getVariationsArray,
@@ -484,4 +495,5 @@ export const helperFunctions = {
   generateCombinations,
   getCombinationDetail,
   getCombiDetailWithPriceAndQty,
+  parseDateTime,
 };

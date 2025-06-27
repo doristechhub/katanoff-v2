@@ -6,7 +6,14 @@ import { StyledDialogActions, StyledDialogContent, StyledDialogTitle } from '../
 
 // ----------------------------------------------------------------------
 
-const ConfirmationDialog = ({ open, setOpen, children, loading, handleConfirm }) => {
+const ConfirmationDialog = ({
+  open,
+  setOpen,
+  children,
+  loading,
+  handleConfirm,
+  confirmButtonText = 'Confirm',
+}) => {
   return (
     <>
       <Dialog open={open} handleOpen={() => setOpen(true)} handleClose={() => setOpen(false)}>
@@ -17,7 +24,7 @@ const ConfirmationDialog = ({ open, setOpen, children, loading, handleConfirm })
             Cancel
           </Button>
           <LoadingButton variant="contained" onClick={handleConfirm} loading={loading}>
-            Confirm
+            {confirmButtonText}
           </LoadingButton>
         </StyledDialogActions>
       </Dialog>
