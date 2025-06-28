@@ -25,8 +25,9 @@ import { messageType, PAYPAL, STRIPE } from "@/_helper/constants";
 // ---------- stripe -----------------------
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
-import { stripePublishableKey } from "@/_helper";
+import { helperFunctions, stripePublishableKey } from "@/_helper";
 import { deleteOrder, verifyOrder } from "@/_actions/order.action";
+import { applyCouponCode } from "@/_actions/coupon.action";
 const stripePromise = loadStripe(stripePublishableKey);
 // const appearance = {
 //   theme: "night",
@@ -48,6 +49,7 @@ const PaymentPage = () => {
   const params = useParams();
   const { secretData } = params;
   const { cartLoading, cartList } = useSelector(({ cart }) => cart);
+  const { appliedCode } = useSelector(({ coupon }) => coupon);
   const { orderDetail } = useSelector(({ order }) => order);
   const {
     checkPIStatusLoader,
@@ -68,6 +70,25 @@ const PaymentPage = () => {
     }
   }, []);
 
+  const getCoupon = localStorage.getItem("appliedCoupon");
+  const userEmail = localStorage.getItem("address");
+
+  useEffect(() => {
+    const subTotal = helperFunctions?.getSubTotal(cartList);
+    let parsedMail;
+    if (userEmail) {
+      try {
+        const parsedUser = JSON.parse(userEmail);
+        parsedMail = parsedUser?.email;
+      } catch (err) {
+        console.error("Failed to parse userEmail", err);
+      }
+    }
+    if (!appliedCode && getCoupon) {
+      dispatch(applyCouponCode(getCoupon, subTotal, parsedMail));
+    }
+  }, [dispatch, appliedCode, cartList, userEmail]);
+
   // abortcontroller
   const abortControllerRef = useRef(null);
   const clearAbortController = useCallback(() => {
@@ -80,7 +101,6 @@ const PaymentPage = () => {
   useEffect(() => {
     const decoded = getDecodedData(secretData);
     const { paymentMethod, orderId } = decoded;
-    // verify order when payment method is paypal
     if (paymentMethod === PAYPAL) {
       dispatch(verifyOrder(orderId));
     }

@@ -4,7 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { Country, State } from "country-state-city";
-import { defaultCountry, defaultCountryDisplay } from "@/store/slices/addressSlice";
+import {
+  defaultCountry,
+  defaultCountryDisplay,
+} from "@/store/slices/addressSlice";
 import {
   handleAddressMessage,
   handleInvalidAddressDetail,
@@ -12,7 +15,7 @@ import {
 } from "@/_actions/address.action";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import { LoadingPrimaryButton } from "@/components/ui/button";
-import { messageType } from "@/_helper/constants";
+import { messageType, ONE_TIME, SUBSCRIPTION } from "@/_helper/constants";
 import {
   setIsChecked,
   setIsHovered,
@@ -25,6 +28,12 @@ import {
 } from "@/store/slices/checkoutSlice";
 import { helperFunctions } from "@/_helper";
 import Link from "next/link";
+import {
+  setAppliedCode,
+  setCouponAppliedMail,
+  setCouponCode,
+  setUserEmail,
+} from "@/store/slices/couponSlice";
 const countries = Country.getAllCountries();
 
 const validationSchema = yup.object({
@@ -56,10 +65,13 @@ const validationSchema = yup.object({
 const CheckoutForm = () => {
   const dispatch = useDispatch();
   const abortControllerRef = useRef(null);
-
+  const debounceTimer = useRef(null);
   const { cartList } = useSelector(({ cart }) => cart);
   const { stateList, selectedShippingAddress } = useSelector(
     ({ checkout }) => checkout
+  );
+  const { userEmail, appliedCode, couponAppliedMail } = useSelector(
+    ({ coupon }) => coupon
   );
   const { validateAddressLoader, addressMessage, invalidAddressDetail } =
     useSelector(({ address }) => address);
@@ -99,13 +111,18 @@ const CheckoutForm = () => {
     initialValues.lastName = currentUser?.lastName;
   }
 
+  useEffect(() => {
+    if (currentUser?.email) {
+      dispatch(setUserEmail(currentUser.email));
+    }
+  }, [currentUser?.email, dispatch]);
+
   const clearAbortController = useCallback(() => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
     abortControllerRef.current = null;
   }, []);
-
   const checkValidationAddress = useCallback(
     async (fieldValues) => {
       try {
@@ -129,6 +146,20 @@ const CheckoutForm = () => {
 
           return;
         }
+        if (
+          appliedCode?.purchaseMode === ONE_TIME ||
+          appliedCode?.purchaseMode === SUBSCRIPTION
+        ) {
+          if (couponAppliedMail != values?.email) {
+            dispatch(
+              handleAddressMessage({
+                message: "Entered Mail and Coupon Email do not match",
+                type: messageType?.ERROR,
+              })
+            );
+            return;
+          }
+        }
         const {
           address = "",
           apartment = "",
@@ -149,7 +180,6 @@ const CheckoutForm = () => {
           dispatch(setIsChecked(false));
           dispatch(setShowModal(true));
           dispatch(setSelectedShippingAddress(fieldValues));
-
           dispatch(setStandardizedAddress(response?.standardizedAddress));
         } else if (response?.status === 422) {
           dispatch(
@@ -185,8 +215,16 @@ const CheckoutForm = () => {
         clearAbortController();
       }
     },
-    [cartList.length, clearAbortController, dispatch]
+    [
+      cartList.length,
+      clearAbortController,
+      dispatch,
+      appliedCode,
+      couponAppliedMail,
+      userEmail,
+    ]
   );
+
   const {
     values,
     errors,
@@ -204,6 +242,11 @@ const CheckoutForm = () => {
 
   useEffect(() => {
     let address = localStorage.getItem("address");
+    dispatch(setUserEmail(""));
+    dispatch(setCouponAppliedMail(""));
+    dispatch(setCouponCode(""));
+    dispatch(setAppliedCode(null));
+    localStorage.removeItem("appliedCoupon");
     if (address) {
       address = JSON.parse(address);
       const updatedValues = {
@@ -221,6 +264,9 @@ const CheckoutForm = () => {
         apartment: address?.apartment,
         mobile: address?.mobile,
       };
+      if (address?.email) {
+        dispatch(setUserEmail(address?.email));
+      }
       setValues(updatedValues);
       dispatch(setSelectedShippingAddress(updatedValues));
       setCountryWiseStateList(address?.countryName);
@@ -238,6 +284,35 @@ const CheckoutForm = () => {
       dispatch(setStateList(countryWiseStatesList));
     }
   };
+
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  useEffect(() => {
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    debounceTimer.current = setTimeout(() => {
+      const email = values.email?.trim();
+
+      if (!currentUser?.email) {
+        const isValid = validateEmail(email);
+
+        if (isValid && email !== userEmail) {
+          dispatch(setUserEmail(email));
+        } else if ((!isValid || !email) && userEmail) {
+          dispatch(setUserEmail(""));
+        }
+      }
+    }, 600);
+
+    return () => {
+      clearTimeout(debounceTimer.current);
+    };
+  }, [values?.email, currentUser, dispatch]);
 
   const handleCountryChange = (value) => {
     setValues((prevValues) => ({
@@ -266,6 +341,7 @@ const CheckoutForm = () => {
       }));
     }
   };
+
   const inputClassName =
     "!bg-transparent !border !rounded-md !border-grayborder !font-medium md:!text-base placeholder:font-medium w-full  2xl:!p-2";
   const labelClassName =

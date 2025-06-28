@@ -25,7 +25,7 @@ const TextAboveImage = ({ categoryData, className, textClassName }) => {
                 href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
                   item?.title
                 )}`}
-                className="font-bold text-sm lg:text-base xl:text-lg border-white border py-3 px-4 hover:bg-basegray hover:border-basegray"
+                className="font-semibold text-sm lg:text-base xl:text-lg border-white border py-3 px-4 hover:bg-white hover:border-white hover:text-black"
               >
                 {item?.btnText}
               </Link>

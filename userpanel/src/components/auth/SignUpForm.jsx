@@ -41,7 +41,6 @@ const SignUpForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const searchParams = useSearchParams();
   const encodedEmail = searchParams.get("email");
-  console.log("encodedEmail", encodedEmail);
   const { userRegisterLoading, userRegisterMessage } = useSelector(
     ({ user }) => user
   );
@@ -51,8 +50,7 @@ const SignUpForm = () => {
     dispatch(setUserRegisterMessage({ message: "", type: "" }))
   );
 
-  const couponCode = sessionStorage.getItem("homePagePopup");
-  console.log("couponCode", couponCode);
+  const isPromoCode = localStorage.getItem("signUpOffer");
 
   const onSubmit = useCallback(async (fields, { resetForm }) => {
     const payload = {
@@ -66,6 +64,7 @@ const SignUpForm = () => {
     const response = await dispatch(createUser(payload));
     if (response) {
       resetForm();
+      localStorage.removeItem("signUpOffer");
       router.push("/auth/login");
     }
   }, []);

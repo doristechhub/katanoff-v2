@@ -4,6 +4,7 @@ const {
   cartService,
   stripeService,
   returnService,
+  discountService,
 } = require("../services/index");
 const sanitizeValue = require("../helpers/sanitizeParams");
 const orderNum = require("../helpers/orderNum");
@@ -14,6 +15,7 @@ const {
   getSellingPrice,
   calculateSubTotal,
   calculateCustomizedProductPrice,
+  calculateOrderDiscount,
 } = require("../helpers/calculateAmount");
 const { areArraysEqual } = require("../helpers/areArraysEqual");
 const { updateProductQty } = require("../services/product");
@@ -24,6 +26,8 @@ const { getVariComboPriceQty } = require("../helpers/variationWiseQty");
 const {
   MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT,
   getNonCustomizedProducts,
+  DISCOUNT_TYPES,
+  NEW_YORK,
 } = require("../helpers/common");
 dotenv.config();
 
@@ -273,6 +277,7 @@ const createOrder = async (payload, activeProductsList, res) => {
       apartment,
       shippingCharge,
       paymentMethod = "stripe",
+      promoCode,
     } = payload || {};
 
     // Sanitize inputs
@@ -290,6 +295,7 @@ const createOrder = async (payload, activeProductsList, res) => {
     paymentMethod = sanitizeValue(paymentMethod) ? paymentMethod.trim() : null;
 
     userId = sanitizeValue(userId) ? userId.trim() : "";
+    promoCode = sanitizeValue(promoCode) ? promoCode.trim() : "";
     companyName = sanitizeValue(companyName) ? companyName.trim() : "";
     apartment = sanitizeValue(apartment) ? apartment.trim() : "";
     shippingCharge = shippingCharge ? +Number(shippingCharge).toFixed(2) : 0;
@@ -321,6 +327,7 @@ const createOrder = async (payload, activeProductsList, res) => {
     const allCustomizations = await productService.getAllCustomizations();
 
     const availableCartItems = [];
+
     for (const cartItem of cartList) {
       const { productId, quantity, variations, diamondDetail } = cartItem;
       if (
@@ -339,7 +346,7 @@ const createOrder = async (payload, activeProductsList, res) => {
       }
 
       let adjustedQuantity = Number(quantity);
-      let productPrice = 0; // To store productPrice as per orderModel
+      let productPrice = 0;
       let isCustomized = !!diamondDetail;
 
       // Validate variations (ensure they exist in product.variations)
@@ -386,7 +393,6 @@ const createOrder = async (payload, activeProductsList, res) => {
         }
 
         // Validate diamond filters
-
         const { diamondShapeIds, caratWeightRange } = product.diamondFilters;
 
         if (
@@ -414,13 +420,7 @@ const createOrder = async (payload, activeProductsList, res) => {
             netWeight: product?.netWeight,
             sideDiamondWeight: product?.sideDiamondWeight,
           };
-
-          const centerDiamondDetail = {
-            caratWeight,
-            clarity,
-            color,
-          };
-
+          const centerDiamondDetail = { caratWeight, clarity, color };
           productPrice = calculateCustomizedProductPrice({
             centerDiamondDetail,
             productDetail: customProductDetail,
@@ -446,10 +446,10 @@ const createOrder = async (payload, activeProductsList, res) => {
         if (adjustedQuantity <= 0 || adjustedQuantity > variCombo.quantity) {
           adjustedQuantity = Math.min(quantity, variCombo.quantity);
         }
-        productPrice = variCombo.price || 0; // productPrice is the variation price
+        productPrice = variCombo.price || 0;
       }
 
-      // Calculate selling price with discount
+      // Calculate selling price with product discount
       const sellingPrice = getSellingPrice({
         price: productPrice,
         discount: product?.discount || 0,
@@ -458,7 +458,7 @@ const createOrder = async (payload, activeProductsList, res) => {
 
       availableCartItems.push({
         ...cartItem,
-        diamondDetail: isCustomized ? diamondDetail : undefined, // Set to undefined for non-customized products
+        diamondDetail: isCustomized ? diamondDetail : undefined,
         quantity: adjustedQuantity,
         quantityWiseSellingPrice: sellingPrice * adjustedQuantity,
         productPrice: sellingPrice, // Price per unit
@@ -487,37 +487,66 @@ const createOrder = async (payload, activeProductsList, res) => {
       mobile,
       email,
     };
+
     const tempArr = availableCartItems.map((x) => ({
       quantityWiseSellingPrice: x?.quantityWiseSellingPrice,
     }));
     const subTotal = calculateSubTotal(tempArr);
-    const isNewYorkSate = state.toLowerCase() === "New York".toLowerCase();
-    const salesTaxPerc = isNewYorkSate ? 8 : 0;
-    const salesTax = +(subTotal * (salesTaxPerc / 100)).toFixed(2);
-    const total = +(subTotal + shippingCharge + salesTax).toFixed(2);
+
+    let matchedDiscount = null;
+
+    // Validate promo code if provided and get purchaseMode
+    if (promoCode) {
+      const promoValidation = await discountService.validatePromoCode({
+        promoCode,
+        userId,
+        subTotal,
+        userEmail: email,
+        orderService,
+      });
+      if (!promoValidation?.valid) {
+        return res.json({
+          status: 400,
+          message: promoValidation?.message,
+        });
+      }
+      matchedDiscount = promoValidation?.foundDiscount;
+    }
+
+    // Apply order-level discount
+    let orderDiscount = 0;
+    if (
+      matchedDiscount &&
+      matchedDiscount?.discountType === DISCOUNT_TYPES?.ORDER_DISCOUNT
+    ) {
+      orderDiscount = calculateOrderDiscount({ matchedDiscount, subTotal });
+    }
+
+    // Recalculate totals
+    const finalSubTotal = subTotal - orderDiscount;
+    const isNewYorkState = state.toLowerCase() === NEW_YORK.toLowerCase();
+    const salesTaxPerc = isNewYorkState ? 8 : 0;
+    const salesTax = +(finalSubTotal * (salesTaxPerc / 100)).toFixed(2);
+    const total = +(finalSubTotal + shippingCharge + salesTax).toFixed(2);
 
     const orderItem = {
       orderNumber: await orderNum.generateOrderId(),
       userId: userId,
-      products: availableCartItems.map((item) => {
-        return {
-          productId: item.productId,
-          variations: item.variations.map((variItem) => {
-            return {
-              variationId: variItem.variationId,
-              variationTypeId: variItem.variationTypeId,
-            };
-          }),
-          productPrice: item.productPrice,
-          unitAmount: item.quantityWiseSellingPrice,
-          cartQuantity: item.quantity,
-          diamondDetail: item.diamondDetail || null,
-        };
-      }),
+      products: availableCartItems.map((item) => ({
+        productId: item.productId,
+        variations: item.variations.map((variItem) => ({
+          variationId: variItem.variationId,
+          variationTypeId: variItem.variationTypeId,
+        })),
+        productPrice: item.productPrice,
+        unitAmount: item.quantityWiseSellingPrice,
+        cartQuantity: item.quantity,
+        diamondDetail: item.diamondDetail || null,
+      })),
       shippingAddress,
-      subTotal,
+      subTotal: finalSubTotal,
       paymentMethod,
-      // discount : ,
+      discount: orderDiscount,
       salesTax,
       salesTaxPercentage: salesTaxPerc,
       shippingCharge,
@@ -527,11 +556,13 @@ const createOrder = async (payload, activeProductsList, res) => {
       orderStatus: "pending",
       paymentStatus: "pending",
       cancelReason: "",
+      promoCode: matchedDiscount?.promoCode || "",
     };
+
     // Save order
     const createdOrder = await orderService.create(orderItem);
 
-    //   update product Qty
+    // Update product quantities
     for (let i = 0; i < availableCartItems.length; i++) {
       const cartItem = availableCartItems[i];
       const findedProduct = activeProductsList.find(
@@ -555,10 +586,8 @@ const createOrder = async (payload, activeProductsList, res) => {
         await productService.findOneAndUpdate(findPattern, updatePattern);
       }
 
-      if (availableCartItems.length == i + 1) {
-        return {
-          createdOrder,
-        };
+      if (availableCartItems.length === i + 1) {
+        return { createdOrder };
       }
     }
   } catch (e) {

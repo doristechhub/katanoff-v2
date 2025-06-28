@@ -26,7 +26,7 @@ const AddressVerificationModal = () => {
   );
 
   const { addressLoader } = useSelector(({ address }) => address);
-
+  const { appliedCode } = useSelector(({ coupon }) => coupon);
   const enteredAddress = {
     address: selectedShippingAddress?.address,
     apartment: selectedShippingAddress?.apartment,
@@ -76,6 +76,9 @@ const AddressVerificationModal = () => {
 
     localStorage.setItem("address", JSON.stringify(formsValue));
     dispatch(setAddressLoader(false));
+    if (appliedCode) {
+      localStorage.setItem("appliedCoupon", appliedCode?.promoCode);
+    }
     router.push("/shipping");
     localStorage.removeItem("selectedShippingMethod");
     checkoutModalClose();

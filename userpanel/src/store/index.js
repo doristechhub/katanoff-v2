@@ -13,6 +13,7 @@ import returns from "./slices/returnSlice.js";
 import appointment from "./slices/appointmentSlice.js";
 import customJewelry from "./slices/customjewelrySlice.js";
 import contact from "./slices/contactSlice.js";
+import coupon from "./slices/couponSlice.js";
 
 const reducers = combineReducers({
   common,
@@ -29,6 +30,7 @@ const reducers = combineReducers({
   appointment,
   customJewelry,
   contact,
+  coupon,
 });
 
 const store = configureStore({

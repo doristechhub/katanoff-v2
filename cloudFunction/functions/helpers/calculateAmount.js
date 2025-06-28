@@ -5,6 +5,7 @@ const {
   PRICE_MULTIPLIER,
   METAL_PRICE_PER_GRAM,
   SIDE_DIAMOND_PRICE_PER_CARAT,
+  DISCOUNT_DETAIL_TYPES,
 } = require("./common");
 
 const getSellingPrice = ({ price, discount = 0, isCustomized = false }) => {
@@ -18,6 +19,22 @@ const getSellingPrice = ({ price, discount = 0, isCustomized = false }) => {
     cprice = cprice - (cprice * cdiscount) / 100;
     return Number(cprice.toFixed(2));
   }
+};
+
+const calculateOrderDiscount = ({ matchedDiscount, subTotal }) => {
+  let orderDiscount = 0;
+
+  if (
+    matchedDiscount?.discountDetails?.type === DISCOUNT_DETAIL_TYPES?.PERCENTAGE
+  ) {
+    orderDiscount = (subTotal * matchedDiscount.discountDetails.amount) / 100;
+  } else if (
+    matchedDiscount?.discountDetails?.type === DISCOUNT_DETAIL_TYPES?.FIXED
+  ) {
+    orderDiscount = Math.min(matchedDiscount.discountDetails.amount, subTotal);
+  }
+
+  return orderDiscount;
 };
 
 const calculateSubTotal = (list) => {
@@ -153,6 +170,7 @@ const calculateCustomizedProductPrice = ({
 
 module.exports = {
   getSellingPrice,
+  calculateOrderDiscount,
   calculateSubTotal,
   calculateCustomizedProductPrice,
 };

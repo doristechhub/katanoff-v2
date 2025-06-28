@@ -136,6 +136,13 @@ export const PERCENTAGE = "Percentage";
 export const ONE_TIME = "One-Time";
 export const SUBSCRIPTION = "Subscription";
 export const SELECTED_CUSTOMERS = "Selected Customers";
+export const DISCOUNT_TYPES = {
+  ORDER_DISCOUNT: "Order Discount",
+};
+export const DISCOUNT_APPLICATION_METHODS = {
+  CODE: "Code",
+  AUTOMATIC: "Automatic",
+};
 
 // Diamond Shapes
 export const ROUND = "Round";
