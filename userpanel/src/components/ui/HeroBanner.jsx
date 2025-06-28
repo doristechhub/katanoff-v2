@@ -151,13 +151,13 @@ const HeroBanner = ({
               <div className="mt-4 md:mt-4 flex flex-col md:flex-row items-center md:justify-center gap-2.5 md:gap-4">
                 <LinkButton
                   href="/customize/start-with-setting"
-                  className="lg:!h-0 w-fit lg:py-[16px] 2xl:py-[20px] 2xl:!min-w-[250px] lg:!text-sm !font-bold rounded-none !border-baseblack md:!border-white !border-1 !text-baseblack md:!text-white !bg-transparent hover:!bg-[#030817] hover:!text-white"
+                  className="lg:!h-0 w-fit lg:py-[16px] 2xl:py-[20px] 2xl:!min-w-[250px] lg:!text-sm !font-bold rounded-none !border-baseblack md:!border-white !border-1 !text-baseblack md:!text-white !bg-transparent hover:!bg-white hover:!text-black"
                 >
                   SHOP ENGAGEMENT
                 </LinkButton>
                 <LinkButton
                   href="/collections/categories/Jewelry"
-                  className="lg:!h-0 w-fit lg:py-[16px] 2xl:py-[20px] 2xl:!min-w-[250px] lg:!text-sm !font-bold rounded-none !border-baseblack md:!border-white !border-1 !text-baseblack md:!text-white !bg-transparent hover:!bg-[#030817] hover:!text-white"
+                  className="lg:!h-0 w-fit lg:py-[16px] 2xl:py-[20px] 2xl:!min-w-[250px] lg:!text-sm !font-bold rounded-none !border-baseblack md:!border-white !border-1 !text-baseblack md:!text-white !bg-transparent hover:!bg-white hover:!text-black"
                 >
                   SHOP ALL JEWELRY
                 </LinkButton>

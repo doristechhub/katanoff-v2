@@ -41,7 +41,7 @@ export default function HomePagePopup() {
       dispatch(fetchCart());
       dispatch(setHomePagePopupLoader(true));
       dispatch(setOpenHomePagePopup(false));
-      sessionStorage.setItem("homePagePopup", "true");
+      localStorage.setItem("signUpOfferEmail", values.email);
       router.push(`/auth/sign-up?email=${values.email}`);
       dispatch(setHomePagePopupLoader(false));
     },

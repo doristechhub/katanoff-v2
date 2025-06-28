@@ -70,7 +70,6 @@ export const orderModel = {
           type: Number,
         },
         diamondDetail: {
-          // New field for customized products
           type: {
             shapeId: {
               type: String,
@@ -107,6 +106,9 @@ export const orderModel = {
         type: String,
       },
       state: {
+        type: String,
+      },
+      stateCode: {
         type: String,
       },
       pinCode: {
@@ -161,10 +163,10 @@ export const orderModel = {
     type: Number,
     required: true,
   },
-  // discount: {
-  //   type: Number,
-  //   default: 0,
-  // },
+  discount: {
+    type: Number,
+    default: 0,
+  },
   salesTax: {
     type: Number,
     default: 0,
@@ -228,6 +230,10 @@ export const orderModel = {
   returnRequestIds: {
     type: [String],
     ref: "returnRequest",
+  },
+  promoCode: {
+    type: String,
+    default: "",
   },
   createdDate: Date,
   updatedDate: Date,

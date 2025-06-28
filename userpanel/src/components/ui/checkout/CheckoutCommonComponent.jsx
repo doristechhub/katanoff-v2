@@ -1,16 +1,28 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { helperFunctions, LENGTH, RING_SIZE } from "@/_helper";
+import {
+  FIXED,
+  helperFunctions,
+  LENGTH,
+  messageType,
+  PERCENTAGE,
+  RING_SIZE,
+} from "@/_helper";
 import { CustomImg, ProgressiveImg } from "../../dynamiComponents";
 import { fetchCart } from "@/_actions/cart.action";
 import { setIsNewYorkState } from "@/store/slices/checkoutSlice";
+import { setCouponCode, setCouponMessage } from "@/store/slices/couponSlice";
 import { usePathname } from "next/navigation";
 import { HiChevronUp, HiChevronDown } from "react-icons/hi";
 import { setOpenDiamondDetailDrawer } from "@/store/slices/commonSlice";
 import DiamondDetailDrawer from "../customize/DiamondDetailDrawer";
 import { paymentOptions } from "@/_utils/paymentOptions";
 import effect from "@/assets/icons/effect.png";
+import { PrimaryButton } from "../button";
+import couponCodeRight from "@/assets/icons/couponCodeRight.svg";
+import couponCodeWrong from "@/assets/icons/couponCodeWrong.svg";
+import { applyCouponCode, removeCouponCode } from "@/_actions/coupon.action";
 const salesTaxPerc = 0.08;
 
 const CheckoutCommonComponent = () => {
@@ -18,14 +30,31 @@ const CheckoutCommonComponent = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { openDiamondDetailDrawer } = useSelector(({ common }) => common);
   const pathname = usePathname();
-  const { cartList } = useSelector((state) => state.cart);
-  const { isNewYorkState } = useSelector(({ checkout }) => checkout);
-  const { selectedShippingCharge } = useSelector(({ checkout }) => checkout);
+  const { cartList } = useSelector(({ cart }) => cart);
+  const { isNewYorkState, selectedShippingCharge } = useSelector(
+    ({ checkout }) => checkout
+  );
+  const { couponCode, appliedCode, couponMessage, userEmail } = useSelector(
+    ({ coupon }) => coupon
+  );
+
   useEffect(() => {
     if (!cartList.length) {
       dispatch(fetchCart());
     }
   }, [cartList.length, dispatch]);
+
+  const getCouponDiscountValue = () => {
+    if (!appliedCode || !appliedCode.discountDetails) return 0;
+    const { type, amount } = appliedCode.discountDetails;
+    const subtotal = getSubTotal();
+    if (type === PERCENTAGE) {
+      return ((amount / 100) * subtotal).toFixed(2);
+    } else if (type === FIXED) {
+      return Math.min(amount, subtotal).toFixed(2);
+    }
+    return 0;
+  };
 
   useEffect(() => {
     const address = localStorage.getItem("address");
@@ -49,10 +78,12 @@ const CheckoutCommonComponent = () => {
   const getSalesTaxAmount = useCallback(() => {
     if (isNewYorkState) {
       const subTotal = Number(getSubTotal(cartList));
-      return subTotal * salesTaxPerc; //8%
+      const discountValue = Number(getCouponDiscountValue()) || 0;
+
+      return (subTotal - discountValue) * salesTaxPerc;
     }
     return 0;
-  }, [cartList, getSubTotal, isNewYorkState]);
+  }, [cartList, getSubTotal, getCouponDiscountValue, isNewYorkState]);
 
   useEffect(() => {
     const contentElement = cartContentRef.current;
@@ -95,6 +126,27 @@ const CheckoutCommonComponent = () => {
   const calculateNextStep = useMemo(() => {
     return <span className="text-lg font-normal">Calculated at next step</span>;
   }, []);
+
+  const getGrandTotal = useCallback(() => {
+    const subTotal = Number(getSubTotal());
+
+    const discountedSubTotal = subTotal - getCouponDiscountValue();
+
+    const taxedAmount = isNewYorkState
+      ? discountedSubTotal + discountedSubTotal * salesTaxPerc
+      : discountedSubTotal;
+
+    const shippingCharge = subTotal < 199 ? Number(selectedShippingCharge) : 0;
+
+    const grandTotal = taxedAmount + shippingCharge;
+
+    return grandTotal.toFixed(2);
+  }, [
+    getSubTotal,
+    getCouponDiscountValue,
+    isNewYorkState,
+    selectedShippingCharge,
+  ]);
 
   return (
     <>
@@ -201,22 +253,82 @@ const CheckoutCommonComponent = () => {
             </section>
             <section className="px-2 xs:px-10 pt-6">
               {pathname === "/checkout" && (
-                <div className="flex justify-between pt-4 text-baseblack">
+                <>
                   <p className="text-lg text-baseblack flex justify-between font-semibold pt-4">
-                    Coupon Code:
+                    Promo Code
                   </p>
-                  <input
-                    type="text"
-                    placeholder="Enter Coupon Code"
-                    className="w-fit bg-transparent border border-grayborder px-4 py-2 focus:outline-none"
-                    // value={couponCode}
-                    // onChange={(e) => setCouponCode(e.target.value)}
-                  />
-                </div>
+                  <div className="flex justify-between pt-1 text-baseblack gap-2">
+                    <input
+                      type="text"
+                      placeholder="Enter Promo Code"
+                      className="w-full bg-transparent border border-grayborder px-4 py-2 focus:outline-none"
+                      value={couponCode}
+                      onChange={(e) => {
+                        dispatch(setCouponCode(e.target.value));
+                        dispatch(setCouponMessage({ message: "", type: "" }));
+                      }}
+                      disabled={!!appliedCode}
+                    />
+                    {appliedCode ? (
+                      <PrimaryButton
+                        onClick={() => dispatch(removeCouponCode())}
+                      >
+                        Remove
+                      </PrimaryButton>
+                    ) : (
+                      <PrimaryButton
+                        onClick={() =>
+                          dispatch(
+                            applyCouponCode(
+                              couponCode,
+                              getSubTotal(),
+                              userEmail
+                            )
+                          )
+                        }
+                      >
+                        Apply
+                      </PrimaryButton>
+                    )}
+                  </div>
+
+                  {appliedCode &&
+                    couponMessage?.type === messageType?.SUCCESS && (
+                      <div className="flex items-center gap-1 pt-2 text-[#32BA7C] text-md">
+                        <CustomImg
+                          srcAttr={couponCodeRight}
+                          altAttr="Promocode Applied"
+                          className="w-5 h-5"
+                        />
+                        {couponMessage?.message}
+                      </div>
+                    )}
+                  {couponMessage?.message &&
+                    couponMessage?.type === messageType?.ERROR && (
+                      <div className="flex items-center gap-1 pt-2 text-[#EE5A5A] text-md">
+                        <CustomImg
+                          srcAttr={couponCodeWrong}
+                          altAttr="Promocode Applied"
+                          className="w-5 h-5"
+                        />
+                        <p>{couponMessage?.message}</p>
+                      </div>
+                    )}
+                </>
               )}
               <p className="text-lg text-baseblack flex justify-between font-semibold pt-4">
                 Subtotal: <span>${getSubTotal()}</span>
               </p>
+              {appliedCode ? (
+                <div className="flex justify-between pt-4 text-baseblack">
+                  <p className="text-lg text-baseblack flex justify-between font-semibold">
+                    Discount
+                  </p>
+                  <span className="text-lg text-baseblack font-medium">
+                    -${getCouponDiscountValue()}
+                  </span>
+                </div>
+              ) : null}
               {pathname === "/checkout" ? (
                 <p className="text-lg text-baseblack flex justify-between font-semibold pt-4">
                   Sales Tax {calculateNextStep}
@@ -253,16 +365,9 @@ const CheckoutCommonComponent = () => {
                 </div>
               )}
               <p className="my-4 border-t-2 border-grayborder" />
-
-              {pathname === "/checkout" ? (
-                <p className="text-lg text-baseblack flex justify-between font-semibold pt-2">
-                  Grand Total: <span>${getSubTotal()}</span>
-                </p>
-              ) : (
-                <p className="text-lg text-baseblack flex justify-between font-semibold pt-2">
-                  Grand Total: <span>${renderTotalAmount.toFixed(2)}</span>
-                </p>
-              )}
+              <p className="text-lg text-baseblack flex justify-between font-semibold pt-2">
+                Grand Total: <span>${getGrandTotal()}</span>
+              </p>
 
               <div className="py-6">
                 <div className="flex items-center justify-center gap-4 mb-2">
@@ -317,7 +422,7 @@ const CheckoutCommonComponent = () => {
             <section className="px-4 xs:px-6 max-h-[50vh] overflow-y-auto">
               {cartList?.map((cartItem) => (
                 <div
-                  key={helperFunctions?.getRandomValue()}
+                  key={`cart-item-${cartItem?.id}`}
                   className="py-6 border-b border-grayborder last:border-b-0"
                 >
                   <div className="flex flex-row  gap-4">
@@ -408,9 +513,83 @@ const CheckoutCommonComponent = () => {
 
             {/* Your summary section */}
             <section className="px-4 lg:px-2 pt-4 pb-4">
+              {pathname === "/checkout" && (
+                <>
+                  <p className="text-lg text-baseblack flex justify-between font-semibold pt-4">
+                    Promo Code
+                  </p>
+                  <div className="flex justify-between pt-1 text-baseblack gap-2">
+                    <input
+                      type="text"
+                      placeholder="Enter Promo Code"
+                      className="w-full bg-transparent border border-grayborder px-4 py-2 focus:outline-none"
+                      value={couponCode}
+                      onChange={(e) => {
+                        dispatch(setCouponCode(e.target.value));
+                        dispatch(setCouponMessage({ message: "", type: "" }));
+                      }}
+                      disabled={!!appliedCode}
+                    />
+                    {appliedCode ? (
+                      <PrimaryButton
+                        onClick={() => dispatch(removeCouponCode())}
+                      >
+                        Remove
+                      </PrimaryButton>
+                    ) : (
+                      <PrimaryButton
+                        onClick={() =>
+                          dispatch(
+                            applyCouponCode(
+                              couponCode,
+                              getSubTotal(),
+                              userEmail
+                            )
+                          )
+                        }
+                      >
+                        Apply
+                      </PrimaryButton>
+                    )}
+                  </div>
+
+                  {appliedCode &&
+                    couponMessage?.type === messageType?.SUCCESS && (
+                      <div className="flex items-center gap-1 pt-2 text-[#32BA7C] text-md">
+                        <CustomImg
+                          srcAttr={couponCodeRight}
+                          altAttr="Promocode Applied"
+                          className="w-5 h-5"
+                        />
+                        {couponMessage?.message}
+                      </div>
+                    )}
+                  {couponMessage?.message &&
+                    couponMessage?.type === messageType?.ERROR && (
+                      <div className="flex items-center gap-1 pt-2 text-[#EE5A5A] text-md">
+                        <CustomImg
+                          srcAttr={couponCodeWrong}
+                          altAttr="Promocode Applied"
+                          className="w-5 h-5"
+                        />
+                        <p>{couponMessage?.message}</p>
+                      </div>
+                    )}
+                </>
+              )}
               <p className="text-base lg:text-lg 2xl:text-xl text-baseblack flex justify-between font-semibold pt-4">
                 Subtotal: <span>${getSubTotal()}</span>
               </p>
+              {appliedCode ? (
+                <div className="flex justify-between pt-4 text-baseblack">
+                  <p className="text-lg text-baseblack flex justify-between font-semibold">
+                    Discount
+                  </p>
+                  <span className="text-lg text-baseblack font-medium">
+                    -${getCouponDiscountValue()}
+                  </span>
+                </div>
+              ) : null}
               {pathname === "/checkout" ? (
                 <p className="text-base lg:text-lg 2xl:text-xl text-baseblack flex justify-between font-semibold pt-4">
                   Sales Tax {calculateNextStep}
@@ -447,15 +626,9 @@ const CheckoutCommonComponent = () => {
 
               <p className="my-4 border-t border-grayborder" />
 
-              {pathname === "/checkout" ? (
-                <p className="text-base lg:text-lg 2xl:text-xl text-baseblack flex justify-between font-semibold pt-4">
-                  Grand Total: <span>${getSubTotal()}</span>
-                </p>
-              ) : (
-                <p className="text-base lg:text-lg 2xl:text-xl text-baseblack flex justify-between font-semibold pt-4">
-                  Grand Total: <span>${renderTotalAmount}</span>
-                </p>
-              )}
+              <p className="text-base lg:text-lg 2xl:text-xl text-baseblack flex justify-between font-semibold pt-4">
+                Grand Total: <span>${getGrandTotal()}</span>
+              </p>
 
               <div className="py-4">
                 <div className="flex items-center justify-center gap-4 mb-4">

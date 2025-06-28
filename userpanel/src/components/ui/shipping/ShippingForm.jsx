@@ -40,6 +40,7 @@ import {
   setPaypalPaymentMessage,
 } from "@/store/slices/paymentSlice";
 import { CustomImg } from "@/components/dynamiComponents";
+import { applyCouponCode } from "@/_actions/coupon.action";
 
 const paymentOptions = [
   {
@@ -69,6 +70,7 @@ const shippingForm = () => {
   const router = useRouter();
 
   const { isHovered, isSubmitted } = useSelector(({ common }) => common);
+  const { appliedCode } = useSelector(({ coupon }) => coupon);
   const { selectedShippingCharge, activeIndex, selectedShippingAddress } =
     useSelector(({ checkout }) => checkout);
 
@@ -115,27 +117,29 @@ const shippingForm = () => {
     dispatch(setSelectedShippingAddress(getParsedAddress));
     dispatch(setSelectedShippingCharge(0));
 
-    // if (subTotal > 199) {
-    //   dispatch(setSelectedShippingCharge(0));
-    // } else {
-    //   const matchedIndex = shippingOptions.findIndex(
-    //     (option) => option.name === parsedSavedMethod?.name
-    //   );
-    //   if (matchedIndex !== -1) {
-    //     setSelectedMethod(parsedSavedMethod.name);
-    //     dispatch(setSelectedShippingCharge(parsedSavedMethod.price));
-    //     dispatch(setActiveIndex(matchedIndex));
-    //   } else {
-    //     setSelectedMethod(shippingOptions?.[0]?.name);
-    //     dispatch(setSelectedShippingCharge(shippingOptions?.[0]?.price));
-    //     dispatch(setActiveIndex(0));
-    //   }
-    // }
-
     return () => {
       clearAbortController();
     };
   }, [dispatch, router, cartList, clearAbortController]);
+
+  const getCoupon = localStorage.getItem("appliedCoupon");
+  const userEmail = localStorage.getItem("address");
+
+  useEffect(() => {
+    const subTotal = helperFunctions.getSubTotal(cartList);
+    let parsedMail;
+    if (userEmail) {
+      try {
+        const parsedUser = JSON.parse(userEmail);
+        parsedMail = parsedUser?.email;
+      } catch (err) {
+        console.error("Failed to parse userEmail", err);
+      }
+    }
+    if (!appliedCode && getCoupon) {
+      dispatch(applyCouponCode(getCoupon, subTotal, parsedMail));
+    }
+  }, [dispatch, appliedCode, cartList, userEmail]);
 
   const processPayment = useCallback(
     async (paymentAction, payload) => {
@@ -146,12 +150,6 @@ const shippingForm = () => {
       );
       const subTotal = helperFunctions.getSubTotal(cartList);
       if (res) {
-        // if (subTotal < 199) {
-        //   localStorage.setItem(
-        //     "selectedShippingMethod",
-        //     JSON.stringify(shippingOptions?.[activeIndex])
-        //   );
-        // }
         dispatch(setIsSubmitted(false));
         router.push(`/payment/${res}`);
       }
@@ -167,7 +165,6 @@ const shippingForm = () => {
       dispatch(handleCreatePaymentIntentError(""));
       dispatch(setIsSubmitted(true));
 
-      const subTotal = helperFunctions.getSubTotal(cartList);
       let payload = {
         countryName: selectedShippingAddress?.countryName,
         firstName: selectedShippingAddress?.firstName,
@@ -181,10 +178,9 @@ const shippingForm = () => {
         email: selectedShippingAddress?.email,
         companyName: selectedShippingAddress?.companyName,
         apartment: selectedShippingAddress?.apartment,
-        // shippingCharge: subTotal < 199 ? selectedShippingCharge : 0,
         shippingCharge: 0,
+        promoCode: appliedCode?.promoCode || "",
       };
-
       if (!cartList.length) {
         dispatch(handleCreatePaymentIntentError("Cart is empty"));
         return;
@@ -219,6 +215,7 @@ const shippingForm = () => {
     selectedPaymentMethod,
     processPayment,
     clearAbortController,
+    appliedCode,
   ]);
 
   const shippingOptions = [

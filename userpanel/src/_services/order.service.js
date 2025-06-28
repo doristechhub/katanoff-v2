@@ -15,6 +15,18 @@ import { authenticationService } from "./authentication.service";
 import { returnService } from "./return.service";
 import { diamondShapeService } from "./diamondShape.service";
 
+const getAllOrders = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const respData = await fetchWrapperService.getAll(ordersUrl);
+      const orderData = respData ? Object.values(respData) : [];
+      resolve(orderData);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 const getAllOrderList = () => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -217,7 +229,6 @@ const deleteOrder = async (orderId) => {
     }
     return { success: false, message: "OrderId not found" };
   } catch (error) {
-    console.log("delete order error : ", error?.message);
     return { success: false, message: error?.message };
   }
 };
@@ -376,4 +387,5 @@ export const orderService = {
   deleteOrder,
   trackOrderByOrderNumberAndEmail,
   verifyOrder,
+  getAllOrders,
 };
