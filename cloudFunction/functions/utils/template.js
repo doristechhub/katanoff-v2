@@ -9,6 +9,7 @@ const {
   COMPANY_MOBILE_NO,
   COMPANY_NAME,
 } = require("./companyInfo");
+const moment = require("moment");
 
 const headerTemplate = () => `
  <div style="padding :30px 0px; border-bottom : 1px solid #e2e2e2; text-align: center;">
@@ -641,6 +642,71 @@ const contactUsEmail = ({ fullName }) => {
 
   return { subject, description: html(body) };
 };
+
+const signUpDiscountEmail = (userName, discount) => {
+  const subject = `Welcome to ${COMPANY_NAME}! Your Exclusive Sign-Up Discount Awaits`;
+
+  const formattedDate = (dateString) => {
+    if (!dateString) return "No expiration";
+    return moment(dateString, "MM-DD-YYYY HH:mm").format("MM-DD-YYYY hh:mm A");
+  };
+
+  const body = `
+    <div style="color: #2b2b2b; font-size: 1vw; padding: 25px 0 30px 0; font-family: IBM Plex Mono, monospace; font-style: normal;">
+      <p style="margin-bottom: 10px;">Dear ${userName},</p>
+      <p>Welcome to <strong>${COMPANY_NAME}</strong>! Thank you for joining our community of jewelry enthusiasts. We're thrilled to have you with us!</p>
+      <p>To celebrate your new account, we're excited to offer you an exclusive <strong>Sign Up Discount</strong>. Use the promo code below to enjoy your special offer:</p>
+      <div style="text-align: center; margin: 20px 0;">
+        <span style="
+          display: inline-block;
+          padding: 5px 15px;
+          margin: 5px;
+          letter-spacing: 3px;
+          border: 2px dashed #202a4e;
+          border-radius: 5px;
+          background: #f4f4f4;
+          font-size: 24px;
+          color: #202a4e;
+          text-align: center;
+          font-family: sans-serif;
+        ">${discount?.promoCode}</span>
+      </div>
+      <p style="color: #202a4e; margin: 10px 0;">Discount Details:</p>
+      <ul>
+        <li><strong>Amount:</strong> ${
+          discount?.discountDetails?.type === "Percentage"
+            ? `${discount?.discountDetails?.amount}% off`
+            : `$${discount?.discountDetails?.amount} off`
+        }</li>
+        <li><strong>Valid Until:</strong> ${formattedDate(
+          discount?.dateRange?.expiresAt
+        )}</li>
+        <li><strong>Minimum Order Value:</strong> $${
+          discount?.minimumOrderValue || "None"
+        }</li>
+        <li><strong>Applicable To:</strong> ${
+          discount?.purchaseMode
+        } purchases</li>
+      </ul>
+      <p style="text-align: center; margin: 20px 0;">
+        <a href="${WEBSITE_URL}" style="
+          display: inline-block;
+          padding: 10px 20px;
+          background: #202a4e;
+          color: white;
+          text-decoration: none;
+          border-radius: 5px;
+          font-family: IBM Plex Mono, monospace;
+        ">Shop Now</a>
+      </p>
+      <p>Explore our curated collection of exquisite jewelry and find pieces that resonate with your style. If you have any questions or need assistance, feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>.</p>
+      <p style="margin-bottom: 10px;">Best Regards,<br /><strong>${COMPANY_NAME}</strong></p>
+    </div>
+  `;
+
+  return { subject, description: html(body) };
+};
+
 module.exports = {
   welcomeTemplate,
   emailOtpVerification,
@@ -650,4 +716,5 @@ module.exports = {
   getMailTemplateForReturnStatus,
   getMailTemplateForRefundStatus,
   contactUsEmail,
+  signUpDiscountEmail,
 };

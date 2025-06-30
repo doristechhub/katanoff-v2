@@ -26,7 +26,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"cartList\" : [],\r\n\"countryName\" : \"US\",\r\n\"firstName\" : \"QA\",\r\n\"lastName\" : \"Doris\",\r\n\"address\" : \"1964 West Ridge Rd\",\r\n\"city\" : \"ROCHESTER\",\r\n\"state\" : \"New York\",\r\n\"pinCode\" : 14626,\r\n\"mobile\" : 1234567890,\r\n\"email\" : \"qadorisinfotech@gmail.com\",\r\n\"companyName\" : \"\", //optional\r\n\"apartment\" : \"\", //optional\r\n\"shippingCharge\":0, //optional\r\n\"stateCode\":\"NY\"\r\n}",
+							"raw": "{\r\n    \"cartList\" : [],\r\n\"countryName\" : \"US\",\r\n\"firstName\" : \"QA\",\r\n\"lastName\" : \"Doris\",\r\n\"address\" : \"1964 West Ridge Rd\",\r\n\"city\" : \"ROCHESTER\",\r\n\"state\" : \"New York\",\r\n\"pinCode\" : 14626,\r\n\"mobile\" : 1234567890,\r\n\"email\" : \"qadorisinfotech@gmail.com\",\r\n\"companyName\" : \"\", //optional\r\n\"apartment\" : \"\", //optional\r\n\"shippingCharge\":0, //optional\r\n\"stateCode\":\"NY\",\r\n\"promoCode\":\"\" //optional\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -210,6 +210,33 @@
 					"response": []
 				},
 				{
+					"name": "signupWithDiscount",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"email\" : \"gressenaddoippo-1722@yopmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{cloudFunctionsUrl}}/user/signup-with-discount",
+							"host": [
+								"{{cloudFunctionsUrl}}"
+							],
+							"path": [
+								"user",
+								"signup-with-discount"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "sendWelcomeMail",
 					"request": {
 						"method": "POST",
@@ -332,7 +359,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\"countryName\" : \"US\",\r\n\"firstName\" : \"Utsav\",\r\n\"lastName\" : \"Garchat\",\r\n\"address\" : \"\",\r\n\"city\" : \"US\",\r\n\"state\" : \"New York\",\r\n\"pinCode\" : 10036,\r\n\"mobile\" : 1111111111,\r\n\"email\" : \"utsavdoris@gmail.com\",\r\n\"companyName\" : \"\", //optional\r\n\"apartment\" : \"\", //optional\r\n\"shippingCharge\":0,\r\n\"stateCode\":\"NY\"\r\n}",
+							"raw": "{\r\n\"countryName\" : \"US\",\r\n\"firstName\" : \"Utsav\",\r\n\"lastName\" : \"Garchat\",\r\n\"address\" : \"\",\r\n\"city\" : \"US\",\r\n\"state\" : \"New York\",\r\n\"pinCode\" : 10036,\r\n\"mobile\" : 1111111111,\r\n\"email\" : \"utsavdoris@gmail.com\",\r\n\"companyName\" : \"\", //optional\r\n\"apartment\" : \"\", //optional\r\n\"shippingCharge\":0,\r\n\"stateCode\":\"NY\",\r\n\"promoCode\":\"\" //optional\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
