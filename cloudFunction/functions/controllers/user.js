@@ -1,10 +1,19 @@
-const { userService, adminService } = require("../services/index");
+const {
+  userService,
+  adminService,
+  discountService,
+} = require("../services/index");
 const sanitizeValue = require("../helpers/sanitizeParams");
 const message = require("../utils/messages");
 const { sendMail } = require("../helpers/mail");
 const otpGenerator = require("otp-generator");
-const { emailOtpVerification, welcomeTemplate } = require("../utils/template");
+const {
+  emailOtpVerification,
+  welcomeTemplate,
+  signUpDiscountEmail,
+} = require("../utils/template");
 const jwt = require("jsonwebtoken");
+const { SIGN_UP_DISCOUNT } = require("../helpers/common");
 const encryptor = require("simple-encryptor")(process.env.ENC_KEY);
 
 /**
@@ -226,8 +235,80 @@ const verifyOtp = async (req, res) => {
   }
 };
 
+/**
+  This API is used for sending a sign-up discount email to an existing user.
+*/
+const signupWithDiscount = async (req, res) => {
+  try {
+    let { email } = req.body;
+    email = sanitizeValue(email) ? email.trim() : null;
+
+    if (!email) {
+      return res.json({
+        status: 400,
+        message: message.INVALID_DATA,
+      });
+    }
+
+    const emailPattern = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    const emailResult = emailPattern.test(email);
+    if (!emailResult) {
+      return res.json({
+        status: 400,
+        message: message.EMAIL_VALIDATION,
+      });
+    }
+
+    const findPattern = { email };
+    const userData = await userService.findByEmail(findPattern);
+    if (!userData) {
+      return res.json({
+        status: 400,
+        message: message.custom(
+          "Email does not exist! Please create an account"
+        ),
+      });
+    }
+
+    const adminData = await adminService.findByEmail(findPattern);
+    if (adminData) {
+      return res.json({
+        status: 409,
+        message: message.custom(
+          "Account Already Exists in Admin Panel. Use Another EmailID"
+        ),
+      });
+    }
+
+    const discountList = await discountService.getAll();
+    const discount = discountList.find((d) => d.name === SIGN_UP_DISCOUNT);
+    if (!discount) {
+      return res.json({
+        status: 404,
+        message: message.custom("Sign Up Discount not found"),
+      });
+    }
+
+    const fullName = `${userData.firstName} ${userData.lastName}`;
+    const { subject, description } = signUpDiscountEmail(fullName, discount);
+    await sendMail(email, subject, description);
+
+    return res.json({
+      status: 200,
+      message: message.custom("Sign-up discount email sent successfully"),
+    });
+  } catch (error) {
+    console.error("Error sending sign-up discount email:", error);
+    return res.json({
+      status: 500,
+      message: message.SERVER_ERROR,
+    });
+  }
+};
+
 module.exports = {
   sendWelcomeMail,
   sendOtpForEmailVerification,
   verifyOtp,
+  signupWithDiscount,
 };

@@ -90,6 +90,8 @@ const DISCOUNT_APPLICATION_METHODS = {
   AUTOMATIC: "Automatic",
 };
 
+const SIGN_UP_DISCOUNT = "Sign Up Discount";
+
 module.exports = {
   getCurrentDate,
   getNonCustomizedProducts,
@@ -106,4 +108,5 @@ module.exports = {
   DISCOUNT_PURCHASE_MODES,
   DISCOUNT_CUSTOMER_ELIGIBILITY,
   DISCOUNT_APPLICATION_METHODS,
+  SIGN_UP_DISCOUNT,
 };
