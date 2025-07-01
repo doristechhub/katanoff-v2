@@ -213,7 +213,6 @@ const OrderDetail = () => {
                                     alt={'product-img'}
                                     title={'product-img'}
                                     customClassName="w-full h-full rounded-md"
-                                    // placeHolderClassName={'h-[75px]'}
                                   />
                                 </Box>
                               </Box>
@@ -284,10 +283,27 @@ const OrderDetail = () => {
                           <Stack direction={'row'} width={'200px'} justifyContent={'space-between'}>
                             <Box sx={font14}>SubTotal </Box>
                             <Typography variant="subtitle1" sx={font14}>
-                              {fCurrency(selectedOrder?.subTotal)}
+                              {selectedOrder?.discount
+                                ? fCurrency(selectedOrder?.subTotal + selectedOrder?.discount)
+                                : fCurrency(selectedOrder?.subTotal)}
                             </Typography>
                           </Stack>
-
+                          {selectedOrder?.discount > 0 && (
+                            <Stack
+                              mt={2}
+                              width="250px"
+                              direction="row"
+                              justifyContent="space-between"
+                            >
+                              <Box sx={font14}>
+                                Promo Discount{' '}
+                                {selectedOrder?.promoCode ? `(${selectedOrder.promoCode})` : ''}
+                              </Box>
+                              <Typography variant="subtitle1" sx={font14}>
+                                -{fCurrency(selectedOrder?.discount)}
+                              </Typography>
+                            </Stack>
+                          )}
                           <Stack
                             mt={2}
                             width={'200px'}

@@ -1,5 +1,5 @@
 import { CustomImg, ProgressiveImg } from "../dynamiComponents";
-import { LinkButton } from "./button";
+import { PrimaryLinkButton } from "./button";
 import progressiveMobile from "@/assets/images/progressive-mobile.webp";
 import progressiveDesktop from "@/assets/images/progressive-desktop.webp";
 
@@ -22,7 +22,7 @@ const HeroBanner = ({
   return (
     <section
       className={`relative overflow-hidden ${
-        isHomePage ? "flex flex-col gap-10" : "h-auto"
+        isHomePage ? "flex flex-col gap-6 md:gap-10" : "h-auto"
       }`}
     >
       {isHomePage ? (
@@ -148,19 +148,33 @@ const HeroBanner = ({
               <p className="mt-2 md:mt-2 text-sm">
                 Free 1ct Diamond Pendant with Purchase<sup>*</sup>
               </p>
-              <div className="mt-4 md:mt-4 flex flex-col md:flex-row items-center md:justify-center gap-2.5 md:gap-4">
-                <LinkButton
+              <div className="hidden md:flex mt-4 md:mt-4 flex-col md:flex-row items-center md:justify-center gap-2.5 md:gap-4">
+                <PrimaryLinkButton
                   href="/customize/start-with-setting"
-                  className="lg:!h-0 w-fit lg:py-[16px] 2xl:py-[20px] 2xl:!min-w-[250px] lg:!text-sm !font-bold rounded-none !border-baseblack md:!border-white !border-1 !text-baseblack md:!text-white !bg-transparent hover:!bg-white hover:!text-black"
+                  variant="transparentHover"
                 >
                   SHOP ENGAGEMENT
-                </LinkButton>
-                <LinkButton
+                </PrimaryLinkButton>
+                <PrimaryLinkButton
                   href="/collections/categories/Jewelry"
-                  className="lg:!h-0 w-fit lg:py-[16px] 2xl:py-[20px] 2xl:!min-w-[250px] lg:!text-sm !font-bold rounded-none !border-baseblack md:!border-white !border-1 !text-baseblack md:!text-white !bg-transparent hover:!bg-white hover:!text-black"
+                  variant="transparentHover"
                 >
                   SHOP ALL JEWELRY
-                </LinkButton>
+                </PrimaryLinkButton>
+              </div>
+              <div className="md:hidden px-2 flex mt-4 md:mt-4 flex-wrap items-center justify-center gap-2.5 md:gap-4">
+                <PrimaryLinkButton
+                  href="/customize/start-with-setting"
+                  variant="blackHover"
+                >
+                  SHOP ENGAGEMENT
+                </PrimaryLinkButton>
+                <PrimaryLinkButton
+                  href="/collections/categories/Jewelry"
+                  variant="blackHover"
+                >
+                  SHOP ALL JEWELRY
+                </PrimaryLinkButton>
               </div>
             </div>
           </div>

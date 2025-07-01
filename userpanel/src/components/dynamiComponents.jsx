@@ -51,13 +51,6 @@ export const AnimatedSection = dynamic(() => import("./ui/AnimatedSection"), {
   ssr: false,
 });
 
-export const SwipperHomePageBig = dynamic(
-  () => import("./ui/SwipperHomePageBig.jsx"),
-  {
-    ssr: false,
-  }
-);
-
 export const TestimonialSlider = dynamic(
   () => import("./ui/TestimonialSlider.jsx"),
   {

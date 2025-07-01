@@ -1,24 +1,24 @@
 import { CustomImg } from "../dynamiComponents";
-import { PrimaryLinkButton } from "./button";
+import { LinkButton, PrimaryLinkButton } from "./button";
 
 const ResponsiveImageAndContent = ({
   desktopImage,
   mobileImage,
   title = "New Arrivals",
-  subtitle = "NEW Designer Collection",
+  subtitle = "New Designer Collection",
   linkText = "Explore Collection",
   linkHref = "#",
 }) => {
   return (
     <>
       {/* Desktop View */}
-      <section className="hidden lg:block relative w-full h-[95vh] overflow-hidden">
+      <section className="relative hidden sm:block">
         <CustomImg
           src={desktopImage}
           alt={`${title} Banner`}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="w-full"
         />
-        <div className="relative z-10 container mx-auto h-full flex items-end xs:items-center pb-10 xs:pb-0">
+        <div className="absolute top-0 left-[6%] container mx-auto h-full flex items-end xs:items-center pb-10 xs:pb-0">
           <BannerContent
             title={title}
             subtitle={subtitle}
@@ -29,13 +29,9 @@ const ResponsiveImageAndContent = ({
       </section>
 
       {/* Mobile & Tablet View */}
-      <section className="lg:hidden relative w-full h-[90vh] overflow-hidden">
-        <CustomImg
-          src={mobileImage}
-          alt={`${title} Banner`}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="relative z-10 container mx-auto h-full flex justify-center items-end  bottom-12 sm:bottom-20 md:bottom-12">
+      <section className="sm:hidden relative">
+        <CustomImg src={mobileImage} alt={`${title} Banner`} className="" />
+        <div className="absolute container mx-auto h-full flex justify-center items-end  bottom-6 sm:bottom-10">
           <BannerContent
             title={title}
             subtitle={subtitle}
@@ -50,16 +46,25 @@ const ResponsiveImageAndContent = ({
 
 const BannerContent = ({ title, subtitle, linkText, linkHref }) => (
   <div className="text-white max-w-xl text-center">
-    <h2 className="text-3xl md:text-5xl xl:text-7xl font-bold uppercase">
+    <h2 className="text-2xl md:text-4xl xl:text-6xl 4xl:text-7xl font-bold uppercase">
       {title}
     </h2>
-    <p className="mt-2 text-base md:text-lg xl:text-xl tracking-widest">
+    <p className="xl:mt-2 text-sm md:text-lg xl:text-xl tracking-wide xl:tracking-[0.3em]">
       {subtitle}
     </p>
-    <div className="flex justify-center mt-2 lg:mt-6">
+    <div className="flex sm:hidden justify-center mt-2 md:mt-4 lg:mt-6">
+      <LinkButton
+        href={linkHref}
+        className="!bg-transparent hover:!bg-black hover:!text-white hover:!border-black"
+      >
+        {" "}
+        {linkText}
+      </LinkButton>
+    </div>
+    <div className="hidden sm:flex justify-center mt-2 md:mt-4 lg:mt-6">
       <PrimaryLinkButton
         variant="whiteHover"
-        className="!uppercase !rounded-full"
+        className="!uppercase !rounded-full !bg-transparent "
         href={linkHref}
       >
         {linkText}

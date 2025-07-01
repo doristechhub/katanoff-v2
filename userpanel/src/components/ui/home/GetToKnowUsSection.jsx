@@ -19,9 +19,11 @@ const CARD_DATA = [
 
 export default function GetToKnowUsSection() {
   return (
-    <section className="pt-8 md:pt-10 lg:pt-12 2xl:pt-16 px-4">
-      <div className="text-center mb-10">
-        <p className="uppercase text-sm tracking-wider">Get to know us</p>
+    <>
+      <div className="text-center mb-6 md:mb-10 lg:mt-10">
+        <p className="uppercase text-base md:text-lg  tracking-wider">
+          Get to know us
+        </p>
         <h2 className="text-2xl md:text-4xl font-castoro mt-2">
           Diamonds That Deserve You
         </h2>
@@ -32,29 +34,29 @@ export default function GetToKnowUsSection() {
           <Link
             key={index}
             href={card.link}
-            className="group relative h-[450px] md:h-[600px] overflow-hidden"
+            className="group relative overflow-hidden"
           >
-            <div className="absolute inset-0">
+            <div>
               <CustomImg
                 srcAttr={card.image}
                 altAttr={card.title}
-                className="object-cover w-full h-full scale-100 group-hover:scale-105 transition-transform duration-500"
+                className="group-hover:scale-105 transition-transform duration-500"
               />
             </div>
 
-            <div className="relative z-10 flex flex-col left-[5%] top-[47%] h-full px-6 text-black">
+            <div className="absolute flex flex-col lg:left-[5%] top-[47%] h-full px-6 text-black">
               <h3
-                className={`text-2xl md:text-3xl 2xl:text-4xl 4xl:text-4xl font-medium mb-4 uppercase`}
+                className={`text-xl lg:text-3xl 2xl:text-4xl 4xl:text-4xl font-medium mb-4 uppercase`}
               >
                 {card.title}
               </h3>
-              <span className="uppercase pt-[4%] text-sm md:text-base xl:text-lg font-medium tracking-wider underline hover:opacity-80 transition ">
+              <span className="uppercase pt-[2%] md:pt-[4%] text-sm lg:text-base xl:text-lg font-medium tracking-wider underline hover:opacity-80 transition ">
                 Explore
               </span>
             </div>
           </Link>
         ))}
       </div>
-    </section>
+    </>
   );
 }

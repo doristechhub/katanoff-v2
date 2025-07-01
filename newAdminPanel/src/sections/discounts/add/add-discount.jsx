@@ -17,6 +17,11 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
 } from '@mui/material';
 import { createDiscount, getSingleDiscount, updateDiscount } from 'src/actions';
 import { setSelectedDiscount, initDiscount } from 'src/store/slices/discountSlice';
@@ -72,13 +77,22 @@ const validationSchema = Yup.object().shape({
   }),
   purchaseMode: Yup.string()
     .required('Purchase mode is required')
-    .oneOf(['One-Time', 'Subscription', 'All'], 'Invalid purchase mode'),
+    .oneOf(['One-Time', 'All'], 'Invalid purchase mode'),
   customerEligibility: Yup.string()
     .required('Customer eligibility is required')
     .oneOf(['Everyone', 'Selected Customers'], 'Invalid customer eligibility'),
+  minimumOrderValueType: Yup.string()
+    .required('Minimum order value type is required')
+    .oneOf(['no_minimum', 'custom'], 'Invalid minimum order value type'),
   minimumOrderValue: Yup.number()
     .required('Minimum order value is required')
-    .min(0, 'Minimum order value cannot be negative'),
+    .min(0, 'Minimum order value cannot be negative')
+    .when('minimumOrderValueType', {
+      is: 'no_minimum',
+      then: (schema) => schema.equals([0], 'Minimum order value must be 0 for no minimum'),
+      otherwise: (schema) =>
+        schema.min(1, 'Minimum order value must be at least 1 for custom amount'),
+    }),
   dateRange: Yup.object().shape({
     beginsAtDate: Yup.date()
       .required('Start date is required')
@@ -167,7 +181,10 @@ const AddDiscountPage = () => {
 
   const formik = useFormik({
     enableReinitialize: true,
-    initialValues: selectedDiscount,
+    initialValues: {
+      ...selectedDiscount,
+      minimumOrderValueType: selectedDiscount.minimumOrderValue === 0 ? 'no_minimum' : 'custom',
+    },
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
       const beginsAtMoment = moment(values?.dateRange?.beginsAtDate).set({
@@ -321,6 +338,17 @@ const AddDiscountPage = () => {
     event.target.blur();
   };
 
+  const handleMinimumOrderValueTypeChange = async (event) => {
+    const value = event.target.value;
+    await setFieldValue('minimumOrderValueType', value);
+    if (value === 'no_minimum') {
+      await setFieldValue('minimumOrderValue', 0);
+    } else {
+      await setFieldValue('minimumOrderValue', values.minimumOrderValue || '');
+    }
+    debouncedValidate(['minimumOrderValueType', 'minimumOrderValue']);
+  };
+
   return (
     <Container>
       <Box sx={{ mb: 5 }}>
@@ -460,42 +488,75 @@ const AddDiscountPage = () => {
             <Card sx={{ p: 3, mt: 2 }}>
               <Grid container spacing={3}>
                 <Grid xs={12} sm={6}>
-                  <TextField
-                    select
-                    fullWidth
-                    name="customerEligibility"
-                    label="Customer Eligibility"
-                    value={values?.customerEligibility}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.customerEligibility && !!errors.customerEligibility}
-                    helperText={touched.customerEligibility && errors.customerEligibility}
-                  >
-                    {ELIGIBILITY_TYPES.map((eligibility) => (
-                      <MenuItem
-                        key={eligibility?.value}
-                        value={eligibility?.value}
-                        disabled={eligibility?.disabled}
-                      >
-                        {eligibility?.label}
-                      </MenuItem>
-                    ))}
-                  </TextField>
+                  <FormControl component="fieldset" fullWidth>
+                    <FormLabel component="legend">Customer Eligibility</FormLabel>
+                    <RadioGroup
+                      column={'true'}
+                      name="customerEligibility"
+                      value={values?.customerEligibility || ''}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                    >
+                      {ELIGIBILITY_TYPES.map((eligibility) => (
+                        <FormControlLabel
+                          key={eligibility?.value}
+                          value={eligibility?.value}
+                          control={<Radio />}
+                          label={eligibility?.label}
+                          disabled={eligibility?.disabled}
+                        />
+                      ))}
+                    </RadioGroup>
+                    {touched.customerEligibility && errors.customerEligibility && (
+                      <Typography color="error" variant="caption">
+                        {errors.customerEligibility}
+                      </Typography>
+                    )}
+                  </FormControl>
                 </Grid>
                 <Grid xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    type="number"
-                    name="minimumOrderValue"
-                    label="Minimum Order Amount"
-                    value={values?.minimumOrderValue}
-                    onClick={handleInputClick}
-                    onWheel={handleWheel}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.minimumOrderValue && !!errors.minimumOrderValue}
-                    helperText={touched.minimumOrderValue && errors.minimumOrderValue}
-                  />
+                  <FormControl component="fieldset" fullWidth>
+                    <FormLabel component="legend">Minimum Order Amount</FormLabel>
+                    <RadioGroup
+                      column={'true'}
+                      name="minimumOrderValueType"
+                      value={values?.minimumOrderValueType || 'no_minimum'}
+                      onChange={handleMinimumOrderValueTypeChange}
+                      onBlur={handleBlur}
+                    >
+                      <FormControlLabel
+                        value="no_minimum"
+                        control={<Radio />}
+                        label="No minimum requirements"
+                      />
+                      <FormControlLabel
+                        value="custom"
+                        control={<Radio />}
+                        label="Minimum purchase amount ($)"
+                      />
+                    </RadioGroup>
+                    {values?.minimumOrderValueType === 'custom' && (
+                      <TextField
+                        fullWidth
+                        type="number"
+                        name="minimumOrderValue"
+                        label="Minimum Purchase Amount ($)"
+                        value={values?.minimumOrderValue}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        onClick={handleInputClick}
+                        onWheel={handleWheel}
+                        error={touched.minimumOrderValue && !!errors.minimumOrderValue}
+                        helperText={touched.minimumOrderValue && errors.minimumOrderValue}
+                        sx={{ mt: 2 }}
+                      />
+                    )}
+                    {touched.minimumOrderValueType && errors.minimumOrderValueType && (
+                      <Typography color="error" variant="caption">
+                        {errors.minimumOrderValueType}
+                      </Typography>
+                    )}
+                  </FormControl>
                 </Grid>
               </Grid>
             </Card>

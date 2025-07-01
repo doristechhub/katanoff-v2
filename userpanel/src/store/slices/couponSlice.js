@@ -3,14 +3,14 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   promoCodeLoading: false,
   couponCode: "",
-  appliedCode: null,
+  appliedPromoDetail: null,
   couponMessage: { message: "", type: "" },
   userEmail: "",
   couponAppliedMail: "",
 };
 
 const couponSlice = createSlice({
-  name: "checkout",
+  name: "coupon",
   initialState,
   reducers: {
     setPromoCodeLoading: (state, action) => {
@@ -19,8 +19,8 @@ const couponSlice = createSlice({
     setCouponCode: (state, action) => {
       state.couponCode = action.payload;
     },
-    setAppliedCode: (state, action) => {
-      state.appliedCode = action.payload;
+    setAppliedPromoDetail: (state, action) => {
+      state.appliedPromoDetail = action.payload;
     },
     setCouponMessage: (state, action) => {
       state.couponMessage = action.payload;
@@ -37,7 +37,7 @@ const couponSlice = createSlice({
 export const {
   setPromoCodeLoading,
   setCouponCode,
-  setAppliedCode,
+  setAppliedPromoDetail,
   setCouponMessage,
   setUserEmail,
   setCouponAppliedMail,

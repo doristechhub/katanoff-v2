@@ -12,6 +12,25 @@ import { setLoginMessage, setSendOtpMessage } from "@/store/slices/userSlice";
 import axios from "axios";
 const bcrypt = require("bcryptjs");
 
+export const sendSignupDiscountMail = async (email) => {
+  try {
+    if (!email)
+      throw new Error("Email is required to send the signup discount mail");
+
+    const sanitized = sanitizeObject({ email });
+
+    const response = await axios.post(
+      `${apiUrl}/user/signup-with-discount`,
+      sanitized
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error sending signup discount mail:", error);
+    throw error;
+  }
+};
+
 const insertUser = (params) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -21,8 +40,14 @@ const insertUser = (params) => {
       }
 
       const uuid = uid();
-      let { firstName, lastName, email, password, confirmPassword } =
-        sanitizeObject(params);
+      let {
+        firstName,
+        lastName,
+        email,
+        password,
+        confirmPassword,
+        isSignUpOffer,
+      } = sanitizeObject(params);
       firstName = firstName ? firstName.trim() : null;
       lastName = lastName ? lastName.trim() : null;
       email = email ? email.trim() : null;
@@ -74,6 +99,9 @@ const insertUser = (params) => {
             fetchWrapperService
               .create(createPattern)
               .then((response) => {
+                if (isSignUpOffer) {
+                  sendSignupDiscountMail(email);
+                }
                 // const mailPayload = {
                 //   email
                 // }

@@ -576,6 +576,16 @@ const setCustomProductInLocalStorage = (cartItem) => {
   localStorage.setItem("customProduct", JSON.stringify(customProduct));
 };
 
+const getDisplaySubtotalWithDiscount = (subTotal = 0, discount = 0) => {
+  const numericSubTotal = parseFloat(subTotal) || 0;
+  const numericDiscount = parseFloat(discount) || 0;
+
+  const finalSubtotal =
+    numericDiscount > 0 ? numericSubTotal + numericDiscount : numericSubTotal;
+
+  return toFixedNumber(finalSubtotal);
+};
+
 export const helperFunctions = {
   debounce,
   generateUniqueId,
@@ -616,4 +626,5 @@ export const helperFunctions = {
   calculateMetalPrice,
   calculateSideDiamondPrice,
   setCustomProductInLocalStorage,
+  getDisplaySubtotalWithDiscount,
 };

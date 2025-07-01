@@ -1,6 +1,6 @@
 // components/EmailOfferPopup.tsx
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { X } from "lucide-react";
 import {
   setHomePagePopupLoader,
@@ -9,6 +9,7 @@ import {
 } from "@/store/slices/commonSlice";
 import { useDispatch, useSelector } from "react-redux";
 import HomePopupImg from "@/assets/images/home/home-page-popup.webp";
+import HomePopupImgMobile from "@/assets/images/home/home-page-popup-mobile.webp";
 import { CustomImg } from "../dynamiComponents";
 import { LoadingPrimaryButton } from "./button";
 import { useRouter } from "next/navigation";
@@ -42,7 +43,7 @@ export default function HomePagePopup() {
       dispatch(setHomePagePopupLoader(true));
       dispatch(setOpenHomePagePopup(false));
       localStorage.setItem("signUpOfferEmail", values.email);
-      router.push(`/auth/sign-up?email=${values.email}`);
+      router.push(`/auth/sign-up`);
       dispatch(setHomePagePopupLoader(false));
     },
   });
@@ -51,7 +52,7 @@ export default function HomePagePopup() {
   if (!openHomePagePopup) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center px-4 md:px-0">
+    <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center px-4">
       <div className="bg-[#FCFCFC]  md:max-w-4xl w-full overflow-hidden flex flex-col md:flex-row relative">
         <button
           className="absolute top-4 right-4 text-gray-600 hover:text-black"
@@ -99,13 +100,6 @@ export default function HomePagePopup() {
                 Sign Up
               </LoadingPrimaryButton>
             </div>
-
-            {/* <PrimaryLinkButton
-              onClick={handleSubmit}
-              className="!uppercase !rounded-full"
-            >
-              Sign Up
-            </PrimaryLinkButton> */}
           </form>
           <p className="text-sm md:text-base text-[#202A4E] mt-2 md:mt-4">
             By completing this form you are signing up to receive our emails and
@@ -113,11 +107,16 @@ export default function HomePagePopup() {
           </p>
         </div>
 
-        <div className="w-auto h-[200px] md:w-1/2 md:h-[450px] flex items-center justify-center pt-4 md:pt-0 pb-4 md:pb-0">
+        <div className="h-[300px] md:w-1/2 md:h-[450px] flex items-center justify-center pt-4 md:pt-0 pb-4 md:pb-0">
           <CustomImg
             src={HomePopupImg}
             alt="Offer Rings"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover hidden sm:block"
+          />
+          <CustomImg
+            src={HomePopupImgMobile}
+            alt="Offer Rings"
+            className="w-full h-full object-cover sm:hidden"
           />
         </div>
       </div>

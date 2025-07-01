@@ -49,7 +49,7 @@ const PaymentPage = () => {
   const params = useParams();
   const { secretData } = params;
   const { cartLoading, cartList } = useSelector(({ cart }) => cart);
-  const { appliedCode } = useSelector(({ coupon }) => coupon);
+  const { appliedPromoDetail } = useSelector(({ coupon }) => coupon);
   const { orderDetail } = useSelector(({ order }) => order);
   const {
     checkPIStatusLoader,
@@ -84,10 +84,10 @@ const PaymentPage = () => {
         console.error("Failed to parse userEmail", err);
       }
     }
-    if (!appliedCode && getCoupon) {
+    if (!appliedPromoDetail && getCoupon) {
       dispatch(applyCouponCode(getCoupon, subTotal, parsedMail));
     }
-  }, [dispatch, appliedCode, cartList, userEmail]);
+  }, [dispatch, appliedPromoDetail, cartList, userEmail]);
 
   // abortcontroller
   const abortControllerRef = useRef(null);
