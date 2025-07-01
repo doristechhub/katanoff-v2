@@ -135,7 +135,7 @@ export default function CenterFocusSlider() {
   return (
     <section className="relative pt-6 sm:pt-8 pb-12 md:py-16 overflow-hidden">
       <div className="flex flex-col gap-2 sm:gap-4 xl:gap-6 justify-center text-center items-center">
-        <h2 className="text-center text-xl md:text-2xl xl:text-3xl 2xl:text-4xl font-semibold uppercase font-castoro">
+        <h2 className="text-center text-2xl md:text-2xl xl:text-3xl 2xl:text-4xl font-semibold uppercase font-castoro">
           Discover Shapes
         </h2>
         <p className="w-[90%] md:w-[60%] 2xl:w-[40%] text-center text-base lg:text-lg xl:text-xl">
@@ -185,12 +185,21 @@ export default function CenterFocusSlider() {
             />
           </button>
           <div className="text-center w-96">
-            <h3 className="text-lg xl:text-xl font-semibold">
-              {ringData[currentIndex]?.title}
-            </h3>
-            <p className="text-sm lg:text-base xl:text-lg text-gray-500">
-              {ringData[currentIndex]?.subtitle}
-            </p>
+            <Link
+              href={`/customize/select-diamond?shape=${ringData[
+                currentIndex
+              ]?.title
+                ?.toLowerCase()
+                ?.replace(/\s+/g, "-")}`}
+              className="text-center w-96"
+            >
+              <h3 className="text-lg xl:text-xl font-semibold">
+                {ringData[currentIndex]?.title}
+              </h3>
+              <p className="text-sm lg:text-base xl:text-lg text-gray-500">
+                {ringData[currentIndex]?.subtitle}
+              </p>
+            </Link>
           </div>
           <button
             onClick={() => sliderRef?.slickNext()}

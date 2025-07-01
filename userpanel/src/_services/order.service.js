@@ -15,7 +15,7 @@ import { authenticationService } from "./authentication.service";
 import { returnService } from "./return.service";
 import { diamondShapeService } from "./diamondShape.service";
 
-const getAllOrders = () => {
+const getAllOrdersWithoutLogin = () => {
   return new Promise(async (resolve, reject) => {
     try {
       const respData = await fetchWrapperService.getAll(ordersUrl);
@@ -387,5 +387,5 @@ export const orderService = {
   deleteOrder,
   trackOrderByOrderNumberAndEmail,
   verifyOrder,
-  getAllOrders,
+  getAllOrdersWithoutLogin,
 };

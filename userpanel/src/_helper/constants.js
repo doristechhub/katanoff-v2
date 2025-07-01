@@ -134,7 +134,6 @@ export const GOLD_COLOR_MAP = {
 export const FIXED = "Fixed";
 export const PERCENTAGE = "Percentage";
 export const ONE_TIME = "One-Time";
-export const SUBSCRIPTION = "Subscription";
 export const SELECTED_CUSTOMERS = "Selected Customers";
 export const DISCOUNT_TYPES = {
   ORDER_DISCOUNT: "Order Discount",

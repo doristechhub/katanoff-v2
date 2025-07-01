@@ -6,10 +6,9 @@ import "swiper/css";
 import "swiper/css/navigation";
 
 import tennis from "@/assets/images/home/tennis.webp";
-import newArrival from "@/assets/images/home/newArrival.webp";
 import fashion from "@/assets/images/home/fashion.webp";
 import bangle from "@/assets/images/home/bangle.webp";
-
+import trendingCollections from "@/assets/images/home/trending-collection.webp";
 import CustomImg from "../custom-img";
 import Link from "next/link";
 import { helperFunctions } from "@/_helper";
@@ -35,8 +34,8 @@ const categories = [
     titleAttr: "",
   },
   {
-    img: newArrival,
-    title: "New Arrival",
+    img: trendingCollections,
+    title: "Trending Collections",
     altAttr: "",
     titleAttr: "",
   },
@@ -45,7 +44,7 @@ const categories = [
 export default function CategoryGallery() {
   return (
     <section>
-      <h2 className="text-center text-xl md:text-2xl xl:text-3xl 2xl:text-4xl font-semibold uppercase font-castoro">
+      <h2 className="text-center text-2xl md:text-2xl xl:text-3xl 2xl:text-4xl font-semibold uppercase font-castoro">
         OUR SELECTIONS
       </h2>
 
@@ -66,16 +65,16 @@ export default function CategoryGallery() {
           spaceBetween={20}
           breakpoints={{
             0: {
-              slidesPerView: 1.2,
+              slidesPerView: 1,
             },
             768: {
-              slidesPerView: 2.3,
+              slidesPerView: 2,
             },
             1024: {
-              slidesPerView: 2.6,
+              slidesPerView: 3,
             },
             1240: {
-              slidesPerView: 3.6,
+              slidesPerView: 4,
             },
           }}
           className="!mx-8"
@@ -96,7 +95,7 @@ export default function CategoryGallery() {
                       srcAttr={category.img}
                       titleAttr={category.titleAttr}
                       altAttr={category.altAttr}
-                      className="w-full h-full"
+                      className="w-full"
                     />
                     <p className="uppercase mt-3 text-sm lg:text-base 6xl:text-lg font-medium text-baseblack">
                       {category.title}

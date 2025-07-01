@@ -99,9 +99,6 @@ export default function CollectionPage() {
           isLoading={productLoading}
         />
       </section>
-      {/* <section className="container pt-16 lg:pt-20 2xl:pt-20">
-        <SwipperHomePageBig navigation={true} />
-      </section> */}
       <section className="container pt-16 lg:pt-20 2xl:pt-20">
         <KeyFeatures />
       </section>

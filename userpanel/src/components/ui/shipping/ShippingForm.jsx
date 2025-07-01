@@ -70,7 +70,7 @@ const shippingForm = () => {
   const router = useRouter();
 
   const { isHovered, isSubmitted } = useSelector(({ common }) => common);
-  const { appliedCode } = useSelector(({ coupon }) => coupon);
+  const { appliedPromoDetail } = useSelector(({ coupon }) => coupon);
   const { selectedShippingCharge, activeIndex, selectedShippingAddress } =
     useSelector(({ checkout }) => checkout);
 
@@ -136,10 +136,10 @@ const shippingForm = () => {
         console.error("Failed to parse userEmail", err);
       }
     }
-    if (!appliedCode && getCoupon) {
+    if (!appliedPromoDetail && getCoupon) {
       dispatch(applyCouponCode(getCoupon, subTotal, parsedMail));
     }
-  }, [dispatch, appliedCode, cartList, userEmail]);
+  }, [dispatch, appliedPromoDetail, cartList, userEmail]);
 
   const processPayment = useCallback(
     async (paymentAction, payload) => {
@@ -179,7 +179,7 @@ const shippingForm = () => {
         companyName: selectedShippingAddress?.companyName,
         apartment: selectedShippingAddress?.apartment,
         shippingCharge: 0,
-        promoCode: appliedCode?.promoCode || "",
+        promoCode: appliedPromoDetail?.promoCode || "",
       };
       if (!cartList.length) {
         dispatch(handleCreatePaymentIntentError("Cart is empty"));
@@ -215,7 +215,7 @@ const shippingForm = () => {
     selectedPaymentMethod,
     processPayment,
     clearAbortController,
-    appliedCode,
+    appliedPromoDetail,
   ]);
 
   const shippingOptions = [

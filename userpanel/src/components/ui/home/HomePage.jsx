@@ -1,20 +1,10 @@
 "use client";
 import "swiper/css";
 import "swiper/css/navigation";
-import desktopFreeGift from "@/assets/images/home/desktop-free-gift.webp";
-import mobileFreeGift from "@/assets/images/home/mobile-free-gift.webp";
-import ring1 from "@/assets/images/home/ring-1.webp";
-import ring2 from "@/assets/images/home/ring-2.webp";
-import ring3 from "@/assets/images/home/ring-3.webp";
-
 import home18 from "@/assets/images/home/home-18.webp";
 import home19 from "@/assets/images/home/home-19.webp";
-import home20 from "@/assets/images/home/home-20.webp";
-import home21 from "@/assets/images/home/home-21.webp";
-import home22 from "@/assets/images/home/home-22.webp";
-import home36 from "@/assets/images/home/home-36.webp";
-import newArrivalBannerDesktop from "@/assets/images/home/newArrivalBanner-desktop.webp";
-import newArrivalBannerMobile from "@/assets/images/home/newArrivalBanner-mobile.webp";
+import newArrivalBannerMobile from "@/assets/images/home/newArrivalBannerMobile.png";
+import newArrivalBannerDesktop from "@/assets/images/home/newArrivalBanner-desktop.png";
 
 import {
   AccordionDropdown,
@@ -27,7 +17,6 @@ import {
   RingSettingCenterStone,
 } from "@/components/dynamiComponents";
 
-import { useCallback, useEffect, useState } from "react";
 import TextAboveImage from "@/components/ui/TextAboveImage";
 import { useDispatch, useSelector } from "react-redux";
 import Alert from "@/components/ui/Alert";
@@ -68,8 +57,6 @@ const faqData = [
       "Lab-grown diamonds have the same chemical, physical, and optical properties as natural diamonds.",
   },
 ];
-
-const images = [ring1, ring2, ring3];
 
 const mockReviews = [
   {
@@ -243,7 +230,7 @@ const Home = () => {
         desktopImage={newArrivalBannerDesktop}
         mobileImage={newArrivalBannerMobile}
         title="New Arrivals"
-        subtitle="NEW Designer Collection"
+        subtitle="New Designer Collection"
         linkText="Explore Collection"
         linkHref={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
           "New Arrival"
@@ -273,11 +260,11 @@ const Home = () => {
       <section className="pt-12 lg:pt-16 2xl:pt-24">
         <JewelryAppointment />
       </section>
-      <section className="container pt-10">
+      <section className="container pt-12 md:pt-16 lg:pt-16 2xl:pt-20  px-4">
         <GetToKnowUsSection />
       </section>
 
-      <section className="pt-10 lg:pt-12 2xl:pt-12 container">
+      <section className="pt-12 lg:pt-16 2xl:pt-20 container">
         <LatestProduct />
       </section>
 

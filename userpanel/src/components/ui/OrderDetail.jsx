@@ -118,7 +118,6 @@ const OrderDetails = ({
     };
   }, []);
   const cartContentRef = useRef(null);
-  
   return orderLoading ? (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 container my-8">
       {/* Left Panel Skeleton */}
@@ -251,7 +250,24 @@ const OrderDetails = ({
           {/* Billing Section */}
           <div className="p-4 lg:p-6 flex flex-col gap-2 text-sm md:text-base">
             {[
-              { label: "Sub Total", value: `$${orderDetail?.subTotal}` },
+              {
+                label: "Sub Total",
+                value: `$${helperFunctions?.getDisplaySubtotalWithDiscount(
+                  orderDetail?.subTotal,
+                  orderDetail?.discount
+                )}`,
+              },
+              ...(orderDetail?.discount > 0
+                ? [
+                    {
+                      label: `Promo Discount (${orderDetail?.promoCode})`,
+                      value: `- $${helperFunctions.toFixedNumber(
+                        orderDetail?.discount
+                      )}`,
+                      strong: false,
+                    },
+                  ]
+                : []),
               {
                 label: "Sales Tax(8%)",
                 value: `$${helperFunctions.toFixedNumber(
@@ -260,7 +276,12 @@ const OrderDetails = ({
               },
               {
                 label: "Shipping Charge",
-                value: `$${orderDetail?.shippingCharge}`,
+                value:
+                  orderDetail?.shippingCharge > 0
+                    ? `$${helperFunctions.toFixedNumber(
+                        orderDetail.shippingCharge
+                      )}`
+                    : "Free",
               },
               {
                 label: "Total Amount",

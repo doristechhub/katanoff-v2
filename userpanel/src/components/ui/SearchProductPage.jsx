@@ -3,7 +3,6 @@
 import {
   ProductFilter,
   ProductGrid,
-  SwipperHomePageBig,
 } from "@/components/dynamiComponents";
 import KeyFeatures from "@/components/ui/KeyFeatures";
 import { useEffect } from "react";
@@ -83,10 +82,6 @@ const SearchProductPage = () => {
             showButton={false}
           />
         )}
-      </section>
-
-      <section className="container pt-16 lg:pt-20 2xl:pt-20">
-        <SwipperHomePageBig navigation={true} />
       </section>
 
       <section className="container pt-16 lg:pt-20 2xl:pt-20">

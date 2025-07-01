@@ -15,7 +15,7 @@ import {
 } from "@/_actions/address.action";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import { LoadingPrimaryButton } from "@/components/ui/button";
-import { messageType, ONE_TIME, SUBSCRIPTION } from "@/_helper/constants";
+import { messageType, ONE_TIME } from "@/_helper/constants";
 import {
   setIsChecked,
   setIsHovered,
@@ -29,7 +29,7 @@ import {
 import { helperFunctions } from "@/_helper";
 import Link from "next/link";
 import {
-  setAppliedCode,
+  setAppliedPromoDetail,
   setCouponAppliedMail,
   setCouponCode,
   setUserEmail,
@@ -70,7 +70,7 @@ const CheckoutForm = () => {
   const { stateList, selectedShippingAddress } = useSelector(
     ({ checkout }) => checkout
   );
-  const { userEmail, appliedCode, couponAppliedMail } = useSelector(
+  const { userEmail, appliedPromoDetail, couponAppliedMail } = useSelector(
     ({ coupon }) => coupon
   );
   const { validateAddressLoader, addressMessage, invalidAddressDetail } =
@@ -111,18 +111,13 @@ const CheckoutForm = () => {
     initialValues.lastName = currentUser?.lastName;
   }
 
-  useEffect(() => {
-    if (currentUser?.email) {
-      dispatch(setUserEmail(currentUser.email));
-    }
-  }, [currentUser?.email, dispatch]);
-
   const clearAbortController = useCallback(() => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
     abortControllerRef.current = null;
   }, []);
+
   const checkValidationAddress = useCallback(
     async (fieldValues) => {
       try {
@@ -146,10 +141,7 @@ const CheckoutForm = () => {
 
           return;
         }
-        if (
-          appliedCode?.purchaseMode === ONE_TIME ||
-          appliedCode?.purchaseMode === SUBSCRIPTION
-        ) {
+        if (appliedPromoDetail?.purchaseMode === ONE_TIME) {
           if (couponAppliedMail != values?.email) {
             dispatch(
               handleAddressMessage({
@@ -219,7 +211,7 @@ const CheckoutForm = () => {
       cartList.length,
       clearAbortController,
       dispatch,
-      appliedCode,
+      appliedPromoDetail,
       couponAppliedMail,
       userEmail,
     ]
@@ -242,10 +234,10 @@ const CheckoutForm = () => {
 
   useEffect(() => {
     let address = localStorage.getItem("address");
-    dispatch(setUserEmail(""));
+
     dispatch(setCouponAppliedMail(""));
     dispatch(setCouponCode(""));
-    dispatch(setAppliedCode(null));
+    dispatch(setAppliedPromoDetail(null));
     localStorage.removeItem("appliedCoupon");
     if (address) {
       address = JSON.parse(address);
@@ -271,6 +263,13 @@ const CheckoutForm = () => {
       dispatch(setSelectedShippingAddress(updatedValues));
       setCountryWiseStateList(address?.countryName);
     }
+    let savedEmail = "";
+    if (address?.email) {
+      savedEmail = address?.email;
+    } else if (currentUser?.email) {
+      savedEmail = currentUser?.email;
+    }
+    dispatch(setUserEmail(savedEmail));
   }, []);
 
   const setCountryWiseStateList = (selectedCountry) => {
@@ -286,7 +285,7 @@ const CheckoutForm = () => {
   };
 
   const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const re = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
     return re.test(email);
   };
 

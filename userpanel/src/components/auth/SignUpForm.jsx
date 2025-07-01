@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
@@ -39,8 +39,6 @@ const SignUpForm = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const searchParams = useSearchParams();
-  const encodedEmail = searchParams.get("email");
   const { userRegisterLoading, userRegisterMessage } = useSelector(
     ({ user }) => user
   );
@@ -50,7 +48,7 @@ const SignUpForm = () => {
     dispatch(setUserRegisterMessage({ message: "", type: "" }))
   );
 
-  const isPromoCode = localStorage.getItem("signUpOffer");
+  const signUpOfferEmail = localStorage.getItem("signUpOfferEmail");
 
   const onSubmit = useCallback(async (fields, { resetForm }) => {
     const payload = {
@@ -59,12 +57,13 @@ const SignUpForm = () => {
       email: fields.email,
       password: fields.password,
       confirmPassword: fields.confirmPassword,
+      isSignUpOffer: signUpOfferEmail ? true : false,
     };
 
     const response = await dispatch(createUser(payload));
     if (response) {
       resetForm();
-      localStorage.removeItem("signUpOffer");
+      localStorage.removeItem("signUpOfferEmail");
       router.push("/auth/login");
     }
   }, []);
@@ -72,7 +71,7 @@ const SignUpForm = () => {
   const initialValues = {
     firstName: "",
     lastName: "",
-    email: encodedEmail ? encodedEmail : "",
+    email: signUpOfferEmail ? signUpOfferEmail : "",
     password: "",
     confirmPassword: "",
   };
@@ -86,7 +85,6 @@ const SignUpForm = () => {
     });
 
   const currentUser = helperFunctions.getCurrentUser();
-
   useEffect(() => {
     if (currentUser) {
       router.push("/");
@@ -135,10 +133,8 @@ const SignUpForm = () => {
         Sign up for your new account
       </p>
 
-      {/* Email Input */}
       <div className="mt-10 lg:mt-8 2xl:mt-10 w-full">
         <div className="grid grid-cols-2 gap-4">
-          {/* First Name */}
           <div className="col-span-1">
             <input
               type="text"
@@ -158,7 +154,6 @@ const SignUpForm = () => {
             ) : null}
           </div>
 
-          {/* Last Name */}
           <div className="col-span-1">
             <input
               type="text"
@@ -243,6 +238,7 @@ const SignUpForm = () => {
           </div>
         </div>
       </div>
+
       <div
         className="uppercase mt-6 2xl:mt-8 w-full"
         onMouseEnter={() => dispatch(setIsHovered(true))}
@@ -257,7 +253,14 @@ const SignUpForm = () => {
           SIGN UP
         </LoadingPrimaryButton>
       </div>
-
+      {signUpOfferEmail && (
+        <div className="mt-4 rounded-md bg-[#28a785] border-l-4 p-4 text-sm lg:text-base text-white w-full">
+          <p>
+            🎉 You’ll receive a promo code via email once you complete your
+            sign-up.
+          </p>
+        </div>
+      )}
       <p className="mt-3 lg:mt-4 text-sm sm:text-base 2xl:text-lg text-basegray text-center">
         Already a Member?{" "}
         <Link
@@ -274,7 +277,7 @@ const SignUpForm = () => {
         />
       ) : null}
       {/* Privacy Policy */}
-      <p className="absolute bottom-8 md:bottom-20 lg:bottom-4 2xl:bottom-20 2xl:right-28 md:right-28 right-10 lg:right-10  ">
+      <p className="absolute bottom-8 md:bottom-12 lg:bottom-4 2xl:bottom-16 2xl:right-28 md:right-28 right-10 lg:right-10  ">
         <Link
           href="/privacy-policy"
           className="underline text-sm sm:text-base 2xl:text-lg text-basegray hover:text-primary transition-all duration-300"

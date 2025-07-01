@@ -1,7 +1,7 @@
-import { messageType, ONE_TIME, SUBSCRIPTION } from "@/_helper";
+import { messageType, ONE_TIME } from "@/_helper";
 import { couponService } from "@/_services";
 import {
-  setAppliedCode,
+  setAppliedPromoDetail,
   setCouponAppliedMail,
   setCouponCode,
   setCouponMessage,
@@ -38,25 +38,21 @@ export const applyCouponCode = (code, orderValue, userEmail) => {
         userEmail
       );
 
-      dispatch(setAppliedCode(matchedCoupon));
-      if (
-        matchedCoupon?.purchaseMode === ONE_TIME ||
-        matchedCoupon?.purchaseMode === SUBSCRIPTION
-      ) {
+      dispatch(setAppliedPromoDetail(matchedCoupon));
+      if (matchedCoupon?.purchaseMode === ONE_TIME) {
         dispatch(setCouponAppliedMail(matchedCoupon?.appliedEmail));
       }
       dispatch(
         setCouponMessage({
           message:
-            matchedCoupon.purchaseMode === ONE_TIME ||
-            matchedCoupon.purchaseMode === SUBSCRIPTION
+            matchedCoupon.purchaseMode === ONE_TIME
               ? `Promo ${matchedCoupon?.promoCode} applied successfully with ${matchedCoupon?.purchaseMode} use for ${matchedCoupon.appliedEmail}`
               : `Promo ${matchedCoupon?.promoCode} Applied Successfully!`,
           type: messageType.SUCCESS,
         })
       );
     } catch (error) {
-      dispatch(setAppliedCode(null));
+      dispatch(setAppliedPromoDetail(null));
       dispatch(
         setCouponMessage({
           message: error.message || "Invalid Promo code",
@@ -72,7 +68,7 @@ export const applyCouponCode = (code, orderValue, userEmail) => {
 export const removeCouponCode = () => {
   return (dispatch) => {
     dispatch(setCouponCode(""));
-    dispatch(setAppliedCode(null));
+    dispatch(setAppliedPromoDetail(null));
     dispatch(setCouponMessage({ message: "", type: "" }));
   };
 };

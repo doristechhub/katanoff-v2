@@ -91,7 +91,7 @@ const validateCouponCode = (code, orderValue, userEmail) => {
             )
           );
         }
-        const orders = await orderService?.getAllOrders();
+        const orders = await orderService?.getAllOrdersWithoutLogin();
 
         const existingOrder = orders?.find(
           (order) =>

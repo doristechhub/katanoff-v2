@@ -27,7 +27,7 @@ const PaypalForm = ({ orderData }) => {
 
   const { cartList } = useSelector(({ cart }) => cart);
   const { paypalPaymentMessage } = useSelector(({ payment }) => payment);
-  const { appliedCode } = useSelector(({ coupon }) => coupon);
+  const { appliedPromoDetail } = useSelector(({ coupon }) => coupon);
 
   useEffect(() => {
     dispatch(setPaymentLoader(false));
@@ -47,10 +47,10 @@ const PaypalForm = ({ orderData }) => {
         console.error("Failed to parse userEmail", err);
       }
     }
-    if (!appliedCode && getCoupon) {
+    if (!appliedPromoDetail && getCoupon) {
       dispatch(applyCouponCode(getCoupon, subTotal, parsedMail));
     }
-  }, [dispatch, appliedCode, cartList, userEmail]);
+  }, [dispatch, appliedPromoDetail, cartList, userEmail]);
 
   const handleSuccessfulPayment = useCallback(
     async (billingAddressData) => {

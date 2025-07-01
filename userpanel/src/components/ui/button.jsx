@@ -122,6 +122,8 @@ export const PrimaryLinkButton = ({
       ? "!bg-transparent !h-12 lg:!h-[2.8rem] 2xl:!h-[3.5rem] font-semibold !tracking-wider !text-baseblack !border !border-baseblack px-6 py-2 !rounded-[8px] hover:!bg-black hover:!text-white"
       : variant === "whiteHover"
       ? "!bg-white !h-12 lg:!h-[2.8rem] 2xl:!h-[3.5rem] font-semibold !tracking-wider !text-baseblack !border !border-baseblack px-6 py-2 !rounded-[8px] hover:!bg-black hover:!text-white"
+      : variant === "transparentHover"
+      ? "!bg-transparent py-3 px-4 font-semibold !tracking-wider !text-white !border !border-white !rounded-[4px] hover:!bg-white hover:!text-black"
       : containedPrimaryBtn;
   return (
     <LinkButton
