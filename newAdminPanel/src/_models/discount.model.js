@@ -40,7 +40,7 @@ export const discountModel = {
   },
   purchaseMode: {
     type: String,
-    enum: ['One-Time', 'Subscription', 'All'],
+    enum: ['One-Time', 'All'],
     default: 'One-Time',
   },
   customerEligibility: {

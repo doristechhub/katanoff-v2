@@ -141,14 +141,9 @@ export const PURCHASE_TYPES = [
     disabled: false,
   },
   {
-    label: 'Subscription',
-    value: 'Subscription',
-    disabled: true,
-  },
-  {
-    label: 'Both',
+    label: 'All',
     value: 'All',
-    disabled: true,
+    disabled: false,
   },
 ];
 

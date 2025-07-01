@@ -17,6 +17,9 @@ import {
   Popover,
   MenuItem,
   Checkbox,
+  Select,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import moment from 'moment';
 import AddIcon from '@mui/icons-material/Add';
@@ -35,6 +38,8 @@ const DiscountsViewPage = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(null);
   const [searchedValue, setSearchedValue] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('createdDate');
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [toggleDialog, setToggleDialog] = useState({ open: false, action: null });
   const [selectedDiscountId, setSelectedDiscountId] = useState(null);
@@ -44,10 +49,55 @@ const DiscountsViewPage = () => {
     ({ discounts }) => discounts
   );
 
-  const searchKey = searchedValue?.trim()?.toLowerCase();
-  const filteredItems = discountList?.filter((item) =>
-    item?.name?.toLowerCase()?.includes(searchKey)
-  );
+  const getStatus = useCallback((dateRange) => {
+    const now = moment();
+    const beginsAt = dateRange?.beginsAt ? moment(dateRange.beginsAt, DATE_FORMAT, true) : null;
+    const expiresAt = dateRange?.expiresAt ? moment(dateRange.expiresAt, DATE_FORMAT, true) : null;
+
+    if (beginsAt?.isValid()) {
+      if (now.isBefore(beginsAt)) return 'scheduled';
+      if (!expiresAt || !expiresAt.isValid() || now.isBefore(expiresAt)) return 'active';
+    }
+    return 'expired';
+  }, []);
+
+  const filteredItems = discountList
+    ?.filter((item) => {
+      const searchKey = searchedValue?.trim()?.toLowerCase();
+      if (!searchKey) return true;
+      const nameMatch = item?.name?.toLowerCase()?.includes(searchKey);
+      const promoCodeMatch = item?.promoCode?.toLowerCase()?.includes(searchKey);
+      const statusMatch = getStatus(item?.dateRange)?.toLowerCase()?.includes(searchKey);
+      return nameMatch || promoCodeMatch || statusMatch;
+    })
+    ?.filter((item) => {
+      if (statusFilter === 'all') return true;
+      return getStatus(item?.dateRange) === statusFilter;
+    })
+    ?.sort((a, b) => {
+      if (sortBy === 'title') {
+        return a.name.localeCompare(b.name);
+      } else if (sortBy === 'createdDate') {
+        return new Date(b.createdDate) - new Date(a.createdDate); // Assuming createdDate exists
+      } else if (sortBy === 'startDate') {
+        const aStart = a.dateRange?.beginsAt
+          ? moment(a.dateRange.beginsAt, DATE_FORMAT).valueOf()
+          : Infinity;
+        const bStart = b.dateRange?.beginsAt
+          ? moment(b.dateRange.beginsAt, DATE_FORMAT).valueOf()
+          : Infinity;
+        return aStart - bStart;
+      } else if (sortBy === 'endDate') {
+        const aEnd = a.dateRange?.expiresAt
+          ? moment(a.dateRange.expiresAt, DATE_FORMAT).valueOf()
+          : Infinity;
+        const bEnd = b.dateRange?.expiresAt
+          ? moment(b.dateRange.expiresAt, DATE_FORMAT).valueOf()
+          : Infinity;
+        return aEnd - bEnd;
+      }
+      return 0;
+    });
 
   const loadData = useCallback(() => {
     dispatch(getDiscountList());
@@ -108,27 +158,13 @@ const DiscountsViewPage = () => {
       return filteredItems
         .filter((item) => selectedDiscountIds.includes(item.id))
         .reduce((count, item) => {
-          const now = moment();
-          const beginsAt = item.dateRange?.beginsAt
-            ? moment(item.dateRange.beginsAt, DATE_FORMAT, true)
-            : null;
-          const expiresAt = item.dateRange?.expiresAt
-            ? moment(item.dateRange.expiresAt, DATE_FORMAT, true)
-            : null;
-          let status = 'expired';
-          if (beginsAt?.isValid()) {
-            if (now.isBefore(beginsAt)) {
-              status = 'scheduled';
-            } else if (!expiresAt || !expiresAt.isValid() || now.isBefore(expiresAt)) {
-              status = 'active';
-            }
-          }
+          const status = getStatus(item?.dateRange);
           if (action === 'Activate' && status !== 'active') return count + 1;
           if (action === 'Deactivate' && status === 'active') return count + 1;
           return count;
         }, 0);
     },
-    [filteredItems, selectedDiscountIds]
+    [filteredItems, selectedDiscountIds, getStatus]
   );
 
   const handleToggleStatus = useCallback(
@@ -148,44 +184,39 @@ const DiscountsViewPage = () => {
     setToggleDialog({ open: true, action });
   }, []);
 
-  const renderStatus = useCallback((dateRange) => {
-    const now = moment();
-    const beginsAt = dateRange?.beginsAt ? moment(dateRange.beginsAt, DATE_FORMAT, true) : null;
-    const expiresAt = dateRange?.expiresAt ? moment(dateRange.expiresAt, DATE_FORMAT, true) : null;
+  const renderStatus = useCallback(
+    (dateRange) => {
+      const status = getStatus(dateRange);
+      let color = 'gray';
+      let backgroundColor = '#0000000f';
 
-    let status = 'expired';
-    let color = 'gray';
-    let backgroundColor = '#0000000f';
-
-    if (beginsAt?.isValid()) {
-      if (now.isBefore(beginsAt)) {
-        status = 'scheduled';
+      if (status === 'scheduled') {
         color = '#4f4700';
         backgroundColor = '#ffeb78';
-      } else if (!expiresAt || !expiresAt.isValid() || now.isBefore(expiresAt)) {
-        status = 'active';
+      } else if (status === 'active') {
         color = 'green';
         backgroundColor = '#affebf';
       }
-    }
 
-    return (
-      <Label
-        variant="filled"
-        sx={{
-          textTransform: 'capitalize',
-          padding: '6px',
-          height: '18px',
-          fontSize: '12px',
-          borderRadius: '3px',
-          backgroundColor,
-          color,
-        }}
-      >
-        {status}
-      </Label>
-    );
-  }, []);
+      return (
+        <Label
+          variant="filled"
+          sx={{
+            textTransform: 'capitalize',
+            padding: '6px',
+            height: '18px',
+            fontSize: '12px',
+            borderRadius: '3px',
+            backgroundColor,
+            color,
+          }}
+        >
+          {status}
+        </Label>
+      );
+    },
+    [getStatus]
+  );
 
   const handleOpenMenu = useCallback((event, discountId) => {
     setOpen(event.currentTarget);
@@ -215,8 +246,8 @@ const DiscountsViewPage = () => {
               <TextField
                 size="small"
                 type="search"
-                sx={{ padding: 0 }}
-                placeholder="Search"
+                sx={{ padding: 0, width: 200 }}
+                placeholder="Search name, promo code, status"
                 value={searchedValue}
                 onChange={searchValueHandler}
                 InputProps={{
@@ -230,6 +261,34 @@ const DiscountsViewPage = () => {
                   ),
                 }}
               />
+              <FormControl sx={{ minWidth: 120 }}>
+                <InputLabel>Status</InputLabel>
+                <Select
+                  size="small"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  label="Status"
+                >
+                  <MenuItem value="all">All</MenuItem>
+                  <MenuItem value="active">Active</MenuItem>
+                  <MenuItem value="scheduled">Scheduled</MenuItem>
+                  <MenuItem value="expired">Expired</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl sx={{ minWidth: 120 }}>
+                <InputLabel>Sort By</InputLabel>
+                <Select
+                  size="small"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  label="Sort By"
+                >
+                  <MenuItem value="createdDate">Created Date</MenuItem>
+                  <MenuItem value="startDate">Start Date</MenuItem>
+                  <MenuItem value="endDate">End Date</MenuItem>
+                  <MenuItem value="title">Title</MenuItem>
+                </Select>
+              </FormControl>
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
