@@ -126,7 +126,7 @@ const CartPage = () => {
 
   const getDiscountTotal = useCallback(() => {
     const totalDiscount = cartList.reduce((acc, item) => {
-      if (item.productDiscount) {
+      if (item.productDiscountPerc) {
         return acc + (item.quantityWisePrice - item.quantityWiseSellingPrice);
       }
       return acc;
@@ -221,7 +221,7 @@ const CartPage = () => {
 
                         <div className="flex xss:gap-4 xss:flex-row flex-col sm:items-center gap-2">
                           <p className="text-base md:text-lg font-bold">
-                            {cartItem?.productDiscount &&
+                            {cartItem?.productDiscountPerc &&
                             !cartItem?.diamondDetail ? (
                               <span className="text-sm md:text-base lg:text-lg text-gray-500 line-through mr-2">
                                 $

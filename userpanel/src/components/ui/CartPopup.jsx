@@ -240,7 +240,7 @@ const CartPopup = () => {
                                 </p>
                               ) : (
                                 <p className="text-base font-bold">
-                                  {cartItem?.productDiscount ? (
+                                  {cartItem?.productDiscountPerc ? (
                                     <span className="text-base text-gray-500 line-through mr-2">
                                       $
                                       {helperFunctions?.toFixedNumber(

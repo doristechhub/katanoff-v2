@@ -77,13 +77,13 @@ export default function ProfileDropdown({ className = "", uniqueId }) {
             >
               <div className="flex items-center gap-4">
                 <div className="h-7 w-7 rounded-full bg-primary text-white text-xs font-semibold flex justify-center items-center">
-                  {helperFunctions.getNameInitials(
-                    currentUser.firstName,
-                    currentUser.lastName
+                  {helperFunctions?.getNameInitials(
+                    currentUser?.firstName,
+                    currentUser?.lastName
                   )}
                 </div>
                 <h3>
-                  {currentUser.firstName} {currentUser.lastName}
+                  {currentUser?.firstName} {currentUser?.lastName}
                 </h3>
               </div>
               <IoIosArrowDown
