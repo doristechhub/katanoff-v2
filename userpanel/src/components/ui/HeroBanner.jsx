@@ -26,7 +26,7 @@ const HeroBanner = ({
       }`}
     >
       {isHomePage ? (
-        <div className="w-full lg:h-[100vh] text-center">
+        <div className="w-full xl:h-[90vh] 2xl:h-[100vh] text-center">
           {/* <picture>
             <source media="(max-width:360px)" srcSet={banner360W?.src} />
             <source media="(max-width:375px)" srcSet={banner375W?.src} />

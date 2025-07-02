@@ -8,8 +8,14 @@ import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { helperFunctions } from "@/_helper";
 import { useAlertTimeout } from "@/hooks/use-alert-timeout";
-import { setUserRegisterMessage } from "@/store/slices/userSlice";
-import { createUser } from "@/_actions/user.action";
+import {
+  setSendOtpMessage,
+  setUserRegisterMessage,
+} from "@/store/slices/userSlice";
+import {
+  createUser,
+  SendOTPForEmailVerification,
+} from "@/_actions/user.action";
 import { setIsHovered } from "@/store/slices/commonSlice";
 import { LoadingPrimaryButton } from "../ui/button";
 import Alert from "../ui/Alert";
@@ -39,17 +45,17 @@ const SignUpForm = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const { userRegisterLoading, userRegisterMessage } = useSelector(
-    ({ user }) => user
-  );
+  const { userRegisterLoading, userRegisterMessage, sendOtpMessage } =
+    useSelector(({ user }) => user);
   const { isHovered } = useSelector(({ common }) => common);
-
   useAlertTimeout(userRegisterMessage, () =>
     dispatch(setUserRegisterMessage({ message: "", type: "" }))
   );
 
   const signUpOfferEmail = localStorage.getItem("signUpOfferEmail");
-
+  useAlertTimeout(sendOtpMessage, () =>
+    dispatch(setSendOtpMessage({ message: "", type: "" }))
+  );
   const onSubmit = useCallback(async (fields, { resetForm }) => {
     const payload = {
       firstName: fields.firstName,
@@ -64,8 +70,30 @@ const SignUpForm = () => {
     if (response) {
       resetForm();
       localStorage.removeItem("signUpOfferEmail");
-      router.push("/auth/login");
+      const payload = {
+        email: fields.email,
+      };
+
+      const response = await dispatch(SendOTPForEmailVerification(payload));
+      if (response) {
+        localStorage.setItem("email", fields.email);
+        router.push("/auth/verify-otp");
+      }
+      {
+        router.push("/auth/login");
+      }
     }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (
+        sendOtpMessage?.type &&
+        sendOtpMessage?.type !== messageType?.SUCCESS
+      ) {
+        dispatch(setSendOtpMessage({ message: "", type: "" }));
+      }
+    };
   }, []);
 
   const initialValues = {
@@ -94,17 +122,6 @@ const SignUpForm = () => {
   useEffect(() => {
     dispatch(setUserRegisterMessage({ message: "", type: "" }));
   }, []);
-
-  useEffect(() => {
-    return () => {
-      if (
-        userRegisterMessage?.type &&
-        userRegisterMessage?.type !== messageType?.SUCCESS
-      ) {
-        dispatch(setUserRegisterMessage({ message: "", type: "" }));
-      }
-    };
-  }, [userRegisterMessage.type]);
 
   const ShowHidePassword = useMemo(
     () => (
@@ -254,9 +271,9 @@ const SignUpForm = () => {
         </LoadingPrimaryButton>
       </div>
       {signUpOfferEmail && (
-        <div className="mt-4 rounded-md bg-[#28a785] border-l-4 p-4 text-sm lg:text-base text-white w-full">
-          <p>
-            🎉 You’ll receive a promo code via email once you complete your
+        <div className="mt-4 lg:mt-6 rounded-md w-full">
+          <p className="text-base lg:text-lg text-primary font-medium">
+            You’ll receive a promo code via email once you complete your
             sign-up.
           </p>
         </div>
@@ -276,6 +293,7 @@ const SignUpForm = () => {
           type={userRegisterMessage?.type}
         />
       ) : null}
+
       {/* Privacy Policy */}
       <p className="absolute bottom-8 md:bottom-12 lg:bottom-4 2xl:bottom-16 2xl:right-28 md:right-28 right-10 lg:right-10  ">
         <Link

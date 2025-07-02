@@ -162,8 +162,7 @@ export default function OrderSummary({ orderId }) {
               </div>
             ))}
             <p className="font-medium mt-2">
-              *Sales tax will be applied to shipped to addresses within New York
-              State.
+              *Sales tax will be applied to addresses within New York State.
             </p>
           </div>
         </div>

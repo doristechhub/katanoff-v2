@@ -329,8 +329,8 @@ const calculateRefundAmount = (list) => {
 };
 
 const getNameInitials = (firstName, lastName) => {
-  const firstInitial = firstName.charAt(0).toUpperCase();
-  const lastInitial = lastName.charAt(0).toUpperCase();
+  const firstInitial = firstName?.charAt(0)?.toUpperCase();
+  const lastInitial = lastName?.charAt(0)?.toUpperCase();
   return firstInitial + lastInitial;
 };
 
@@ -586,6 +586,19 @@ const getDisplaySubtotalWithDiscount = (subTotal = 0, discount = 0) => {
   return toFixedNumber(finalSubtotal);
 };
 
+const splitDiscountAmongProducts = ({
+  quantityWiseProductPrice,
+  subTotal,
+  discountAmount,
+}) => {
+  if (!subTotal || subTotal <= 0 || quantityWiseProductPrice <= 0) return 0;
+
+  const proportion = quantityWiseProductPrice / subTotal;
+  const productDiscount = proportion * discountAmount;
+
+  return parseFloat(productDiscount.toFixed(2));
+};
+
 export const helperFunctions = {
   debounce,
   generateUniqueId,
@@ -627,4 +640,5 @@ export const helperFunctions = {
   calculateSideDiamondPrice,
   setCustomProductInLocalStorage,
   getDisplaySubtotalWithDiscount,
+  splitDiscountAmongProducts,
 };

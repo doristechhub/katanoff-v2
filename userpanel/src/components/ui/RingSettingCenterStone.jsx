@@ -9,23 +9,29 @@ const RingSettingCenterStone = () => {
   return (
     <>
       <div className="hidden md:block container">
-        <div className="relative grid grid-cols-2 xl:grid-cols-3 items-center">
+        <div className="grid grid-cols-2 xl:grid-cols-3 ">
           {/* Left Content */}
           <CommonSectionContent
             image={ringSetting}
             title="Ring Setting"
             description="Elevate your love story with our exquisite collection of engagement ring designs"
             buttonText="Start With Setting"
-            href="/"
+            href="/customize/select-diamond"
           />
 
           {/* Center GIF with overlap */}
-          <div className="hidden xl:relative xl:flex justify-center h-full w-full !items-start">
-            <CustomImg
-              srcAttr={centerStoneVideo}
-              altAttr="Center Stone Animation"
-              className="w-full h-full object-cover"
-            />
+
+          <div className="hidden h-[80vh] 2xl:h-[90vh] w-full xl:flex justify-center p-0 m-0 aspect-video -mt-[10%]">
+            <video
+              className="w-full h-full object-contain border-0 outline-0"
+              autoPlay
+              muted
+              loop
+              playsInline
+            >
+              <source src="/videos/center-stone.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
           </div>
 
           {/* Right Content */}
@@ -34,16 +40,21 @@ const RingSettingCenterStone = () => {
             title="Center Stone"
             description="Explore our stunning diamond collection and discover the brilliance in every choice."
             buttonText="Start With Stone"
-            href="/"
+            href="/customize/select-diamond"
           />
         </div>
         <div className="xl:hidden">
           <div className=" h-[600px] w-full flex justify-center">
-            <CustomImg
-              srcAttr={centerStoneVideo}
-              altAttr="Center Stone Animation"
-              className="w-[90%] h-auto object-contain"
-            />
+            <video
+              className="w-full h-full object-contain"
+              autoPlay
+              muted
+              loop
+              playsInline
+            >
+              <source src={"/videos/center-stone.mp4"} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
           </div>
         </div>
       </div>
@@ -53,7 +64,7 @@ const RingSettingCenterStone = () => {
           <CustomImg
             srcAttr={centerStoneCombine}
             altAttr="Center Stone"
-            className="w-52 h-24 xss:w-60 xss:h-24 sm:w-72 sm:h-32"
+            className=""
           />
           <h2 className="text-3xl sm:text-4xl font-semibold font-castoro uppercase text-black w-[80%]">
             Design Your Ring
@@ -93,11 +104,7 @@ const CommonSectionContent = ({
   return (
     <>
       <div className="flex flex-col items-center justify-center gap-4 2xl:gap-6">
-        <CustomImg
-          srcAttr={image}
-          altAttr="Center Stone"
-          className="w-full h-auto md:w-20 md:h-20 xl:w-28 xl:h-28"
-        />
+        <CustomImg srcAttr={image} altAttr="Center Stone" className="" />
         <div className="flex flex-col gap-4 justify-center items-center text-center pt-2 xl:pt-4">
           <p className="text-2xl lg:text-3xl font-bold uppercase text-black">
             {title}

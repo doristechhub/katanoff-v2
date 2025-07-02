@@ -17,6 +17,7 @@ import DiamondDetailDrawer from "../customize/DiamondDetailDrawer";
 import { paymentOptions } from "@/_utils/paymentOptions";
 import effect from "@/assets/icons/effect.png";
 import CheckoutCommonSummary from "./CheckoutCommonSummary";
+import { usePathname } from "next/navigation";
 const salesTaxPerc = 0.08;
 
 const CheckoutCommonComponent = () => {
@@ -28,6 +29,7 @@ const CheckoutCommonComponent = () => {
     ({ checkout }) => checkout
   );
   const { appliedPromoDetail } = useSelector(({ coupon }) => coupon);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!cartList.length) {
@@ -36,15 +38,22 @@ const CheckoutCommonComponent = () => {
   }, [cartList.length, dispatch]);
 
   const getCouponDiscountValue = () => {
-    if (!appliedPromoDetail || !appliedPromoDetail.discountDetails) return 0;
+    if (!appliedPromoDetail || !appliedPromoDetail.discountDetails) {
+      return 0;
+    }
+
     const { type, amount } = appliedPromoDetail.discountDetails;
     const subtotal = getSubTotal();
+    let discount = 0;
+
     if (type === PERCENTAGE) {
-      return ((amount / 100) * subtotal).toFixed(2);
+      discount = (amount / 100) * subtotal;
     } else if (type === FIXED) {
-      return Math.min(amount, subtotal).toFixed(2);
+      discount = Math.min(amount, subtotal);
     }
-    return 0;
+
+    const formattedDiscount = parseFloat(discount.toFixed(2));
+    return formattedDiscount;
   };
 
   useEffect(() => {
@@ -116,12 +125,16 @@ const CheckoutCommonComponent = () => {
 
   const getGrandTotal = useCallback(() => {
     const subTotal = Number(getSubTotal());
+    const discount = getCouponDiscountValue();
+    const discountedSubTotal = subTotal - discount;
 
-    const discountedSubTotal = subTotal - getCouponDiscountValue();
+    const isCheckoutPage = pathname === "/checkout";
 
-    const taxedAmount = isNewYorkState
-      ? discountedSubTotal + discountedSubTotal * salesTaxPerc
-      : discountedSubTotal;
+    // Only apply tax if not on checkout AND if New York
+    const taxedAmount =
+      !isCheckoutPage && isNewYorkState
+        ? discountedSubTotal + discountedSubTotal * salesTaxPerc
+        : discountedSubTotal;
 
     const shippingCharge = subTotal < 199 ? Number(selectedShippingCharge) : 0;
 
@@ -133,6 +146,8 @@ const CheckoutCommonComponent = () => {
     getCouponDiscountValue,
     isNewYorkState,
     selectedShippingCharge,
+    salesTaxPerc,
+    pathname, // include pathname in dependencies
   ]);
 
   return (
@@ -193,7 +208,8 @@ const CheckoutCommonComponent = () => {
                           </div>
                         ) : null;
                       })}
-                      <p className="text-sm font-semibold xs:text-base w-fit">
+
+                      <p className="text-sm font-semibold xs:text-base w-fit flex items-center gap-2">
                         $
                         {cartItem?.productSellingPrice?.toLocaleString(
                           "en-US",
@@ -202,7 +218,31 @@ const CheckoutCommonComponent = () => {
                           }
                         )}
                         {` × ${cartItem?.quantity}`}
+                        {cartItem?.productDiscountPerc ? (
+                          <span className="text-xs xs:text-sm text-basegray line-through ml-2 font-normal">
+                            $
+                            {cartItem?.productBasePrice?.toLocaleString(
+                              "en-US",
+                              {
+                                minimumFractionDigits: 2,
+                              }
+                            )}
+                          </span>
+                        ) : null}
                       </p>
+
+                      {appliedPromoDetail && (
+                        <p className="text-sm font-semibold xs:text-base w-fit flex items-center gap-2">
+                          Promo Offer: $
+                          {helperFunctions?.splitDiscountAmongProducts({
+                            quantityWiseProductPrice:
+                              cartItem?.productSellingPrice *
+                              cartItem?.quantity,
+                            subTotal: getSubTotal(),
+                            discountAmount: getCouponDiscountValue(),
+                          })}
+                        </p>
+                      )}
 
                       <div className="hidden xl:block">
                         <DiamondDetailDrawer
@@ -238,7 +278,7 @@ const CheckoutCommonComponent = () => {
                 </div>
               )}
             </section>
-          
+
             <CheckoutCommonSummary
               getSubTotal={getSubTotal}
               getCouponDiscountValue={getCouponDiscountValue}
@@ -315,7 +355,7 @@ const CheckoutCommonComponent = () => {
                         ) : null;
                       })}
 
-                      <p className="text-sm font-semibold xs:text-base w-fit mt-1">
+                      <p className="text-sm font-semibold xs:text-base w-fit flex items-center gap-2">
                         $
                         {cartItem?.productSellingPrice?.toLocaleString(
                           "en-US",
@@ -324,7 +364,31 @@ const CheckoutCommonComponent = () => {
                           }
                         )}
                         {` × ${cartItem?.quantity}`}
+                        {cartItem?.productDiscountPerc ? (
+                          <span className="text-xs xs:text-sm text-basegray line-through ml-2 font-normal">
+                            $
+                            {cartItem?.productBasePrice?.toLocaleString(
+                              "en-US",
+                              {
+                                minimumFractionDigits: 2,
+                              }
+                            )}
+                          </span>
+                        ) : null}
                       </p>
+
+                      {appliedPromoDetail && (
+                        <p className="text-sm font-semibold xs:text-base w-fit flex items-center gap-2 ">
+                          Promo Offer: $
+                          {helperFunctions?.splitDiscountAmongProducts({
+                            quantityWiseProductPrice:
+                              cartItem?.productSellingPrice *
+                              cartItem?.quantity,
+                            subTotal: getSubTotal(),
+                            discountAmount: getCouponDiscountValue(),
+                          })}
+                        </p>
+                      )}
 
                       <div className="hidden xs:block">
                         <DiamondDetailDrawer
@@ -360,8 +424,6 @@ const CheckoutCommonComponent = () => {
                 </div>
               )}
             </section>
-
-         
             <CheckoutCommonSummary
               getSubTotal={getSubTotal}
               getCouponDiscountValue={getCouponDiscountValue}

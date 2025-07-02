@@ -222,7 +222,7 @@ const Home = () => {
     <>
       <HomePagePopup />
       <HeroBanner isHomePage={true} titleAttr="" altAttr="Hero Banner" />
-      <section className="bg-white pt-16 pb-16 xl:pb-24 2xl:pb-20">
+      <section className="bg-white pt-16 pb-16 xl:  pb-20">
         <RingSettingCenterStone />
       </section>
 
