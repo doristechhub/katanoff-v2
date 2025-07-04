@@ -418,7 +418,7 @@ const ReturnList = () => {
                 setSelectedRefundReturn({
                   refundAmount:
                     +helperFunctions.toFixedNumber(
-                      item?.refundAmount || helperFunctions.calculateRefundAmount(item?.products)
+                      item?.refundAmount || item?.returnRequestAmount
                     ) || '',
                   refundDescription: item?.refundDescription || '',
                 })

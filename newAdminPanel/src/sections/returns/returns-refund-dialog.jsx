@@ -66,7 +66,7 @@ const RefundReturnsDialog = ({
   );
 
   const maxAmount = useMemo(
-    () => Number(helperFunctions.calculateRefundAmount(selectedReturn?.products)?.toFixed(2)),
+    () => Number(selectedReturn?.returnRequestAmount?.toFixed(2)),
     [selectedReturn]
   );
   const refundValidationSchema = Yup.object().shape({

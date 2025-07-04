@@ -584,7 +584,7 @@ const AddDiscountPage = () => {
                           },
                         }}
                         sx={{ width: '100%' }}
-                        minDate={discountId ? null : new Date()}
+                        // minDate={discountId ? null : new Date()}
                       />
                     </DemoContainer>
                   </LocalizationProvider>

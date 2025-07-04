@@ -255,14 +255,6 @@ const isValidNumber = (value) => {
   return typeof value === 'number' && !isNaN(value);
 };
 
-const calculateRefundAmount = (list) => {
-  const total = list?.reduce((accumulator, object) => {
-    return accumulator + object.unitAmount;
-  }, 0);
-  const serviceFee = Number(total) * 0.035; //3.5%
-  return Number(total) - serviceFee;
-};
-
 const calculateServiceFee = (list) => {
   const total = list?.reduce((accumulator, object) => {
     return accumulator + object.unitAmount;
@@ -457,6 +449,90 @@ const parseDateTime = (dateTimeStr) => {
   };
 };
 
+const calcReturnPayment = (products, orderDetail) => {
+  if (!products?.length || !orderDetail) return {};
+  const subTotal = products.reduce(
+    (sum, product) => sum + product.productPrice * product.returnQuantity,
+    0
+  );
+
+  // Calculate proportional discount based on product array amount relative to order subtotal
+  const orderSubTotal =
+    Number(orderDetail.subTotal) + Number(orderDetail?.discount) || 0; // need to change after in change cloud function
+  const orderDiscount = orderDetail.discount || 0;
+  const discount =
+    orderDiscount > 0 ? (subTotal / orderSubTotal) * orderDiscount : 0;
+
+  // Calculate sales tax based on (subtotal - discount)
+  const orderSalesTaxPercentage = orderDetail.salesTaxPercentage || 0;
+  const taxableAmount = subTotal - discount;
+  const salesTax = taxableAmount * (orderSalesTaxPercentage / 100);
+
+  // Calculate service fees (3.5% of subtotal - discount + salesTax) if payment method is Stripe
+  const serviceFeeBase = taxableAmount + salesTax;
+  const serviceFees =
+    orderDetail.paymentMethod === "stripe" ? serviceFeeBase * 0.035 : 0;
+
+  const returnRequestAmount = subTotal - discount + salesTax - serviceFees;
+
+  return {
+    subTotal: Number(subTotal.toFixed(2)),
+    discount: Number(discount.toFixed(2)),
+    salesTax: Number(salesTax.toFixed(2)),
+    serviceFees: Number(serviceFees.toFixed(2)),
+    returnRequestAmount: Number(returnRequestAmount.toFixed(2)),
+  };
+};
+
+
+const splitTaxAmongProducts = ({
+  quantityWiseProductPrice,
+  subTotal,
+  discountAmount,
+  totalTaxAmount,
+}) => {
+  if (
+    !subTotal ||
+    subTotal <= 0 ||
+    quantityWiseProductPrice <= 0 ||
+    totalTaxAmount <= 0
+  ) {
+    return 0;
+  }
+
+  // Step 1: Calculate per-product discount
+  const proportion = quantityWiseProductPrice / subTotal;
+  const productDiscount = proportion * discountAmount;
+
+  // Step 2: Get discounted product price
+  const discountedProductPrice = quantityWiseProductPrice - productDiscount;
+
+  // Step 3: Calculate total discounted subtotal (used for proportional tax)
+  const discountedSubTotal = subTotal - discountAmount;
+
+  if (!discountedSubTotal || discountedSubTotal <= 0) return 0;
+
+  // Step 4: Apply tax proportionally on discounted product amount
+  const taxProportion = discountedProductPrice / discountedSubTotal;
+  const productTax = taxProportion * totalTaxAmount;
+
+  return parseFloat(productTax.toFixed(2));
+};
+
+const splitDiscountAmongProducts = ({
+  quantityWiseProductPrice,
+  subTotal,
+  discountAmount,
+}) => {
+
+  if (!subTotal || subTotal <= 0 || quantityWiseProductPrice <= 0) return 0;
+
+  const proportion = quantityWiseProductPrice / subTotal;
+  const productDiscount = proportion * discountAmount;
+  return parseFloat(productDiscount.toFixed(2));
+};
+
+
 export const helperFunctions = {
   getCurrentUser,
   getVariationsArray,
@@ -479,7 +555,7 @@ export const helperFunctions = {
   isValidNumber,
   toFixedNumber,
   capitalWords,
-  calculateRefundAmount,
+  calcReturnPayment,
   calculateServiceFee,
   getSellingPrice,
   getMinPriceVariCombo,
@@ -496,4 +572,6 @@ export const helperFunctions = {
   getCombinationDetail,
   getCombiDetailWithPriceAndQty,
   parseDateTime,
+  splitTaxAmongProducts,
+  splitDiscountAmongProducts
 };

@@ -128,18 +128,39 @@ const getOrderDetailByOrderId = (orderId) => {
         const thumbnailField = GOLD_COLOR_MAP[goldColor] || 'yellowGoldThumbnailImage';
         const thumbnailImage = product[thumbnailField];
 
+        const subTotalWithDiscount = orderDetail.subTotal + orderDetail.discount;
+
+        const perQuantityDiscountAmount = Number(
+          helperFunctions?.splitDiscountAmongProducts({
+            quantityWiseProductPrice: orderProductItem.productPrice,
+            subTotal: subTotalWithDiscount,
+            discountAmount: orderDetail.discount,
+          })
+        );
+
+        const perQuantitySalesTaxAmount = Number(
+          helperFunctions?.splitTaxAmongProducts({
+            quantityWiseProductPrice: orderProductItem.productPrice,
+            subTotal: subTotalWithDiscount,
+            discountAmount: orderDetail.discount,
+            totalTaxAmount: orderDetail.salesTax,
+          })
+        );
+
         return {
           ...orderProductItem,
           productName: product.productName,
           productImage: thumbnailImage,
           variations,
+          perQuantityDiscountAmount,
+          perQuantitySalesTaxAmount,
           diamondDetail: orderProductItem.diamondDetail
             ? {
-                ...orderProductItem.diamondDetail,
-                shapeName: diamondShapes.find(
-                  (s) => s.id === orderProductItem.diamondDetail.shapeId
-                )?.title,
-              }
+              ...orderProductItem.diamondDetail,
+              shapeName: diamondShapes.find(
+                (s) => s.id === orderProductItem.diamondDetail.shapeId
+              )?.title,
+            }
             : undefined,
         };
       });

@@ -47,11 +47,16 @@ const insertCustomizationSubType = (params) => {
       imageFile = typeof imageFile === 'object' ? [imageFile] : [];
 
       if (title && customizationTypeId && type && uuid) {
-        const customizationSubTypesData = await fetchWrapperService.findOne(
-          customizationSubTypeUrl,
-          { title: title }
+        // Check for duplicate title within the specific customizationTypeId using getAll
+        const allSubTypes = await fetchWrapperService.getAll(customizationSubTypeUrl);
+        const tempSubTypeData = allSubTypes ? Object.values(allSubTypes) : [];
+        const isDuplicate = tempSubTypeData.some(
+          (subType) =>
+            subType.title?.toLowerCase() === title?.toLowerCase() &&
+            subType.customizationTypeId === customizationTypeId
         );
-        if (!customizationSubTypesData) {
+
+        if (!isDuplicate) {
           const customizationTypeData = await fetchWrapperService.findOne(customizationTypeUrl, {
             id: customizationTypeId,
           });
@@ -128,7 +133,7 @@ const insertCustomizationSubType = (params) => {
             reject(new Error('customization type data not found'));
           }
         } else {
-          reject(new Error('title already exists'));
+          reject(new Error('title already exists for this customization type'));
         }
       } else {
         reject(new Error('title is required'));
@@ -160,17 +165,18 @@ const updateCustomizationSubType = (params) => {
           { id: customizationSubTypeId }
         );
         if (customizationSubTypeData) {
-          const findPattern = {
-            id: customizationSubTypeId,
-            key: 'title',
-            value: title,
-          };
-
-          const duplicateData = await fetchWrapperService.findOneWithNotEqual(
-            customizationSubTypeUrl,
-            findPattern
+          // Check for duplicate title within the specific customizationTypeId using getAll
+          const allSubTypes = await fetchWrapperService.getAll(customizationSubTypeUrl);
+          const tempSubTypeData = allSubTypes ? Object.values(allSubTypes) : [];
+          const isDuplicate = tempSubTypeData.some(
+            (subType) =>
+              subType.title?.toLowerCase() === title?.toLowerCase() &&
+              subType.customizationTypeId ===
+                (customizationTypeId || customizationSubTypeData.customizationTypeId) &&
+              subType.id !== customizationSubTypeId
           );
-          if (!duplicateData.length) {
+
+          if (!isDuplicate) {
             customizationTypeId = customizationTypeId
               ? customizationTypeId.trim()
               : customizationSubTypeData.customizationTypeId;
@@ -270,7 +276,7 @@ const updateCustomizationSubType = (params) => {
               reject(new Error('customization type data not found'));
             }
           } else {
-            reject(new Error('title already exists'));
+            reject(new Error('title already exists for this customization type'));
           }
         } else {
           reject(new Error('customization sub Type not found!'));

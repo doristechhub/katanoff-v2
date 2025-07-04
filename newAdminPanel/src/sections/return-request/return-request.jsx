@@ -20,7 +20,6 @@ import {
 } from '@mui/material';
 
 import Label from 'src/components/label';
-import { grey } from 'src/theme/palette';
 import NoData from 'src/components/no-data';
 import Spinner from 'src/components/spinner';
 import Iconify from 'src/components/iconify';
@@ -99,6 +98,24 @@ const ReturnRequestPage = () => {
       .min(10, 'Reason must be at least 10 characters'),
   });
 
+  const getSelectedProducts = (returnItems) => {
+    const products = returnItems
+      ?.filter((item) => item?.isSelected)
+      ?.map((item) => {
+        const product = selectedOrder?.products?.find(
+          (p, idx) => generateProductConfigId(p, idx) === item.configId
+        );
+        return {
+          productId: item.productId,
+          returnQuantity: item.returnQuantity,
+          productPrice: product?.productPrice || 0,
+          variations: product?.variations || [],
+          diamondDetail: product?.diamondDetail || null,
+        };
+      });
+    return products;
+  };
+
   const formik = useFormik({
     initialValues: {
       returnItems:
@@ -116,21 +133,7 @@ const ReturnRequestPage = () => {
     enableReinitialize: true,
     onSubmit: async (values, { resetForm, setSubmitting }) => {
       try {
-        const selectedProducts = values.returnItems
-          .filter((item) => item.isSelected)
-          .map((item) => {
-            const product = selectedOrder?.products?.find(
-              (p, idx) => generateProductConfigId(p, idx) === item.configId
-            );
-            return {
-              productId: item.productId,
-              returnQuantity: item.returnQuantity,
-              productPrice: product?.productPrice || 0,
-              variations: product?.variations || [],
-              diamondDetail: product?.diamondDetail || null,
-            };
-          });
-
+        const selectedProducts = getSelectedProducts(values.returnItems);
         const returnData = {
           orderId: selectedOrder?.id,
           products: getProductsArray(selectedProducts),
@@ -173,17 +176,82 @@ const ReturnRequestPage = () => {
     );
   };
 
-  const calculateTotalReturnAmount = () => {
-    return values.returnItems.reduce((total, item) => {
-      if (item.isSelected) {
-        const product = selectedOrder?.products?.find(
-          (p, idx) => generateProductConfigId(p, idx) === item?.configId
-        );
-        const unitPrice = product?.productPrice || 0;
-        return total + unitPrice * item?.returnQuantity;
-      }
-      return total;
-    }, 0);
+  const renderReturnRequestTotalSummary = () => {
+    const selectedProducts = getSelectedProducts(values.returnItems);
+
+    const productArray = getProductsArray(selectedProducts);
+    const { subTotal, discount, salesTax, serviceFees, returnRequestAmount } =
+      helperFunctions?.calcReturnPayment(productArray, selectedOrder);
+
+    return (
+      <Stack
+        gap={0.5}
+        sx={{
+          marginTop: 1,
+          textAlign: { xs: 'left', sm: 'right' },
+          width: { xs: '100%', sm: 'auto' },
+          minWidth: { sm: '200px' },
+        }}
+      >
+        <Typography
+          variant="body2"
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}
+        >
+          <span>Subtotal:</span>
+          <span>{subTotal > 0 ? fCurrency(subTotal) : 'N/A'}</span>
+        </Typography>
+        <Typography
+          variant="body2"
+          color="error.main"
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}
+        >
+          <span>Discount:</span>
+          <span>{discount > 0 ? `-${fCurrency(discount)}` : 'N/A'}</span>
+        </Typography>
+        <Typography
+          variant="body2"
+          color="success.main"
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}
+        >
+          <span>Tax:</span>
+          <span>{salesTax > 0 ? `+${fCurrency(salesTax)}` : 'N/A'}</span>
+        </Typography>
+        <Typography
+          variant="body2"
+          color="warning.main"
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}
+        >
+          <span>Service Fee:</span>
+          <span>{serviceFees > 0 ? `-${fCurrency(serviceFees)}` : 'N/A'}</span>
+        </Typography>
+        <Divider />
+        <Typography
+          variant="caption"
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontWeight: 'bold',
+            fontSize: '1rem',
+          }}
+        >
+          <span>Estimated Total:</span>
+          <span>{returnRequestAmount > 0 ? fCurrency(returnRequestAmount) : 'N/A'}</span>
+        </Typography>
+       x` `
+      </Stack>
+    );
   };
 
   return (
@@ -229,49 +297,169 @@ const ReturnRequestPage = () => {
 
                         return (
                           <React.Fragment key={configId}>
-                            <Stack direction="row" alignItems="center" gap={2} sx={{ py: 2 }}>
-                              <Checkbox
-                                checked={
-                                  itemIndex !== -1 && values.returnItems[itemIndex]?.isSelected
-                                    ? true
-                                    : false
-                                }
-                                onChange={() => handleCheckboxChange(configId)}
-                              />
-                              <Box sx={{ width: '60px', height: '60px', flexShrink: 0 }}>
-                                <ProgressiveImg
-                                  src={product?.productImage}
-                                  alt={product?.productName}
-                                  customClassName="w-full h-full rounded-md"
+                            <Stack
+                              direction={{ xs: 'column', sm: 'row' }}
+                              alignItems={{ xs: 'flex-start', sm: 'center' }}
+                              gap={1}
+                              sx={{ py: 2 }}
+                            >
+                              {/* Checkbox and Image Row for Mobile */}
+                              <Stack
+                                direction="row"
+                                alignItems="center"
+                                gap={1}
+                                sx={{ width: { xs: '100%', sm: 'auto' } }}
+                              >
+                                <Checkbox
+                                  checked={
+                                    itemIndex !== -1 && values.returnItems[itemIndex]?.isSelected
+                                      ? true
+                                      : false
+                                  }
+                                  onChange={() => handleCheckboxChange(configId)}
                                 />
-                              </Box>
-                              <Stack flexGrow={1} gap={1}>
-                                <Stack
-                                  direction="row"
-                                  justifyContent="space-between"
-                                  alignItems="center"
+                                <Box
+                                  sx={{
+                                    width: { xs: '100px', sm: '150px' },
+                                    height: { xs: '100px', sm: '150px' },
+                                    flexShrink: 0,
+                                  }}
                                 >
-                                  <Typography variant="subtitle2">
+                                  <ProgressiveImg
+                                    src={product?.productImage}
+                                    alt={product?.productName}
+                                    customClassName="w-full h-full rounded-md"
+                                  />
+                                </Box>
+
+                                {/* Product Name - Mobile Only */}
+                                <Typography
+                                  variant="subtitle2"
+                                  sx={{
+                                    display: { xs: 'block', sm: 'none' },
+                                    flexGrow: 1,
+                                    fontSize: { xs: '0.875rem', sm: '1rem' },
+                                  }}
+                                >
+                                  {product?.productName}
+                                </Typography>
+                              </Stack>
+
+                              <Stack
+                                flexGrow={1}
+                                gap={1}
+                                sx={{ width: { xs: '100%', sm: 'auto' } }}
+                              >
+                                {/* Product Info Header - Desktop */}
+                                <Stack
+                                  direction={{ xs: 'column', sm: 'row' }}
+                                  justifyContent="space-between"
+                                  alignItems={{ xs: 'flex-start', sm: 'center' }}
+                                  gap={{ xs: 1, sm: 0 }}
+                                >
+                                  <Typography
+                                    variant="subtitle2"
+                                    sx={{
+                                      display: { xs: 'none', sm: 'block' },
+                                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                                    }}
+                                  >
                                     {product?.productName}
                                   </Typography>
-                                  <Typography variant="subtitle2">
-                                    {fCurrency(totalPrice)}
-                                  </Typography>
+
+                                  {/* Price Section */}
+                                  <Stack
+                                    spacing={0.5}
+                                    sx={{
+                                      mt: { xs: 0, sm: 1 },
+                                      alignItems: { xs: 'flex-start', sm: 'flex-end' },
+                                      width: { xs: '100%', sm: 'auto' },
+                                    }}
+                                  >
+                                    <Typography
+                                      textAlign={{ xs: 'left', sm: 'right' }}
+                                      variant="body2"
+                                      sx={{ fontWeight: 'medium' }}
+                                    >
+                                      {fCurrency(totalPrice)}
+                                    </Typography>
+                                    {console.log('product', product)}
+                                    {product?.perQuantityDiscountAmount > 0 ? (
+                                      <Stack
+                                        direction="row"
+                                        justifyContent="space-between"
+                                        sx={{
+                                          width: { xs: '100%', sm: 'auto' },
+                                          minWidth: { sm: '120px' },
+                                        }}
+                                      >
+                                        <Typography variant="caption" color="error.main">
+                                          Discount:
+                                        </Typography>
+                                        <Typography variant="caption" color="error.main">
+                                          -
+                                          {fCurrency(
+                                            product.perQuantityDiscountAmount * returnQuantity
+                                          )}
+                                        </Typography>
+                                      </Stack>
+                                    ) : null}
+                                    {product?.perQuantitySalesTaxAmount > 0 ? (
+                                      <Stack
+                                        direction="row"
+                                        justifyContent="space-between"
+                                        sx={{
+                                          width: { xs: '100%', sm: 'auto' },
+                                          minWidth: { sm: '120px' },
+                                        }}
+                                      >
+                                        <Typography variant="caption" color="success.main">
+                                          Tax:
+                                        </Typography>
+                                        <Typography variant="caption" color="success.main">
+                                          +
+                                          {fCurrency(
+                                            product.perQuantitySalesTaxAmount * returnQuantity
+                                          )}
+                                        </Typography>
+                                      </Stack>
+                                    ) : null}
+                                  </Stack>
                                 </Stack>
-                                <Stack direction="row" gap={2} alignItems="center">
-                                  <Stack direction="row" gap={1} flexWrap="wrap">
+
+                                {/* Variations and Quantity Controls */}
+                                <Stack
+                                  direction={{ xs: 'column', md: 'row' }}
+                                  gap={2}
+                                  alignItems={{ xs: 'flex-start', md: 'center' }}
+                                  sx={{ width: '100%' }}
+                                >
+                                  {/* Variations */}
+                                  <Stack
+                                    direction="row"
+                                    gap={1}
+                                    flexWrap="wrap"
+                                    sx={{ flex: { md: 1 } }}
+                                  >
                                     {product?.variations?.map((v, j) => (
                                       <Stack key={`var-${j}`}>
-                                        <Typography variant="caption">
+                                        <Typography variant="caption" sx={{ fontSize: '0.75rem' }}>
                                           {v?.variationName}
                                         </Typography>
-                                        <Label color="default" sx={{ fontSize: '11px' }}>
+                                        <Label
+                                          color="default"
+                                          sx={{
+                                            fontSize: { xs: '10px', sm: '11px' },
+                                            px: { xs: 0.5, sm: 1 },
+                                          }}
+                                        >
                                           {v?.variationTypeName}
                                         </Label>
                                       </Stack>
                                     ))}
                                   </Stack>
 
+                                  {/* Quantity Controls */}
                                   <Stack
                                     direction="row"
                                     alignItems="center"
@@ -281,6 +469,7 @@ const ReturnRequestPage = () => {
                                       borderRadius: 0.75,
                                       bgcolor: theme.palette.grey[50],
                                       p: 0.25,
+                                      alignSelf: { xs: 'flex-end', md: 'center' },
                                     }}
                                   >
                                     <IconButton
@@ -295,18 +484,23 @@ const ReturnRequestPage = () => {
                                         bgcolor: theme.palette.grey[200],
                                         '&:hover': { bgcolor: theme.palette.grey[300] },
                                         borderRadius: 0.5,
-                                        p: 0.5,
+                                        p: { xs: 0.4, sm: 0.5 },
+                                        minWidth: { xs: '28px', sm: '32px' },
+                                        minHeight: { xs: '28px', sm: '32px' },
                                       }}
                                       aria-label="Decrease quantity"
                                     >
-                                      <Iconify icon="mdi:minus" sx={{ fontSize: '14px' }} />
+                                      <Iconify
+                                        icon="mdi:minus"
+                                        sx={{ fontSize: { xs: '12px', sm: '14px' } }}
+                                      />
                                     </IconButton>
 
                                     <Typography
                                       sx={{
-                                        width: '30px',
+                                        width: { xs: '25px', sm: '30px' },
                                         textAlign: 'center',
-                                        fontSize: '0.875rem',
+                                        fontSize: { xs: '0.8rem', sm: '0.875rem' },
                                         fontWeight: 'medium',
                                         color: theme.palette.text.primary,
                                       }}
@@ -327,21 +521,38 @@ const ReturnRequestPage = () => {
                                         bgcolor: theme.palette.grey[200],
                                         '&:hover': { bgcolor: theme.palette.grey[300] },
                                         borderRadius: 0.5,
-                                        p: 0.5,
+                                        p: { xs: 0.4, sm: 0.5 },
+                                        minWidth: { xs: '28px', sm: '32px' },
+                                        minHeight: { xs: '28px', sm: '32px' },
                                       }}
                                       aria-label="Increase quantity"
                                     >
-                                      <Iconify icon="mdi:plus" sx={{ fontSize: '14px' }} />
+                                      <Iconify
+                                        icon="mdi:plus"
+                                        sx={{ fontSize: { xs: '12px', sm: '14px' } }}
+                                      />
                                     </IconButton>
                                   </Stack>
                                 </Stack>
 
-                                <Box sx={{ fontSize: '12px' }}>
+                                {/* Per Item Price */}
+                                <Box
+                                  sx={{
+                                    fontSize: { xs: '11px', sm: '12px' },
+                                    color: theme.palette.text.secondary,
+                                  }}
+                                >
                                   {fCurrency(product?.productPrice)} per item
                                 </Box>
+
+                                {/* Diamond Detail */}
                                 {product?.diamondDetail ? (
                                   <>
-                                    <Typography variant="subtitle2" mt={2}>
+                                    <Typography
+                                      variant="subtitle2"
+                                      mt={2}
+                                      sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
+                                    >
                                       Diamond Detail
                                     </Typography>
                                     <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
@@ -349,10 +560,19 @@ const ReturnRequestPage = () => {
                                         .getDiamondDetailArray(product?.diamondDetail)
                                         .map(({ label, value }, idx) => (
                                           <Stack key={`dia-${idx}`}>
-                                            <Typography variant="caption">{label}</Typography>
+                                            <Typography
+                                              variant="caption"
+                                              sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
+                                            >
+                                              {label}
+                                            </Typography>
                                             <Label
                                               color={'default'}
-                                              sx={{ width: 'fit-content', fontSize: '11px' }}
+                                              sx={{
+                                                width: 'fit-content',
+                                                fontSize: { xs: '10px', sm: '11px' },
+                                                px: { xs: 0.5, sm: 1 },
+                                              }}
                                             >
                                               {value}
                                             </Label>
@@ -367,36 +587,58 @@ const ReturnRequestPage = () => {
                           </React.Fragment>
                         );
                       })}
+
                       {touched?.returnItems && errors?.returnItems && (
                         <Typography color="error" variant="caption">
                           {errors?.returnItems}
                         </Typography>
                       )}
+
                       <Stack gap={2} mt={2}>
                         <TextField
                           name="returnReason"
                           label="Return Reason"
                           multiline
-                          rows={4}
                           value={values.returnReason}
                           onChange={(e) => setFieldValue('returnReason', e.target.value)}
                           error={touched?.returnReason && !!errors?.returnReason}
                           helperText={touched?.returnReason && errors?.returnReason}
+                          sx={{
+                            '& .MuiInputBase-root': {
+                              fontSize: { xs: '0.875rem', sm: '1rem' },
+                            },
+                          }}
                         />
 
-                        <Stack direction="row" justifyContent="space-between" alignItems="center">
-                          <Typography variant="subtitle1">Total Return Amount</Typography>
-                          <Typography variant="subtitle1">
-                            {fCurrency(calculateTotalReturnAmount())}
-                          </Typography>
-                        </Stack>
-                        <Stack direction="row" justifyContent="flex-end" gap={2}>
+                        {/* Total Summary */}
+
+                        {values.returnItems.some((item) => item.isSelected) && (
+                          <Stack
+                            direction={{ xs: 'column', sm: 'row' }}
+                            justifyContent="end"
+                            alignItems={{ xs: 'stretch', sm: 'center' }}
+                          >
+                            {renderReturnRequestTotalSummary()}
+                          </Stack>
+                        )}
+
+                        {/* Action Buttons */}
+                        <Stack
+                          direction={{ xs: 'column', sm: 'row' }}
+                          justifyContent="flex-end"
+                          gap={2}
+                          sx={{ mt: { xs: 2, sm: 0 } }}
+                        >
                           <Button
                             variant="outlined"
                             disabled={crudReturnLoading}
                             onClick={() => {
                               formik.resetForm();
                               navigate('/orders/list');
+                            }}
+                            sx={{
+                              order: { xs: 2, sm: 1 },
+                              fontSize: { xs: '0.875rem', sm: '1rem' },
                             }}
                           >
                             Cancel
@@ -405,6 +647,10 @@ const ReturnRequestPage = () => {
                             variant="contained"
                             onClick={handleSubmit}
                             loading={crudReturnLoading}
+                            sx={{
+                              order: { xs: 1, sm: 2 },
+                              fontSize: { xs: '0.875rem', sm: '1rem' },
+                            }}
                           >
                             Submit Return
                           </LoadingButton>

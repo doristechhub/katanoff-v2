@@ -263,14 +263,51 @@ const OrderDetail = () => {
                               </Box>
                               <Stack direction={'row'} alignItems={'center'} sx={font14}>
                                 <Box width={'60px'}>x{x?.cartQuantity}</Box>
-                                <Typography
-                                  sx={font14}
-                                  width={'100px'}
-                                  textAlign={'end'}
-                                  variant="subtitle1"
-                                >
-                                  {fCurrency(x?.unitAmount)}
-                                </Typography>
+                                <Stack direction={'column'} alignItems={'flex-end'} gap={0.5}>
+                                  <Typography
+                                    sx={font14}
+                                    width={'100px'}
+                                    textAlign={'end'}
+                                    variant="subtitle1"
+                                  >
+                                    {fCurrency(x?.unitAmount)}
+                                  </Typography>
+                                  {console.log('x >> ', x)}
+                                  {x?.perQuantityDiscountAmount > 0 && (
+                                    <Stack
+                                      direction="row"
+                                      justifyContent="space-between"
+                                      sx={{
+                                        width: { xs: '100%', sm: 'auto' },
+                                        minWidth: { sm: '120px' },
+                                      }}
+                                    >
+                                      <Typography variant="caption" color="error.main">
+                                        Discount:
+                                      </Typography>
+                                      <Typography variant="caption" color="error.main">
+                                        -{fCurrency(x.perQuantityDiscountAmount * x?.cartQuantity)}
+                                      </Typography>
+                                    </Stack>
+                                  )}
+                                  {x?.perQuantitySalesTaxAmount > 0 && (
+                                    <Stack
+                                      direction="row"
+                                      justifyContent="space-between"
+                                      sx={{
+                                        width: { xs: '100%', sm: 'auto' },
+                                        minWidth: { sm: '120px' },
+                                      }}
+                                    >
+                                      <Typography variant="caption" color="success.main">
+                                        Tax:
+                                      </Typography>
+                                      <Typography variant="caption" color="success.main">
+                                        +{fCurrency(x.perQuantitySalesTaxAmount * x?.cartQuantity)}
+                                      </Typography>
+                                    </Stack>
+                                  )}
+                                </Stack>
                               </Stack>
                             </Stack>
                             <Divider
@@ -285,13 +322,14 @@ const OrderDetail = () => {
                             <Typography variant="subtitle1" sx={font14}>
                               {selectedOrder?.discount
                                 ? fCurrency(selectedOrder?.subTotal + selectedOrder?.discount)
-                                : fCurrency(selectedOrder?.subTotal)}
+                                : fCurrency(selectedOrder?.subTotalWithDiscount)}
                             </Typography>
                           </Stack>
                           {selectedOrder?.discount > 0 && (
                             <Stack
-                              mt={2}
+                              mt={1}
                               width="250px"
+                              color="error.main"
                               direction="row"
                               justifyContent="space-between"
                             >
@@ -300,34 +338,47 @@ const OrderDetail = () => {
                                 {selectedOrder?.promoCode ? `(${selectedOrder.promoCode})` : ''}
                               </Box>
                               <Typography variant="subtitle1" sx={font14}>
-                                -{fCurrency(selectedOrder?.discount)}
+                                {selectedOrder?.discount > 0
+                                  ? `-${fCurrency(selectedOrder?.discount)}`
+                                  : 'N/A'}
                               </Typography>
                             </Stack>
                           )}
+
                           <Stack
-                            mt={2}
+                            mt={1}
                             width={'200px'}
                             direction={'row'}
-                            justifyContent={'space-between'}
-                          >
-                            <Box sx={font14}>Shipping</Box>
-                            <Typography variant="subtitle1" sx={font14}>
-                              {fCurrency(selectedOrder?.shippingCharge)}
-                            </Typography>
-                          </Stack>
-                          <Stack
-                            mt={2}
-                            width={'200px'}
-                            direction={'row'}
+                            color="success.main"
                             justifyContent={'space-between'}
                           >
                             <Box sx={font14}>Taxes</Box>
                             <Typography variant="subtitle1" sx={font14}>
-                              {fCurrency(selectedOrder?.salesTax)}
+                              {selectedOrder?.salesTax > 0
+                                ? `+${fCurrency(selectedOrder?.salesTax)}`
+                                : 'N/A'}
                             </Typography>
                           </Stack>
                           <Stack
-                            mt={2}
+                            mt={1}
+                            width={'200px'}
+                            direction={'row'}
+                            color="warning.main"
+                            justifyContent={'space-between'}
+                          >
+                            <Box sx={font14}>Shipping Fees</Box>
+                            <Typography variant="subtitle1" sx={font14}>
+                              {selectedOrder?.shippingCharge > 0
+                                ? `+${fCurrency(selectedOrder?.shippingCharge)}`
+                                : 'Free'}
+                            </Typography>
+                          </Stack>
+                          <Divider
+                            style={{ minWidth: '100%' }}
+                            sx={{ borderStyle: 'solid', mt: 2 }}
+                          />
+                          <Stack
+                            mt={1}
                             width={'200px'}
                             direction={'row'}
                             justifyContent={'space-between'}
@@ -337,6 +388,17 @@ const OrderDetail = () => {
                               {fCurrency(selectedOrder?.total)}
                             </Typography>
                           </Stack>
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              mt: 3,
+                              textAlign: 'right',
+                              color: 'text.secondary',
+                              fontStyle: 'italic',
+                            }}
+                          >
+                            * Sales tax will be applied to addresses within New York State.
+                          </Typography>
                         </Stack>
                       </Stack>
                     </Card>
@@ -458,16 +520,16 @@ const OrderDetail = () => {
                         {selectedOrder?.paymentMethod === 'stripe' ? (
                           <>
                             {selectedOrder?.stripePaymentIntentId ? (
-                              <Stack direction={'row'} sx={font14} gap={1}>
-                                <Box sx={sx}>Stripe Payment Intent ID </Box>
+                              <Stack direction={'column'} sx={font14} gap={1}>
+                                <Box sx={{ ...sx, width: '100%' }}>Stripe Payment Intent ID </Box>
                                 <Box sx={sxPrimaryColor}>
                                   {selectedOrder?.stripePaymentIntentId}
                                 </Box>
                               </Stack>
                             ) : null}
                             {selectedOrder?.stripeCustomerId ? (
-                              <Stack direction={'row'} sx={font14} gap={1}>
-                                <Box sx={sx}>Stripe Customer ID </Box>
+                              <Stack direction={'column'} sx={font14} gap={1}>
+                                <Box sx={{ ...sx, width: '100%' }}>Stripe Customer ID </Box>
                                 <Box sx={sxPrimaryColor}>{selectedOrder?.stripeCustomerId}</Box>
                               </Stack>
                             ) : null}
