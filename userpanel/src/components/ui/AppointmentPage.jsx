@@ -1,10 +1,10 @@
 import AppointmentForm from "@/components/ui/AppointmentForm";
-import KeyFeatures from "@/components/ui/KeyFeatures"
+import KeyFeatures from "@/components/ui/KeyFeatures";
 
 export default function AppointmentPage() {
   return (
-    <>
-      <section className="container p-8 md:p-8 lg:p-12 2xl:p-20">
+    <div className="pt-10">
+      <section className="container  p-8 md:p-8 lg:p-12 2xl:p-20">
         <div className="space-y-10 max-w-3xl mx-auto font-Figtree">
           <div className="flex items-start gap-4">
             <div className="flex items-center justify-center px-4 py-2 rounded-md bg-primary text-white font-medium">
@@ -58,13 +58,13 @@ export default function AppointmentPage() {
       <section className="container">
         <div>
           <div className="max-w-3xl mx-auto">
-              <AppointmentForm />
+            <AppointmentForm />
           </div>
         </div>
       </section>
       <section className="container p-8 lg:p-16 2xl:p-18 mt-12">
         <KeyFeatures />
       </section>
-    </>
+    </div>
   );
 }

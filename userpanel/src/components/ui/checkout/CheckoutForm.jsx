@@ -30,10 +30,10 @@ import { helperFunctions } from "@/_helper";
 import Link from "next/link";
 import {
   setAppliedPromoDetail,
-  setCouponAppliedMail,
   setCouponCode,
   setUserEmail,
 } from "@/store/slices/couponSlice";
+
 const countries = Country.getAllCountries();
 
 const validationSchema = yup.object({
@@ -70,9 +70,8 @@ const CheckoutForm = () => {
   const { stateList, selectedShippingAddress } = useSelector(
     ({ checkout }) => checkout
   );
-  const { userEmail, appliedPromoDetail, couponAppliedMail } = useSelector(
-    ({ coupon }) => coupon
-  );
+  const { userEmail, appliedPromoDetail } = useSelector(({ coupon }) => coupon);
+
   const { validateAddressLoader, addressMessage, invalidAddressDetail } =
     useSelector(({ address }) => address);
   const { isHovered } = useSelector(({ common }) => common);
@@ -141,17 +140,20 @@ const CheckoutForm = () => {
 
           return;
         }
-        if (appliedPromoDetail?.purchaseMode === ONE_TIME) {
-          if (couponAppliedMail != values?.email) {
-            dispatch(
-              handleAddressMessage({
-                message: "Entered Mail and Coupon Email do not match",
-                type: messageType?.ERROR,
-              })
-            );
-            return;
-          }
+        if (
+          appliedPromoDetail?.purchaseMode === ONE_TIME &&
+          appliedPromoDetail?.appliedEmail?.toLowerCase() !=
+            values?.email?.trim()?.toLowerCase()
+        ) {
+          dispatch(
+            handleAddressMessage({
+              message: "Entered Mail and Coupon Email do not match",
+              type: messageType?.ERROR,
+            })
+          );
+          return;
         }
+
         const {
           address = "",
           apartment = "",
@@ -212,7 +214,6 @@ const CheckoutForm = () => {
       clearAbortController,
       dispatch,
       appliedPromoDetail,
-      couponAppliedMail,
       userEmail,
     ]
   );
@@ -235,7 +236,6 @@ const CheckoutForm = () => {
   useEffect(() => {
     let address = localStorage.getItem("address");
 
-    dispatch(setCouponAppliedMail(""));
     dispatch(setCouponCode(""));
     dispatch(setAppliedPromoDetail(null));
     localStorage.removeItem("appliedCoupon");

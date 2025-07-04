@@ -5,6 +5,7 @@ import {
   fetchWrapperService,
   ONE_TIME,
   SELECTED_CUSTOMERS,
+  SIGN_UP_DISCOUNT,
 } from "@/_helper";
 import moment from "moment";
 import { orderService } from "./order.service";
@@ -21,17 +22,27 @@ const getAllPromoCodes = () => {
   });
 };
 
-const validateCouponCode = (code, orderValue, userEmail) => {
+const validateCouponCode = ({ promoCode, orderValue, userEmail, userId }) => {
   return new Promise(async (resolve, reject) => {
     try {
       const allCoupons = await getAllPromoCodes();
 
       const matchedCoupon = allCoupons.find(
-        (coupon) => coupon.promoCode.toUpperCase() === code.toUpperCase()
+        (coupon) => coupon.promoCode.toUpperCase() === promoCode.toUpperCase()
       );
 
       if (!matchedCoupon) {
         reject(new Error("Invalid promo code"));
+      }
+
+      // Check if the promo code is "Sign Up Discount" and verify user is logged in
+      if (
+        matchedCoupon?.name?.toUpperCase() === SIGN_UP_DISCOUNT.toUpperCase() &&
+        !userId
+      ) {
+        throw new Error(
+          "You must be logged in to use the Sign Up Discount promo code"
+        );
       }
 
       if (matchedCoupon?.discountType !== DISCOUNT_TYPES?.ORDER_DISCOUNT) {

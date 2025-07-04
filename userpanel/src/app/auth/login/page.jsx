@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CustomImg, LoginForm } from "@/components/dynamiComponents";
-import handWithRing from "@/assets/images/auth/hand-ring.webp";
+import login from "@/assets/images/auth/login.webp";
 import textLogo from "@/assets/images/logo-text.webp";
 
 const Login = () => {
@@ -8,7 +8,7 @@ const Login = () => {
     <div className="flex lg:flex-row h-screen">
       {/* Left Side */}
       <div className="lg:block hidden w-full lg:w-3/5 h-screen">
-        <CustomImg srcAttr={handWithRing} className="w-full h-full" priority />
+        <CustomImg srcAttr={login} className="w-full h-full" priority />
       </div>
 
       {/* Right Side */}

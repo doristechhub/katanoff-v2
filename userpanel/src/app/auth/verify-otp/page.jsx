@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CustomImg, VerifyOTPForm } from "@/components/dynamiComponents";
-import handWithRing from "@/assets/images/auth/hand-ring.webp";
+import verifyOtp from "@/assets/images/auth/verify-otp.webp";
 import textLogo from "@/assets/images/logo-text.webp";
 
 const VeriftOTP = () => {
@@ -8,11 +8,7 @@ const VeriftOTP = () => {
     <div className="flex lg:flex-row h-screen">
       {/* Left Side */}
       <div className="lg:block hidden w-full lg:w-3/5 h-screen">
-        <CustomImg
-          srcAttr={handWithRing}
-          className="w-full h-full"
-          priority
-        />
+        <CustomImg srcAttr={verifyOtp} className="w-full h-full" priority />
       </div>
 
       {/* Right Side */}

@@ -85,7 +85,13 @@ const PaymentPage = () => {
       }
     }
     if (!appliedPromoDetail && getCoupon) {
-      dispatch(applyCouponCode(getCoupon, subTotal, parsedMail));
+      dispatch(
+        applyCouponCode({
+          promoCode: getCoupon,
+          orderValue: subTotal,
+          userEmail: parsedMail,
+        })
+      );
     }
   }, [dispatch, appliedPromoDetail, cartList, userEmail]);
 

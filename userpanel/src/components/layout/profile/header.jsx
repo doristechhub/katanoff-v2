@@ -15,6 +15,7 @@ import { RxCross2 } from "react-icons/rx";
 import diamondIcon from "@/assets/icons/diamond.svg";
 import calendarIcon from "@/assets/icons/calendar.svg";
 import textLogo from "@/assets/images/logo-text.svg";
+import miniLogo from "@/assets/images/mini-logo.webp";
 import CartPopup from "../../ui/CartPopup";
 import { fetchCart } from "@/_actions/cart.action";
 import ProfileDropdown from "@/components/ui/ProfileDropdown";
@@ -114,7 +115,7 @@ export default function Header() {
    
   bg-white`}
       >
-        <div className="flex justify-between items-center pt-4 pb-2 !px-5 lg:pt-[30px] lg:px-0 2xl:px-4 container">
+        <div className="flex justify-between items-center pt-3 pb-3 !px-5 lg:pt-[30px] lg:px-0 2xl:px-4 container">
           <div className="items-center gap-6 font-extralight text-[#2B2B2B] text-[14px] 2xl:text-base hidden lg:flex">
             <Link href={"/contact-us"} className="flex items-center gap-1">
               <CustomImg
@@ -149,11 +150,18 @@ export default function Header() {
               <IoMenu className="w-5 h-5 xxs:w-6 xxs:h-6" />
             )}
           </button>
-          <Link href={"/"}>
+          {/* <Link href={"/"}>
             <CustomImg
               srcAttr={textLogo}
               className="w-32 xs:w-48 lg:w-52 2xl:w-64"
             />{" "}
+          </Link> */}
+          <Link href={"/"}>
+            <CustomImg
+              srcAttr={textLogo}
+              className="hidden lg:block w-32 xs:w-48 lg:w-52 2xl:w-64"
+            />
+            <CustomImg srcAttr={miniLogo} className="lg:hidden w-12 2xl:w-12" />
           </Link>
 
           <div className="text-xl flex items-center gap-3 lg:w-64 justify-end">

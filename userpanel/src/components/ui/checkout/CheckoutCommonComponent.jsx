@@ -233,14 +233,16 @@ const CheckoutCommonComponent = () => {
 
                       {appliedPromoDetail && (
                         <p className="text-sm font-semibold xs:text-base w-fit flex items-center gap-2">
-                          Promo Offer: $
-                          {helperFunctions?.splitDiscountAmongProducts({
-                            quantityWiseProductPrice:
-                              cartItem?.productSellingPrice *
-                              cartItem?.quantity,
-                            subTotal: getSubTotal(),
-                            discountAmount: getCouponDiscountValue(),
-                          })}
+                          Promo Offer:
+                          {helperFunctions?.formatCurrencyWithDollar(
+                            helperFunctions?.splitDiscountAmongProducts({
+                              quantityWiseProductPrice:
+                                cartItem?.productSellingPrice *
+                                cartItem?.quantity,
+                              subTotal: getSubTotal(),
+                              discountAmount: getCouponDiscountValue(),
+                            })
+                          )}
                         </p>
                       )}
 

@@ -151,7 +151,6 @@ const OrderDetails = ({
         </div>
       </div>
 
-      {/* Left Panel: Products */}
       <div className="relative flex flex-col lg:flex-row">
         <div className="flex flex-col gap-4 pr-6 w-full lg:w-1/2">
           <section
@@ -215,6 +214,22 @@ const OrderDetails = ({
                           x {product?.cartQuantity}{" "}
                         </span>
                       </h3>
+                      {orderDetail?.discount > 0 && (
+                        <h3 className="font-medium flex gap-2 text-sm md:text-base pt-1">
+                          Promo Offer:
+                          <span>
+                            {helperFunctions?.formatCurrencyWithDollar(
+                              helperFunctions?.splitDiscountAmongProducts({
+                                quantityWiseProductPrice:
+                                  product?.productPrice * product?.cartQuantity,
+                                subTotal:
+                                  orderDetail?.subTotal + orderDetail?.discount,
+                                discountAmount: orderDetail?.discount,
+                              })
+                            )}
+                          </span>
+                        </h3>
+                      )}
                     </div>
                   </div>
                   {product.diamondDetail && (
@@ -252,40 +267,46 @@ const OrderDetails = ({
             {[
               {
                 label: "Sub Total",
-                value: `$${helperFunctions?.getDisplaySubtotalWithDiscount(
-                  orderDetail?.subTotal,
-                  orderDetail?.discount
+                value: `${helperFunctions?.formatCurrencyWithDollar(
+                  helperFunctions?.getDisplaySubtotalWithDiscount(
+                    orderDetail?.subTotal,
+                    orderDetail?.discount
+                  )
                 )}`,
               },
               ...(orderDetail?.discount > 0
                 ? [
                     {
                       label: `Promo Discount (${orderDetail?.promoCode})`,
-                      value: `- $${helperFunctions.toFixedNumber(
+                      value: `- ${helperFunctions?.formatCurrencyWithDollar(
                         orderDetail?.discount
                       )}`,
                       strong: false,
                     },
                   ]
                 : []),
+
               {
                 label: "Sales Tax(8%)",
-                value: `$${helperFunctions.toFixedNumber(
-                  orderDetail?.salesTax
-                )}`,
+                value:
+                  orderDetail?.salesTax > 0
+                    ? helperFunctions?.formatCurrencyWithDollar(
+                        orderDetail?.salesTax
+                      )
+                    : "N/A",
               },
               {
                 label: "Shipping Charge",
                 value:
                   orderDetail?.shippingCharge > 0
-                    ? `$${helperFunctions.toFixedNumber(
+                    ? `$${helperFunctions?.formatCurrencyWithDollar(
                         orderDetail.shippingCharge
                       )}`
                     : "Free",
               },
               {
                 label: "Total Amount",
-                value: `USD $${helperFunctions.toFixedNumber(
+                value: `${helperFunctions?.formatCurrencyWithDollar(
                   orderDetail?.total
                 )}`,
               },
@@ -301,12 +322,11 @@ const OrderDetails = ({
                 >
                   {item.label}
                 </h4>
-                <p className="font-semibold">{item.value}</p>
+                <p className="font-semibold">{item?.value || "N/A"}</p>
               </div>
             ))}
             <p className="font-medium mt-2">
-              *Sales tax will be applied to addresses within New York
-              State.
+              * Sales tax will be applied to addresses within New York State.
             </p>
           </div>
         </div>

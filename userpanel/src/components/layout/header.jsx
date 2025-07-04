@@ -31,6 +31,7 @@ import ProfileDropdown from "@/components/ui/ProfileDropdown";
 import { usePathname } from "next/navigation";
 import { getMenuList } from "@/_actions/home.action";
 import { helperFunctions } from "@/_helper";
+import miniLogo from "@/assets/images/mini-logo.webp";
 
 export default function Header() {
   const dispatch = useDispatch();
@@ -146,7 +147,7 @@ export default function Header() {
     }
   bg-white`}
       >
-        <div className="flex justify-between items-center pt-4 pb-1 !px-5 lg:pt-[30px] lg:px-0 2xl:px-4 container">
+        <div className="flex justify-between items-center pt-3 pb-3 !px-5 lg:pt-[30px] lg:px-0 2xl:px-4 container">
           <div className="items-center gap-6 font-extralight text-[#2B2B2B] text-[14px] 2xl:text-base hidden lg:flex">
             <Link href={"/contact-us"} className="flex items-center gap-1">
               <CustomImg
@@ -184,11 +185,18 @@ export default function Header() {
             </button>
           </div>
 
-          <Link href={"/"}>
+          {/* <Link href={"/"}>
             <CustomImg
               srcAttr={textLogo}
               className="w-32 xs:w-48 lg:w-52 2xl:w-64"
             />
+          </Link> */}
+          <Link href={"/"}>
+            <CustomImg
+              srcAttr={textLogo}
+              className="hidden lg:block w-32 xs:w-48 lg:w-52 2xl:w-64"
+            />
+            <CustomImg srcAttr={miniLogo} className="lg:hidden w-12 2xl:w-12" />
           </Link>
 
           <div className="text-xl flex items-center gap-3 lg:w-64 justify-end">

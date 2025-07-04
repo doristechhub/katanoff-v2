@@ -48,21 +48,6 @@ const ReturnDetails = ({
       // render: (val) => <CustomBadge status={val}>{val}</CustomBadge>,
     },
     {
-      label: "Return Request Reason",
-      value: returnDetail?.returnRequestReason,
-      isOptional: true,
-    },
-    {
-      label: "Cancel Reason",
-      value: returnDetail?.cancelReason,
-      isOptional: true,
-    },
-    {
-      label: "Admin Note",
-      value: returnDetail?.adminNote,
-      isOptional: true,
-    },
-    {
       label: "Shipping Label",
 
       value: returnDetail?.shippingLabel ? (
@@ -73,6 +58,26 @@ const ReturnDetails = ({
           Show Shipping Label
         </div>
       ) : null,
+      isOptional: true,
+    },
+    {
+      label: "Return Request Reason",
+      value: returnDetail?.returnRequestReason,
+      isOptional: true,
+    },
+    {
+      label: "Cancel Reason",
+      value: returnDetail?.cancelReason,
+      isOptional: true,
+    },
+    {
+      label: "Refund Description",
+      value: returnDetail?.refundDescription,
+      isOptional: true,
+    },
+    {
+      label: "Reject Resason",
+      value: returnDetail?.adminNote,
       isOptional: true,
     },
   ];
@@ -104,7 +109,6 @@ const ReturnDetails = ({
   }, []);
 
   const cartContentRef = useRef(null);
-
   return (
     <>
       {returnLoader ? (
@@ -166,50 +170,98 @@ const ReturnDetails = ({
                                 {product?.productName}
                               </h3>
                               <h3 className="font-semibold">
-                                $
-                                {helperFunctions.toFixedNumber(
+                                {helperFunctions?.formatCurrencyWithDollar(
                                   product?.unitAmount
                                 )}
                               </h3>
                             </div>
 
-                            <div className="flex flex-wrap gap-0.5 sm:gap-1 lg:gap-2 my-1 sm:my-1.5">
-                              <p className="text-baseblack font-medium  flex flex-wrap text-sm md:text-base">
-                                {helperFunctions?.displayVariationsLabel(
-                                  product?.variations
+                            <div className="flex flex-col sm:flex-row sm:justify-between">
+                              <div className="flex flex-col">
+                                <div className="flex flex-wrap gap-0.5 sm:gap-1 lg:gap-2 my-1 sm:my-1.5">
+                                  <p className="text-baseblack font-medium  flex flex-wrap text-sm md:text-base">
+                                    {helperFunctions?.displayVariationsLabel(
+                                      product?.variations
+                                    )}
+                                  </p>
+                                </div>
+
+                                {product.diamondDetail && (
+                                  <div className="hidden xs:block">
+                                    <DiamondDetailDrawer
+                                      key={product.productId}
+                                      cartItem={{
+                                        ...product,
+                                        id: product?.productId,
+                                        quantity: product?.returnQuantity,
+                                      }}
+                                      openDiamondDetailDrawer={
+                                        openDiamondDetailDrawer
+                                      }
+                                      dispatch={dispatch}
+                                      setOpenDiamondDetailDrawer={
+                                        setOpenDiamondDetailDrawer
+                                      }
+                                      isOrderPage={true}
+                                    />
+                                  </div>
                                 )}
-                              </p>
-                            </div>
-                            {product.diamondDetail && (
-                              <div className="hidden xs:block">
-                                <DiamondDetailDrawer
-                                  key={product.productId}
-                                  cartItem={{
-                                    ...product,
-                                    id: product?.productId,
-                                    quantity: product?.returnQuantity,
-                                  }}
-                                  openDiamondDetailDrawer={
-                                    openDiamondDetailDrawer
-                                  }
-                                  dispatch={dispatch}
-                                  setOpenDiamondDetailDrawer={
-                                    setOpenDiamondDetailDrawer
-                                  }
-                                  isOrderPage={true}
-                                />
+                                <h3 className="font-medium text-sm md:text-base pt-1">
+                                  $
+                                  {helperFunctions.toFixedNumber(
+                                    product?.productPrice
+                                  )}{" "}
+                                  <span className="pl-1">
+                                    {" "}
+                                    x {product?.returnQuantity}{" "}
+                                  </span>
+                                </h3>
                               </div>
-                            )}
-                            <h3 className="font-medium text-sm md:text-base pt-1">
-                              $
-                              {helperFunctions.toFixedNumber(
-                                product?.productPrice
-                              )}{" "}
-                              <span className="pl-1">
-                                {" "}
-                                x {product?.returnQuantity}{" "}
-                              </span>
-                            </h3>
+
+                              <div className="flex flex-col sm:items-end">
+                                {returnDetail?.discount > 0 && (
+                                  <h3 className="font-medium flex gap-2 text-sm md:text-base pt-1 text-red-600">
+                                    Discount:
+                                    <span>
+                                      {helperFunctions?.formatCurrencyWithDollar(
+                                        helperFunctions?.splitDiscountAmongProducts(
+                                          {
+                                            quantityWiseProductPrice:
+                                              product?.productPrice *
+                                              product?.returnQuantity,
+                                            subTotal: returnDetail?.subTotal,
+                                            discountAmount:
+                                              returnDetail?.discount,
+                                          }
+                                        )
+                                      )}
+                                    </span>
+                                  </h3>
+                                )}
+                                {returnDetail?.salesTax > 0 && (
+                                  <div className="text-sm md:text-base font-medium flex flex-wrap gap-2 text-green-600">
+                                    <span className="inline xss:block">
+                                      Sales Tax:
+                                    </span>
+                                    <span className="inline xss:block">
+                                      {helperFunctions?.formatCurrencyWithDollar(
+                                        helperFunctions?.splitTaxAmongProducts({
+                                          quantityWiseProductPrice:
+                                            product?.productPrice *
+                                            product.returnQuantity,
+                                          subTotal: returnDetail?.subTotal,
+                                          discountAmount:
+                                            returnDetail?.discount || 0,
+                                          totalTaxAmount:
+                                            returnDetail?.salesTax,
+                                        })
+                                      )}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
                             {product.diamondDetail && (
                               <div className="xs:hidden">
                                 <DiamondDetailDrawer
@@ -249,45 +301,103 @@ const ReturnDetails = ({
                 <div className="p-4 lg:p-6 flex flex-col gap-2 text-sm md:text-base font-semibold">
                   {[
                     {
-                      label: "Total Amount",
-                      value: `USD $${helperFunctions.toFixedNumber(
+                      label: "Sub Total",
+                      value: `${helperFunctions.formatCurrencyWithDollar(
                         helperFunctions.calculateRefundAmount(
                           returnDetail?.products
                         )
                       )}`,
                     },
-                  ].map((item) => (
+                    ...(returnDetail?.discount > 0
+                      ? [
+                          {
+                            label: `Promo Discount`,
+                            value: `- ${helperFunctions?.formatCurrencyWithDollar(
+                              returnDetail?.discount
+                            )}`,
+                            strong: false,
+                            customClass: "text-red-500",
+                          },
+                        ]
+                      : []),
+                    {
+                      label: "Sales Tax(8%)",
+                      value:
+                        returnDetail?.salesTax > 0
+                          ? helperFunctions?.formatCurrencyWithDollar(
+                              returnDetail?.salesTax
+                            )
+                          : "N/A",
+                      customClass: "text-green-600",
+                    },
+                    {
+                      label: "Service Fees",
+                      value:
+                        returnDetail?.serviceFees > 0
+                          ? helperFunctions?.formatCurrencyWithDollar(
+                              returnDetail?.serviceFees
+                            )
+                          : "N/A",
+                      customClass:
+                        returnDetail?.serviceFees > 0
+                          ? "text-yellow-400"
+                          : "text-gray-400",
+                    },
+                  ].map((item, index) => (
                     <div
-                      key={helperFunctions.getRandomValue()}
-                      className="flex justify-between"
+                      key={`refund-${item.label}-${index}`}
+                      className={`flex justify-between ${item?.customClass}`}
                     >
                       <h4 className="font-medium">{item.label}</h4>
-                      <p className="font-semibold">{item.value}</p>
+                      <p className="font-semibold">{item.value || "N/A"}</p>
                     </div>
                   ))}
+                  <hr className="w-full border-t border-gray-300 my-2 mx-auto" />
+
+                  <div className="flex justify-between">
+                    <h4 className="font-medium">Estimated Amount</h4>
+                    <p className="font-semibold">
+                      {helperFunctions?.formatCurrencyWithDollar(
+                        returnDetail?.returnRequestAmount
+                      ) || "N/A"}
+                    </p>
+                  </div>
 
                   {returnDetail?.refundAmount ? (
-                    <div className="flex justify-between text-sm md:text-base">
-                      <h4 className="font-medium">Refund Amount</h4>
-                      <p className="font-semibold">
-                        {" "}
-                        USD{" "}
-                        <strong>
-                          $
-                          {helperFunctions.toFixedNumber(
-                            returnDetail?.refundAmount
+                    <>
+                      <div className="text-red-500 flex justify-between text-sm md:text-base">
+                        <p>Deducted Amount</p>
+                        <p>
+                          -
+                          {helperFunctions.formatCurrencyWithDollar(
+                            returnDetail?.returnRequestAmount -
+                              returnDetail?.refundAmount
                           )}
-                        </strong>
-                      </p>
-                    </div>
+                        </p>
+                      </div>
+                      <div className="flex justify-between text-sm md:text-base">
+                        <h4 className="font-medium">Refunded Amount</h4>
+                        <p className="font-medium">
+                          <strong>
+                            {helperFunctions.formatCurrencyWithDollar(
+                              returnDetail?.refundAmount
+                            )}
+                          </strong>
+                        </p>
+                      </div>
+                    </>
                   ) : null}
+
+                  <p className="text-xs italic text-gray-500 pt-1">
+                    * Estimated Amount is provisional. After review of the
+                    returned products, the estimated amount may vary.
+                  </p>
                 </div>
               </div>
               <div className="flex justify-center items-center px-2 my-4 lg:my-0">
                 <div className="w-full h-px bg-grayborder lg:w-px lg:h-[80%]"></div>
               </div>
               <div className="flex flex-col gap-4 lg:pl-6 w-full lg:w-1/2">
-                {/* Order Info Section */}
                 <div className="p-4 lg:p-6">
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 text-sm md:text-base">
                     {orderMetaFields.map(

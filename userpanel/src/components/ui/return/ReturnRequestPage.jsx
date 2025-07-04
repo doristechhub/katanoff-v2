@@ -13,7 +13,7 @@ import {
 } from "@/store/slices/returnSlice";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { CustomImg, ProgressiveImg } from "@/components/dynamiComponents";
 import { helperFunctions, messageType, RING_SIZE } from "@/_helper";
@@ -40,6 +40,9 @@ const validationSchema = Yup.object().shape({
 
 const ReturnRequestPage = () => {
   let { orderId } = useParams();
+  const [returnRequestTotalSummary, setReturnRequestTotalSummary] = useState(
+    {}
+  );
   const dispatch = useDispatch();
   const router = useRouter();
   const minQuantity = 1;
@@ -177,6 +180,14 @@ const ReturnRequestPage = () => {
     );
   };
 
+  useEffect(() => {
+    const returnRequestTotalSummary = helperFunctions?.calcReturnPayment(
+      selectedProducts,
+      orderDetail
+    );
+    setReturnRequestTotalSummary(returnRequestTotalSummary);
+  }, [selectedProducts]);
+
   const allSelected =
     orderDetail?.products?.length > 0 &&
     orderDetail.products.every((item) => item.isChecked);
@@ -267,8 +278,7 @@ const ReturnRequestPage = () => {
                       </h2>
 
                       <p className="text-base md:text-lg font-bold">
-                        $
-                        {helperFunctions.toFixedNumber(
+                        {helperFunctions.formatCurrencyWithDollar(
                           cartItem.productPrice * cartItem.returnQuantity
                         )}
                       </p>
@@ -286,101 +296,102 @@ const ReturnRequestPage = () => {
                             {cartItem?.productSku}
                           </span>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2 pt-1 md:pt-2">
-                        <p className="text-sm md:text-base font-medium">Qty</p>
 
-                        <div className="relative w-fit">
-                          <select
-                            value={cartItem.returnQuantity}
-                            onChange={(e) =>
-                              handleProductQtyChange("set", {
-                                ...cartItem,
-                                returnQuantity: parseInt(e.target.value),
-                              })
-                            }
-                            className="appearance-none px-2 sm:px-4 sm:py-2 pr-6 sm:pr-10 border border-grayborder rounded-sm text-sm font-medium bg-transparent cursor-pointer"
-                          >
-                            {Array.from(
-                              {
-                                length: cartItem.cartQuantity - minQuantity + 1,
-                              },
-                              (_, i) => i + minQuantity
-                            ).map((qty) => (
-                              <option key={qty} value={qty}>
-                                {qty}
-                              </option>
-                            ))}
-                          </select>
-                          <div className="pointer-events-none absolute inset-y-0 right-1 flex items-center px-1 sm:px-2 text-black">
-                            <CustomImg
-                              srcAttr={dropdownArrow}
-                              altAttr="Arrow"
-                              titleAttr="Arrow"
-                              className="w-4 h-4"
-                            />
+                        {cartItem?.variations?.some(
+                          (v) => v.variationName === RING_SIZE
+                        ) && (
+                          <div className="flex items-center gap-2 pt-2 sm:pt-0">
+                            <p className="text-sm items-center md:text-base font-medium text-baseblack">
+                              {cartItem?.variations?.find(
+                                (v) => v.variationName === RING_SIZE
+                              )?.variationName || "N/A"}
+                              :{" "}
+                              {cartItem?.variations?.find(
+                                (v) => v.variationName === RING_SIZE
+                              )?.variationTypeName || "N/A"}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-col pt-1 sm:pt-0 sm:items-end sm:justify-end  sm:gap-2">
+                        {orderDetail?.discount > 0 && (
+                          <div className="text-red-600 text-sm md:text-base font-semibold flex flex-wrap gap-2">
+                            <span className="inline xss:block">Discount:</span>
+                            <span className="inline xss:block">
+                              {helperFunctions?.formatCurrencyWithDollar(
+                                helperFunctions?.splitDiscountAmongProducts({
+                                  quantityWiseProductPrice:
+                                    cartItem?.productPrice *
+                                    cartItem.returnQuantity,
+                                  subTotal:
+                                    orderDetail?.subTotal +
+                                    orderDetail?.discount,
+                                  discountAmount: orderDetail?.discount,
+                                })
+                              )}
+                            </span>
+                          </div>
+                        )}
+                        {orderDetail?.salesTax > 0 && (
+                          <div className="text-green-600 text-sm md:text-base font-semibold flex flex-wrap gap-2">
+                            <span className="inline xss:block">Sales Tax:</span>
+                            <span className="inline xss:block">
+                              {helperFunctions?.formatCurrencyWithDollar(
+                                helperFunctions?.splitTaxAmongProducts({
+                                  quantityWiseProductPrice:
+                                    cartItem?.productPrice *
+                                    cartItem.returnQuantity,
+                                  subTotal:
+                                    orderDetail?.subTotal +
+                                    orderDetail?.discount,
+                                  discountAmount: orderDetail?.discount || 0,
+                                  totalTaxAmount: orderDetail?.salesTax,
+                                })
+                              )}
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2 pt-1 md:pt-2">
+                          <p className="text-sm md:text-base font-medium">
+                            Qty
+                          </p>
+
+                          <div className="relative w-fit">
+                            <select
+                              value={cartItem.returnQuantity}
+                              onChange={(e) =>
+                                handleProductQtyChange("set", {
+                                  ...cartItem,
+                                  returnQuantity: parseInt(e.target.value),
+                                })
+                              }
+                              className="appearance-none px-2 sm:px-4 sm:py-2 pr-6 sm:pr-10 border border-grayborder rounded-sm text-sm font-medium bg-transparent cursor-pointer"
+                            >
+                              {Array.from(
+                                {
+                                  length:
+                                    cartItem.cartQuantity - minQuantity + 1,
+                                },
+                                (_, i) => i + minQuantity
+                              ).map((qty) => (
+                                <option key={qty} value={qty}>
+                                  {qty}
+                                </option>
+                              ))}
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-1 flex items-center px-1 sm:px-2 text-black">
+                              <CustomImg
+                                srcAttr={dropdownArrow}
+                                altAttr="Arrow"
+                                titleAttr="Arrow"
+                                className="w-4 h-4"
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    {cartItem?.variations?.some(
-                      (v) => v.variationName === RING_SIZE
-                    ) && (
-                      <div className="flex items-center gap-2 pt-2 sm:pt-0">
-                        <p className="text-sm items-center md:text-base font-medium text-baseblack">
-                          {cartItem?.variations?.find(
-                            (v) => v.variationName === RING_SIZE
-                          )?.variationName || "N/A"}
-                          :{" "}
-                          {cartItem?.variations?.find(
-                            (v) => v.variationName === RING_SIZE
-                          )?.variationTypeName || "N/A"}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* <div className="flex items-center gap-x-1 pt-1 md:pt-2">
-                      <h3 className="text-[12px] md:text-base lg:text-lg font-medium">
-                        Qty:
-                      </h3>
-                      <div className="flex items-center bg-alabaster px-1 lg:px-2">
-                        <button
-                          className={`lg:px-1 lg:py-1 text-[12px] md:text-lg lg:text-xl font-medium text-black ${
-                            cartItem?.returnQuantity <= minQuantity
-                              ? "opacity-50 cursor-not-allowed"
-                              : ""
-                          }`}
-                          onClick={() =>
-                            handleProductQtyChange("decrease", cartItem)
-                          }
-                          disabled={cartItem?.returnQuantity <= minQuantity}
-                        >
-                          −
-                        </button>
-
-                        <span className="px-2 md:px-4 text-[12px] md:text-lg lg:text-xl font-medium text-black">
-                          {cartItem.returnQuantity}
-                        </span>
-                        <button
-                          className={`md:px-1 py-1 text-[12px] md:text-lg lg:text-xl font-medium text-black ${
-                            cartItem?.returnQuantity >= cartItem.cartQuantity
-                              ? "opacity-50 cursor-not-allowed"
-                              : ""
-                          }`}
-                          onClick={() =>
-                            handleProductQtyChange("increase", cartItem)
-                          }
-                          disabled={
-                            cartItem.returnQuantity >= cartItem.cartQuantity
-                          }
-                        >
-                          +
-                        </button>
-                      </div>
-
-                 
-                    </div> */}
                     <div className="hidden xs:block mt-2">
                       <DiamondDetailDrawer
                         cartItem={cartItem}
@@ -407,6 +418,77 @@ const ReturnRequestPage = () => {
             {touched.selectedProducts && errors.selectedProducts && (
               <ErrorMessage message={errors.selectedProducts} />
             )}
+
+            {selectedProducts?.length ? (
+              <div className="flex flex-col gap-2 w-full items-end text-right px-4 md:px-6">
+                {/* Sub Total */}
+                <div className="text-sm md:text-base flex justify-between w-full max-w-xs font-semibold text-baseblack">
+                  <span>Sub Total:</span>
+                  <span>
+                    {returnRequestTotalSummary?.subTotal
+                      ? helperFunctions?.formatCurrencyWithDollar(
+                          returnRequestTotalSummary?.subTotal
+                        )
+                      : "$0.00"}
+                  </span>
+                </div>
+
+                {/* Discount */}
+                <div className="text-sm md:text-base flex justify-between w-full max-w-xs font-semibold text-red-600">
+                  <span>Discount:</span>
+                  <span>
+                    {returnRequestTotalSummary?.discount
+                      ? ` - ${helperFunctions?.formatCurrencyWithDollar(
+                          returnRequestTotalSummary?.discount
+                        )}`
+                      : "-$0.00"}
+                  </span>
+                </div>
+
+                {/* Sales Tax */}
+                <div className="text-sm md:text-base flex justify-between w-full max-w-xs font-semibold text-green-600">
+                  <span>Sales Tax:</span>
+                  <span>
+                    {returnRequestTotalSummary?.salesTax
+                      ? helperFunctions?.formatCurrencyWithDollar(
+                          returnRequestTotalSummary?.salesTax
+                        )
+                      : "$0.00"}
+                  </span>
+                </div>
+
+                {/* Service Fees */}
+                <div className="text-sm md:text-base flex justify-between w-full max-w-xs font-semibold text-yellow-400">
+                  <span>Service Fees:</span>
+                  <span>
+                    {returnRequestTotalSummary?.serviceFees
+                      ? ` - ${helperFunctions?.formatCurrencyWithDollar(
+                          returnRequestTotalSummary?.serviceFees
+                        )}`
+                      : "$0.00"}
+                  </span>
+                </div>
+
+                {/* Divider */}
+                <hr className="w-full max-w-xs border-t border-gray-300 my-2" />
+
+                {/* Grand Total */}
+                <div className="text-sm md:text-lg flex justify-between w-full max-w-xs font-bold text-baseblack">
+                  <span>Estimated Amount:</span>
+                  <span>
+                    {selectedProducts?.length
+                      ? helperFunctions?.formatCurrencyWithDollar(
+                          returnRequestTotalSummary?.returnRequestAmount
+                        )
+                      : "$0.00"}
+                  </span>
+                </div>
+                <p className="text-sm text-red-500 font-medium mt-2">
+                  * Estimated Amount is provisional. After review of the
+                  returned products, the estimated amount may vary.
+                </p>
+              </div>
+            ) : null}
             <form className="flex flex-col  gap-6 pt-6 w-full">
               <div>
                 <textarea
