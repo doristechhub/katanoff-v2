@@ -33,7 +33,7 @@ import ProgressiveImg from 'src/components/progressive-img';
 
 const font14 = { fontSize: '14px' };
 const sxPrimaryColor = { color: 'text.primary' };
-const sx = { width: '100px', color: 'text.secondary', flexShrink: 0 };
+const sx = { width: '200px', color: 'text.secondary', flexShrink: 0 };
 
 // ----------------------------------------------------------------------
 
@@ -194,8 +194,7 @@ const ReturnDetail = () => {
                           setSelectedRefundReturn({
                             refundAmount:
                               +helperFunctions.toFixedNumber(
-                                selectedReturn?.refundAmount ||
-                                  helperFunctions.calculateRefundAmount(selectedReturn?.products)
+                                selectedReturn?.refundAmount || selectedReturn?.returnRequestAmount
                               ) || '',
                             refundDescription: selectedReturn?.refundDescription || '',
                           })
@@ -302,14 +301,47 @@ const ReturnDetail = () => {
                               </Box>
                               <Stack direction={'row'} alignItems={'center'} sx={font14}>
                                 <Box width={'60px'}>x{x?.returnQuantity}</Box>
-                                <Typography
-                                  sx={font14}
-                                  width={'100px'}
-                                  textAlign={'end'}
-                                  variant="subtitle1"
-                                >
-                                  {fCurrency(x?.unitAmount)}
-                                </Typography>
+                                <Stack direction={'column'} alignItems={'flex-end'} gap={0.5}>
+                                  <Typography sx={font14} textAlign={'end'} variant="subtitle1">
+                                    {fCurrency(x?.unitAmount)}
+                                  </Typography>
+                                  {x?.perQuantityDiscountAmount > 0 && (
+                                    <Stack
+                                      direction="row"
+                                      justifyContent="space-between"
+                                      sx={{
+                                        width: { xs: '100%', sm: 'auto' },
+                                        minWidth: { sm: '120px' },
+                                      }}
+                                    >
+                                      <Typography variant="caption" color="error.main">
+                                        Discount:
+                                      </Typography>
+                                      <Typography variant="caption" color="error.main">
+                                        -
+                                        {fCurrency(x.perQuantityDiscountAmount * x?.returnQuantity)}
+                                      </Typography>
+                                    </Stack>
+                                  )}
+                                  {x?.perQuantitySalesTaxAmount > 0 && (
+                                    <Stack
+                                      direction="row"
+                                      justifyContent="space-between"
+                                      sx={{
+                                        width: { xs: '100%', sm: 'auto' },
+                                        minWidth: { sm: '120px' },
+                                      }}
+                                    >
+                                      <Typography variant="caption" color="success.main">
+                                        Tax:
+                                      </Typography>
+                                      <Typography variant="caption" color="success.main">
+                                        +
+                                        {fCurrency(x.perQuantitySalesTaxAmount * x?.returnQuantity)}
+                                      </Typography>
+                                    </Stack>
+                                  )}
+                                </Stack>
                               </Stack>
                             </Stack>
                             <Divider
@@ -319,41 +351,121 @@ const ReturnDetail = () => {
                           </React.Fragment>
                         ))}
                         <Stack alignItems={'end'} my={2} sx={{ minWidth: '550px' }}>
-                          <Stack width={'250px'} direction={'row'} justifyContent={'space-between'}>
-                            <Typography variant="body2">Service Fee (3.5%)</Typography>
-                            <Typography variant="body2" color={'error.main'}>
-                              -
-                              {fCurrency(
-                                helperFunctions.calculateServiceFee(selectedReturn?.products)
-                              )}
-                            </Typography>
-                          </Stack>
                           <Stack
-                            mt={2}
-                            width={'200px'}
-                            direction={'row'}
-                            justifyContent={'space-between'}
+                            gap={0.5}
+                            sx={{
+                              marginTop: 1,
+                              textAlign: { xs: 'left', sm: 'right' },
+                              width: '350px',
+                            }}
                           >
-                            <Typography variant="subtitle1">Total</Typography>
-                            <Typography variant="subtitle1">
-                              {fCurrency(
-                                helperFunctions.calculateRefundAmount(selectedReturn?.products)
-                              )}
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                              }}
+                            >
+                              <span>Subtotal:</span>
+                              <span>
+                                {selectedReturn.subTotal > 0
+                                  ? fCurrency(selectedReturn.subTotal)
+                                  : 'N/A'}
+                              </span>
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              color="error.main"
+                              sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                              }}
+                            >
+                              <span>Discount:</span>
+                              <span>
+                                {selectedReturn.discount > 0
+                                  ? `-${fCurrency(selectedReturn.discount)}`
+                                  : 'N/A'}
+                              </span>
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              color="success.main"
+                              sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                              }}
+                            >
+                              <span>Tax:</span>
+                              <span>
+                                {selectedReturn.salesTax > 0
+                                  ? `+${fCurrency(selectedReturn.salesTax)}`
+                                  : 'N/A'}
+                              </span>
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              color="warning.main"
+                              sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                              }}
+                            >
+                              <span>Service Fee:</span>
+                              <span>
+                                {selectedReturn.serviceFees > 0
+                                  ? `-${fCurrency(selectedReturn.serviceFees)}`
+                                  : 'N/A'}
+                              </span>
+                            </Typography>
+                            <Divider />
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                fontWeight: 'bold',
+                                fontSize: '0.9rem',
+                              }}
+                            >
+                              <span>Estimated Total:</span>
+                              <span>
+                                {selectedReturn.returnRequestAmount > 0
+                                  ? fCurrency(selectedReturn.returnRequestAmount)
+                                  : 'N/A'}
+                              </span>
+                            </Typography>
+
+                            {selectedReturn?.refundAmount && (
+                              <Typography
+                                marginTop={'10px'}
+                                variant="caption"
+                                backgroundColor={'#F3F3F4'}
+                                padding={'10px'}
+                                borderRadius={'4px'}
+                                sx={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  fontWeight: 'bold',
+                                  fontSize: '0.9rem',
+                                }}
+                              >
+                                <span>Refunded Amount:</span>
+                                <span>{fCurrency(selectedReturn?.refundAmount)}</span>
+                              </Typography>
+                            )}
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                mt: 1,
+                                textAlign: 'right',
+                                color: 'text.secondary',
+                                fontStyle: 'italic',
+                              }}
+                            >
+                              * This amount is approximate. Final refund will be confirmed by admin.
                             </Typography>
                           </Stack>
-                          {selectedReturn?.refundAmount ? (
-                            <Stack
-                              mt={2}
-                              width={'200px'}
-                              direction={'row'}
-                              justifyContent={'space-between'}
-                            >
-                              <Typography variant="subtitle1">Refunded</Typography>
-                              <Typography variant="subtitle1">
-                                {fCurrency(selectedReturn?.refundAmount)}
-                              </Typography>
-                            </Stack>
-                          ) : null}
                         </Stack>
                       </Stack>
                     </Card>
@@ -439,19 +551,19 @@ const ReturnDetail = () => {
                               </Stack>
                             ) : null}
                             {selectedReturn?.stripeARNNumber ? (
-                              <Stack direction={'row'} sx={font14} gap={1}>
+                              <Stack direction={'column'} sx={font14} gap={1}>
                                 <Box sx={sx}>Stripe ARN Number </Box>
                                 <Box sx={sxPrimaryColor}>{selectedReturn?.stripeARNNumber}</Box>
                               </Stack>
                             ) : null}
                             {selectedReturn?.stripeRefundId ? (
-                              <Stack direction={'row'} sx={font14} gap={1}>
+                              <Stack direction={'column'} sx={font14} gap={1}>
                                 <Box sx={sx}>Stripe Refund ID </Box>
                                 <Box sx={sxPrimaryColor}>{selectedReturn?.stripeRefundId}</Box>
                               </Stack>
                             ) : null}
                             {selectedReturn?.stripeRefundFailureReason ? (
-                              <Stack direction={'row'} sx={font14} gap={1}>
+                              <Stack direction={'column'} sx={font14} gap={1}>
                                 <Box sx={sx}>Refund Failure Reason</Box>
                                 <Box sx={sxPrimaryColor}>
                                   {selectedReturn?.stripeRefundFailureReason}
@@ -472,19 +584,19 @@ const ReturnDetail = () => {
                         }}
                       >
                         {selectedReturn?.returnRequestReason ? (
-                          <Stack direction={'row'} sx={font14} gap={1}>
+                          <Stack direction={'column'} sx={font14} gap={1}>
                             <Box sx={sx}>Return Request Reason</Box>
                             <Box sx={sxPrimaryColor}>{selectedReturn?.returnRequestReason}</Box>
                           </Stack>
                         ) : null}
                         {selectedReturn?.adminNote ? (
-                          <Stack direction={'row'} sx={font14} gap={1}>
+                          <Stack direction={'column'} sx={font14} gap={1}>
                             <Box sx={sx}>Admin Note</Box>
                             <Box sx={sxPrimaryColor}>{selectedReturn?.adminNote}</Box>
                           </Stack>
                         ) : null}
                         {selectedReturn?.cancelReason ? (
-                          <Stack direction={'row'} sx={font14} gap={1}>
+                          <Stack direction={'column'} sx={font14} gap={1}>
                             <Box sx={sx}>Cancel Reason</Box>
                             <Box sx={sxPrimaryColor}>{selectedReturn?.cancelReason}</Box>
                           </Stack>
@@ -504,7 +616,7 @@ const ReturnDetail = () => {
                           </Stack>
                         ) : null}
                         {selectedReturn?.refundDescription ? (
-                          <Stack direction={'row'} sx={font14} gap={1}>
+                          <Stack direction={'column'} sx={font14} gap={1}>
                             <Box sx={sx}>Refund Description</Box>
                             <Box sx={sxPrimaryColor}>{selectedReturn?.refundDescription}</Box>
                           </Stack>

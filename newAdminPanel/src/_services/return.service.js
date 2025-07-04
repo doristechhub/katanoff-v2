@@ -124,19 +124,39 @@ const getReturnDetailByReturnId = (returnId) => {
           ?.variationTypeName?.toLowerCase();
         const thumbnailField = GOLD_COLOR_MAP[goldColor] || 'yellowGoldThumbnailImage';
         const thumbnailImage = product[thumbnailField];
+        const subTotalWithDiscount = matchedOrder.subTotal + matchedOrder.discount;
 
+        const perQuantityDiscountAmount = Number(
+          helperFunctions?.splitDiscountAmongProducts({
+            quantityWiseProductPrice: item.productPrice,
+            subTotal: subTotalWithDiscount,
+            discountAmount: returnDetail.discount,
+          })
+        );
+
+        const perQuantitySalesTaxAmount = Number(
+          helperFunctions?.splitTaxAmongProducts({
+            quantityWiseProductPrice: item.productPrice,
+            subTotal: subTotalWithDiscount,
+            discountAmount: returnDetail.discount,
+            totalTaxAmount: returnDetail.salesTax,
+          })
+        );
+        console.log('perQuantityDiscountAmount :>> ', perQuantityDiscountAmount);
         return {
           ...item,
           productName: product.productName || 'Unknown',
           productImage: thumbnailImage,
+          perQuantityDiscountAmount,
+          perQuantitySalesTaxAmount,
           variations,
           diamondDetail: item?.diamondDetail
             ? {
-                ...item.diamondDetail,
-                shapeName:
-                  diamondShapes.find((s) => s?.id === item.diamondDetail?.shapeId)?.title ||
-                  'Unknown',
-              }
+              ...item.diamondDetail,
+              shapeName:
+                diamondShapes.find((s) => s?.id === item.diamondDetail?.shapeId)?.title ||
+                'Unknown',
+            }
             : undefined,
         };
       });
@@ -144,6 +164,29 @@ const getReturnDetailByReturnId = (returnId) => {
       resolve(returnDetail);
     } catch (e) {
       reject(new Error(`Failed to fetch return details: ${e.message}`));
+    }
+  });
+};
+
+const getReturnsByOrderId = (orderId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      orderId = sanitizeValue(orderId)?.trim() || null;
+      if (!orderId) {
+        reject(new Error("Invalid order ID"));
+        return;
+      }
+
+      const findPattern = {
+        url: returnsUrl,
+        key: "orderId",
+        value: orderId,
+      };
+      const orderWiseReturnsData = await fetchWrapperService.find(findPattern);
+      resolve(orderWiseReturnsData);
+      return orderWiseReturnsData;
+    } catch (e) {
+      reject(new Error(`Failed to fetch returns for order: ${e?.message}`));
     }
   });
 };
@@ -223,6 +266,7 @@ const createApprovedReturnRequest = (params) => {
   return new Promise(async (resolve, reject) => {
     try {
       let { orderId, products, imageFile, returnRequestReason } = sanitizeObject(params);
+
       orderId = orderId ? orderId?.trim() : null;
       returnRequestReason = returnRequestReason ? returnRequestReason?.trim() : null;
       imageFile = typeof imageFile === 'object' ? [imageFile] : [];
@@ -254,51 +298,43 @@ const createApprovedReturnRequest = (params) => {
         orderNumber,
       } = orderDetail;
 
-      if (orderStatus !== 'delivered' || !helperFunctions.isReturnValid(deliveryDate)) {
-        reject(
-          new Error(
-            "Since your order hasn't been delivered or has exceeded the 15-day limit, you're unable to initiate a return request"
-          )
-        );
+      if (orderStatus !== "delivered") {
+        reject(new Error("Order must be delivered to initiate a return"));
         return;
       }
 
-      const returnFindPattern = {
-        url: returnsUrl,
-        key: 'orderId',
-        value: orderId,
-      };
-      const matchedReturns = await fetchWrapperService.find(returnFindPattern);
+      if (!helperFunctions.isReturnValid(deliveryDate)) {
+        reject(new Error("Return period has expired (15-day limit)"));
+        return;
+      }
 
-      const isPendingOrApprovedOrReceivedReturnsCount = matchedReturns.filter((returnOrder) =>
-        ['pending', 'approved', 'received'].includes(returnOrder.status)
+      const matchedReturns = await returnService.getReturnsByOrderId(orderId);
+
+
+      const activeReturns = matchedReturns.filter((returnOrder) =>
+        ["pending", "approved", "received"].includes(returnOrder.status)
       ).length;
 
       const rejectedCount = matchedReturns.filter(
         (returnOrder) => returnOrder.status === 'rejected'
       ).length;
 
-      const hasActiveReturns =
-        isPendingOrApprovedOrReceivedReturnsCount || (rejectedCount > 0 && rejectedCount > 2)
-          ? false
-          : true;
-
-      if (!hasActiveReturns) {
+      if (activeReturns > 0 || rejectedCount > 2) {
         reject(
           new Error(
-            'Unable to initiate return: Either an active return request is pending, approved, or received, or the return request limit has been exceeded.'
+            "Cannot initiate return: Active return exists or return limit exceeded"
           )
         );
         return;
       }
 
       if (hasInvalidProductsKey(products)) {
-        reject(new Error('products data not valid'));
+        reject(new Error("Invalid product data structure"));
         return;
       }
       const productsArray = getProductsArray(products);
       if (!validateProducts(productsArray, orderProducts)) {
-        reject(new Error('At least one product is invalid'));
+        reject(new Error("Invalid product or quantity in return request"));
         return;
       }
 
@@ -335,6 +371,12 @@ const createApprovedReturnRequest = (params) => {
             reject(new Error('An error occurred during image uploading.'));
           });
       }
+      const { subTotal, discount, salesTax, serviceFees, returnRequestAmount } =
+        helperFunctions?.calcReturnPayment(productsArray, orderDetail);
+      if (subTotal && isNaN(subTotal) || discount && isNaN(discount) || salesTax && isNaN(salesTax) || serviceFees && isNaN(serviceFees) || returnRequestAmount && isNaN(returnRequestAmount)) {
+        reject(new Error('Invalid data'));
+        return;
+      }
 
       const uuid = uid();
       let insertPattern = {
@@ -348,6 +390,11 @@ const createApprovedReturnRequest = (params) => {
         shippingLabel: imageFile.length ? uploadedImage : '',
         createdDate: Date.now(),
         updatedDate: Date.now(),
+        subTotal,
+        discount,
+        salesTax,
+        serviceFees,
+        returnRequestAmount
       };
       if (orderDetail?.userId) {
         insertPattern.userId = orderDetail.userId;
@@ -725,6 +772,7 @@ export const returnService = {
   getReturnDetailByReturnId,
   createApprovedReturnRequest,
   rejectReturn,
+  getReturnsByOrderId,
   approveReturnRequest,
   receivedReturn,
   refundPaymentForReturn,

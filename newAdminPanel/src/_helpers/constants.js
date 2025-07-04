@@ -92,6 +92,9 @@ export const GENDER_LIST = [
 export const IMAGE_RESOLUTIONS = {
   DESKTOP: { width: 1920, height: 448 },
   MOBILE: { width: 1500, height: 738 },
+  SLIDER_GRID: { width: 402, height: 502 },
+  TWO_GRID: { width: 825, height: 784 },
+  THREE_GRID: { width: 544, height: 472 },
 };
 
 export const DEFAULT_QTY = 10;
