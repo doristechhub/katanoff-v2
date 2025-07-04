@@ -34,11 +34,17 @@ export default function CheckoutCommonSummary({
     return <span className="text-lg font-normal">Calculated at next step</span>;
   }, []);
 
-  const handleApply = () => {
-    dispatch(applyCouponCode(couponCode, getSubTotal(), userEmail));
+  const handleApplyCoupon = () => {
+    dispatch(
+      applyCouponCode({
+        promoCode: couponCode,
+        orderValue: getSubTotal(),
+        userEmail,
+      })
+    );
   };
 
-  const handleRemove = () => {
+  const handleRemoveCoupon = () => {
     dispatch(removeCouponCode());
   };
 
@@ -73,7 +79,9 @@ export default function CheckoutCommonSummary({
                 className="w-full uppercase"
                 loading={promoCodeLoading}
                 loaderType={isHovered ? "" : "white"}
-                onClick={appliedPromoDetail ? handleRemove : handleApply}
+                onClick={
+                  appliedPromoDetail ? handleRemoveCoupon : handleApplyCoupon
+                }
               >
                 {appliedPromoDetail ? "Remove" : "Apply"}
               </LoadingPrimaryButton>
@@ -105,14 +113,18 @@ export default function CheckoutCommonSummary({
       )}
 
       <p className="text-lg text-baseblack flex justify-between font-semibold pt-4">
-        Subtotal: <span>${getSubTotal()}</span>
+        Subtotal:{" "}
+        <span>{helperFunctions?.formatCurrencyWithDollar(getSubTotal())}</span>
       </p>
 
       {appliedPromoDetail && (
         <div className="flex justify-between pt-4 text-baseblack">
           <p className="text-lg font-semibold">Discount</p>
           <span className="text-lg font-medium">
-            -${getCouponDiscountValue()}
+            -
+            {helperFunctions?.formatCurrencyWithDollar(
+              getCouponDiscountValue()
+            )}
           </span>
         </div>
       )}
@@ -131,7 +143,7 @@ export default function CheckoutCommonSummary({
             </span>
           </p>
           <span className="text-lg font-medium">
-            ${helperFunctions.toFixedNumber(getSalesTaxAmount())}
+            {helperFunctions?.formatCurrencyWithDollar(getSalesTaxAmount())}
           </span>
         </div>
       )}
@@ -152,7 +164,10 @@ export default function CheckoutCommonSummary({
       <p className="my-4 border-t border-grayborder" />
 
       <p className="text-lg flex font-semibold pt-2 justify-between  text-baseblack">
-        Grand Total: <span>${getGrandTotal()}</span>
+        Grand Total:{" "}
+        <span>
+          {helperFunctions?.formatCurrencyWithDollar(getGrandTotal())}
+        </span>
       </p>
 
       <div className="py-6">

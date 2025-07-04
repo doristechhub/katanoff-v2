@@ -1,17 +1,16 @@
-import { messageType, ONE_TIME } from "@/_helper";
+import { helperFunctions, messageType, ONE_TIME } from "@/_helper";
 import { couponService } from "@/_services";
 import {
   setAppliedPromoDetail,
-  setCouponAppliedMail,
   setCouponCode,
   setCouponMessage,
   setPromoCodeLoading,
 } from "@/store/slices/couponSlice";
 
-export const applyCouponCode = (code, orderValue, userEmail) => {
+export const applyCouponCode = ({ promoCode, orderValue, userEmail }) => {
   return async (dispatch) => {
     try {
-      const trimmedCode = code?.trim();
+      const trimmedCode = promoCode?.trim();
       if (!trimmedCode) {
         dispatch(
           setCouponMessage({
@@ -32,16 +31,15 @@ export const applyCouponCode = (code, orderValue, userEmail) => {
       }
       dispatch(setPromoCodeLoading(true));
 
-      const matchedCoupon = await couponService?.validateCouponCode(
-        trimmedCode,
+      const matchedCoupon = await couponService?.validateCouponCode({
+        promoCode: trimmedCode,
         orderValue,
-        userEmail
-      );
+        userEmail,
+        userId: helperFunctions.getCurrentUser()?.id || null,
+      });
 
       dispatch(setAppliedPromoDetail(matchedCoupon));
-      if (matchedCoupon?.purchaseMode === ONE_TIME) {
-        dispatch(setCouponAppliedMail(matchedCoupon?.appliedEmail));
-      }
+
       dispatch(
         setCouponMessage({
           message:
@@ -51,6 +49,7 @@ export const applyCouponCode = (code, orderValue, userEmail) => {
           type: messageType.SUCCESS,
         })
       );
+      return matchedCoupon;
     } catch (error) {
       dispatch(setAppliedPromoDetail(null));
       dispatch(
@@ -59,6 +58,7 @@ export const applyCouponCode = (code, orderValue, userEmail) => {
           type: messageType.ERROR,
         })
       );
+      return;
     } finally {
       dispatch(setPromoCodeLoading(false));
     }

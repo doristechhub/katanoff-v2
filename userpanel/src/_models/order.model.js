@@ -168,6 +168,7 @@ export const orderModel = {
     default: 0,
   },
   salesTax: {
+    // calculate sales tax based on subtotal - discount
     type: Number,
     default: 0,
   },

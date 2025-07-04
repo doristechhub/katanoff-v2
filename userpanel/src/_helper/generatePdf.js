@@ -43,6 +43,8 @@ export const generatePDF = async (orderData, sizePage = "1") => {
   } / ${date.getDate()} / ${date.getFullYear()}`;
   const pageWidth = doc.internal.pageSize.getWidth();
   const topHeight = 25;
+  const imageSize = 40; // Adjust as needed
+  const minCellHeight = 45; // Match or exceed image size
 
   // Title and Order Info
   doc.setFontSize(20);
@@ -92,8 +94,8 @@ export const generatePDF = async (orderData, sizePage = "1") => {
 
     const isDiamond = Boolean(x?.diamondDetail);
 
-    const nameLine = `${x?.productName}\n`; // one line space below name
-    const priceLine = `$${helperFunctions.toFixedNumber(x.productPrice)}`;
+    const nameLine = `${x?.productName}`; // one line space below name
+    // const priceLine = `$${helperFunctions.toFixedNumber(x.productPrice)}`;
 
     const diamondDetail = isDiamond
       ? `\n\nDiamond Details:\n` +
@@ -109,84 +111,119 @@ export const generatePDF = async (orderData, sizePage = "1") => {
       {
         content: "",
         image: x?.productImage,
-        width: 35,
-        height: 35,
+        width: 20,
+        height: 20,
         alias: x?.productName,
       },
-      `${nameLine}${priceLine}\n${variations}${diamondDetail}`,
+      `${nameLine}\n${variations}${diamondDetail}`,
       x?.cartQuantity,
-      helperFunctions.toFixedNumber(unitPrice),
-      helperFunctions.toFixedNumber(x?.unitAmount),
+      helperFunctions?.formatCurrency(unitPrice),
+      helperFunctions?.formatCurrency(x?.unitAmount),
     ];
   });
 
   autoTable(doc, {
     theme: "grid",
     startY: 190,
-    head: headers,
+    head: [["IMAGE", "PRODUCT", "QTY", "UNIT PRICE ($)", "TOTAL ($)"]],
     body: data,
     headStyles: { fillColor: [32, 42, 78] },
     columnStyles: {
-      2: { halign: "center", valign: "center" },
-      3: { cellWidth: 85, halign: "right", valign: "center" },
-      4: { cellWidth: 70, halign: "right", valign: "center" },
+      0: { cellWidth: 50, halign: "center", valign: "middle" }, // image
+      1: { cellWidth: 230 },
+      2: { halign: "center" },
+      3: { halign: "right" },
+      4: { halign: "right" },
     },
     bodyStyles: {
-      minCellHeight: 35,
+      minCellHeight: minCellHeight,
       textColor: "#111111",
+      valign: "middle",
     },
     didDrawCell: (data) => {
-      if (data?.column?.index === 0 && data?.row?.index >= 0) {
-        const img = data?.cell?.raw?.image;
-        if (img) {
-          const cellWidth = data?.cell?.width;
-          const cellHeight = data?.cell?.height;
-          const imgWidth = 60;
-          const imgHeight = 60;
-          const xOffset = data?.cell?.x + (cellWidth - imgWidth) / 2;
-          const yOffset = data?.cell?.y + (cellHeight - imgHeight) / 2;
-          doc.addImage(
-            img,
-            "JPEG",
-            xOffset,
-            yOffset,
-            imgWidth,
-            imgWidth,
-            undefined,
-            "FAST"
-          );
-        }
+      if (data.column.index === 0 && data.cell.raw?.image) {
+        const img = data.cell.raw.image;
+        const cellX = data.cell.x;
+        const cellY = data.cell.y;
+        const cellWidth = data.cell.width;
+        const cellHeight = data.cell.height;
+
+        const xOffset = cellX + (cellWidth - imageSize) / 2;
+        const yOffset = cellY + (cellHeight - imageSize) / 2;
+
+        doc.addImage(img, "JPEG", xOffset, yOffset, imageSize, imageSize);
       }
     },
   });
 
-  const bottomRightX = pageWidth - 150;
-  const bottomRightY = doc.lastAutoTable.finalY + 20;
+  const bottomRightX = pageWidth - 160;
+  let currentY = doc.lastAutoTable.finalY + 20;
 
+  // Subtotal
   doc.text(
-    `Subtotal: $ ${helperFunctions.toFixedNumber(invoiceData?.subTotal)}`,
+    `Subtotal: $${helperFunctions?.formatCurrency(
+      helperFunctions?.getDisplaySubtotalWithDiscount(
+        invoiceData?.subTotal,
+        invoiceData?.discount
+      )
+    )}`,
     bottomRightX,
-    bottomRightY
+    currentY
   );
-  doc.text(
-    `Taxes: $ ${helperFunctions.toFixedNumber(invoiceData?.salesTax)}`,
-    bottomRightX,
-    bottomRightY + 15
-  );
-  doc
-    .text(
-      `Shipping Charge: $ ${helperFunctions.toFixedNumber(
-        invoiceData?.shippingCharge
+  currentY += 15;
+
+  // Promo Discount (if any)
+  if (invoiceData?.discount > 0) {
+    doc.text(
+      `Promo Discount: $${helperFunctions?.formatCurrency(
+        helperFunctions.toFixedNumber(invoiceData?.discount)
       )}`,
       bottomRightX,
-      bottomRightY + 30
-    )
-    .setFont(undefined, "bold");
+      currentY
+    );
+    currentY += 15;
+  }
+
+  // Taxes
   doc.text(
-    `Total Amount: $ ${helperFunctions.toFixedNumber(invoiceData?.total)}`,
+    `Taxes: ${
+      invoiceData?.salesTax && Number(invoiceData?.salesTax) !== 0
+        ? `$${helperFunctions?.formatCurrency(
+            helperFunctions.toFixedNumber(invoiceData?.salesTax)
+          )}`
+        : "N/A"
+    }`,
     bottomRightX,
-    bottomRightY + 50
+    currentY
   );
+
+  currentY += 15;
+
+  // Shipping Charge
+  doc.text(
+    `Shipping Fees:  ${
+      helperFunctions.toFixedNumber(invoiceData?.shippingCharge) > 0
+        ? "$" +
+          helperFunctions?.formatCurrency(
+            helperFunctions.toFixedNumber(invoiceData?.shippingCharge)
+          )
+        : "Free"
+    }`,
+    bottomRightX,
+    currentY
+  );
+  currentY += 15;
+
+  // Total Amount (bold)
+  doc
+    .setFont(undefined, "bold")
+    .text(
+      `Total Amount: $${helperFunctions?.formatCurrency(
+        helperFunctions.toFixedNumber(invoiceData?.total)
+      )}`,
+      bottomRightX,
+      currentY
+    );
 
   doc.save(`${invoiceData?.orderNumber}.pdf`);
 };

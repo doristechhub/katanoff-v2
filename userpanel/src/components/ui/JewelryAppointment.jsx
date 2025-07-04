@@ -2,7 +2,7 @@
 "use client";
 import { CustomImg } from "../dynamiComponents";
 import bookAppointment from "@/assets/images/home/book-appointment-home.webp";
-import bookAppointmentMobile from "@/assets/images/home/book-appointment-home-mobile.png";
+import bookAppointmentMobile from "@/assets/images/home/book-appointment-home-mobile.webp";
 
 import { PrimaryLinkButton } from "./button";
 export default function JewelryAppointment() {

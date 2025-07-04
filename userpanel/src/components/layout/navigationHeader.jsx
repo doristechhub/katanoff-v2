@@ -62,7 +62,7 @@ export const mainHeaderLinks = [
     href: "/cart",
     title: "my cart",
   },
-  { image: calendarIcon, href: "/book-appointment", title: "book appointment" },
+  // { image: calendarIcon, href: "/book-appointment", title: "book appointment" },
 ];
 
 export default function NavigationHeader() {

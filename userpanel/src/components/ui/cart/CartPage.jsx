@@ -395,7 +395,10 @@ const CartPage = () => {
                 Order Total: <span className="">${getOrderTotal()}</span>
               </p>
               <p className="xs:text-lg text-baseblack flex justify-between pt-4">
-                Discount Offer: <span className="">-${getDiscountTotal()}</span>
+                Discount Offer:{" "}
+                <span className="">
+                  {getDiscountTotal() > 0 ? `-$${getDiscountTotal()}` : "N/A"}
+                </span>
               </p>
               <p className="xs:text-lg text-baseblack flex justify-between pt-4">
                 Subtotal: <span className="">${getSubTotal()}</span>

@@ -142,6 +142,7 @@ export const DISCOUNT_APPLICATION_METHODS = {
   CODE: "Code",
   AUTOMATIC: "Automatic",
 };
+export const SIGN_UP_DISCOUNT = "Sign Up Discount";
 
 // Diamond Shapes
 export const ROUND = "Round";
