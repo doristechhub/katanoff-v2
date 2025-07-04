@@ -6,6 +6,7 @@ const {
   DISCOUNT_CUSTOMER_ELIGIBILITY,
   DISCOUNT_TYPES,
   DISCOUNT_APPLICATION_METHODS,
+  SIGN_UP_DISCOUNT,
 } = require("../helpers/common");
 const moment = require("moment");
 
@@ -144,6 +145,17 @@ exportFunction.validatePromoCode = async ({
       return { valid: false, message: "Invalid promo code" };
     }
 
+    // Check if the promo code is "Sign Up Discount" and verify user is logged in
+    if (
+      foundDiscount?.name?.toUpperCase() === SIGN_UP_DISCOUNT.toUpperCase() &&
+      !userId
+    ) {
+      return {
+        valid: false,
+        message: "You must be logged in to use the Sign Up Discount promo code",
+      };
+    }
+
     if (foundDiscount?.discountType !== DISCOUNT_TYPES?.ORDER_DISCOUNT) {
       return {
         valid: false,
@@ -210,7 +222,7 @@ exportFunction.validatePromoCode = async ({
     if (minOrderValue > 0 && subTotal < minOrderValue) {
       return {
         valid: false,
-        message: `promo code requires a minimum order value of $${minOrderValue}.`,
+        message: `Promo code requires a minimum order value of $${minOrderValue}.`,
       };
     }
 
@@ -219,7 +231,7 @@ exportFunction.validatePromoCode = async ({
       if (!userEmail) {
         return {
           valid: false,
-          message: "email is required to apply this promo code.",
+          message: "Email is required to apply this promo code.",
         };
       }
 
