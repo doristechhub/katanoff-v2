@@ -1,8 +1,6 @@
-import * as Yup from 'yup';
-import { Form, Formik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Card,
@@ -19,57 +17,36 @@ import {
   TableContainer,
   InputAdornment,
   TablePagination,
-  Stack,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-
-import {
-  StyledDialogTitle,
-  StyledDialogActions,
-  StyledDialogContent,
-} from 'src/components/dialog/styles';
-import {
-  createCollection,
-  deleteCollection,
-  updateCollection,
-  getCollectionList,
-} from 'src/actions/collectionActions';
-import Dialog from 'src/components/dialog';
+import { deleteCollection, getCollectionList } from 'src/actions/collectionActions';
 import Iconify from 'src/components/iconify';
 import Spinner from 'src/components/spinner';
 import Scrollbar from 'src/components/scrollbar';
-import { Button, LoadingButton } from 'src/components/button';
+import { Button } from 'src/components/button';
 import ConfirmationDialog from 'src/components/confirmation-dialog';
-import { initCollection, setSelectedCollection } from 'src/store/slices/collectionSlice';
-import { FileDrop } from 'src/components/file-drop';
 import ProgressiveImg from 'src/components/progressive-img';
-import Grid from '@mui/material/Unstable_Grid2';
-
-// ----------------------------------------------------------------------
-
-const validationSchema = Yup.object().shape({
-  title: Yup.string().required('Title is required'),
-});
 
 // ----------------------------------------------------------------------
 
 const Collection = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [open, setOpen] = useState(null);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchedValue, setSearchedValue] = useState('');
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [selectedCollectionId, setSelectedCollectionId] = useState();
-  const [openCollectionDialog, setOpenCollectionDialog] = useState(false);
 
-  const { collectionLoading, collectionList, crudCollectionLoading, selectedCollection } =
-    useSelector(({ collection }) => collection);
+  const { collectionLoading, collectionList, crudCollectionLoading } = useSelector(
+    ({ collection }) => collection
+  );
 
   const searchKey = searchedValue?.trim()?.toLowerCase();
-  let filteredItems = collectionList?.filter((item) => {
-    return item?.title?.toLowerCase()?.includes(searchKey?.toLowerCase());
-  });
+  let filteredItems = collectionList?.filter((item) =>
+    item?.title?.toLowerCase()?.includes(searchKey)
+  );
 
   filteredItems = filteredItems?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
@@ -78,7 +55,7 @@ const Collection = () => {
       dispatch(getCollectionList());
       setPage(cPage);
     },
-    [page]
+    [dispatch, page]
   );
 
   useEffect(() => {
@@ -86,8 +63,7 @@ const Collection = () => {
   }, []);
 
   const searchValueHandler = useCallback((event) => {
-    const value = event.target.value;
-    setSearchedValue(value);
+    setSearchedValue(event.target.value);
     setPage(0);
   }, []);
 
@@ -109,144 +85,56 @@ const Collection = () => {
     [crudCollectionLoading]
   );
 
-  const handleEdit = useCallback(async () => {
-    const collection = collectionList?.find((x) => x?.id === selectedCollectionId);
-    if (collection) {
-      let updatedCollection = { ...initCollection, ...collection };
-      // Desktop Banner Image
-      const desktopBannerImageUrl = collection?.desktopBannerImage;
-      if (desktopBannerImageUrl) {
-        const url = new URL(desktopBannerImageUrl);
-        const fileExtension = url.pathname.split('.').pop();
-        const desktopBannerPreviewImageObj = {
-          type: 'old',
-          mimeType: `image/${fileExtension}`,
-          image: desktopBannerImageUrl,
-        };
-        updatedCollection = {
-          ...updatedCollection,
-          desktopBannerFile: [],
-          desktopBannerPreviewImage: [desktopBannerPreviewImageObj],
-          desktopBannerUploadedDeletedImage: [],
-        };
-      }
-      // Mobile Banner Image
-      const mobileBannerImageUrl = collection?.mobileBannerImage;
-      if (mobileBannerImageUrl) {
-        const url = new URL(mobileBannerImageUrl);
-        const fileExtension = url.pathname.split('.').pop();
-        const mobileBannerPreviewImageObj = {
-          type: 'old',
-          mimeType: `image/${fileExtension}`,
-          image: mobileBannerImageUrl,
-        };
-        updatedCollection = {
-          ...updatedCollection,
-          mobileBannerFile: [],
-          mobileBannerPreviewImage: [mobileBannerPreviewImageObj],
-          mobileBannerUploadedDeletedImage: [],
-        };
-      }
-      dispatch(setSelectedCollection(updatedCollection));
-      setOpenCollectionDialog(true);
-    }
-  }, [selectedCollectionId, collectionList]);
+  const handleEdit = useCallback(() => {
+    navigate(`/collection/add?collectionId=${selectedCollectionId}`);
+  }, [navigate, selectedCollectionId]);
 
   const handleDelete = useCallback(async () => {
-    const res = await dispatch(
-      deleteCollection({
-        collectionId: selectedCollectionId,
-      })
-    );
+    const res = await dispatch(deleteCollection({ collectionId: selectedCollectionId }));
     if (res) {
       const cPage = page !== 0 && filteredItems?.length === 1 ? page - 1 : page;
       loadData(cPage);
       handlePopup();
       setDeleteDialog(false);
     }
-  }, [selectedCollectionId]);
+  }, [dispatch, selectedCollectionId, page, filteredItems]);
 
-  const onSubmit = useCallback(
-    async (val, { resetForm }) => {
-      const payload = {
-        title: val?.title,
-        desktopBannerFile: val?.desktopBannerFile?.[0] || null,
-        mobileBannerFile: val?.mobileBannerFile?.[0] || null,
-        deletedDesktopBannerImage: val?.desktopBannerUploadedDeletedImage?.[0]?.image || null,
-        deletedMobileBannerImage: val?.mobileBannerUploadedDeletedImage?.[0]?.image || null,
-      };
-      let res;
-      let cPage = 0;
-      if (val?.id) {
-        payload.collectionId = val?.id;
-        cPage = page;
-        res = await dispatch(updateCollection(payload));
-      } else {
-        res = await dispatch(createCollection(payload));
-      }
-      if (res) {
-        loadData(cPage);
-        setOpenCollectionDialog(false);
-        resetForm();
-        setOpen(null);
-      }
-    },
-    [page]
-  );
-
-  const closeMenuCategoryPopup = useCallback(
-    (resetForm) => {
-      setOpenCollectionDialog(false);
-      dispatch(setSelectedCollection(initCollection));
-      resetForm();
-    },
-    [initCollection]
-  );
-
-  const renderPopup = useMemo(() => {
-    return !!open ? (
-      <Popover
-        open={!!open}
-        anchorEl={open}
-        PaperProps={{
-          sx: { width: 140 },
-        }}
-        disableEscapeKeyDown
-        onClose={handlePopup}
-        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <MenuItem onClick={handleEdit} disabled={crudCollectionLoading}>
-          <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-          Edit
-        </MenuItem>
-
-        <MenuItem
-          sx={{ color: 'error.main' }}
-          disabled={crudCollectionLoading}
-          onClick={() => setDeleteDialog(true)}
+  const renderPopup = useMemo(
+    () =>
+      open ? (
+        <Popover
+          open={!!open}
+          anchorEl={open}
+          PaperProps={{ sx: { width: 140 } }}
+          disableEscapeKeyDown
+          onClose={handlePopup}
+          anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         >
-          {crudCollectionLoading ? (
-            <Box
-              sx={{
-                gap: '15px',
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              <Spinner width={20} /> Delete
-            </Box>
-          ) : (
-            <>
-              <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
-              Delete
-            </>
-          )}
-        </MenuItem>
-      </Popover>
-    ) : null;
-  }, [open, crudCollectionLoading]);
+          <MenuItem onClick={handleEdit} disabled={crudCollectionLoading}>
+            <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
+            Edit
+          </MenuItem>
+          <MenuItem
+            sx={{ color: 'error.main' }}
+            disabled={crudCollectionLoading}
+            onClick={() => setDeleteDialog(true)}
+          >
+            {crudCollectionLoading ? (
+              <Box sx={{ gap: '15px', width: '100%', display: 'flex', alignItems: 'center' }}>
+                <Spinner width={20} /> Delete
+              </Box>
+            ) : (
+              <>
+                <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
+                Delete
+              </>
+            )}
+          </MenuItem>
+        </Popover>
+      ) : null,
+    [open, crudCollectionLoading, handleEdit, handlePopup]
+  );
 
   return (
     <>
@@ -289,7 +177,7 @@ const Collection = () => {
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
-                onClick={() => setOpenCollectionDialog(true)}
+                onClick={() => navigate('/collection/add')}
               >
                 New Collection
               </Button>
@@ -340,7 +228,7 @@ const Collection = () => {
                             </TableCell>
                             <TableCell sx={{ width: '50px' }}>
                               <Iconify
-                                className={'cursor-pointer'}
+                                className="cursor-pointer"
                                 icon="iconamoon:menu-kebab-vertical-bold"
                                 onClick={(e) => {
                                   setOpen(e.currentTarget);
@@ -379,98 +267,6 @@ const Collection = () => {
       )}
 
       {renderPopup}
-
-      {openCollectionDialog ? (
-        <Formik
-          enableReinitialize
-          onSubmit={onSubmit}
-          initialValues={selectedCollection}
-          validationSchema={validationSchema}
-        >
-          {(formik) => {
-            const { values, touched, errors, handleBlur, handleChange, handleSubmit, resetForm } =
-              formik;
-            return (
-              <Form onSubmit={handleSubmit}>
-                <Dialog
-                  open={openCollectionDialog}
-                  handleClose={() => closeMenuCategoryPopup(resetForm)}
-                  handleOpen={() => setOpenCollectionDialog(true)}
-                  maxWidth="md"
-                >
-                  <StyledDialogTitle>
-                    {selectedCollection?.id ? 'Update' : 'Add New'} Collection
-                  </StyledDialogTitle>
-                  <StyledDialogContent>
-                    <Stack spacing={2} sx={{ mt: 2 }}>
-                      <TextField
-                        sx={{
-                          mt: '10px',
-                          width: '100%',
-                          minWidth: '300px',
-                        }}
-                        name="title"
-                        onBlur={handleBlur}
-                        onChange={handleChange}
-                        value={values.title || ''}
-                        label="Collection Title"
-                        error={!!(touched.title && errors.title)}
-                        helperText={touched.title && errors.title ? errors.title : ''}
-                      />
-                      <Grid container spacing={3} sx={{ mt: 2 }}>
-                        <Grid xs={12} sm={6} md={6}>
-                          <Typography variant="subtitle2" gutterBottom>
-                            Desktop Banner (1920x448)
-                          </Typography>
-                          <FileDrop
-                            mediaLimit={1}
-                            formik={formik}
-                            productId={selectedCollection}
-                            fileKey="desktopBannerFile"
-                            previewKey="desktopBannerPreviewImage"
-                            deleteKey="desktopBannerUploadedDeletedImage"
-                            loading={crudCollectionLoading}
-                          />
-                        </Grid>
-                        <Grid xs={12} sm={6} md={6}>
-                          <Typography variant="subtitle2" gutterBottom>
-                            Mobile Banner (1500x738)
-                          </Typography>
-                          <FileDrop
-                            mediaLimit={1}
-                            formik={formik}
-                            productId={selectedCollection}
-                            fileKey="mobileBannerFile"
-                            previewKey="mobileBannerPreviewImage"
-                            deleteKey="mobileBannerUploadedDeletedImage"
-                            loading={crudCollectionLoading}
-                          />
-                        </Grid>
-                      </Grid>
-                    </Stack>
-                  </StyledDialogContent>
-                  <StyledDialogActions>
-                    <Button
-                      variant="outlined"
-                      onClick={() => closeMenuCategoryPopup(resetForm)}
-                      disabled={crudCollectionLoading}
-                    >
-                      Cancel
-                    </Button>
-                    <LoadingButton
-                      variant="contained"
-                      onClick={handleSubmit}
-                      loading={crudCollectionLoading}
-                    >
-                      {selectedCollection?.id ? 'Update' : 'Save'}
-                    </LoadingButton>
-                  </StyledDialogActions>
-                </Dialog>
-              </Form>
-            );
-          }}
-        </Formik>
-      ) : null}
 
       {deleteDialog ? (
         <ConfirmationDialog

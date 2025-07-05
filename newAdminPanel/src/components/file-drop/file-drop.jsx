@@ -143,36 +143,63 @@ const FileDrop = forwardRef(
       onDrop,
     });
 
+    // const onRemove = useCallback(
+    //   (item, index) => {
+    //     let list = _.clone(formik.values?.[fileKey]);
+    //     let previewList = _.clone(formik.values?.[previewKey]);
+    //     if (index >= 0) {
+    //       list?.splice(index, 1);
+    //       previewList?.splice(index, 1);
+
+    //       formik.setFieldValue(fileKey, list);
+    //       formik.setFieldValue(previewKey, previewList);
+
+    //       //--------------------------------------------------------------------
+    //       if (item.type === 'new') {
+    //         if (formik.values?.[fileKey]) {
+    //           formik.values?.[fileKey]?.splice(index, 1);
+    //           formik.setFieldValue([fileKey], [...formik.values?.[fileKey]]);
+    //         }
+
+    //         if (formik.values?.[previewKey]) {
+    //           formik.values?.[previewKey]?.splice(index, 1);
+    //           formik.setFieldValue([previewKey], [...formik.values?.[previewKey]]);
+    //         }
+    //       } else if (productId && item.type === 'old') {
+    //         const deletedImage = formik.values?.[previewKey]?.splice(index, 1);
+    //         formik.setFieldValue([previewKey], [...formik.values?.[previewKey]]);
+    //         formik.setFieldValue([deleteKey], [...formik.values?.[deleteKey], ...deletedImage]);
+    //       }
+    //     }
+    //   },
+    //   [formik, productId]
+    // );
+
     const onRemove = useCallback(
       (item, index) => {
-        let list = _.clone(formik.values?.[fileKey]);
-        let previewList = _.clone(formik.values?.[previewKey]);
+        // Clone the arrays
+        let list = _.clone(formik.values?.[fileKey] || []);
+        let previewList = _.clone(formik.values?.[previewKey] || []);
+
         if (index >= 0) {
+          // Capture the item to be deleted before removing it
+          const deletedItem = previewList[index]; // This is correct
+
+          // Remove the item at the specified index
           list?.splice(index, 1);
           previewList?.splice(index, 1);
 
+          // Update Formik state
           formik.setFieldValue(fileKey, list);
           formik.setFieldValue(previewKey, previewList);
 
-          //--------------------------------------------------------------------
-          if (item.type === 'new') {
-            if (formik.values?.[fileKey]) {
-              formik.values?.[fileKey]?.splice(index, 1);
-              formik.setFieldValue([fileKey], [...formik.values?.[fileKey]]);
-            }
-
-            if (formik.values?.[previewKey]) {
-              formik.values?.[previewKey]?.splice(index, 1);
-              formik.setFieldValue([previewKey], [...formik.values?.[previewKey]]);
-            }
-          } else if (productId && item.type === 'old') {
-            const deletedImage = formik.values?.[previewKey]?.splice(index, 1);
-            formik.setFieldValue([previewKey], [...formik.values?.[previewKey]]);
-            formik.setFieldValue([deleteKey], [...formik.values?.[deleteKey], ...deletedImage]);
+          // Handle deletion for existing items (type === 'old')
+          if (item.type === 'old' && productId && deleteKey) {
+            formik.setFieldValue(deleteKey, [...(formik.values?.[deleteKey] || []), deletedItem]);
           }
         }
       },
-      [formik, productId]
+      [formik, fileKey, previewKey, deleteKey, productId]
     );
 
     const browseLink = (

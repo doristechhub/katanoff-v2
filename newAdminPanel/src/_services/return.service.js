@@ -124,12 +124,11 @@ const getReturnDetailByReturnId = (returnId) => {
           ?.variationTypeName?.toLowerCase();
         const thumbnailField = GOLD_COLOR_MAP[goldColor] || 'yellowGoldThumbnailImage';
         const thumbnailImage = product[thumbnailField];
-        const subTotalWithDiscount = matchedOrder.subTotal + matchedOrder.discount;
 
         const perQuantityDiscountAmount = Number(
           helperFunctions?.splitDiscountAmongProducts({
             quantityWiseProductPrice: item.productPrice,
-            subTotal: subTotalWithDiscount,
+            subTotal: returnDetail.subTotal,
             discountAmount: returnDetail.discount,
           })
         );
@@ -137,7 +136,7 @@ const getReturnDetailByReturnId = (returnId) => {
         const perQuantitySalesTaxAmount = Number(
           helperFunctions?.splitTaxAmongProducts({
             quantityWiseProductPrice: item.productPrice,
-            subTotal: subTotalWithDiscount,
+            subTotal: returnDetail.subTotal,
             discountAmount: returnDetail.discount,
             totalTaxAmount: returnDetail.salesTax,
           })
@@ -152,11 +151,11 @@ const getReturnDetailByReturnId = (returnId) => {
           variations,
           diamondDetail: item?.diamondDetail
             ? {
-              ...item.diamondDetail,
-              shapeName:
-                diamondShapes.find((s) => s?.id === item.diamondDetail?.shapeId)?.title ||
-                'Unknown',
-            }
+                ...item.diamondDetail,
+                shapeName:
+                  diamondShapes.find((s) => s?.id === item.diamondDetail?.shapeId)?.title ||
+                  'Unknown',
+              }
             : undefined,
         };
       });
@@ -173,13 +172,13 @@ const getReturnsByOrderId = (orderId) => {
     try {
       orderId = sanitizeValue(orderId)?.trim() || null;
       if (!orderId) {
-        reject(new Error("Invalid order ID"));
+        reject(new Error('Invalid order ID'));
         return;
       }
 
       const findPattern = {
         url: returnsUrl,
-        key: "orderId",
+        key: 'orderId',
         value: orderId,
       };
       const orderWiseReturnsData = await fetchWrapperService.find(findPattern);
@@ -298,21 +297,20 @@ const createApprovedReturnRequest = (params) => {
         orderNumber,
       } = orderDetail;
 
-      if (orderStatus !== "delivered") {
-        reject(new Error("Order must be delivered to initiate a return"));
+      if (orderStatus !== 'delivered') {
+        reject(new Error('Order must be delivered to initiate a return'));
         return;
       }
 
       if (!helperFunctions.isReturnValid(deliveryDate)) {
-        reject(new Error("Return period has expired (15-day limit)"));
+        reject(new Error('Return period has expired (15-day limit)'));
         return;
       }
 
       const matchedReturns = await returnService.getReturnsByOrderId(orderId);
 
-
       const activeReturns = matchedReturns.filter((returnOrder) =>
-        ["pending", "approved", "received"].includes(returnOrder.status)
+        ['pending', 'approved', 'received'].includes(returnOrder.status)
       ).length;
 
       const rejectedCount = matchedReturns.filter(
@@ -320,21 +318,17 @@ const createApprovedReturnRequest = (params) => {
       ).length;
 
       if (activeReturns > 0 || rejectedCount > 2) {
-        reject(
-          new Error(
-            "Cannot initiate return: Active return exists or return limit exceeded"
-          )
-        );
+        reject(new Error('Cannot initiate return: Active return exists or return limit exceeded'));
         return;
       }
 
       if (hasInvalidProductsKey(products)) {
-        reject(new Error("Invalid product data structure"));
+        reject(new Error('Invalid product data structure'));
         return;
       }
       const productsArray = getProductsArray(products);
       if (!validateProducts(productsArray, orderProducts)) {
-        reject(new Error("Invalid product or quantity in return request"));
+        reject(new Error('Invalid product or quantity in return request'));
         return;
       }
 
@@ -373,7 +367,13 @@ const createApprovedReturnRequest = (params) => {
       }
       const { subTotal, discount, salesTax, serviceFees, returnRequestAmount } =
         helperFunctions?.calcReturnPayment(productsArray, orderDetail);
-      if (subTotal && isNaN(subTotal) || discount && isNaN(discount) || salesTax && isNaN(salesTax) || serviceFees && isNaN(serviceFees) || returnRequestAmount && isNaN(returnRequestAmount)) {
+      if (
+        (subTotal && isNaN(subTotal)) ||
+        (discount && isNaN(discount)) ||
+        (salesTax && isNaN(salesTax)) ||
+        (serviceFees && isNaN(serviceFees)) ||
+        (returnRequestAmount && isNaN(returnRequestAmount))
+      ) {
         reject(new Error('Invalid data'));
         return;
       }
@@ -394,7 +394,7 @@ const createApprovedReturnRequest = (params) => {
         discount,
         salesTax,
         serviceFees,
-        returnRequestAmount
+        returnRequestAmount,
       };
       if (orderDetail?.userId) {
         insertPattern.userId = orderDetail.userId;

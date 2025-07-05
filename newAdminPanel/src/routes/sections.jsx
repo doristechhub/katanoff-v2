@@ -12,6 +12,7 @@ export const Returns = lazy(() => import('src/pages/returns'));
 export const LoginPage = lazy(() => import('src/pages/login'));
 export const MenuPage = lazy(() => import('src/pages/menu/menu'));
 export const Collection = lazy(() => import('src/pages/collection'));
+export const AddCollectionPage = lazy(() => import('src/pages/collection/add'));
 export const SettingStyle = lazy(() => import('src/pages/setting-style'));
 export const DiamondShape = lazy(() => import('src/pages/diamond-shape'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
@@ -123,6 +124,14 @@ export default function Router() {
           element: (
             <ProtectedRoutes pageId={'collection'}>
               <Collection />
+            </ProtectedRoutes>
+          ),
+        },
+        {
+          path: '/collection/add',
+          element: (
+            <ProtectedRoutes pageId={'collection'}>
+              <AddCollectionPage />
             </ProtectedRoutes>
           ),
         },

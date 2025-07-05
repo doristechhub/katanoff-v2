@@ -24,9 +24,9 @@ export const orderRefundPayment = (payload, abortController) => async (dispatch)
   try {
     dispatch(setOrderRefundPaymentLoading(true));
     const res = await orderService.refundPayment(payload, abortController);
-
     if (res) return true;
   } catch (e) {
+    console.log('e', e);
     toastError(e);
     return false;
   } finally {

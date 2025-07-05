@@ -249,7 +249,6 @@ const ReturnRequestPage = () => {
           <span>Estimated Total:</span>
           <span>{returnRequestAmount > 0 ? fCurrency(returnRequestAmount) : 'N/A'}</span>
         </Typography>
-       x` `
       </Stack>
     );
   };
