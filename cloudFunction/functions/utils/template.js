@@ -256,7 +256,7 @@ const forgotPasswordOtpVerification = (username, otp) => {
   const subject = "Reset Your Password - Use This One-Time Password (OTP)";
   const body = `
 	 
-	<div style="color: white; font-size: 1vw; padding:0px 2vw; font-family: IBM Plex Mono, monospace; padding: 25px 0 15px 0; font-style: normal; ">
+	<div style="color: #2b2b2b; font-size: 1vw; padding:0px 2vw; font-family: IBM Plex Mono, monospace; padding: 25px 0 15px 0; font-style: normal; ">
 		<p>
 			Dear ${username},
 		</p>
@@ -265,7 +265,7 @@ const forgotPasswordOtpVerification = (username, otp) => {
 		</p>
 	
 		<div style=" text-align: center;">
-			<button style="text-align: center; margin : 10px 0; border: 2px solid white; border-radius : 10px; padding : 5px 11px;	background : transparent; font-size : 20px; color : white;">
+			<button style="text-align: center; margin : 10px 0; border: 2px solid #2b2b2b; border-radius : 10px; padding : 5px 11px;	background : transparent; font-size : 20px; color : #2b2b2b;">
 				${otp.toString().split("").join(" ")}
 			</button>
 		</div>
@@ -310,11 +310,10 @@ const getMailTemplateForOrderStatus = (userName, orderNumber, orderStatus) => {
   let boldOrderNumber = `<b>Order #${orderNumber}</b>`;
   const description = `
 	<div style="padding: 25px 0 15px 0;	">
-	<div style="padding : 0px 2vw; color: white;  font-family: IBM Plex Mono, monospace; font-style: normal; font-size: 1vw;">
+	<div style="padding : 0px 2vw; color: #2b2b2b; font-family: IBM Plex Mono, monospace; font-style: normal; font-size: 1vw;">
 
 	<p style=" margin-bottom : 10px;">Dear ${userName},</p>	
-	${
-    orderStatus === "pending"
+	${orderStatus === "pending"
       ? `<p>Thank you for choosing ${COMPANY_NAME}! We're happy to confirm that we’ve received your payment for ${boldOrderNumber}.</p>
 			<div style="margin : 10px;">
 				<p style="color :#202a4e; margin : 0px;">Order Summary</p>
@@ -330,11 +329,10 @@ ${COMPANY_NAME}
 and look forward to completing your order soon.</p>
 			`
       : ""
-  }
+    }
 	  
-	  ${
-      orderStatus === "cancelled"
-        ? `<p>We regret to inform you that your
+	  ${orderStatus === "cancelled"
+      ? `<p>We regret to inform you that your
 ${boldOrderNumber}
 has been cancelled. We understand this may be disappointing, and we apologize for any inconvenience caused.</p>
 			<div style="margin : 10px;">
@@ -349,12 +347,11 @@ has been cancelled. We understand this may be disappointing, and we apologize fo
 24 hours. If you have any questions or concerns regarding this cancellation or refund, please feel free to contact us at <a href="mailto:${COMPANY_EMAIL}" style="color :#202a4e;"> ${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>.</p>
 			<p>Thank you for being so understanding, and we hope to have the opportunity to serve you again in the future.</p>
 			`
-        : ""
+      : ""
     }
 	  
-	  ${
-      orderStatus === "confirmed"
-        ? `<p>Thank you for your purchase with ${COMPANY_NAME}! We’re excited to confirm that your ${boldOrderNumber} has been successfully placed, and we’ve received your payment.
+	  ${orderStatus === "confirmed"
+      ? `<p>Thank you for your purchase with ${COMPANY_NAME}! We’re excited to confirm that your ${boldOrderNumber} has been successfully placed, and we’ve received your payment.
  </p>
 			<div style="margin : 10px;">
 				<p style="color :#202a4e; margin : 0px;">Order Summary</p>
@@ -366,23 +363,21 @@ has been cancelled. We understand this may be disappointing, and we apologize fo
 			</div>
 			<p>We are now preparing your order and will notify you once it has been shipped. If you have any questions in the meantime, feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color :#202a4e;"> ${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>.</p>
 			<p>Thank you for choosing ${COMPANY_NAME}. We look forward to delivering your order soon!</p>`
-        : ""
+      : ""
     }
-		 ${
-       orderStatus === "shipped"
-         ? `<p>Great news! Your ${boldOrderNumber} has been shipped and is on its way to you.</p>
+		 ${orderStatus === "shipped"
+      ? `<p>Great news! Your ${boldOrderNumber} has been shipped and is on its way to you.</p>
 			
 			<p>If you have any questions or need assistance, please feel free to contact us at <a href="mailto:${COMPANY_EMAIL}" style="color :#202a4e;"> ${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>.</p>
 			<p>Thank you for shopping with us, and we hope you enjoy your purchase!</p>`
-         : ""
-     }
-		${
-      orderStatus === "delivered"
-        ? `<p>We’re happy to let you know that your ${boldOrderNumber} has been successfully delivered.</p>
+      : ""
+    }
+		${orderStatus === "delivered"
+      ? `<p>We’re happy to let you know that your ${boldOrderNumber} has been successfully delivered.</p>
 			
 			<p>We hope you enjoy your purchase. If you have any questions or concerns about your order, please feel free to contact us at <a href="mailto:${COMPANY_EMAIL}" style="color :#202a4e;"> ${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>.</p>
 			<p>Thank you for shopping with ${COMPANY_NAME}!. We look forward to serving you again soon!</p>`
-        : ""
+      : ""
     }
 	<p style = "margin-bottom : 10px; " >Best Regards, <br />${COMPANY_NAME}</p>
 	</div >
@@ -411,12 +406,11 @@ const getMailTemplateForAppointmentStatus = (
   }
   const description = `
 	<div style = "padding: 25px 0 15px 0;" >
-		<div style="padding : 0px 2vw; color: white;  font-family: IBM Plex Mono, monospace; font-style: normal; font-size: 1vw;">
+		<div style="padding : 0px 2vw; color: #2b2b2b;  font-family: IBM Plex Mono, monospace; font-style: normal; font-size: 1vw;">
 			<p style=" margin-bottom : 10px;">Dear ${userName},</p>
 			
-				${
-          appointmentStatus === "approved"
-            ? `<p>We’re pleased to confirm your appointment with ${COMPANY_NAME}!</p> <div style="margin : 10px;">
+				${appointmentStatus === "approved"
+      ? `<p>We’re pleased to confirm your appointment with ${COMPANY_NAME}!</p> <div style="margin : 10px;">
 				<p style="color :#202a4e; margin : 0px;">Appointment Details :</p>
 				<ul>
 					<li>Date & Time: ${dateTime}</li>
@@ -424,18 +418,16 @@ const getMailTemplateForAppointmentStatus = (
 			</div>
 			<p>We look forward to seeing you then. If you have any questions or need to reschedule, please feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color :#202a4e;"> ${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>.</p>
 			<p>Thank you for choosing ${COMPANY_NAME}!</p>`
-            : ""
-        }
-					${
-            appointmentStatus === "rejected"
-              ? `	<p>Thank you for reaching out to us regarding your appointment request. We appreciate your interest in ${COMPANY_NAME}.</p>
-				<p>Unfortunately, we must decline your appointment request for ${dateTime}${
-                  rejectReason ? `, ${rejectReason}` : ""
-                }. We apologize for any inconvenience this may cause.</p>
+      : ""
+    }
+					${appointmentStatus === "rejected"
+      ? `	<p>Thank you for reaching out to us regarding your appointment request. We appreciate your interest in ${COMPANY_NAME}.</p>
+				<p>Unfortunately, we must decline your appointment request for ${dateTime}${rejectReason ? `, ${rejectReason}` : ""
+      }. We apologize for any inconvenience this may cause.</p>
 			   	<p>If you have any questions or need further clarification, please don’t hesitate to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color :#202a4e;"> ${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>.</p>
 				<p>Thank you for your understanding, and we hope to connect with you soon!</p>`
-              : ""
-          }
+      : ""
+    }
 			<p style="margin-bottom : 10px;">Best Regards,<br />${COMPANY_NAME}</p>
 		</div>
       </div>
@@ -476,53 +468,50 @@ const getMailTemplateForReturnStatus = (
   if (returnStatus === "approved" && shippingLabel) {
     shippingLabelSection = `
 	<p style="margin-top: 10px;">To return your item, please use the latest shipping label provided below:</p>
-	      <p style="margin : 10px 0;"><b style="color :#202a4e;">Shipping Label :</b> <a href="${shippingLabel}" style="color : white;" target="_blank">Click here to download your shipping label</a></p>
+	      <p style="margin : 10px 0;"><b style="color :#202a4e;">Shipping Label :</b> <a href="${shippingLabel}" style="color : #2b2b2b;" target="_blank">Click here to download your shipping label</a></p>
 	      <p>Make sure to print and attach the label securely to your package.</p>
 `;
   }
   const description = `
 	<div style="padding: 25px 0 15px 0;" >
-		<div style="padding : 0px 2vw; color: white;  font-family: IBM Plex Mono, monospace; font-style: normal; font-size: 1vw;">
+		<div style="padding : 0px 2vw; color: #2b2b2b;  font-family: IBM Plex Mono, monospace; font-style: normal; font-size: 1vw;">
 			<p style="margin-bottom : 10px;">Dear ${userName},</p>
 
-			${
-        returnStatus === "approved"
-          ? `<p>We’re happy to inform you that your return request for ${boldOrderNumber} has been accepted!</p>`
-          : returnStatus === "rejected"
-          ? `<p>Thank you for contacting us regarding your return request for ${boldOrderNumber}. We appreciate your understanding as we carefully review all return inquiries.</p>
+			${returnStatus === "approved"
+      ? `<p>We’re happy to inform you that your return request for ${boldOrderNumber} has been accepted!</p>`
+      : returnStatus === "rejected"
+        ? `<p>Thank you for contacting us regarding your return request for ${boldOrderNumber}. We appreciate your understanding as we carefully review all return inquiries.</p>
 					 <p>Unfortunately, we are unable to process your return at this time. We understand this may be disappointing, and we truly apologize for any inconvenience this may cause.</p>
-					 ${
-             adminNote
-               ? `<p style="margin-top:10px;"><strong>Note from Admin:</strong> ${adminNote}</p>`
-               : ""
-           }`
-          : returnStatus === "received"
+					 ${adminNote
+          ? `<p style="margin-top:10px;"><strong>Note from Admin:</strong> ${adminNote}</p>`
+          : ""
+        }`
+        : returnStatus === "received"
           ? `<p>We wanted to let you know that we’ve successfully received your returned ${boldOrderNumber}.</p>`
           : returnStatus === "pending"
-          ? `<p>We have received your return request for ${boldOrderNumber}. Your request is currently being reviewed, and we will update you as soon as the process is complete.</p>`
-          : returnStatus === "cancelled"
-          ? `<p>We’re writing to inform you that your return request for ${boldOrderNumber} has been cancelled.</p>`
-          : ""
-      }
+            ? `<p>We have received your return request for ${boldOrderNumber}. Your request is currently being reviewed, and we will update you as soon as the process is complete.</p>`
+            : returnStatus === "cancelled"
+              ? `<p>We’re writing to inform you that your return request for ${boldOrderNumber} has been cancelled.</p>`
+              : ""
+    }
 
 			${shippingLabelSection}
 			
-			${
-        returnStatus === "approved"
-          ? `<p style="margin : 10px 0;">If you have any questions or need assistance, don’t hesitate to reach out at <a href="mailto:${COMPANY_EMAIL}" style="color :#202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>.</p>`
-          : returnStatus === "rejected"
-          ? `<p style="margin : 10px 0;">If you have any questions or need further clarification, please don’t hesitate to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color :#202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>. We're here to help!</p>`
-          : returnStatus === "received"
+			${returnStatus === "approved"
+      ? `<p style="margin : 10px 0;">If you have any questions or need assistance, don’t hesitate to reach out at <a href="mailto:${COMPANY_EMAIL}" style="color :#202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>.</p>`
+      : returnStatus === "rejected"
+        ? `<p style="margin : 10px 0;">If you have any questions or need further clarification, please don’t hesitate to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color :#202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>. We're here to help!</p>`
+        : returnStatus === "received"
           ? `<p style="margin : 10px 0;">Our team is now reviewing the item(s), and we will notify you once the return process is complete. If you have any questions in the meantime, feel free to contact us at <a href="mailto:${COMPANY_EMAIL}" style="color :#202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>.</p>`
           : returnStatus === "pending"
-          ? `<p style="margin : 10px 0;">If you have any questions or need assistance in the meantime, feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color :#202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>.</p>`
-          : returnStatus === "cancelled"
-          ? `<p style="margin : 10px 0;">If you have any questions or need further clarification, please feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color :#202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>.</p>`
-          : ""
-      }
+            ? `<p style="margin : 10px 0;">If you have any questions or need assistance in the meantime, feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color :#202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>.</p>`
+            : returnStatus === "cancelled"
+              ? `<p style="margin : 10px 0;">If you have any questions or need further clarification, please feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color :#202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>.</p>`
+              : ""
+    }
 			  
-				<p style = "color: white; margin-bottom : 10px; font-family: IBM Plex Mono, monospace; font-style: normal; font-size: 1vw;" > Thank you for choosing <a href="${WEBSITE_URL}" style="color:#202a4e;" target="_blank" >${COMPANY_NAME}<a/> Please Visit Again.</p>
-		<p style = "color: white; margin-bottom : 10px; font-family: IBM Plex Mono, monospace; font-style: normal; font-size: 1vw;" > Best Regards, <br />${COMPANY_NAME}</p>
+				<p style = "color: #2b2b2b; margin-bottom : 10px; font-family: IBM Plex Mono, monospace; font-style: normal; font-size: 1vw;" > Thank you for choosing <a href="${WEBSITE_URL}" style="color:#202a4e;" target="_blank" >${COMPANY_NAME}<a/> Please Visit Again.</p>
+		<p style = "color: #2b2b2b; margin-bottom : 10px; font-family: IBM Plex Mono, monospace; font-style: normal; font-size: 1vw;" > Best Regards, <br />${COMPANY_NAME}</p>
 		</div >
       </div >
 	`;
@@ -559,7 +548,7 @@ const getMailTemplateForRefundStatus = (
 
   let description = `
 	<div div style = "padding: 25px 0 15px 0;">
-		<div style="padding : 0px 2vw; color: white;  font-family: IBM Plex Mono, monospace; font-style: normal; font-size: 1vw;">
+		<div style="padding : 0px 2vw; color: #2b2b2b;  font-family: IBM Plex Mono, monospace; font-style: normal; font-size: 1vw;">
 			<p style="margin-bottom : 10px;">Dear ${userName},</p>`;
   if (refundStatus === "refunded") {
     description += `<p>We are pleased to inform you that your refund for
@@ -582,28 +571,26 @@ Order ${boldOrderNumber}.</p>`;
 
   description += `
 			<p style="margin: 10px 0;"> 
-				${
-          refundStatus === "refund_initialization_failed"
-            ? `We are actively working to resolve the issue and will keep you updated on the status. If you have any questions or need assistance, please feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color:#202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>.`
-            : refundStatus === "failed_refund"
-            ? `Our team is investigating the issue, and we will notify you as soon as the refund can be successfully processed. If you have any questions or require further assistance, please feel free to contact us at <a href="mailto:${COMPANY_EMAIL}" style="color:#202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>.`
-            : `If you have any questions or need further assistance, please feel free to contact us at <a href="mailto:${COMPANY_EMAIL}" style="color:#202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>. We’re here to help!`
-        }
+				${refundStatus === "refund_initialization_failed"
+      ? `We are actively working to resolve the issue and will keep you updated on the status. If you have any questions or need assistance, please feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color:#202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>.`
+      : refundStatus === "failed_refund"
+        ? `Our team is investigating the issue, and we will notify you as soon as the refund can be successfully processed. If you have any questions or require further assistance, please feel free to contact us at <a href="mailto:${COMPANY_EMAIL}" style="color:#202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>.`
+        : `If you have any questions or need further assistance, please feel free to contact us at <a href="mailto:${COMPANY_EMAIL}" style="color:#202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color:#202a4e;">${COMPANY_MOBILE_NO}</a>. We’re here to help!`
+    }
 			</p> 
-			${
-        refundStatus === "refunded"
-          ? "<p>Thank you for your patience, and we hope to serve you again in the future!</p>"
-          : refundStatus === "pending_refund"
-          ? "<p>Thank you for your patience!</p>"
-          : refundStatus === "cancelled_refund"
+			${refundStatus === "refunded"
+      ? "<p>Thank you for your patience, and we hope to serve you again in the future!</p>"
+      : refundStatus === "pending_refund"
+        ? "<p>Thank you for your patience!</p>"
+        : refundStatus === "cancelled_refund"
           ? "<p>I appreciate your understanding.</p>"
           : refundStatus === "refund_initialization_failed"
-          ? "<p>We apologize for the inconvenience and appreciate your understanding.</p>"
-          : refundStatus === "failed_refund"
-          ? "<p>We apologize for any inconvenience and appreciate your patience as we work to resolve this.</p>"
-          : "<p>Thank you for your understanding and patience.</p>"
-      }
-		<p style="color: white; margin-bottom : 10px; font-family: IBM Plex Mono, monospace; font-style: normal; font-size: 1vw;">Best Regards,<br />${COMPANY_NAME}</p>
+            ? "<p>We apologize for the inconvenience and appreciate your understanding.</p>"
+            : refundStatus === "failed_refund"
+              ? "<p>We apologize for any inconvenience and appreciate your patience as we work to resolve this.</p>"
+              : "<p>Thank you for your understanding and patience.</p>"
+    }
+		<p style="color: #2b2b2b; margin-bottom : 10px; font-family: IBM Plex Mono, monospace; font-style: normal; font-size: 1vw;">Best Regards,<br />${COMPANY_NAME}</p>
 		</div >
       </div >
 	`;
@@ -614,8 +601,8 @@ const contactUsEmail = ({ fullName }) => {
   const subject = `Thank You for Reaching Out!`;
 
   const body = `
-    	<div style="color: white; font-size: 1vw; padding:0px 2vw; font-family: IBM Plex Mono, monospace; padding: 25px 0 15px 0; font-style: normal; ">
-			 <p class="name" style="color: white; font-size: 30px; font-weight: 600; ">
+    	<div style="color: #2b2b2b; font-size: 1vw; padding:0px 2vw; font-family: IBM Plex Mono, monospace; padding: 25px 0 15px 0; font-style: normal; ">
+			 <p class="name" style="color: #2b2b2b; font-size: 30px; font-weight: 600; ">
         Hello ${fullName} 👋,
       </p>
 			<p>
@@ -673,20 +660,17 @@ const signUpDiscountEmail = (userName, discount) => {
       </div>
       <p style="color: #202a4e; margin: 10px 0;">Discount Details:</p>
       <ul>
-        <li><strong>Amount:</strong> ${
-          discount?.discountDetails?.type === "Percentage"
-            ? `${discount?.discountDetails?.amount}% off`
-            : `$${discount?.discountDetails?.amount} off`
-        }</li>
+        <li><strong>Amount:</strong> ${discount?.discountDetails?.type === "Percentage"
+      ? `${discount?.discountDetails?.amount}% off`
+      : `$${discount?.discountDetails?.amount} off`
+    }</li>
         <li><strong>Valid Until:</strong> ${formattedDate(
-          discount?.dateRange?.expiresAt
-        )}</li>
-        <li><strong>Minimum Order Value:</strong> $${
-          discount?.minimumOrderValue || "None"
-        }</li>
-        <li><strong>Applicable To:</strong> ${
-          discount?.purchaseMode
-        } purchases</li>
+      discount?.dateRange?.expiresAt
+    )}</li>
+        <li><strong>Minimum Order Value:</strong> $${discount?.minimumOrderValue || "None"
+    }</li>
+        <li><strong>Applicable To:</strong> ${discount?.purchaseMode
+    } purchases</li>
       </ul>
       <p style="text-align: center; margin: 20px 0;">
         <a href="${WEBSITE_URL}" style="

@@ -1,7 +1,7 @@
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { helperFunctions } from "./helperFunctions";
-import { SALES_TAX_NOTE } from "./constants";
+import { ESTIMATE_AMOUNT_NOTE } from "./constants";
 
 export const convertImageToBase64 = async (imageUrl) => {
   try {
@@ -24,11 +24,11 @@ export const convertImageToBase64 = async (imageUrl) => {
   }
 };
 
-export const generatePDF = async (orderData, sizePage = "1") => {
+export const generateReturnPDF = async (returnData, sizePage = "1") => {
   const invoiceData = {
-    ...orderData,
+    ...returnData,
     products: await Promise.all(
-      orderData?.products?.map(async (x) => ({
+      returnData?.products?.map(async (x) => ({
         ...x,
         productImage: `data:image/png;base64,${await convertImageToBase64(
           x?.productImage
@@ -49,30 +49,32 @@ export const generatePDF = async (orderData, sizePage = "1") => {
 
   // Title and Order Info
   doc.setFontSize(20);
-  doc.text("Invoice", pageWidth - 150, topHeight);
+  doc.text("Return Invoice", pageWidth - 150, topHeight);
   doc.setFontSize(10);
   doc
     .text(formattedDate, pageWidth - 150, topHeight + 15)
     .setFont(undefined, "bold");
 
-  doc.text("Order Details", 40, topHeight).setFont(undefined, "normal");
+  doc.text("Return Details", 40, topHeight).setFont(undefined, "normal");
   doc.text(`Order Number: ${invoiceData?.orderNumber}`, 40, topHeight + 15);
   doc.text(
-    `Order Date: ${new Date(invoiceData?.createdDate)?.toLocaleDateString()}`,
+    `Return Request Date: ${new Date(
+      invoiceData?.createdDate
+    )?.toLocaleDateString()}`,
     40,
     topHeight + 30
   );
   doc.text(
-    `Order Status: ${helperFunctions?.capitalizeCamelCase(
-      invoiceData?.orderStatus
+    `Return Status: ${helperFunctions?.capitalizeCamelCase(
+      invoiceData?.status
     )}`,
     40,
     topHeight + 45
   );
   doc
     .text(
-      `Payment Status: ${helperFunctions?.capitalizeCamelCase(
-        invoiceData?.paymentStatus
+      `Return Payment Status: ${helperFunctions?.capitalizeCamelCase(
+        invoiceData?.returnPaymentStatus
       )}`,
       40,
       topHeight + 60
@@ -127,7 +129,7 @@ export const generatePDF = async (orderData, sizePage = "1") => {
         alias: x?.productName,
       },
       `${nameLine}\n${variations}${diamondDetail}`,
-      x?.cartQuantity,
+      x?.returnQuantity,
       helperFunctions?.formatCurrency(unitPrice),
       helperFunctions?.formatCurrency(x?.unitAmount),
     ];
@@ -173,7 +175,7 @@ export const generatePDF = async (orderData, sizePage = "1") => {
 
   // Subtotal
   doc.text(
-    `Subtotal: ${helperFunctions?.formatCurrencyWithDollar(
+    `Sub Total: ${helperFunctions?.formatCurrencyWithDollar(
       invoiceData?.subTotal
     )}`,
     bottomRightX,
@@ -195,12 +197,9 @@ export const generatePDF = async (orderData, sizePage = "1") => {
     currentY += 15;
   }
 
+  // Taxes
   doc.text(
-    `Sales Tax ${
-      invoiceData?.salesTaxPercentage
-        ? `(${invoiceData?.salesTaxPercentage}%)`
-        : ""
-    }: ${
+    `Sales Tax: ${
       invoiceData?.salesTax && Number(invoiceData?.salesTax) !== 0
         ? `${helperFunctions?.formatCurrencyWithDollar(invoiceData?.salesTax)}`
         : "N/A"
@@ -214,7 +213,7 @@ export const generatePDF = async (orderData, sizePage = "1") => {
   // Shipping Charge
   doc.text(
     `Shipping Fees: ${
-      Number(invoiceData?.shippingCharge) > 0
+      helperFunctions.toFixedNumber(invoiceData?.shippingCharge) > 0
         ? helperFunctions?.formatCurrencyWithDollar(invoiceData?.shippingCharge)
         : "Free"
     }`,
@@ -222,30 +221,63 @@ export const generatePDF = async (orderData, sizePage = "1") => {
     currentY,
     { align: "right" }
   );
-  currentY += 15;
+  currentY += 10;
 
-  // Horizontal line before Total Amount
   doc.setDrawColor(200); // light gray line (like hr)
   doc.line(bottomRightX - 120, currentY, pageWidth - 40, currentY);
   currentY += 15;
 
-  // Total Amount (bold)
-  doc
-    .setFont(undefined, "bold")
-    .text(
-      `Total Amount: ${helperFunctions?.formatCurrencyWithDollar(
-        invoiceData?.total
+  // Estimated Amount
+  doc.text(
+    `Estimated Amount: ${
+      helperFunctions.toFixedNumber(invoiceData?.returnRequestAmount) > 0
+        ? helperFunctions?.formatCurrencyWithDollar(
+            invoiceData?.returnRequestAmount
+          )
+        : "$0.00"
+    }`,
+    bottomRightX,
+    currentY,
+    { align: "right" }
+  );
+  currentY += 15;
+
+  // Deducted Amount
+  if (invoiceData?.refundAmount > 0) {
+    doc.setFont(undefined, "normal");
+    doc.text(
+      `Deducted Amount: ${
+        helperFunctions.toFixedNumber(invoiceData?.returnRequestAmount) > 0
+          ? helperFunctions?.formatCurrencyWithDollar(
+              Number(invoiceData?.returnRequestAmount) -
+                Number(invoiceData?.refundAmount)
+            )
+          : "$0.00"
+      }`,
+      bottomRightX,
+      currentY,
+      { align: "right" }
+    );
+    currentY += 15;
+  }
+
+  if (invoiceData?.refundAmount > 0) {
+    doc.setFont(undefined, "bold");
+    doc.text(
+      `Refunded Amount: ${helperFunctions?.formatCurrencyWithDollar(
+        invoiceData?.refundAmount
       )}`,
       bottomRightX,
       currentY,
       { align: "right" }
     );
+  }
   currentY += 25;
 
   doc.setFont(undefined, "normal");
   doc.setFontSize(9);
 
-  doc.text(SALES_TAX_NOTE, 40, currentY, { maxWidth: pageWidth - 80 });
+  doc.text(ESTIMATE_AMOUNT_NOTE, 40, currentY, { maxWidth: pageWidth - 80 });
 
   doc.save(`${invoiceData?.orderNumber}.pdf`);
 };

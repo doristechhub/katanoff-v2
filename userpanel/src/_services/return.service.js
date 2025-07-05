@@ -410,6 +410,16 @@ const getReturnDetailByReturnId = (returnId) => {
         );
         return;
       }
+      if (returnDetail?.orderId) {
+        const orderDetail = await fetchWrapperService?.findOne(ordersUrl, {
+          id: returnDetail?.orderId,
+        });
+
+        if (orderDetail) {
+          returnDetail.billingAddress = orderDetail?.billingAddress || null;
+          returnDetail.shippingAddress = orderDetail?.shippingAddress || null;
+        }
+      }
 
       const productFindPattern = {
         url: productsUrl,

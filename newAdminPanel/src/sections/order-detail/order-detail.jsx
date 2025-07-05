@@ -160,7 +160,6 @@ const OrderDetail = () => {
                               ? selectedOrder?.trackingNumber
                               : '',
                         };
-                        setValues(payload);
                         setSelectedOrderStatus(payload);
                       }}
                     >
@@ -320,9 +319,7 @@ const OrderDetail = () => {
                           <Stack direction={'row'} width={'200px'} justifyContent={'space-between'}>
                             <Box sx={font14}>SubTotal </Box>
                             <Typography variant="subtitle1" sx={font14}>
-                              {selectedOrder?.discount
-                                ? fCurrency(selectedOrder?.subTotal + selectedOrder?.discount)
-                                : fCurrency(selectedOrder?.subTotalWithDiscount)}
+                              {fCurrency(selectedOrder?.subTotal)}
                             </Typography>
                           </Stack>
                           {selectedOrder?.discount > 0 && (

@@ -13,6 +13,7 @@ const ReturnDetailPage = () => {
   const { returnId } = params;
 
   const { returnDetail, returnLoader } = useSelector(({ returns }) => returns);
+  const { invoiceLoading } = useSelector(({ order }) => order);
   useEffect(() => {
     dispatch(setShowModal(false));
     dispatch(fetchReturnDetail(returnId));
@@ -26,6 +27,7 @@ const ReturnDetailPage = () => {
         <ReturnDetails
           returnDetail={returnDetail}
           returnLoader={returnLoader}
+          invoiceLoading={invoiceLoading}
         />
       </div>
     </>

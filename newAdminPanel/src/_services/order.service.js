@@ -128,12 +128,10 @@ const getOrderDetailByOrderId = (orderId) => {
         const thumbnailField = GOLD_COLOR_MAP[goldColor] || 'yellowGoldThumbnailImage';
         const thumbnailImage = product[thumbnailField];
 
-        const subTotalWithDiscount = orderDetail.subTotal + orderDetail.discount;
-
         const perQuantityDiscountAmount = Number(
           helperFunctions?.splitDiscountAmongProducts({
             quantityWiseProductPrice: orderProductItem.productPrice,
-            subTotal: subTotalWithDiscount,
+            subTotal: orderDetail.subTotal,
             discountAmount: orderDetail.discount,
           })
         );
@@ -141,7 +139,7 @@ const getOrderDetailByOrderId = (orderId) => {
         const perQuantitySalesTaxAmount = Number(
           helperFunctions?.splitTaxAmongProducts({
             quantityWiseProductPrice: orderProductItem.productPrice,
-            subTotal: subTotalWithDiscount,
+            subTotal: orderDetail.subTotal,
             discountAmount: orderDetail.discount,
             totalTaxAmount: orderDetail.salesTax,
           })
@@ -156,11 +154,11 @@ const getOrderDetailByOrderId = (orderId) => {
           perQuantitySalesTaxAmount,
           diamondDetail: orderProductItem.diamondDetail
             ? {
-              ...orderProductItem.diamondDetail,
-              shapeName: diamondShapes.find(
-                (s) => s.id === orderProductItem.diamondDetail.shapeId
-              )?.title,
-            }
+                ...orderProductItem.diamondDetail,
+                shapeName: diamondShapes.find(
+                  (s) => s.id === orderProductItem.diamondDetail.shapeId
+                )?.title,
+              }
             : undefined,
         };
       });
@@ -773,7 +771,8 @@ const refundPayment = async (payload, abortController) => {
         return response.data;
       } else if (status === 302) {
         toast.error(message);
-        return true;
+        console.log('message', message);
+        return false;
       } else {
         toast.error(message);
         return false;

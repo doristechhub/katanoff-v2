@@ -95,17 +95,11 @@ const shippingForm = () => {
     abortControllerRef.current = null;
   }, []);
 
-  const renderTotalAmount = useMemo(() => {
-    const subTotal = helperFunctions.getSubTotal(cartList);
-    return subTotal < 199 ? subTotal + selectedShippingCharge : subTotal;
-  }, [cartList, selectedShippingCharge]);
-
   useEffect(() => {
     dispatch(handleCreatePaymentIntentError(""));
     dispatch(setIsSubmitted(false));
     const address = localStorage.getItem("address");
     const getParsedAddress = address ? JSON.parse(address) : null;
-    const subTotal = helperFunctions.getSubTotal(cartList);
     const savedShippingMethod = localStorage.getItem("selectedShippingMethod");
     const parsedSavedMethod = savedShippingMethod
       ? JSON.parse(savedShippingMethod)
@@ -154,7 +148,6 @@ const shippingForm = () => {
       const res = await dispatch(
         paymentAction(payload, abortControllerRef.current)
       );
-      const subTotal = helperFunctions.getSubTotal(cartList);
       if (res) {
         dispatch(setIsSubmitted(false));
         router.push(`/payment/${res}`);

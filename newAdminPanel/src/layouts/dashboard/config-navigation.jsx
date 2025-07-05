@@ -57,7 +57,7 @@ const navConfig = [
     pageId: 'collection',
     path: '/collection',
     icon: <AppsTwoToneIcon />,
-    children: [],
+    children: ['/collection', '/collection/add'],
   },
   {
     title: 'Setting Style',

@@ -11,7 +11,11 @@ import {
 
 import { returnService, orderService } from "@/_services";
 import { messageType } from "@/_helper/constants";
-import { setOrderDetail, setOrderLoading } from "@/store/slices/orderSlice";
+import {
+  setInvoiceLoading,
+  setOrderDetail,
+  setOrderLoading,
+} from "@/store/slices/orderSlice";
 
 export const fetchReturnsHistory = () => async (dispatch) => {
   dispatch(setReturnLoader(true));
@@ -70,6 +74,25 @@ export const fetchReturnDetail = (returnId) => async (dispatch) => {
     return false;
   } finally {
     dispatch(setReturnLoader(false)); // Stop loading regardless of success or error
+  }
+};
+
+export const fetchReturnInvoiceDetail = (returnId) => async (dispatch) => {
+  try {
+    dispatch(setInvoiceLoading(true));
+
+    const returnDetail = await returnService.getReturnDetailByReturnId(
+      returnId
+    );
+    if (returnDetail) {
+      dispatch(setReturnDetail(returnDetail));
+      return returnDetail;
+    }
+    return false;
+  } catch (error) {
+    return false;
+  } finally {
+    dispatch(setInvoiceLoading(false));
   }
 };
 

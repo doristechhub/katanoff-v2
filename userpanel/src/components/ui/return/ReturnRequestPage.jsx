@@ -16,7 +16,12 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { CustomImg, ProgressiveImg } from "@/components/dynamiComponents";
-import { helperFunctions, messageType, RING_SIZE } from "@/_helper";
+import {
+  ESTIMATE_AMOUNT_NOTE,
+  helperFunctions,
+  messageType,
+  RING_SIZE,
+} from "@/_helper";
 import DiamondDetailDrawer from "../customize/DiamondDetailDrawer";
 import {
   setIsHovered,
@@ -323,9 +328,7 @@ const ReturnRequestPage = () => {
                                   quantityWiseProductPrice:
                                     cartItem?.productPrice *
                                     cartItem.returnQuantity,
-                                  subTotal:
-                                    orderDetail?.subTotal +
-                                    orderDetail?.discount,
+                                  subTotal: orderDetail?.subTotal,
                                   discountAmount: orderDetail?.discount,
                                 })
                               )}
@@ -341,9 +344,7 @@ const ReturnRequestPage = () => {
                                   quantityWiseProductPrice:
                                     cartItem?.productPrice *
                                     cartItem.returnQuantity,
-                                  subTotal:
-                                    orderDetail?.subTotal +
-                                    orderDetail?.discount,
+                                  subTotal: orderDetail?.subTotal,
                                   discountAmount: orderDetail?.discount || 0,
                                   totalTaxAmount: orderDetail?.salesTax,
                                 })
@@ -441,7 +442,7 @@ const ReturnRequestPage = () => {
                       ? ` - ${helperFunctions?.formatCurrencyWithDollar(
                           returnRequestTotalSummary?.discount
                         )}`
-                      : "-$0.00"}
+                      : "N/A"}
                   </span>
                 </div>
 
@@ -453,7 +454,7 @@ const ReturnRequestPage = () => {
                       ? helperFunctions?.formatCurrencyWithDollar(
                           returnRequestTotalSummary?.salesTax
                         )
-                      : "$0.00"}
+                      : "N/A"}
                   </span>
                 </div>
 
@@ -465,7 +466,7 @@ const ReturnRequestPage = () => {
                       ? ` - ${helperFunctions?.formatCurrencyWithDollar(
                           returnRequestTotalSummary?.serviceFees
                         )}`
-                      : "$0.00"}
+                      : "N/A"}
                   </span>
                 </div>
 
@@ -484,8 +485,7 @@ const ReturnRequestPage = () => {
                   </span>
                 </div>
                 <p className="text-sm text-red-500 font-medium mt-2">
-                  * Estimated Amount is provisional. After review of the
-                  returned products, the estimated amount may vary.
+                  {ESTIMATE_AMOUNT_NOTE}
                 </p>
               </div>
             ) : null}

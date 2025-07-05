@@ -9,6 +9,7 @@ import {
   uploadFile,
   deleteFile,
   validateImageResolution,
+  sanitizeValue,
 } from '../_helpers';
 import fileSettings from 'src/_utils/fileSettings';
 import { productService } from './product.service';
