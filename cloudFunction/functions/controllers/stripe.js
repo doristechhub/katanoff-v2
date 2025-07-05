@@ -544,7 +544,7 @@ const createOrder = async (payload, activeProductsList, res) => {
         diamondDetail: item.diamondDetail || null,
       })),
       shippingAddress,
-      subTotal: finalSubTotal,
+      subTotal,
       paymentMethod,
       discount: orderDiscount,
       salesTax,
