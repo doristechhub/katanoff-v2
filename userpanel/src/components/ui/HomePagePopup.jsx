@@ -18,12 +18,14 @@ import { useFormik } from "formik";
 import ErrorMessage from "./ErrorMessage";
 import { fetchCart } from "@/_actions/cart.action";
 import Cookies from "js-cookie";
+
 export default function HomePagePopup() {
   const dispatch = useDispatch();
   const router = useRouter();
   const { openHomePagePopup, homePagePopupLoader, isHovered } = useSelector(
     ({ common }) => common
   );
+  
   useEffect(() => {
     sessionStorage.removeItem("homePagePopup");
     dispatch(setOpenHomePagePopup(true));

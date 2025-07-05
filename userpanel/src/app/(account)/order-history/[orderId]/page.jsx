@@ -35,7 +35,6 @@ export default function OrderDetailPage() {
             invoiceLoading={invoiceLoading}
             selectedOrder={selectedOrder}
             showInvoice={true}
-            showCancel={true}
           />
         </div>
       )}

@@ -576,16 +576,6 @@ const setCustomProductInLocalStorage = (cartItem) => {
   localStorage.setItem("customProduct", JSON.stringify(customProduct));
 };
 
-const getDisplaySubtotalWithDiscount = (subTotal = 0, discount = 0) => {
-  const numericSubTotal = parseFloat(subTotal) || 0;
-  const numericDiscount = parseFloat(discount) || 0;
-
-  const finalSubtotal =
-    numericDiscount > 0 ? numericSubTotal + numericDiscount : numericSubTotal;
-
-  return toFixedNumber(finalSubtotal);
-};
-
 const splitDiscountAmongProducts = ({
   quantityWiseProductPrice,
   subTotal,
@@ -658,8 +648,7 @@ const calcReturnPayment = (products, orderDetail) => {
   );
 
   // Calculate proportional discount based on product array amount relative to order subtotal
-  const orderSubTotal =
-    Number(orderDetail.subTotal) + Number(orderDetail?.discount) || 0; // need to change after in change cloud function
+  const orderSubTotal = Number(orderDetail.subTotal);
   const orderDiscount = orderDetail.discount || 0;
   const discount =
     orderDiscount > 0 ? (subTotal / orderSubTotal) * orderDiscount : 0;
@@ -726,7 +715,6 @@ export const helperFunctions = {
   calculateMetalPrice,
   calculateSideDiamondPrice,
   setCustomProductInLocalStorage,
-  getDisplaySubtotalWithDiscount,
   splitDiscountAmongProducts,
   formatCurrency,
   splitTaxAmongProducts,

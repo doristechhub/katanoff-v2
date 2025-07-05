@@ -11,6 +11,7 @@ import {
   CenterFocusSlider,
   GetToKnowUsSection,
   HomePagePopup,
+  HomePagePopupWithLogin,
   JewelryAppointment,
   LatestProduct,
   ReviewSlider,
@@ -218,11 +219,13 @@ const Home = () => {
     dispatch(setCustomJewelryMessage({ message: "", type: "" }))
   );
 
+  let currentUser = helperFunctions?.getCurrentUser();
+  console.log("currentUser", currentUser);
   return (
     <>
-      <HomePagePopup />
+      {currentUser ? <HomePagePopupWithLogin /> : <HomePagePopup />}
       <HeroBanner isHomePage={true} titleAttr="" altAttr="Hero Banner" />
-      <section className="bg-white pt-16 pb-16 xl:  pb-20">
+      <section className="bg-white pt-16 pb-16 xl:pb-20">
         <RingSettingCenterStone />
       </section>
 

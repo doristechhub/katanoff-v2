@@ -111,16 +111,6 @@ const CheckoutCommonComponent = () => {
     };
   }, []);
 
-  const renderTotalAmount = useMemo(() => {
-    const subTotal = Number(getSubTotal(cartList));
-    const subTotalWithSalesTax = isNewYorkState
-      ? subTotal + subTotal * salesTaxPerc // 8%
-      : subTotal;
-    return subTotal < 199
-      ? subTotalWithSalesTax + Number(selectedShippingCharge)
-      : subTotalWithSalesTax;
-  }, [cartList, getSubTotal, isNewYorkState, selectedShippingCharge]);
-
   const cartContentRef = useRef(null);
 
   const getGrandTotal = useCallback(() => {

@@ -143,6 +143,7 @@ export const DISCOUNT_APPLICATION_METHODS = {
   AUTOMATIC: "Automatic",
 };
 export const SIGN_UP_DISCOUNT = "Sign Up Discount";
+export const SHINE10 = "SHINE10";
 
 // Diamond Shapes
 export const ROUND = "Round";
@@ -155,3 +156,8 @@ export const MARQUISE = "Marquise";
 export const ASSCHER = "Asscher";
 export const RADIANT = "Radiant";
 export const PEAR = "Pear";
+
+export const SALES_TAX_NOTE =
+  "* Sales tax will be applied to addresses within New York State.";
+export const ESTIMATE_AMOUNT_NOTE =
+  "* Estimated Amount is provisional. After review of the returned products, the estimated amount may vary.";

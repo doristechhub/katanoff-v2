@@ -1,7 +1,6 @@
 "use client";
 import { CustomImg, ProgressiveImg } from "@/components/dynamiComponents";
-import CustomBadge from "@/components/ui/CustomBadge";
-import { helperFunctions } from "@/_helper";
+import { helperFunctions, SALES_TAX_NOTE } from "@/_helper";
 import DownloadInvoice from "@/components/ui/order-history/downloadInvoice";
 import CancelOrder from "@/components/ui/order-history/CancelOrder";
 import Spinner from "@/components/ui/spinner";
@@ -222,8 +221,7 @@ const OrderDetails = ({
                               helperFunctions?.splitDiscountAmongProducts({
                                 quantityWiseProductPrice:
                                   product?.productPrice * product?.cartQuantity,
-                                subTotal:
-                                  orderDetail?.subTotal + orderDetail?.discount,
+                                subTotal: orderDetail?.subTotal,
                                 discountAmount: orderDetail?.discount,
                               })
                             )}
@@ -268,10 +266,7 @@ const OrderDetails = ({
               {
                 label: "Sub Total",
                 value: `${helperFunctions?.formatCurrencyWithDollar(
-                  helperFunctions?.getDisplaySubtotalWithDiscount(
-                    orderDetail?.subTotal,
-                    orderDetail?.discount
-                  )
+                  orderDetail?.subTotal
                 )}`,
               },
               ...(orderDetail?.discount > 0
@@ -285,7 +280,6 @@ const OrderDetails = ({
                     },
                   ]
                 : []),
-
               {
                 label: "Sales Tax(8%)",
                 value:
@@ -325,9 +319,7 @@ const OrderDetails = ({
                 <p className="font-semibold">{item?.value || "N/A"}</p>
               </div>
             ))}
-            <p className="font-medium mt-2">
-              * Sales tax will be applied to addresses within New York State.
-            </p>
+            <p className="font-medium mt-2">{SALES_TAX_NOTE}</p>
           </div>
         </div>
         <div className="flex justify-center items-center px-2 my-4 lg:my-0">

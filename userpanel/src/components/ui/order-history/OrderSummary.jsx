@@ -3,20 +3,16 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
 import { fetchOrderDetail } from "@/_actions/order.action";
-import { helperFunctions } from "@/_helper";
+import { helperFunctions, SALES_TAX_NOTE } from "@/_helper";
 import CustomBadge from "@/components/ui/CustomBadge";
 import { ProgressiveImg } from "@/components/dynamiComponents";
 import SkeletonLoader from "@/components/ui/skeletonLoader";
 import ProductNotFound from "@/components/shop/productNotFound";
-import CancelOrder from "@/components/ui/order-history/CancelOrder";
-import DownloadInvoice from "@/components/ui/order-history/downloadInvoice";
-import Spinner from "@/components/ui/spinner";
 import { setShowModal } from "@/store/slices/commonSlice";
 
 export default function OrderSummary({ orderId }) {
   const dispatch = useDispatch();
-  const { orderDetail, orderDetailLoading, invoiceLoading, selectedOrder } =
-    useSelector(({ order }) => order);
+  const { orderDetail, orderDetailLoading } = useSelector(({ order }) => order);
 
   useEffect(() => {
     if (orderId) {
@@ -161,9 +157,7 @@ export default function OrderSummary({ orderId }) {
                 <p className="font-semibold">{item.value}</p>
               </div>
             ))}
-            <p className="font-medium mt-2">
-              *Sales tax will be applied to addresses within New York State.
-            </p>
+            <p className="font-medium mt-2">{SALES_TAX_NOTE}</p>
           </div>
         </div>
 
