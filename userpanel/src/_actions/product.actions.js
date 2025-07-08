@@ -101,53 +101,86 @@ export const fetchEngagementCollectionsTypeWiseProduct = () => {
   };
 };
 
+/**
+ * Resets all initial state for product collections
+ * @param {Function} dispatch - Redux dispatch function
+ */
+const resetAllInit = (dispatch) => {
+  const uniqueFilterOptions = getUniqueFilterOptions([]);
+  dispatch(setUniqueFilterOptions(uniqueFilterOptions));
+  dispatch(setSelectedPrices(uniqueFilterOptions?.availablePriceRange ?? []));
+  dispatch(setCollectionTypeProductList([]));
+  dispatch(setProductLoading(false));
+};
+
+/**
+ * Fetches products based on collection type and updates Redux state
+ * @param {string} collectionType - Type of collection
+ * @param {string} collectionTitle - Title of the collection
+ * @param {string} [parentCategory] - Parent category (optional)
+ * @param {string} [parentMainCategory] - Parent main category (optional)
+ * @returns {Function} Redux thunk action
+ */
 export const fetchCollectionsTypeWiseProduct = (
   collectionType,
   collectionTitle,
-  parentCategory,
-  parentMainCategory
+  parentCategory = null,
+  parentMainCategory = null
 ) => {
   return async (dispatch) => {
+    // Input validation
+    if (!collectionType || !collectionTitle) {
+      dispatch(setProductLoading(false));
+      throw new Error("Collection type and title are required");
+    }
+
     try {
-      dispatch(setCollectionTypeProductList([]));
       dispatch(setProductLoading(true));
-      const collectionsTypeWiseProductList =
-        await productService.getCollectionsTypeWiseProduct(
-          collectionType,
-          collectionTitle,
-          parentCategory,
-          parentMainCategory
-        );
-      if (collectionsTypeWiseProductList?.length) {
-        const tempUniqueFilterOptions = getUniqueFilterOptions(
-          collectionsTypeWiseProductList
-        );
-        const uniqueFilterOptions = { ...tempUniqueFilterOptions };
+      const products = await productService.getCollectionsTypeWiseProduct(
+        collectionType,
+        collectionTitle,
+        parentCategory,
+        parentMainCategory
+      );
+
+      if (Array.isArray(products) && products.length > 0) {
+        const uniqueFilterOptions = getUniqueFilterOptions(products);
         dispatch(setUniqueFilterOptions(uniqueFilterOptions));
-        dispatch(setSelectedPrices(uniqueFilterOptions?.availablePriceRange));
-        dispatch(setCollectionTypeProductList(collectionsTypeWiseProductList));
+        dispatch(
+          setSelectedPrices(uniqueFilterOptions?.availablePriceRange ?? [])
+        );
+        dispatch(setCollectionTypeProductList(products));
       } else {
-        dispatch(setCollectionTypeProductList([]));
-        dispatch(setProductLoading(false));
+        resetAllInit(dispatch);
       }
-    } catch (e) {
-      dispatch(setCollectionTypeProductList([]));
+    } catch (error) {
+      console.error(
+        `Error fetching products for ${collectionType}/${collectionTitle}:`,
+        error
+      );
+      resetAllInit(dispatch);
+      throw new Error(`Failed to fetch products: ${error.message}`);
+    } finally {
       dispatch(setProductLoading(false));
     }
   };
 };
 
-export const fetchCollectionBannersAction = (
+export const fetchCollectionBannersAction = ({
   collectionCategory,
-  collectionName
-) => {
+  collectionName,
+  parentSubCategory,
+  parentMainCategory,
+}) => {
   return async (dispatch) => {
     try {
       dispatch(setBannerLoading(true));
-      const banners = await productService?.fetchCollectionBanners(
+      const banners = await productService?.fetchCollectionBanners({
         collectionCategory,
-        collectionName
-      );
+        collectionName,
+        parentSubCategory,
+        parentMainCategory,
+      });
 
       if (banners && (banners.desktop || banners.mobile)) {
         dispatch(setBanners(banners));

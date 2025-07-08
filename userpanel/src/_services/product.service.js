@@ -283,86 +283,145 @@ const getCollectionsTypeWiseProduct = (
 
 /**
  * Retrieves banner images for a specific collection type and title
- * @param {string} collectionCategory - Type of collection (categories, subCategories, productTypes, collection)
- * @param {string} collectionName - Title of the collection
+ * @param {Object} params - Parameters for fetching banners
+ * @param {string} params.collectionCategory - Type of collection (categories, subCategories, productTypes, collection)
+ * @param {string} params.collectionName - Title of the collection
+ * @param {string} [params.parentSubCategory] - Parent subcategory (for productTypes)
+ * @param {string} [params.parentMainCategory] - Parent main category (for subCategories/productTypes)
  * @returns {Promise<{desktop: string, mobile: string}>} Banner images for desktop and mobile
+ * @throws {Error} If required parameters are invalid or data fetching fails
  */
-const fetchCollectionBanners = async (collectionCategory, collectionName) => {
-  const sanitizedCategory = sanitizeValue(collectionCategory)
-    ? collectionCategory.trim().toLowerCase()
-    : null;
-  const sanitizedName = sanitizeValue(collectionName)
-    ? collectionName.trim().toLowerCase()
-    : null;
+const fetchCollectionBanners = async ({
+  collectionCategory,
+  collectionName,
+  parentSubCategory = null,
+  parentMainCategory = null,
+}) => {
+  // Input sanitization and validation
+  const sanitizeValue = (value) => typeof value === "string" && value.trim();
+  const sanitizedInputs = {
+    category: sanitizeValue(collectionCategory)
+      ? collectionCategory.trim().toLowerCase()
+      : null,
+    name: sanitizeValue(collectionName)
+      ? collectionName.trim().toLowerCase()
+      : null,
+    parentSubCat: sanitizeValue(parentSubCategory)
+      ? parentSubCategory.trim().toLowerCase()
+      : null,
+    parentMainCat: sanitizeValue(parentMainCategory)
+      ? parentMainCategory.trim().toLowerCase()
+      : null,
+  };
 
-  // Input validation
-  if (!sanitizedCategory || !sanitizedName) {
-    throw new Error("Invalid collection category or name");
+  const { category, name, parentSubCat, parentMainCat } = sanitizedInputs;
+
+  if (!category || !name) {
+    throw new Error("Collection category and name are required");
+  }
+
+  if (
+    !["categories", "subcategories", "producttypes", "collection"].includes(
+      category
+    )
+  ) {
+    throw new Error(`Invalid collection category: ${category}`);
   }
 
   // Default banner object
-  const banners = {
-    desktop: "",
-    mobile: "",
-  };
+  const defaultBanners = { desktop: "", mobile: "" };
 
   try {
-    // Fetch required data concurrently
+    // Fetch data concurrently
     const [menuData, collectionsData] = await Promise.all([
       homeService.getAllMenuData(),
       collectionService.getAllCollection(),
     ]);
 
-    switch (sanitizedCategory) {
-      case "categories":
-        const category = menuData?.categories?.find(
-          (item) => item?.title?.toLowerCase() === sanitizedName
-        );
-        return {
-          desktop: category?.desktopBannerImage ?? "",
-          mobile: category?.mobileBannerImage ?? "",
-        };
+    const findCategory = (categories, title) =>
+      categories?.find((item) => item?.title?.toLowerCase() === title);
 
-      case "subcategories":
+    switch (category) {
+      case "categories": {
+        const categoryItem = findCategory(menuData?.categories, name);
+        return {
+          desktop: categoryItem?.desktopBannerImage ?? "",
+          mobile: categoryItem?.mobileBannerImage ?? "",
+        };
+      }
+
+      case "subcategories": {
+        if (!parentMainCat) {
+          throw new Error("Parent main category required for subCategories");
+        }
+        const relatedCategory = findCategory(
+          menuData?.categories,
+          parentMainCat
+        );
+        if (!relatedCategory) return defaultBanners;
+
         const subcategory = menuData?.subCategories?.find(
-          (item) => item?.title?.toLowerCase() === sanitizedName
+          (item) =>
+            item?.title?.toLowerCase() === name &&
+            item?.categoryId === relatedCategory?.id
         );
         return {
           desktop: subcategory?.desktopBannerImage ?? "",
           mobile: subcategory?.mobileBannerImage ?? "",
         };
+      }
 
-      case "producttypes":
-        const productType = menuData?.productTypes?.find(
-          (item) => item?.title?.toLowerCase() === sanitizedName
+      case "producttypes": {
+        if (!parentMainCat || !parentSubCat) {
+          throw new Error(
+            "Parent main category and subcategory required for productTypes"
+          );
+        }
+
+        const relatedCategory = findCategory(
+          menuData?.categories,
+          parentMainCat
         );
-        if (!productType) return banners;
+        if (!relatedCategory) return defaultBanners;
+
+        const relatedSubCategory = menuData?.subCategories?.find(
+          (item) =>
+            item?.title?.toLowerCase() === parentSubCat &&
+            item?.categoryId === relatedCategory?.id
+        );
+        if (!relatedSubCategory) return defaultBanners;
+
+        const productType = menuData?.productTypes?.find(
+          (item) =>
+            item?.title?.toLowerCase() === name &&
+            item?.categoryId === relatedSubCategory?.categoryId &&
+            item?.subCategoryId === relatedSubCategory?.id
+        );
+        if (!productType) return defaultBanners;
 
         const relatedSubcategory = menuData?.subCategories?.find(
-          (item) =>
-            item?.id?.toLowerCase() ===
-            productType?.subCategoryId?.toLowerCase()
+          (item) => item?.id === productType?.subCategoryId
         );
         return {
           desktop: relatedSubcategory?.desktopBannerImage ?? "",
           mobile: relatedSubcategory?.mobileBannerImage ?? "",
         };
+      }
 
-      case "collection":
-        const collection = collectionsData?.find(
-          (item) => item?.title?.toLowerCase() === sanitizedName
-        );
+      case "collection": {
+        const collection = findCategory(collectionsData, name);
         return {
           desktop: collection?.desktopBannerImage ?? "",
           mobile: collection?.mobileBannerImage ?? "",
         };
+      }
 
       default:
-        throw new Error("Invalid collection category");
+        return defaultBanners;
     }
   } catch (error) {
-    console.error("Error fetching banners:", error);
-    throw error;
+    console.error(`Error fetching banners for ${category}/${name}:`, error);
+    throw new Error(`Failed to fetch banners: ${error.message}`);
   }
 };
 
