@@ -35,7 +35,12 @@ export default function CollectionPage() {
   const loadData = useCallback(async () => {
     if (collectionType && collectionTitle) {
       await dispatch(
-        fetchCollectionBannersAction(collectionType, collectionTitle)
+        fetchCollectionBannersAction({
+          collectionCategory: collectionType,
+          collectionName: collectionTitle,
+          parentSubCategory: parentCategory,
+          parentMainCategory,
+        })
       );
       await dispatch(
         fetchCollectionsTypeWiseProduct(

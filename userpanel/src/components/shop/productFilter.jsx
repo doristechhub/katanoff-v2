@@ -80,6 +80,7 @@ export default function ProductFilter({
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      handleFilteredProductsChange([]);
     };
   }, []);
 
