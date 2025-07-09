@@ -271,7 +271,6 @@ const OrderDetail = () => {
                                   >
                                     {fCurrency(x?.unitAmount)}
                                   </Typography>
-                                  {console.log('x >> ', x)}
                                   {x?.perQuantityDiscountAmount > 0 && (
                                     <Stack
                                       direction="row"

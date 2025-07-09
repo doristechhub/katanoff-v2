@@ -217,6 +217,9 @@ const insertCollection = (params) => {
       await validateFiles(desktopBannerFile, 'IMAGE_FILE_NAME', 'desktop');
       await validateFiles(mobileBannerFile, 'IMAGE_FILE_NAME', 'mobile');
       if (type) {
+        if (!thumbnailFile?.length) {
+          return reject(new Error(`Thumbnail image is required for ${type === 'slider_grid' ? 'slider grid' : type === 'two_grid' ? 'two grid' : 'three grid'}`));
+        }
         await validateFiles(
           thumbnailFile,
           'IMAGE_FILE_NAME',
@@ -313,24 +316,49 @@ const updateCollection = (params) => {
       if (deletedDesktopBannerImage && desktopBannerImage === deletedDesktopBannerImage) {
         desktopBannerImage = null;
       }
+
       let mobileBannerImage = collectionData.mobileBannerImage || null;
       if (deletedMobileBannerImage && mobileBannerImage === deletedMobileBannerImage) {
         mobileBannerImage = null;
       }
+
       let thumbnailImage = collectionData.thumbnailImage || null;
       if (deletedThumbnailImage && thumbnailImage === deletedThumbnailImage) {
         thumbnailImage = null;
       }
 
-      await validateFiles(desktopBannerFile, 'IMAGE_FILE_NAME', 'desktop');
-      await validateFiles(mobileBannerFile, 'IMAGE_FILE_NAME', 'mobile');
+      // ===== Thumbnail Validation Start =====
       if (type) {
-        await validateFiles(
-          thumbnailFile,
-          'IMAGE_FILE_NAME',
-          type === 'slider_grid' ? 'SLIDER_GRID' : type === 'two_grid' ? 'TWO_GRID' : 'THREE_GRID'
-        );
+        const readableType =
+          type === 'slider_grid' ? 'slider grid' :
+            type === 'two_grid' ? 'two grid' : 'three grid';
+
+        const resolution = IMAGE_RESOLUTIONS[type.toUpperCase()];
+        const typeChanged = type !== collectionData.type;
+
+        const hasNewThumbnail = thumbnailFile?.length > 0;
+        const hasExistingThumbnail = !!thumbnailImage;
+
+        if (!hasNewThumbnail && !hasExistingThumbnail) {
+          return reject(new Error(`Thumbnail image is required for ${readableType}`));
+        }
+
+        if (hasNewThumbnail) {
+          await validateFiles(thumbnailFile, 'IMAGE_FILE_NAME', type.toUpperCase());
+        } else if (typeChanged && hasExistingThumbnail) {
+          const isValid = await validateImageResolution(thumbnailImage, resolution.width, resolution.height);
+          if (!isValid) {
+            return reject(
+              new Error(
+                `Existing thumbnail must match ${readableType} resolution: ${resolution.width}x${resolution.height}`
+              )
+            );
+          }
+        }
+      } else {
+        thumbnailImage = null; // type is null → thumbnail is not required
       }
+      // ===== Thumbnail Validation End =====
 
       const filesPayload = [...desktopBannerFile, ...mobileBannerFile, ...thumbnailFile];
       const { desktopBannerUrl, mobileBannerUrl, thumbnailUrl } = await uploadFiles(
@@ -342,7 +370,7 @@ const updateCollection = (params) => {
         throw new Error(`File upload failed: ${e.message}`);
       });
 
-      // Fetch existing products associated with this collection
+      // Fetch existing products
       const existingProducts = await getAllProductsByCollectionId(collectionId);
       const existingProductIds = existingProducts.map((p) => p.id);
 
@@ -377,10 +405,14 @@ const updateCollection = (params) => {
         await updateProductCollections(productsToRemove, collectionId, false);
       }
 
+      let removeThumbnailImage = deletedThumbnailImage
+      if (type !== collectionData.type && !['slider_grid', 'two_grid', 'three_grid'].includes(type)) {
+        removeThumbnailImage = collectionData.thumbnailImage
+      }
       await deleteFiles([
         deletedDesktopBannerImage,
         deletedMobileBannerImage,
-        deletedThumbnailImage,
+        removeThumbnailImage,
       ]);
 
       resolve(payload);
@@ -405,10 +437,10 @@ const deleteCollection = (params) => {
 
       const productData = await getAllProductsByCollectionId(collectionId);
       if (productData?.length) {
-        return reject(new Error('Collection cannot be deleted because it has products'));
+        // return reject(new Error('Collection cannot be deleted because it has products'));
         // Remove collectionId from associated products
-        // const productIds = productData.map((p) => p.id);
-        // await updateProductCollections(productIds, collectionId, false);
+        const productIds = productData.map((p) => p.id);
+        await updateProductCollections(productIds, collectionId, false);
       }
 
       await fetchWrapperService._delete(`${collectionUrl}/${collectionId}`);

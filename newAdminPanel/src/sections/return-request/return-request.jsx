@@ -180,7 +180,7 @@ const ReturnRequestPage = () => {
     const selectedProducts = getSelectedProducts(values.returnItems);
 
     const productArray = getProductsArray(selectedProducts);
-    const { subTotal, discount, salesTax, serviceFees, returnRequestAmount } =
+    const { subTotal, discount, salesTax, returnRequestAmount } =
       helperFunctions?.calcReturnPayment(productArray, selectedOrder);
 
     return (
@@ -224,17 +224,6 @@ const ReturnRequestPage = () => {
         >
           <span>Tax:</span>
           <span>{salesTax > 0 ? `+${fCurrency(salesTax)}` : 'N/A'}</span>
-        </Typography>
-        <Typography
-          variant="body2"
-          color="warning.main"
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-          }}
-        >
-          <span>Service Fee:</span>
-          <span>{serviceFees > 0 ? `-${fCurrency(serviceFees)}` : 'N/A'}</span>
         </Typography>
         <Divider />
         <Typography
@@ -382,7 +371,6 @@ const ReturnRequestPage = () => {
                                     >
                                       {fCurrency(totalPrice)}
                                     </Typography>
-                                    {console.log('product', product)}
                                     {product?.perQuantityDiscountAmount > 0 ? (
                                       <Stack
                                         direction="row"

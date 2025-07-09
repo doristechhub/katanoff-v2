@@ -26,6 +26,7 @@ import Scrollbar from 'src/components/scrollbar';
 import { Button } from 'src/components/button';
 import ConfirmationDialog from 'src/components/confirmation-dialog';
 import ProgressiveImg from 'src/components/progressive-img';
+import { helperFunctions } from 'src/_helpers';
 
 // ----------------------------------------------------------------------
 
@@ -37,6 +38,7 @@ const Collection = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchedValue, setSearchedValue] = useState('');
   const [deleteDialog, setDeleteDialog] = useState(false);
+  const [filterByType, setFilterByType] = useState('all');
   const [selectedCollectionId, setSelectedCollectionId] = useState();
 
   const { collectionLoading, collectionList, crudCollectionLoading } = useSelector(
@@ -44,9 +46,12 @@ const Collection = () => {
   );
 
   const searchKey = searchedValue?.trim()?.toLowerCase();
-  let filteredItems = collectionList?.filter((item) =>
-    item?.title?.toLowerCase()?.includes(searchKey)
-  );
+
+  let filteredItems = collectionList?.filter((item) => {
+    const titleMatch = item?.title?.toLowerCase()?.includes(searchKey);
+    const typeMatch = filterByType === 'all' || item?.type === filterByType;
+    return titleMatch && typeMatch;
+  });
 
   filteredItems = filteredItems?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
@@ -136,6 +141,14 @@ const Collection = () => {
     [open, crudCollectionLoading, handleEdit, handlePopup]
   );
 
+  const collectionTypeOptions = useMemo(() => {
+    const types = collectionList
+      .map((item) => item.type)
+      .filter((type) => type && type.trim() !== '');
+    const uniqueTypes = Array.from(new Set(types));
+    return ['all', ...uniqueTypes];
+  }, [collectionList]);
+
   return (
     <>
       {collectionLoading ? (
@@ -146,7 +159,7 @@ const Collection = () => {
         <Container>
           <Box
             sx={{
-              mb: 5,
+              mb: 3,
               gap: 2,
               display: 'flex',
               flexWrap: 'wrap',
@@ -174,6 +187,35 @@ const Collection = () => {
                   ),
                 }}
               />
+              <TextField
+                size="small"
+                select
+                className="capitalize"
+                label="Collection Type"
+                value={filterByType}
+                onChange={(e) => {
+                  setFilterByType(e.target.value);
+                  setPage(0);
+                }}
+                sx={{ minWidth: 150 }}
+              >
+                {collectionTypeOptions.map((option, index) => (
+                  <MenuItem className="capitalize" key={index} value={option}>
+                    {option === 'all' ? 'All' : helperFunctions.stringReplacedWithSpace(option)}
+                  </MenuItem>
+                ))}
+              </TextField>
+
+              <Button
+                onClick={() => {
+                  setFilterByType('all');
+                  setSearchedValue('');
+                }}
+                variant="outlined"
+                startIcon={<Iconify icon="tdesign:filter-clear" key={Math.random()} />}
+              >
+                Clear
+              </Button>
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
@@ -192,6 +234,8 @@ const Collection = () => {
                     <TableRow>
                       <TableCell>Id</TableCell>
                       <TableCell>Title</TableCell>
+                      <TableCell>Type</TableCell>
+                      <TableCell>Thumbnail Image</TableCell>
                       <TableCell>Desktop Banner</TableCell>
                       <TableCell>Mobile Banner</TableCell>
                       <TableCell></TableCell>
@@ -204,6 +248,20 @@ const Collection = () => {
                           <TableRow key={`collection-${i}`}>
                             <TableCell sx={{ width: '100px' }}>{x?.srNo}</TableCell>
                             <TableCell>{x?.title}</TableCell>
+                            <TableCell className="capitalize">
+                              {helperFunctions.stringReplacedWithSpace(x?.type || 'Default')}
+                            </TableCell>
+                            <TableCell sx={{ minWidth: '150px' }}>
+                              {x?.thumbnailImage ? (
+                                <ProgressiveImg
+                                  src={x?.thumbnailImage}
+                                  alt="Desktop Banner"
+                                  style={{ maxWidth: '90px', height: 'auto' }}
+                                />
+                              ) : (
+                                'No Image'
+                              )}
+                            </TableCell>
                             <TableCell sx={{ minWidth: '150px' }}>
                               {x?.desktopBannerImage ? (
                                 <ProgressiveImg
@@ -275,7 +333,14 @@ const Collection = () => {
           handleConfirm={handleDelete}
           loading={crudCollectionLoading}
         >
-          Do you want to delete this collection?
+          <div>
+            <p style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+              Are you sure you want to delete this collection?
+            </p>
+            <p style={{ color: '#666' }}>
+              Deleting this collection will also remove it from all linked products.
+            </p>
+          </div>
         </ConfirmationDialog>
       ) : null}
     </>

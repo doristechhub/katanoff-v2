@@ -28,8 +28,9 @@ export const getProducts = () => async (dispatch) => {
     dispatch(setProductLoading(true));
     const res = await productService.getAllProductsWithPagging();
 
-    await dispatch(setProductList(helperFunctions.sortByField(res) || []));
-    return true;
+    const sortedProducts = helperFunctions.sortByField(res) || [];
+    await dispatch(setProductList(sortedProducts));
+    return sortedProducts;
   } catch (e) {
     toastError(e);
     return false;
