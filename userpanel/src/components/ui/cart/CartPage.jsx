@@ -2,7 +2,8 @@
 import { useCallback, useEffect } from "react";
 import crossIcon from "@/assets/icons/cross.svg";
 import dropdownArrow from "@/assets/icons/dropdownArrow.svg";
-
+import couponCodeRight from "@/assets/icons/couponCodeRight.svg";
+import couponCodeWrong from "@/assets/icons/couponCodeWrong.svg";
 import {
   CartNotFound,
   CustomImg,
@@ -17,12 +18,27 @@ import {
   removeProductIntoCart,
   updateProductQuantityIntoCart,
 } from "@/_actions/cart.action";
-import { helperFunctions, LENGTH, RING_SIZE } from "@/_helper";
+import {
+  FIXED,
+  helperFunctions,
+  LENGTH,
+  messageType,
+  PERCENTAGE,
+  RING_SIZE,
+} from "@/_helper";
 import Link from "next/link";
-import { LinkButton, PrimaryButton } from "@/components/ui/button";
-import { setDeleteLoader } from "@/store/slices/cartSlice";
+import {
+  LinkButton,
+  LoadingPrimaryButton,
+  PrimaryButton,
+} from "@/components/ui/button";
+import {
+  setDeleteLoader,
+  setRemoveCartErrorMessage,
+} from "@/store/slices/cartSlice";
 import {
   setIsChecked,
+  setIsHovered,
   setIsSubmitted,
   setOpenDiamondDetailDrawer,
 } from "@/store/slices/commonSlice";
@@ -30,12 +46,20 @@ import { useRouter } from "next/navigation";
 import ErrorMessage from "../ErrorMessage";
 import DiamondDetailDrawer from "../customize/DiamondDetailDrawer";
 import { paymentOptions } from "@/_utils/paymentOptions";
+import { setCouponCode, setCouponMessage } from "@/store/slices/couponSlice";
+import {
+  checkCouponCodeInCart,
+  removeCouponCode,
+} from "@/_actions/coupon.action";
 const maxQuantity = 5;
 const minQuantity = 1;
 
 const CartPage = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const { promoCodeLoading, couponCode, appliedPromoDetail, couponMessage } =
+    useSelector(({ coupon }) => coupon);
+  const { isHovered } = useSelector(({ common }) => common);
 
   const { isChecked, isSubmitted, openDiamondDetailDrawer } = useSelector(
     ({ common }) => common
@@ -53,6 +77,7 @@ const CartPage = () => {
   useEffect(() => {
     dispatch(fetchCart());
     resetValues();
+    dispatch(removeCouponCode());
   }, []);
 
   const loadData = useCallback(() => {
@@ -62,6 +87,17 @@ const CartPage = () => {
   useEffect(() => {
     loadData();
   }, [isProductQuantityHasUpdatedIntoCart]);
+
+  const handleApplyCoupon = (orderValue = null) => {
+    const calculatedOrderValue =
+      orderValue !== null ? orderValue : getSubTotal();
+    dispatch(
+      checkCouponCodeInCart({
+        promoCode: couponCode,
+        orderValue: calculatedOrderValue,
+      })
+    );
+  };
 
   const handleCartQuantity = useCallback(
     (type, cartItem) => {
@@ -94,45 +130,59 @@ const CartPage = () => {
         cartId: cartItem.id,
       };
       dispatch(updateProductQuantityIntoCart(payload));
+
+      const newSubTotal = cartList.reduce((acc, item) => {
+        if (item.id === cartItem.id) {
+          return acc + quantity * item?.productSellingPrice;
+        }
+        return acc + item.quantityWiseSellingPrice;
+      }, 0);
+      if (appliedPromoDetail || couponCode) {
+        handleApplyCoupon(newSubTotal);
+      }
     },
-    [dispatch]
+    [dispatch, appliedPromoDetail, couponCode, cartList]
   );
 
   const removeFromCart = useCallback(
-    (cartItem) => {
+    async (cartItem) => {
+      if (!cartItem.id) return;
+
       dispatch(handleSelectCartItem({ selectedCartItem: cartItem }));
-      if (!cartItem.id) {
-        return;
-      }
-
-      const payload = {
-        cartId: cartItem.id,
-      };
-
       dispatch(setDeleteLoader(true));
-      dispatch(removeProductIntoCart(payload));
-      dispatch(setDeleteLoader(false));
-    },
-    [dispatch]
-  );
 
-  const getOrderTotal = useCallback(() => {
-    const total = cartList.reduce(
-      (acc, item) => acc + item.quantityWisePrice,
-      0
-    );
-    return helperFunctions.toFixedNumber(total);
-  }, [cartList]);
+      try {
+        const payload = { cartId: cartItem.id };
+        await dispatch(removeProductIntoCart(payload));
 
-  const getDiscountTotal = useCallback(() => {
-    const totalDiscount = cartList.reduce((acc, item) => {
-      if (item.productDiscountPerc) {
-        return acc + (item.quantityWisePrice - item.quantityWiseSellingPrice);
+        // Calculate new subtotal excluding the removed item
+        const newSubTotal = cartList.reduce((acc, item) => {
+          if (item.id !== cartItem.id) {
+            return (
+              acc +
+              (item.quantityWiseSellingPrice ||
+                item.quantity * (item.productSellingPrice || 0))
+            );
+          }
+          return acc;
+        }, 0);
+
+        if (appliedPromoDetail) {
+          handleApplyCoupon(newSubTotal);
+        }
+      } catch (error) {
+        dispatch(
+          setRemoveCartErrorMessage({
+            message: error.message,
+            type: messageType.ERROR,
+          })
+        );
+      } finally {
+        dispatch(setDeleteLoader(false));
       }
-      return acc;
-    }, 0);
-    return helperFunctions.toFixedNumber(totalDiscount);
-  }, [cartList]);
+    },
+    [dispatch, cartList, appliedPromoDetail, handleApplyCoupon]
+  );
 
   const getSubTotal = useCallback(() => {
     const total = cartList.reduce(
@@ -142,8 +192,6 @@ const CartPage = () => {
     return helperFunctions.toFixedNumber(total);
   }, [cartList]);
 
-  const grandTotal = getSubTotal();
-
   const resetValues = useCallback(() => {
     dispatch(setIsSubmitted(false));
     dispatch(setIsChecked(false));
@@ -152,6 +200,38 @@ const CartPage = () => {
   const handleCartQuantityChange = (item, newQty) => {
     handleCartQuantity("set", { ...item, quantity: newQty });
   };
+
+  const getCouponDiscountValue = () => {
+    if (!appliedPromoDetail || !appliedPromoDetail.discountDetails) {
+      return 0;
+    }
+
+    const { type, amount } = appliedPromoDetail.discountDetails;
+    const subtotal = getSubTotal();
+    let discount = 0;
+
+    if (type === PERCENTAGE) {
+      discount = (amount / 100) * subtotal;
+    } else if (type === FIXED) {
+      discount = Math.min(amount, subtotal);
+    }
+
+    const formattedDiscount = parseFloat(discount.toFixed(2));
+    return formattedDiscount;
+  };
+
+  // const grandTotal = getSubTotal();
+  const grandTotal = useCallback(() => {
+    if (getCouponDiscountValue() > 0) {
+      return getSubTotal() - getCouponDiscountValue();
+    }
+    return getSubTotal();
+  }, [getSubTotal, getCouponDiscountValue]);
+
+  const handleRemoveCoupon = () => {
+    dispatch(removeCouponCode());
+  };
+
   return (
     <div className="mx-auto pt-12 2xl:pt-16">
       {cartLoading ? (
@@ -238,7 +318,9 @@ const CartPage = () => {
                           <div className="hidden sm:block">
                             <button
                               className=" font-medium px-1 sm:px-3 cursor-pointer flex items-center justify-center transition-all duration-200 -mt-2"
-                              onClick={() => removeFromCart(cartItem)}
+                              onClick={() => {
+                                removeFromCart(cartItem);
+                              }}
                               disabled={deleteLoader}
                             >
                               <CustomImg
@@ -355,7 +437,23 @@ const CartPage = () => {
                           </div>
                         ) : null;
                       })}
-
+                      {appliedPromoDetail && (
+                        <div className="text-baseblack font-medium text-sm md:text-base flex flex-wrap gap-2">
+                          <span className="inline xss:block">Promo Offer:</span>
+                          <span className="inline xss:block">
+                            -
+                            {helperFunctions?.formatCurrencyWithDollar(
+                              helperFunctions?.splitDiscountAmongProducts({
+                                quantityWiseProductPrice:
+                                  cartItem?.productSellingPrice *
+                                  cartItem?.quantity,
+                                subTotal: getSubTotal(),
+                                discountAmount: getCouponDiscountValue(),
+                              })
+                            )}
+                          </span>
+                        </div>
+                      )}
                       <div className="hidden xs:block mt-2">
                         <DiamondDetailDrawer
                           cartItem={cartItem}
@@ -391,21 +489,87 @@ const CartPage = () => {
             </div>
 
             <div className="w-full lg:w-1/3 border border-baseblack rounded py-6 lg:py-10 px-2 xs:px-8  self-start">
-              <p className="xs:text-lg text-baseblack flex justify-between">
-                Order Total: <span className="">${getOrderTotal()}</span>
+              <p className="text-lg text-baseblack justify-between   font-semibold pt-4">
+                Promo Code
               </p>
+              <div className="flex justify-between pt-1 gap-2">
+                <input
+                  type="text"
+                  placeholder="Enter Promo Code"
+                  className="w-full bg-transparent border border-grayborder px-4 py-2 focus:outline-none"
+                  value={couponCode}
+                  onChange={(e) => {
+                    dispatch(setCouponCode(e.target.value));
+                    dispatch(setCouponMessage({ message: "", type: "" }));
+                  }}
+                  disabled={!!appliedPromoDetail}
+                />
+
+                <div
+                  className="uppercase  w-fit"
+                  onMouseEnter={() => dispatch(setIsHovered(true))}
+                  onMouseLeave={() => dispatch(setIsHovered(false))}
+                >
+                  <LoadingPrimaryButton
+                    className="w-full uppercase"
+                    loading={promoCodeLoading}
+                    loaderType={isHovered ? "" : "white"}
+                    onClick={() =>
+                      appliedPromoDetail
+                        ? handleRemoveCoupon()
+                        : handleApplyCoupon()
+                    }
+                  >
+                    {appliedPromoDetail ? "Remove" : "Apply"}
+                  </LoadingPrimaryButton>
+                </div>
+              </div>
+
+              {appliedPromoDetail &&
+                couponMessage?.type === messageType.SUCCESS && (
+                  <div className="flex items-center gap-1 pt-2 text-[#32BA7C] text-md">
+                    <CustomImg
+                      srcAttr={couponCodeRight}
+                      altAttr="Promocode Applied"
+                      className="w-5 h-5"
+                    />
+                    {couponMessage?.message}
+                  </div>
+                )}
+              {couponMessage?.type === messageType.ERROR && (
+                <div className="flex items-center gap-1 pt-2 text-[#EE5A5A] text-md">
+                  <CustomImg
+                    srcAttr={couponCodeWrong}
+                    altAttr="Promocode Error"
+                    className="w-5 h-5"
+                  />
+                  <p>{couponMessage?.message}</p>
+                </div>
+              )}
               <p className="xs:text-lg text-baseblack flex justify-between pt-4">
-                Discount Offer:{" "}
+                Sub Total:{" "}
                 <span className="">
-                  {getDiscountTotal() > 0 ? `-$${getDiscountTotal()}` : "N/A"}
+                  {helperFunctions?.formatCurrencyWithDollar(getSubTotal())}
                 </span>
               </p>
-              <p className="xs:text-lg text-baseblack flex justify-between pt-4">
-                Subtotal: <span className="">${getSubTotal()}</span>
-              </p>
+              {appliedPromoDetail && (
+                <p className="xs:text-lg text-baseblack flex justify-between pt-4">
+                  Discount ({appliedPromoDetail?.promoCode}):{" "}
+                  <span className="">
+                    {" "}
+                    -
+                    {helperFunctions?.formatCurrencyWithDollar(
+                      getCouponDiscountValue()
+                    )}
+                  </span>
+                </p>
+              )}
               <p className="my-4 border-t-2 border-black_opacity_10" />
               <p className="xs:text-lg text-baseblack flex justify-between font-bold pt-2">
-                Grand Total: <span>${grandTotal}</span>
+                Grand Total:{" "}
+                <span>
+                  {helperFunctions?.formatCurrencyWithDollar(grandTotal())}
+                </span>
               </p>
 
               <div className="flex items-start gap-2 mt-3 lg:mt-6 text-sm">
@@ -466,6 +630,12 @@ const CartPage = () => {
                   dispatch(setIsSubmitted(true));
                   if (isChecked) {
                     resetValues();
+                    if (appliedPromoDetail) {
+                      localStorage.setItem(
+                        "appliedCoupon",
+                        appliedPromoDetail?.promoCode
+                      );
+                    }
                     router.push("/checkout");
                   }
                 }}

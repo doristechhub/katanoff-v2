@@ -20,104 +20,23 @@ export const getAllMenuData = () => {
   });
 };
 
-
-// export const getAllSearchListingByValue = (params) => {
-//   return new Promise(async (resolve, reject) => {
-//     try {
-//       let { searchValue } = sanitizeObject(params);
-//       searchValue = searchValue ? searchValue.trim() : null;
-//       if (searchValue) {
-//         const allActiveProductsData =
-//           await productService.getAllActiveProducts();
-
-//         const searchResults = allActiveProductsData.filter((product) => {
-//           const fieldsToSearch = [
-//             product.categoryName,
-//             product.subCategoryName,
-//             product.sku,
-//             product.saltSKU,
-//             product.productName,
-//           ];
-
-//           if (
-//             product.productTypeNames &&
-//             Array.isArray(product.productTypeNames)
-//           ) {
-//             product.productTypeNames.forEach((productTypeName) => {
-//               fieldsToSearch.push(productTypeName);
-//             });
-//           }
-
-//           if (product.variations && Array.isArray(product.variations)) {
-//             product.variations.forEach((variation) => {
-//               fieldsToSearch.push(variation.variationName);
-//               variation.variationTypes.forEach((variationType) => {
-//                 fieldsToSearch.push(variationType.variationTypeName);
-//               });
-//             });
-//           }
-//           if (
-//             product.collectionNames &&
-//             Array.isArray(product.collectionNames)
-//           ) {
-//             product.collectionNames.forEach((collection) => {
-//               fieldsToSearch.push(collection);
-//             });
-//           }
-
-//           // Check if any field contains the search term (case-insensitive)
-//           return fieldsToSearch.some((field) =>
-//             field
-//               ? field.toLowerCase().includes(searchValue.toLowerCase())
-//               : false
-//           );
-//         });
-//         const updatedSearchResults = searchResults.map((product) => {
-//           const { price = 0 } = helperFunctions.getMinPriceVariCombo(
-//             product.variComboWithQuantity
-//           );
-//           return {
-//             ...product,
-//             basePrice: price,
-//             baseSellingPrice: helperFunctions.getSellingPrice({
-//               price,
-//               discount:product.discount
-//             }),
-//             discount: product.discount,
-//             goldTypeVariations: product?.variations?.find(
-//               (x) => x?.variationName.toLowerCase() === GOLD_TYPES.toLowerCase()
-//             )?.variationTypes,
-//             goldColorVariations: product?.variations?.find(
-//               (x) => x?.variationName.toLowerCase() === GOLD_COLOR.toLowerCase()
-//             )?.variationTypes,
-//           };
-//         });
-//         resolve(updatedSearchResults);
-//       } else {
-//         reject(new Error("Invalid Data"));
-//       }
-//     } catch (e) {
-//       reject(e);
-//     }
-//   });
-// };
-
 export const getAllMenuList = () => {
   return new Promise(async (resolve, reject) => {
     try {
       const menuData = await getAllMenuData();
 
       // Modified to include parent subcategory information in product type links
-      const subCategoryWiseProductType = (subCategoryId, subCategoryTitle, categoryTitle) => {
+      const subCategoryWiseProductType = (
+        subCategoryId,
+        subCategoryTitle,
+        categoryTitle
+      ) => {
         return menuData.productTypes
           .filter((productType) => productType.subCategoryId === subCategoryId)
           .map((productType) => {
             const type = "productTypes";
-
-            // Generate link with parentCategory and parentMainCategory query parameters
-            const encodedProductType = helperFunctions.stringReplacedWithUnderScore(
-              productType?.title
-            );
+            const encodedProductType =
+              helperFunctions.stringReplacedWithUnderScore(productType?.title);
             const encodedSubCategory = encodeURIComponent(subCategoryTitle);
             const encodedCategory = encodeURIComponent(categoryTitle);
 
@@ -126,8 +45,8 @@ export const getAllMenuList = () => {
               type,
               title: productType.title,
               href: `/collections/${type}/${encodedProductType}?parentCategory=${encodedSubCategory}&parentMainCategory=${encodedCategory}`,
-              parentCategory: subCategoryTitle, // Store parent category for reference
-              parentMainCategory: categoryTitle // Store main category for reference
+              parentCategory: subCategoryTitle,
+              parentMainCategory: categoryTitle,
             };
           });
       };
@@ -135,11 +54,11 @@ export const getAllMenuList = () => {
       const categoryWiseSubCategory = (categoryId, categoryTitle) => {
         return menuData.subCategories
           .filter((subCategory) => subCategory.categoryId === categoryId)
+          .sort((a, b) => a.position - b.position) // Sort subcategories by position
           .map((subCategory) => {
             const type = "subCategories";
-            const encodedSubCategory = helperFunctions.stringReplacedWithUnderScore(
-              subCategory?.title
-            );
+            const encodedSubCategory =
+              helperFunctions.stringReplacedWithUnderScore(subCategory?.title);
             const encodedCategory = encodeURIComponent(categoryTitle);
 
             return {
@@ -147,9 +66,12 @@ export const getAllMenuList = () => {
               type,
               title: subCategory.title,
               href: `/collections/${type}/${encodedSubCategory}?parentMainCategory=${encodedCategory}`,
-              parentMainCategory: categoryTitle, // Store main category for reference
-              // Pass the subcategory title and category title to the product types generation function
-              productTypes: subCategoryWiseProductType(subCategory.id, subCategory.title, categoryTitle),
+              parentMainCategory: categoryTitle,
+              productTypes: subCategoryWiseProductType(
+                subCategory.id,
+                subCategory.title,
+                categoryTitle
+              ),
             };
           });
       };
@@ -180,5 +102,4 @@ export const getAllMenuList = () => {
 export const homeService = {
   getAllMenuList,
   getAllMenuData,
-  // getAllSearchListingByValue,
 };

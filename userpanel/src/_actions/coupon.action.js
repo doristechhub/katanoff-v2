@@ -1,13 +1,19 @@
-import { helperFunctions, messageType, ONE_TIME } from "@/_helper";
+import {
+  FIXED,
+  messageType,
+  ONE_TIME,
+  PERCENTAGE,
+} from "@/_helper";
 import { couponService } from "@/_services";
 import {
   setAppliedPromoDetail,
   setCouponCode,
   setCouponMessage,
+  setDiscountAmount,
   setPromoCodeLoading,
 } from "@/store/slices/couponSlice";
 
-export const applyCouponCode = ({ promoCode, orderValue, userEmail }) => {
+export const checkCouponCodeInCart = ({ promoCode, orderValue }) => {
   return async (dispatch) => {
     try {
       const trimmedCode = promoCode?.trim();
@@ -31,14 +37,23 @@ export const applyCouponCode = ({ promoCode, orderValue, userEmail }) => {
       }
       dispatch(setPromoCodeLoading(true));
 
-      const matchedCoupon = await couponService?.validateCouponCode({
+      const matchedCoupon = await couponService?.VerifyCouponCodeInCart({
         promoCode: trimmedCode,
         orderValue,
-        userEmail,
-        userId: helperFunctions.getCurrentUser()?.id || null,
       });
 
       dispatch(setAppliedPromoDetail(matchedCoupon));
+      let discount = 0;
+      if (matchedCoupon.discountDetails) {
+        const { type, amount } = matchedCoupon.discountDetails;
+        if (type === PERCENTAGE) {
+          discount = (amount / 100) * orderValue;
+        } else if (type === FIXED) {
+          discount = Math.min(amount, orderValue);
+        }
+      }
+      const formattedDiscount = parseFloat(discount.toFixed(2));
+      dispatch(setDiscountAmount(formattedDiscount));
 
       dispatch(
         setCouponMessage({
@@ -70,5 +85,6 @@ export const removeCouponCode = () => {
     dispatch(setCouponCode(""));
     dispatch(setAppliedPromoDetail(null));
     dispatch(setCouponMessage({ message: "", type: "" }));
+    dispatch(setDiscountAmount(0));
   };
 };

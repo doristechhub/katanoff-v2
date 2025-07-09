@@ -18,7 +18,6 @@ import americanExpress from "@/assets/images/payment/american-express.webp";
 import discover from "@/assets/images/payment/discover.webp";
 import { helperFunctions, PAYPAL, STRIPE } from "@/_helper";
 import {
-  setActiveIndex,
   setSelectedShippingAddress,
   setSelectedShippingCharge,
 } from "@/store/slices/checkoutSlice";
@@ -27,7 +26,6 @@ import { useRouter } from "next/navigation";
 import React, {
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
@@ -40,8 +38,7 @@ import {
   setPaypalPaymentMessage,
 } from "@/store/slices/paymentSlice";
 import { CustomImg } from "@/components/dynamiComponents";
-import { applyCouponCode } from "@/_actions/coupon.action";
-
+import { checkCouponCodeInCart } from "@/_actions/coupon.action";
 const paymentOptions = [
   {
     value: STRIPE,
@@ -117,29 +114,18 @@ const shippingForm = () => {
   }, [dispatch, router, cartList, clearAbortController]);
 
   const getCoupon = localStorage.getItem("appliedCoupon");
-  const userEmail = localStorage.getItem("address");
-
   useEffect(() => {
     const subTotal = helperFunctions.getSubTotal(cartList);
-    let parsedMail;
-    if (userEmail) {
-      try {
-        const parsedUser = JSON.parse(userEmail);
-        parsedMail = parsedUser?.email;
-      } catch (err) {
-        console.error("Failed to parse userEmail", err);
-      }
-    }
+
     if (!appliedPromoDetail && getCoupon) {
       dispatch(
-        applyCouponCode({
+        checkCouponCodeInCart({
           promoCode: getCoupon,
           orderValue: subTotal,
-          userEmail: parsedMail,
         })
       );
     }
-  }, [dispatch, appliedPromoDetail, cartList, userEmail]);
+  }, [dispatch, appliedPromoDetail, cartList]);
 
   const processPayment = useCallback(
     async (paymentAction, payload) => {

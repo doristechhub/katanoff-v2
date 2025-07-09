@@ -23,6 +23,11 @@ import { CartNotFound, CustomImg, ProgressiveImg } from "../dynamiComponents";
 import ErrorMessage from "./ErrorMessage";
 import DiamondDetailDrawer from "./customize/DiamondDetailDrawer";
 import { paymentOptions } from "@/_utils/paymentOptions";
+import { checkCouponCodeInCart } from "@/_actions/coupon.action";
+import {
+  setDeleteLoader,
+  setRemoveCartErrorMessage,
+} from "@/store/slices/cartSlice";
 
 const maxQuantity = 5;
 const minQuantity = 1;
@@ -40,6 +45,21 @@ const CartPopup = () => {
     updateCartQtyErrorMessage,
     removeCartErrorMessage,
   } = useSelector(({ cart }) => cart);
+  const { discountAmount, couponCode, appliedPromoDetail } = useSelector(
+    ({ coupon }) => coupon
+  );
+
+  const handleApplyCoupon = (orderValue = null) => {
+    const calculatedOrderValue =
+      orderValue !== null ? orderValue : getSubTotal();
+    dispatch(
+      checkCouponCodeInCart({
+        promoCode: couponCode,
+        orderValue: calculatedOrderValue,
+      })
+    );
+  };
+
   const handleCartQuantity = useCallback(
     (type, cartItem) => {
       dispatch(handleSelectCartItem({ selectedCartItem: cartItem }));
@@ -71,8 +91,19 @@ const CartPopup = () => {
         cartId: cartItem.id,
       };
       dispatch(updateProductQuantityIntoCart(payload));
+
+      const newSubTotal = cartList.reduce((acc, item) => {
+        if (item.id === cartItem.id) {
+          return acc + quantity * item?.productSellingPrice;
+        }
+        return acc + item.quantityWiseSellingPrice;
+      }, 0);
+
+      if (appliedPromoDetail || couponCode) {
+        handleApplyCoupon(newSubTotal);
+      }
     },
-    [dispatch]
+    [dispatch, appliedPromoDetail, couponCode, cartList]
   );
   useEffect(() => {
     const setVH = () => {
@@ -87,14 +118,42 @@ const CartPopup = () => {
   }, []);
 
   const removeFromCart = useCallback(
-    (cartItem) => {
-      dispatch(handleSelectCartItem({ selectedCartItem: cartItem }));
+    async (cartItem) => {
       if (!cartItem.id) return;
 
-      const payload = { cartId: cartItem.id };
-      dispatch(removeProductIntoCart(payload));
+      dispatch(handleSelectCartItem({ selectedCartItem: cartItem }));
+      dispatch(setDeleteLoader(true));
+
+      try {
+        const payload = { cartId: cartItem.id };
+        await dispatch(removeProductIntoCart(payload));
+
+        const newSubTotal = cartList.reduce((acc, item) => {
+          if (item.id !== cartItem.id) {
+            return (
+              acc +
+              (item.quantityWiseSellingPrice ||
+                item.quantity * (item.sellingPrice || item.price || 0))
+            );
+          }
+          return acc;
+        }, 0);
+        if (appliedPromoDetail) {
+          handleApplyCoupon(newSubTotal);
+        }
+      } catch (error) {
+        dispatch(
+          setRemoveCartErrorMessage({
+            message: error.message,
+            type: messageType.ERROR,
+          })
+        );
+        console.error("Failed to remove item from cart:", error);
+      } finally {
+        dispatch(setDeleteLoader(false));
+      }
     },
-    [dispatch]
+    [dispatch, cartList, appliedPromoDetail, handleApplyCoupon]
   );
 
   const getSubTotal = useCallback(() => {
@@ -141,6 +200,13 @@ const CartPopup = () => {
   const handleCartQuantityChange = (item, newQty) => {
     handleCartQuantity("set", { ...item, quantity: newQty });
   };
+
+  const grandTotal = useCallback(() => {
+    if (discountAmount > 0) {
+      return getSubTotal() - discountAmount;
+    }
+    return getSubTotal();
+  }, [getSubTotal, discountAmount]);
 
   return (
     <>
@@ -401,10 +467,35 @@ const CartPopup = () => {
                 </div>
 
                 <div className="shrink-0 px-2 xs:px-6 bg-offwhite border-t-2 border-black_opacity_10 pb-4 pt-2">
-                  <p className="text-base text-baseblack flex justify-between font-semibold pt-2">
-                    Order Total: <span>${getSubTotal()}</span>
+                  <p className="text-sm sm:text-base text-baseblack flex justify-between font-semibold pt-2">
+                    Sub Total:{" "}
+                    <span>
+                      {helperFunctions?.formatCurrencyWithDollar(getSubTotal())}
+                    </span>
                   </p>
-                  <p className="text-basegray text-xs  2xl:text-sm">
+                  {appliedPromoDetail && (
+                    <>
+                      <p className="text-sm sm:text-base text-baseblack flex justify-between font-semibold pt-2">
+                        Discount ({appliedPromoDetail?.promoCode}):{" "}
+                        <span className="">
+                          {" "}
+                          -
+                          {helperFunctions?.formatCurrencyWithDollar(
+                            discountAmount
+                          )}
+                        </span>
+                      </p>
+                      <p className="text-base xs:text-lg text-baseblack flex justify-between font-bold pt-2">
+                        Grand Total:{" "}
+                        <span>
+                          {helperFunctions?.formatCurrencyWithDollar(
+                            grandTotal()
+                          )}
+                        </span>
+                      </p>
+                    </>
+                  )}
+                  <p className="text-basegray text-xs pt-1 2xl:text-sm">
                     Taxes and shipping calculated at checkout
                   </p>
                   <div className="flex items-start gap-2 mt-2 text-xs  2xl:text-sm">
@@ -469,6 +560,12 @@ const CartPopup = () => {
                           e.preventDefault();
                           return;
                         }
+                        if (appliedPromoDetail) {
+                          localStorage.setItem(
+                            "appliedCoupon",
+                            appliedPromoDetail?.promoCode
+                          );
+                        }
                         closeCartPopup();
                       }}
                     >
@@ -480,7 +577,7 @@ const CartPopup = () => {
                         onClick={closeCartPopup}
                         className="justify-center flex "
                       >
-                        <p className="w-fit hover:border-b font-semibold hover:border-black text-[1rem]">
+                        <p className="w-fit border-b border-transparent font-semibold hover:border-black text-[1rem]">
                           View Your Bag
                         </p>
                       </div>

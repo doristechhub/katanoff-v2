@@ -3,6 +3,7 @@ import {
   DISCOUNT_TYPES,
   discountsUrl,
   fetchWrapperService,
+  helperFunctions,
   ONE_TIME,
   SELECTED_CUSTOMERS,
   SIGN_UP_DISCOUNT,
@@ -22,11 +23,10 @@ const getAllPromoCodes = () => {
   });
 };
 
-const validateCouponCode = ({ promoCode, orderValue, userEmail, userId }) => {
+const VerifyCouponCodeInCart = async ({ promoCode, orderValue }) => {
   return new Promise(async (resolve, reject) => {
     try {
       const allCoupons = await getAllPromoCodes();
-
       const matchedCoupon = allCoupons.find(
         (coupon) => coupon.promoCode.toUpperCase() === promoCode.toUpperCase()
       );
@@ -34,8 +34,10 @@ const validateCouponCode = ({ promoCode, orderValue, userEmail, userId }) => {
       if (!matchedCoupon) {
         reject(new Error("Invalid promo code"));
       }
+      const userData = helperFunctions?.getCurrentUser();
+      const userId = userData?.id;
+      const userEmail = userData?.email;
 
-      // Check if the promo code is "Sign Up Discount" and verify user is logged in
       if (
         matchedCoupon?.name?.toUpperCase() === SIGN_UP_DISCOUNT.toUpperCase() &&
         !userId
@@ -85,6 +87,7 @@ const validateCouponCode = ({ promoCode, orderValue, userEmail, userId }) => {
 
       // Check minimum order value
       const minOrderValue = matchedCoupon?.minimumOrderValue || 0;
+
       if (minOrderValue > 0 && orderValue < minOrderValue) {
         reject(
           new Error(
@@ -93,12 +96,17 @@ const validateCouponCode = ({ promoCode, orderValue, userEmail, userId }) => {
         );
         return;
       }
-      // const finalCoupon = { ...matchedCoupon };
+
       if (matchedCoupon.purchaseMode === ONE_TIME) {
+        if (!userId) {
+          return reject(
+            new Error("Please log in to apply this one-time promo code.")
+          );
+        }
         if (!userEmail) {
           return reject(
             new Error(
-              "User email is required to apply this promo code. Please log in or provide an email."
+              "An email address is required to apply this one-time promo code."
             )
           );
         }
@@ -128,5 +136,5 @@ const validateCouponCode = ({ promoCode, orderValue, userEmail, userId }) => {
 
 export const couponService = {
   getAllPromoCodes,
-  validateCouponCode,
+  VerifyCouponCodeInCart,
 };
