@@ -129,10 +129,9 @@ exportFunction.findOneAndUpdate = (findPattern, updatePattern) => {
 
 exportFunction.validatePromoCode = async ({
   promoCode,
-  userId,
   subTotal = 0,
-  userEmail,
   orderService,
+  userData,
 }) => {
   try {
     const discounts = await exportFunction.getAll();
@@ -144,7 +143,8 @@ exportFunction.validatePromoCode = async ({
     if (!foundDiscount) {
       return { valid: false, message: "Invalid promo code" };
     }
-
+    const userId = userData?.id;
+    const userEmail = userData?.email;
     // Check if the promo code is "Sign Up Discount" and verify user is logged in
     if (
       foundDiscount?.name?.toUpperCase() === SIGN_UP_DISCOUNT.toUpperCase() &&
@@ -228,10 +228,17 @@ exportFunction.validatePromoCode = async ({
 
     // Check purchase mode
     if (foundDiscount?.purchaseMode === DISCOUNT_PURCHASE_MODES.ONE_TIME) {
+      if (!userId) {
+        return {
+          valid: false,
+          message: "Please log in to apply this one-time promo code.",
+        };
+      }
       if (!userEmail) {
         return {
           valid: false,
-          message: "Email is required to apply this promo code.",
+          message:
+            "An email address is required to apply this one-time promo code.",
         };
       }
 
