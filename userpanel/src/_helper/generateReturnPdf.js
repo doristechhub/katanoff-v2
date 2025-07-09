@@ -187,7 +187,7 @@ export const generateReturnPDF = async (returnData, sizePage = "1") => {
   // Promo Discount (if any)
   if (invoiceData?.discount > 0) {
     doc.text(
-      `Promo Discount: ${helperFunctions?.formatCurrencyWithDollar(
+      `Promo Discount: -${helperFunctions?.formatCurrencyWithDollar(
         invoiceData?.discount
       )}`,
       bottomRightX,
@@ -202,7 +202,7 @@ export const generateReturnPDF = async (returnData, sizePage = "1") => {
     `Sales Tax: ${
       invoiceData?.salesTax && Number(invoiceData?.salesTax) !== 0
         ? `${helperFunctions?.formatCurrencyWithDollar(invoiceData?.salesTax)}`
-        : "N/A"
+        : "$0.00"
     }`,
     bottomRightX,
     currentY,
@@ -227,31 +227,73 @@ export const generateReturnPDF = async (returnData, sizePage = "1") => {
   doc.line(bottomRightX - 120, currentY, pageWidth - 40, currentY);
   currentY += 15;
 
-  // Estimated Amount
-  doc.text(
-    `Estimated Amount: ${
-      helperFunctions.toFixedNumber(invoiceData?.returnRequestAmount) > 0
-        ? helperFunctions?.formatCurrencyWithDollar(
-            invoiceData?.returnRequestAmount
-          )
-        : "$0.00"
-    }`,
-    bottomRightX,
-    currentY,
-    { align: "right" }
-  );
-  currentY += 15;
+  const returnAmount = Number(invoiceData?.returnRequestAmount) || 0;
+  const refundAmount = Number(invoiceData?.refundAmount) || 0;
+  const deductedAmount = returnAmount - refundAmount;
+  // // Estimated Amount
+  // doc.text(
+  //   `Estimated Amount: ${
+  //     helperFunctions.toFixedNumber(invoiceData?.returnRequestAmount) > 0
+  //       ? helperFunctions?.formatCurrencyWithDollar(
+  //           invoiceData?.returnRequestAmount
+  //         )
+  //       : "$0.00"
+  //   }`,
+  //   bottomRightX,
+  //   currentY,
+  //   { align: "right" }
+  // );
+  // currentY += 15;
 
-  // Deducted Amount
-  if (invoiceData?.refundAmount > 0) {
+  // // Deducted Amount
+  // if (invoiceData?.refundAmount > 0) {
+  //   doc.setFont(undefined, "normal");
+  //   doc.text(
+  //     `Deducted Amount: ${
+  //       helperFunctions.toFixedNumber(invoiceData?.returnRequestAmount) > 0
+  //         ? helperFunctions?.formatCurrencyWithDollar(
+  //             Number(invoiceData?.returnRequestAmount) -
+  //               Number(invoiceData?.refundAmount)
+  //           )
+  //         : "$0.00"
+  //     }`,
+  //     bottomRightX,
+  //     currentY,
+  //     { align: "right" }
+  //   );
+  //   currentY += 15;
+  // }
+
+  // if (invoiceData?.refundAmount > 0) {
+  //   doc.setFont(undefined, "bold");
+  //   doc.text(
+  //     `Refunded Amount: ${helperFunctions?.formatCurrencyWithDollar(
+  //       invoiceData?.refundAmount
+  //     )}`,
+  //     bottomRightX,
+  //     currentY,
+  //     { align: "right" }
+  //   );
+  // }
+  // currentY += 25;
+  if (returnAmount === refundAmount && refundAmount > 0) {
+    doc.setFont(undefined, "bold");
+    doc.text(
+      `Refunded Amount: ${helperFunctions?.formatCurrencyWithDollar(
+        refundAmount
+      )}`,
+      bottomRightX,
+      currentY,
+      { align: "right" }
+    );
+    currentY += 25;
+  } else {
+    // Estimated Amount
     doc.setFont(undefined, "normal");
     doc.text(
-      `Deducted Amount: ${
-        helperFunctions.toFixedNumber(invoiceData?.returnRequestAmount) > 0
-          ? helperFunctions?.formatCurrencyWithDollar(
-              Number(invoiceData?.returnRequestAmount) -
-                Number(invoiceData?.refundAmount)
-            )
+      `Estimated Amount: ${
+        returnAmount > 0
+          ? helperFunctions?.formatCurrencyWithDollar(returnAmount)
           : "$0.00"
       }`,
       bottomRightX,
@@ -259,20 +301,34 @@ export const generateReturnPDF = async (returnData, sizePage = "1") => {
       { align: "right" }
     );
     currentY += 15;
-  }
 
-  if (invoiceData?.refundAmount > 0) {
-    doc.setFont(undefined, "bold");
-    doc.text(
-      `Refunded Amount: ${helperFunctions?.formatCurrencyWithDollar(
-        invoiceData?.refundAmount
-      )}`,
-      bottomRightX,
-      currentY,
-      { align: "right" }
-    );
+    // Deducted Amount (only if less than return request)
+    if (refundAmount > 0 && deductedAmount > 0) {
+      doc.text(
+        `Deducted Amount: ${helperFunctions?.formatCurrencyWithDollar(
+          deductedAmount
+        )}`,
+        bottomRightX,
+        currentY,
+        { align: "right" }
+      );
+      currentY += 15;
+    }
+
+    // Refunded Amount
+    if (refundAmount > 0) {
+      doc.setFont(undefined, "bold");
+      doc.text(
+        `Refunded Amount: ${helperFunctions?.formatCurrencyWithDollar(
+          refundAmount
+        )}`,
+        bottomRightX,
+        currentY,
+        { align: "right" }
+      );
+      currentY += 25;
+    }
   }
-  currentY += 25;
 
   doc.setFont(undefined, "normal");
   doc.setFontSize(9);

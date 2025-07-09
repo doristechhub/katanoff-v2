@@ -142,14 +142,14 @@ export const returnRequestModel = {
     default: 0,
     // Sales tax amount applicable to the return request
   },
-  serviceFees: {
-    type: Number,
-    default: 0,
-    // Additional service fees associated with processing the return
-  },
+  // serviceFees: {
+  //   type: Number,
+  //   default: 0,
+  //   // Additional service fees associated with processing the return
+  // },
   returnRequestAmount: {
     type: Number,
     required: true,
-    // Final calculated amount for the return request (subTotal - discount + salesTax - serviceFees)
+    // Final calculated amount for the return request (subTotal - discount + salesTax)
   },
 };

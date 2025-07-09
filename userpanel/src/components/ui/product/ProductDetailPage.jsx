@@ -490,7 +490,7 @@ const ProductDetailPage = ({ customizePage }) => {
                             productQuantity *
                             (1 - productDetail?.discount / 100)
                           ).toFixed(2)}`
-                        : "N/A"}
+                        : "$0.00"}
                     </span>
                     {productDetail?.discount && selectedPrice ? (
                       <span className="text-gray-500 line-through text-xl font-castoro">
@@ -995,8 +995,6 @@ const ProductDetailTabs = ({ selectedVariations = [] }) => {
     <AccordionTabs
       tabs={tabData}
       forceResetKey={selectedVariations}
-      // labelCustomClass="!uppercase"
-
       alwaysOpenFirst={true}
       hideFirstToggleIcon={true}
     />

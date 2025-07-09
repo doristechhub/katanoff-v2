@@ -1,16 +1,18 @@
 import { helperFunctions } from "@/_helper";
-import { CustomImg, CustomVideo } from "../dynamiComponents";
+import { ProgressiveImg } from "../dynamiComponents";
 import Link from "next/link";
 
 const TextAboveImage = ({ categoryData, className, textClassName }) => {
   return (
     <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${className}`}>
       {categoryData.map((item, index) => (
-        <div key={index} className={`relative`}>
-          <CustomImg
-            srcAttr={item?.image}
-            altAttr={item?.altAttr}
-            titleAttr={item?.titleAttr}
+        <div
+          key={`text-above-image-${index}-${item?.title}`}
+          className={`relative`}
+        >
+          <ProgressiveImg
+            src={item?.image}
+            alt={item?.alt}
             className="w-full object-contain"
           />
 

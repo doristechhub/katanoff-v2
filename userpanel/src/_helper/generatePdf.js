@@ -185,7 +185,7 @@ export const generatePDF = async (orderData, sizePage = "1") => {
   // Promo Discount (if any)
   if (invoiceData?.discount > 0) {
     doc.text(
-      `Promo Discount: ${helperFunctions?.formatCurrencyWithDollar(
+      `Promo Discount: -${helperFunctions?.formatCurrencyWithDollar(
         invoiceData?.discount
       )}`,
       bottomRightX,
@@ -203,7 +203,7 @@ export const generatePDF = async (orderData, sizePage = "1") => {
     }: ${
       invoiceData?.salesTax && Number(invoiceData?.salesTax) !== 0
         ? `${helperFunctions?.formatCurrencyWithDollar(invoiceData?.salesTax)}`
-        : "N/A"
+        : "$0.00"
     }`,
     bottomRightX,
     currentY,

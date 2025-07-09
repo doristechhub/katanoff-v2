@@ -217,6 +217,7 @@ const OrderDetails = ({
                         <h3 className="font-medium flex gap-2 text-sm md:text-base pt-1">
                           Promo Offer:
                           <span>
+                            -
                             {helperFunctions?.formatCurrencyWithDollar(
                               helperFunctions?.splitDiscountAmongProducts({
                                 quantityWiseProductPrice:
@@ -287,7 +288,7 @@ const OrderDetails = ({
                     ? helperFunctions?.formatCurrencyWithDollar(
                         orderDetail?.salesTax
                       )
-                    : "N/A",
+                    : "$0.00",
               },
               {
                 label: "Shipping Charge",
@@ -316,7 +317,7 @@ const OrderDetails = ({
                 >
                   {item.label}
                 </h4>
-                <p className="font-semibold">{item?.value || "N/A"}</p>
+                <p className="font-semibold">{item?.value || "$0.00"}</p>
               </div>
             ))}
             <p className="font-medium mt-2">{SALES_TAX_NOTE}</p>

@@ -141,7 +141,6 @@ const ReturnDetails = ({
   if (!returnDetail || !Object.keys(returnDetail).length) {
     return <ProductNotFound message="Sorry, no order found." />;
   }
-  console.log("returnDetail", returnDetail);
   return (
     <div className={`md:px-2 lg:px-6 my-8 ${isShadow ? "shadow-lg" : ""}`}>
       {/* Action Buttons */}
@@ -227,20 +226,12 @@ const ReturnDetails = ({
                       {/* Discount and Tax */}
                       <div className="flex flex-col sm:items-end min-w-40">
                         {returnDetail.discount > 0 && (
-                          <h3 className="font-medium text-sm md:text-base pt-1 text-red-600">
+                          <h3 className="font-medium text-sm md:text-base pt-1 text-lightblack">
                             Discount:{" "}
                             <span>
-                              {calculateProductDiscount(product, returnDetail)}
+                              -{calculateProductDiscount(product, returnDetail)}
                             </span>
                           </h3>
-                        )}
-                        {returnDetail?.salesTax > 0 && (
-                          <div className="text-sm md:text-base font-medium flex flex-wrap gap-2 text-green-600">
-                            <span className="inline xss:block">Sales Tax:</span>
-                            <span className="inline xss:block">
-                              {calculateProductTax(product, returnDetail)}
-                            </span>
-                          </div>
                         )}
                       </div>
                     </div>
@@ -289,67 +280,71 @@ const ReturnDetails = ({
               </p>
             </div>
             {returnDetail?.discount > 0 && (
-              <div className="flex justify-between text-red-500">
+              <div className="flex justify-between text-lightblack">
                 <h4 className="font-medium">Promo Discount</h4>
                 <p className="font-semibold">
                   -{formatCurrency(returnDetail?.discount)}
                 </p>
               </div>
             )}
-            <div className="flex justify-between text-green-600">
+            <div className="flex justify-between text-lightblack">
               <h4 className="font-medium">Sales Tax(8%)</h4>
               <p className="font-semibold">
                 {returnDetail?.salesTax > 0
                   ? formatCurrency(returnDetail?.salesTax)
-                  : "N/A"}
-              </p>
-            </div>
-            <div
-              className={`flex justify-between ${
-                returnDetail?.serviceFees > 0
-                  ? "text-yellow-400"
-                  : "text-gray-400"
-              }`}
-            >
-              <h4 className="font-medium">Service Fees</h4>
-              <p className="font-semibold">
-                {returnDetail?.serviceFees > 0
-                  ? formatCurrency(returnDetail?.serviceFees)
-                  : "N/A"}
+                  : "$0.00"}
               </p>
             </div>
             <hr className="w-full border-t border-gray-300 my-2 mx-auto" />
-            <div className="flex justify-between">
-              <h4 className="font-medium">Estimated Amount</h4>
-              <p className="font-semibold">
-                {formatCurrency(returnDetail?.returnRequestAmount) || "N/A"}
-              </p>
-            </div>
-            {returnDetail?.refundAmount && (
+            {returnDetail?.returnRequestAmount &&
+            returnDetail?.refundAmount &&
+            Number(returnDetail?.returnRequestAmount) ===
+              Number(returnDetail?.refundAmount) ? (
+              // Case: Full refund, show only Refunded Amount
+              <div className="flex justify-between">
+                <h4 className="font-medium">Refunded Amount</h4>
+                <p className="font-semibold">
+                  {formatCurrency(returnDetail?.refundAmount) || "$0.00"}
+                </p>
+              </div>
+            ) : (
+              // Case: Partial refund or no refund
               <>
-                <div className="text-red-500 flex justify-between text-sm md:text-base">
-                  <p>Deducted Amount</p>
-                  <p>
-                    -
-                    {formatCurrency(
-                      returnDetail?.returnRequestAmount -
-                        returnDetail?.refundAmount
-                    )}
+                <div className="flex justify-between">
+                  <h4 className="font-medium">Estimated Amount</h4>
+                  <p className="font-semibold">
+                    {formatCurrency(returnDetail?.returnRequestAmount) ||
+                      "$0.00"}
                   </p>
                 </div>
-                <div className="flex justify-between text-sm md:text-base">
-                  <h4 className="font-medium">Refunded Amount</h4>
-                  <p className="font-medium">
-                    <strong>
-                      {formatCurrency(returnDetail?.refundAmount)}
-                    </strong>
-                  </p>
-                </div>
+
+                {returnDetail?.refundAmount && (
+                  <>
+                    <div className="text-lightblack flex justify-between text-sm md:text-base">
+                      <p>Deducted Amount</p>
+                      <p>
+                        -
+                        {formatCurrency(
+                          Number(returnDetail?.returnRequestAmount) -
+                            Number(returnDetail?.refundAmount)
+                        )}
+                      </p>
+                    </div>
+                    <div className="flex justify-between text-sm md:text-base">
+                      <h4 className="font-medium">Refunded Amount</h4>
+                      <p className="font-medium">
+                        <strong>
+                          {formatCurrency(returnDetail?.refundAmount)}
+                        </strong>
+                      </p>
+                    </div>
+                  </>
+                )}
+                <p className="text-xs italic text-gray-500 pt-1">
+                  {ESTIMATE_AMOUNT_NOTE}
+                </p>
               </>
             )}
-            <p className="text-xs italic text-gray-500 pt-1">
-              {ESTIMATE_AMOUNT_NOTE}
-            </p>
           </div>
         </div>
 
