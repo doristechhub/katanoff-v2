@@ -137,7 +137,7 @@ const CheckoutCommonComponent = () => {
     isNewYorkState,
     selectedShippingCharge,
     salesTaxPerc,
-    pathname, // include pathname in dependencies
+    pathname,
   ]);
 
   return (
@@ -223,7 +223,7 @@ const CheckoutCommonComponent = () => {
 
                       {appliedPromoDetail && (
                         <p className="text-sm font-semibold xs:text-base w-fit flex items-center gap-2">
-                          Promo Offer:
+                          Promo Offer: -
                           {helperFunctions?.formatCurrencyWithDollar(
                             helperFunctions?.splitDiscountAmongProducts({
                               quantityWiseProductPrice:

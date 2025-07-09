@@ -467,16 +467,16 @@ const calcReturnPayment = (products, orderDetail) => {
   const salesTax = taxableAmount * (orderSalesTaxPercentage / 100);
 
   // Calculate service fees (3.5% of subtotal - discount + salesTax) if payment method is Stripe
-  const serviceFeeBase = taxableAmount + salesTax;
-  const serviceFees = orderDetail.paymentMethod === 'stripe' ? serviceFeeBase * 0.035 : 0;
+  // const serviceFeeBase = taxableAmount + salesTax;
+  // const serviceFees = orderDetail.paymentMethod === 'stripe' ? serviceFeeBase * 0.035 : 0;
 
-  const returnRequestAmount = subTotal - discount + salesTax - serviceFees;
+  const returnRequestAmount = subTotal - discount + salesTax;
 
   return {
     subTotal: Number(subTotal.toFixed(2)),
     discount: Number(discount.toFixed(2)),
     salesTax: Number(salesTax.toFixed(2)),
-    serviceFees: Number(serviceFees.toFixed(2)),
+    // serviceFees: Number(serviceFees.toFixed(2)),
     returnRequestAmount: Number(returnRequestAmount.toFixed(2)),
   };
 };

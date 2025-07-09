@@ -141,7 +141,6 @@ const getReturnDetailByReturnId = (returnId) => {
             totalTaxAmount: returnDetail.salesTax,
           })
         );
-        console.log('perQuantityDiscountAmount :>> ', perQuantityDiscountAmount);
         return {
           ...item,
           productName: product.productName || 'Unknown',
@@ -365,13 +364,12 @@ const createApprovedReturnRequest = (params) => {
             reject(new Error('An error occurred during image uploading.'));
           });
       }
-      const { subTotal, discount, salesTax, serviceFees, returnRequestAmount } =
+      const { subTotal, discount, salesTax, returnRequestAmount } =
         helperFunctions?.calcReturnPayment(productsArray, orderDetail);
       if (
         (subTotal && isNaN(subTotal)) ||
         (discount && isNaN(discount)) ||
         (salesTax && isNaN(salesTax)) ||
-        (serviceFees && isNaN(serviceFees)) ||
         (returnRequestAmount && isNaN(returnRequestAmount))
       ) {
         reject(new Error('Invalid data'));
@@ -393,7 +391,6 @@ const createApprovedReturnRequest = (params) => {
         subTotal,
         discount,
         salesTax,
-        serviceFees,
         returnRequestAmount,
       };
       if (orderDetail?.userId) {

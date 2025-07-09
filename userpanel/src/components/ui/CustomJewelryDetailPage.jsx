@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import banner from "@/assets/images/custom-jewelry/custom-jewelry-hero.webp";
+import bannerDesktop from "@/assets/images/custom-jewelry/custom-jewelry-hero-desktop.webp";
+import bannerMobile from "@/assets/images/custom-jewelry/custom-jewelry-hero-mobile.webp";
 import customJewelry4 from "@/assets/images/custom-jewelry/custom-jewelry-4.webp";
 import customJewelry9 from "@/assets/images/custom-jewelry/custom-jewelry-9.webp";
 import customJewelry10 from "@/assets/images/custom-jewelry/custom-jewelry-10.webp";
@@ -103,18 +104,20 @@ const CustomJewelryDetailPage = () => {
 
   return (
     <>
-      <section
-        ref={sectionRef}
-        className="relative w-full h-[90vh] md:h-[80vh] overflow-hidden"
-      >
+      <section ref={sectionRef} className="relative">
         <CustomImg
-          src={banner}
+          src={bannerMobile}
           alt="Custom Jewelry"
-          className="absolute inset-0 w-full h-full object-cover z-0"
+          className="w-full h-full lg:hidden"
+        />
+        <CustomImg
+          src={bannerDesktop}
+          alt="Custom Jewelry"
+          className="w-full h-full lg:block hidden"
         />
 
-        <div className="relative z-10 w-full h-full flex items-center justify-start px-6 md:px-16">
-          <div className="text-baseblack flex flex-col gap-4">
+        <div className="top-[5%] absolute w-full h-full flex items-center justify-start px-6 md:px-16">
+          <div className="text-baseblack flex flex-col gap-2 md:gap-4">
             <p className="text-base font-semibold uppercase tracking-wide">
               Truly Custom Diamond
             </p>
@@ -122,10 +125,10 @@ const CustomJewelryDetailPage = () => {
               Custom jewelry
             </h2>
 
-            <div className="mt-4 flex flex-col md:flex-row gap-6">
+            <div className="flex flex-col md:flex-row gap-6">
               <LinkButton
                 href="/custom-jewelry-form"
-                className="!text-white !uppercase !font-medium w-fit !py-6 !bg-baseblack !text-base hover:!border-[#202A4E] hover:!bg-transparent hover:!text-baseblack !border-black !border !rounded-none"
+                className="!text-white !uppercase !font-medium w-fit !py-4 md:!py-6 !bg-baseblack !text-base hover:!border-[#202A4E] hover:!bg-transparent hover:!text-baseblack !border-black !border !rounded-none"
               >
                 Start Creating
               </LinkButton>
@@ -306,25 +309,27 @@ const CustomJewelryDetailPage = () => {
           </div>
         </div>
       </section>
-      <section className="grid grid-cols-1 sm:grid-cols-2 container mx-auto px-4 gap-4 pt-20 xl:pt-28 4xl:pt-28">
-        <div className="">
-          <CustomImg src={customJewelry21} alt="Custom Jewelry Step" />
-        </div>
-        <div className="flex flex-col pt-8 sm:pt-0">
-          <h2 className="text-5xl xxs:text-5xl md:text-6xl xl:text-8xl 4xl:text-9xl font-extrabold text-whitesmoke">
+      <section className="container mx-auto px-4 pt-12 xl:pt-20 4xl:pt-24">
+        <div className="flex flex-col items-center text-center">
+          <h2 className="text-4xl xxs:text-5xl md:text-6xl xl:text-7xl 4xl:text-8xl font-extrabold text-whitesmoke">
             STEP THREE
           </h2>
-          <div className="justify-center align-middle items-center flex pt-4 sm:pt-[15%]">
-            <div className="flex flex-col text-start sm:w-[60%] lg:w-[40%] ">
-              <h3 className="text-xl lg:text-3xl xl:text-4xl font-castoro mb-4">
-                Review & Submit
-              </h3>
-              <p className="text-sm lg:text-base 2xl:text-xl text-baseblack font-semibold">
-                Double-check your details and submit your request for approval.
-                We will contact you for confirmation within 24-48 hours.
-              </p>
-            </div>
+          <div className="flex flex-col items-center pt-6 lg:pt-8">
+            <h3 className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-castoro mb-4 text-baseblack">
+              Review & Submit
+            </h3>
+            <p className="text-sm md:text-base xl:text-lg 2xl:text-xl text-baseblack font-semibold max-w-3xl mx-auto">
+              Double-check your details and submit your request for approval. We
+              will contact you for confirmation within 24-48 hours.
+            </p>
           </div>
+        </div>
+        <div className="flex justify-center pt-6">
+          <CustomImg
+            src={customJewelry21}
+            alt="Custom Jewelry Step Three"
+            className="w-full h-full object-contain"
+          />
         </div>
       </section>
 

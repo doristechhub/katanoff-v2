@@ -175,3 +175,10 @@ export const DISCOUNT_DETAILS_TYPES = [
     disabled: false,
   },
 ];
+
+export const COLLECTION_TYPES = {
+  default: { value: 'default', label: 'Default', thumbnailDimensions: 'Default' },
+  slider_grid: { value: 'slider_grid', label: 'Slider Grid', thumbnailDimensions: '402x502' },
+  two_grid: { value: 'two_grid', label: 'Two Grid', thumbnailDimensions: '825x784' },
+  three_grid: { value: 'three_grid', label: 'Three Grid', thumbnailDimensions: '544x472' },
+};

@@ -403,21 +403,6 @@ const ReturnDetail = () => {
                                   : 'N/A'}
                               </span>
                             </Typography>
-                            <Typography
-                              variant="body2"
-                              color="warning.main"
-                              sx={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                              }}
-                            >
-                              <span>Service Fee:</span>
-                              <span>
-                                {selectedReturn.serviceFees > 0
-                                  ? `-${fCurrency(selectedReturn.serviceFees)}`
-                                  : 'N/A'}
-                              </span>
-                            </Typography>
                             <Divider />
                             <Typography
                               variant="caption"
@@ -435,7 +420,30 @@ const ReturnDetail = () => {
                                   : 'N/A'}
                               </span>
                             </Typography>
-
+                            {selectedReturn?.refundAmount &&
+                            selectedReturn?.returnRequestAmount - selectedReturn?.refundAmount >
+                              0 ? (
+                              <Typography
+                                marginTop={'10px'}
+                                variant="caption"
+                                color={'error.main'}
+                                sx={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  fontWeight: 'bold',
+                                  fontSize: '0.9rem',
+                                }}
+                              >
+                                <span>Deducted Amount:</span>
+                                <span>
+                                  -
+                                  {fCurrency(
+                                    selectedReturn?.returnRequestAmount -
+                                      selectedReturn?.refundAmount
+                                  )}
+                                </span>
+                              </Typography>
+                            ) : null}
                             {selectedReturn?.refundAmount && (
                               <Typography
                                 marginTop={'10px'}

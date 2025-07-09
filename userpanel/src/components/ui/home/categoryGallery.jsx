@@ -4,44 +4,14 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-
-import tennis from "@/assets/images/home/tennis.webp";
-import fashion from "@/assets/images/home/fashion.webp";
-import bangle from "@/assets/images/home/bangle.webp";
-import trendingCollections from "@/assets/images/home/trending-collection.webp";
 import CustomImg from "../custom-img";
 import Link from "next/link";
 import { helperFunctions } from "@/_helper";
 import leftArrow from "@/assets/icons/centerFocusSliderLeftArrow.svg";
 import rightArrow from "@/assets/icons/centerFocusSliderRightArrow.svg";
-const categories = [
-  {
-    img: tennis,
-    title: "Tennis",
-    altAttr: "",
-    titleAttr: "",
-  },
-  {
-    img: fashion,
-    title: "Fashion",
-    altAttr: "",
-    titleAttr: "",
-  },
-  {
-    img: bangle,
-    title: "Bangle",
-    altAttr: "",
-    titleAttr: "",
-  },
-  {
-    img: trendingCollections,
-    title: "Trending Collections",
-    altAttr: "",
-    titleAttr: "",
-  },
-];
+import { ProgressiveImg } from "@/components/dynamiComponents";
 
-export default function CategoryGallery() {
+export default function CategoryGallery({ categories = [] }) {
   return (
     <section>
       <h2 className="text-center text-2xl md:text-2xl xl:text-3xl 2xl:text-4xl font-semibold uppercase font-castoro">
@@ -91,10 +61,9 @@ export default function CategoryGallery() {
               <SwiperSlide key={`category-${index}`}>
                 <Link href={href}>
                   <div className="flex flex-col">
-                    <CustomImg
-                      srcAttr={category.img}
-                      titleAttr={category.titleAttr}
-                      altAttr={category.altAttr}
+                    <ProgressiveImg
+                      src={category?.image}
+                      alt={category?.alt}
                       className="w-full"
                     />
                     <p className="uppercase mt-3 text-sm lg:text-base 6xl:text-lg font-medium text-baseblack">

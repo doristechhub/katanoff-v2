@@ -37,7 +37,13 @@ export const getSingleCollection = (collectionId) => async (dispatch) => {
     dispatch(setCrudCollectionLoading(true));
     const res = await collectionService.getSingleCollection(collectionId);
     if (res) {
-      let updatedCollection = { ...initCollection, ...res };
+      let updatedCollection = {
+        ...initCollection, ...res,
+        selectedProductsList: (res.products || []).map((product) => ({
+          ...product,
+          selected: true,
+        })),
+      };
       // Desktop Banner Image
       const desktopBannerImageUrl = res?.desktopBannerImage;
       if (desktopBannerImageUrl) {
@@ -72,8 +78,27 @@ export const getSingleCollection = (collectionId) => async (dispatch) => {
           mobileBannerUploadedDeletedImage: [],
         };
       }
+
+      // Thumbnail Image
+      const thumbnailImageUrl = res?.thumbnailImage;
+      if (thumbnailImageUrl) {
+        const url = new URL(thumbnailImageUrl);
+        const fileExtension = url.pathname.split('.').pop();
+        const thumbnailPreviewImageObj = {
+          type: 'old',
+          mimeType: `image/${fileExtension}`,
+          image: thumbnailImageUrl,
+        };
+        updatedCollection = {
+          ...updatedCollection,
+          thumbnailFile: [],
+          thumbnailPreviewImage: [thumbnailPreviewImageObj],
+          thumbnailUploadedDeletedImage: [],
+        };
+      }
+
       dispatch(setSelectedCollection(updatedCollection));
-      return true;
+      return updatedCollection;
     }
   } catch (e) {
     toastError(e);

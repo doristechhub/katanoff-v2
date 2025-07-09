@@ -59,14 +59,14 @@ const sanitizeAndValidateInput = (params) => {
   return sanitized;
 };
 
-const validatePosition = async (categoryId, position, excludeSubCategoryId = null) => {
+const validatePosition = async (categoryId, position, excludeSubCategoryIds = []) => {
   if (!position) return;
   const allSubCategories = await getAllMenuSubCategory();
   const conflictingSubCategory = allSubCategories.find(
     (subCategory) =>
       subCategory.categoryId === categoryId &&
       subCategory.position === position &&
-      subCategory.id !== excludeSubCategoryId
+      !excludeSubCategoryIds.includes(subCategory.id)
   );
   if (conflictingSubCategory) {
     throw new Error(`Position ${position} is already taken for this category`);
@@ -243,7 +243,7 @@ const updateMenuSubCategory = (params) => {
       }
 
       if (position !== null && position !== subCategoryData.position) {
-        await validatePosition(categoryId || subCategoryData.categoryId, position, subCategoryId);
+        await validatePosition(categoryId || subCategoryData.categoryId, position, [subCategoryId]);
       }
 
       let desktopBannerImage = subCategoryData?.desktopBannerImage || null;
@@ -341,9 +341,71 @@ const getAllProductTypesBySubCategoryId = (subCategoryId) => {
   });
 };
 
+const updateMenuSubCategoryPosition = (positions) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!Array.isArray(positions) || !positions.length) {
+        return reject(new Error('Invalid positions data'));
+      }
+
+      // Validate that all subcategories belong to the same category
+      const allSubCategories = await getAllMenuSubCategory();
+      const categoryIds = new Set(
+        positions.map((pos) => {
+          const subCategory = allSubCategories.find((sub) => sub.id === pos.subCategoryId);
+          return subCategory?.categoryId;
+        })
+      );
+      if (categoryIds.size !== 1) {
+        return reject(new Error('All subcategories must belong to the same category'));
+      }
+
+      const categoryId = [...categoryIds][0];
+      if (!categoryId) {
+        return reject(new Error('Category ID not found for subcategories'));
+      }
+
+      // Validate positions
+      const positionSet = new Set();
+      const subCategoryIds = positions.map((pos) => pos.subCategoryId);
+      for (const { subCategoryId, position } of positions) {
+        if (!subCategoryId || !position) {
+          return reject(new Error('Invalid subcategory ID or position'));
+        }
+        const subCategoryData = allSubCategories.find((sub) => sub.id === subCategoryId);
+        if (!subCategoryData) {
+          return reject(new Error(`Subcategory ${subCategoryId} not found`));
+        }
+        if (positionSet.has(position)) {
+          return reject(new Error(`Duplicate position ${position} in update`));
+        }
+        positionSet.add(position);
+        // Validate position, excluding all subcategories in this update batch
+        await validatePosition(categoryId, position, subCategoryIds);
+      }
+
+      // Update positions
+      const updatePromises = positions.map(({ subCategoryId, position }) => {
+        const payload = { position };
+        const updatePattern = {
+          url: `${menuSubCategoriesUrl}/${subCategoryId}`,
+          payload,
+        };
+        return fetchWrapperService._update(updatePattern);
+      });
+
+      await Promise.all(updatePromises);
+      resolve(true);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 export const menuSubCategoryService = {
   getAllMenuSubCategory,
   insertMenuSubCategory,
   updateMenuSubCategory,
   deleteMenuSubCategory,
+  updateMenuSubCategoryPosition,
 };

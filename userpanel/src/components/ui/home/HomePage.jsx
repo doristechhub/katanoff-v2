@@ -1,8 +1,6 @@
 "use client";
 import "swiper/css";
 import "swiper/css/navigation";
-import home18 from "@/assets/images/home/home-18.webp";
-import home19 from "@/assets/images/home/home-19.webp";
 import newArrivalBannerMobile from "@/assets/images/home/newArrivalBannerMobile.png";
 import newArrivalBannerDesktop from "@/assets/images/home/newArrivalBanner-desktop.png";
 
@@ -25,7 +23,13 @@ import { setLoginMessage } from "@/store/slices/userSlice";
 import { useAlertTimeout } from "@/hooks/use-alert-timeout";
 import HeroBanner from "../HeroBanner";
 import CategoryGallery from "./categoryGallery";
-import { helperFunctions, messageType } from "@/_helper";
+import {
+  helperFunctions,
+  messageType,
+  SLIDER_GRID,
+  THREE_GRID,
+  TWO_GRID,
+} from "@/_helper";
 import KeyFeatures from "../KeyFeatures";
 import { setAppointmentMessage } from "@/store/slices/appointmentSlice";
 import { setCustomJewelryMessage } from "@/store/slices/customjewelrySlice";
@@ -34,22 +38,11 @@ import fiveStar from "@/assets/icons/fiveStar.svg";
 import fourStar from "@/assets/icons/fourStar.svg";
 import fourAndHalfStar from "@/assets/icons/fourAndHalfStar.svg";
 import ResponsiveImageAndContent from "../ResponsiveImageAndContent";
-const categoryData = [
-  {
-    title: "Quick Ship Gifts",
-    image: home19,
-    titleAttr: "",
-    altAttr: "",
-    btnText: "SHOP NOW",
-  },
-  {
-    title: "Gifts For Her",
-    image: home18,
-    titleAttr: "",
-    altAttr: "",
-    btnText: "SHOP NOW",
-  },
-];
+import { useEffect } from "react";
+import { fetchCollectionsByTypes } from "@/_actions/collection.action";
+import HomePageSliderSkeleton from "../HomePageSliderSkeleton";
+import TwoGridSkeleton from "../TwoGridSkeleton";
+import ThreeGridSkeleton from "../ThreeGridSkeleton";
 
 const faqData = [
   {
@@ -207,6 +200,9 @@ const Home = () => {
   const { customJewelryMessage } = useSelector(
     ({ customJewelry }) => customJewelry
   );
+  const { collectionsData, collectionsLoading } = useSelector(
+    ({ collection }) => collection
+  );
 
   useAlertTimeout(loginMessage, () =>
     dispatch(setLoginMessage({ message: "", type: "" }))
@@ -219,8 +215,18 @@ const Home = () => {
     dispatch(setCustomJewelryMessage({ message: "", type: "" }))
   );
 
+  useEffect(() => {
+    dispatch(fetchCollectionsByTypes([TWO_GRID, THREE_GRID, SLIDER_GRID]));
+  }, [dispatch]);
+
+  const twoGridData =
+    collectionsData.find((item) => item.type === TWO_GRID)?.data || [];
+  const threeGridData =
+    collectionsData.find((item) => item.type === THREE_GRID)?.data || [];
+  const sliderData =
+    collectionsData.find((item) => item.type === SLIDER_GRID)?.data || [];
+
   let currentUser = helperFunctions?.getCurrentUser();
-  console.log("currentUser", currentUser);
   return (
     <>
       {currentUser ? <HomePagePopupWithLogin /> : <HomePagePopup />}
@@ -239,26 +245,43 @@ const Home = () => {
           "New Arrival"
         )}`}
       />
-
-      <section className="container pt-12 lg:pt-16 2xl:pt-24">
-        <CategoryGallery />
-      </section>
+      {collectionsLoading ? (
+        <HomePageSliderSkeleton />
+      ) : sliderData?.length > 0 ? (
+        <section className="container pt-12 lg:pt-16 2xl:pt-24">
+          <CategoryGallery categories={sliderData} />
+        </section>
+      ) : null}
 
       <section className=" pt-12 lg:pt-16 2xl:pt-20">
         <CenterFocusSlider />
       </section>
+
       <section className="bg-[#F2F2F2] mt-0 sm:mt-2 md:mt-8 lg:mt-12 xl:mt-16">
         <ReviewSlider reviews={mockReviews} totalCount={120} />
       </section>
       <section className="container pt-12 lg:pt-20 2xl:pt-24">
         <KeyFeatures />
       </section>
-      <section className="container pt-12 md:pt-16 2xl:pt-20 4xl:pt-24">
-        <TextAboveImage categoryData={categoryData} textClassName={"castoro"} />
-      </section>
-      <section className="container mx-auto pt-8 lg:pt-6 2xl:pt-6">
-        <GiftCollections />
-      </section>
+
+      {collectionsLoading ? (
+        <TwoGridSkeleton />
+      ) : twoGridData.length > 0 ? (
+        <section className="container pt-12 md:pt-16 2xl:pt-20 4xl:pt-24">
+          <TextAboveImage
+            categoryData={twoGridData}
+            textClassName={"castoro"}
+          />
+        </section>
+      ) : null}
+
+      {collectionsLoading ? (
+        <ThreeGridSkeleton />
+      ) : threeGridData.length > 0 ? (
+        <section className="container mx-auto pt-8 lg:pt-6 2xl:pt-6">
+          <GiftCollections giftCategories={threeGridData} />
+        </section>
+      ) : null}
 
       <section className="pt-12 lg:pt-16 2xl:pt-24">
         <JewelryAppointment />
