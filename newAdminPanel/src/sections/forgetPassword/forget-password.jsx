@@ -177,23 +177,22 @@ export default function ForgetPassword() {
         height: 1,
       }}
     >
-      <Logo
-        sx={{
-          position: 'fixed',
-          top: { xs: 16, md: 24 },
-          left: { xs: 16, md: 24 },
-        }}
-      />
-
       <Stack alignItems="center" justifyContent="center" sx={{ height: 1 }}>
+        <Logo />
         <Card
           sx={{
-            p: 5,
-            width: 1,
-            maxWidth: 420,
+            p: {
+              xs: 3,
+              md: 4,
+            },
+            mt: 5,
+            width: { sm: '100%', md: 460 },
+
+            maxWidth: '100%',
+            mx: 'auto', // center horizontally
           }}
         >
-          <Typography variant="h4" sx={{ mt: 2, mb: 5 }}>
+          <Typography variant="h4" sx={{ mb: 4 }}>
             Forgot Password
           </Typography>
 
