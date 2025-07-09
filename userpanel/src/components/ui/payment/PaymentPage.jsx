@@ -27,7 +27,9 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { helperFunctions, stripePublishableKey } from "@/_helper";
 import { deleteOrder, verifyOrder } from "@/_actions/order.action";
-import { applyCouponCode } from "@/_actions/coupon.action";
+import {
+  checkCouponCodeInCart,
+} from "@/_actions/coupon.action";
 const stripePromise = loadStripe(stripePublishableKey);
 // const appearance = {
 //   theme: "night",
@@ -71,29 +73,19 @@ const PaymentPage = () => {
   }, []);
 
   const getCoupon = localStorage.getItem("appliedCoupon");
-  const userEmail = localStorage.getItem("address");
 
   useEffect(() => {
     const subTotal = helperFunctions?.getSubTotal(cartList);
-    let parsedMail;
-    if (userEmail) {
-      try {
-        const parsedUser = JSON.parse(userEmail);
-        parsedMail = parsedUser?.email;
-      } catch (err) {
-        console.error("Failed to parse userEmail", err);
-      }
-    }
+
     if (!appliedPromoDetail && getCoupon) {
       dispatch(
-        applyCouponCode({
+        checkCouponCodeInCart({
           promoCode: getCoupon,
           orderValue: subTotal,
-          userEmail: parsedMail,
         })
       );
     }
-  }, [dispatch, appliedPromoDetail, cartList, userEmail]);
+  }, [dispatch, appliedPromoDetail, cartList]);
 
   // abortcontroller
   const abortControllerRef = useRef(null);

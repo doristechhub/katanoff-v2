@@ -18,8 +18,10 @@ import {
 import { setCartList } from "@/store/slices/cartSlice";
 import { helperFunctions } from "@/_helper";
 import { useRouter } from "next/navigation";
-import { messageType, PAYPAL } from "@/_helper/constants";
-import { applyCouponCode } from "@/_actions/coupon.action";
+import { messageType } from "@/_helper/constants";
+import {
+  checkCouponCodeInCart,
+} from "@/_actions/coupon.action";
 
 const PaypalForm = ({ orderData }) => {
   const dispatch = useDispatch();
@@ -34,29 +36,19 @@ const PaypalForm = ({ orderData }) => {
   }, [dispatch]);
 
   const getCoupon = localStorage.getItem("appliedCoupon");
-  const userEmail = localStorage.getItem("address");
 
   useEffect(() => {
     const subTotal = helperFunctions.getSubTotal(cartList);
-    let parsedMail;
-    if (userEmail) {
-      try {
-        const parsedUser = JSON.parse(userEmail);
-        parsedMail = parsedUser?.email;
-      } catch (err) {
-        console.error("Failed to parse userEmail", err);
-      }
-    }
+
     if (!appliedPromoDetail && getCoupon) {
       dispatch(
-        applyCouponCode({
+        checkCouponCodeInCart({
           promoCode: getCoupon,
           orderValue: subTotal,
-          userEmail: parsedMail,
         })
       );
     }
-  }, [dispatch, appliedPromoDetail, cartList, userEmail]);
+  }, [dispatch, appliedPromoDetail, cartList]);
 
   const handleSuccessfulPayment = useCallback(
     async (billingAddressData) => {

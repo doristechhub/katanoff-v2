@@ -84,13 +84,22 @@ export default function AppView() {
                 }
               />
             </Grid>
-            <Grid xs={12} sm={6} md={4} lg={5} xl={3}>
+            <Grid xs={12} sm={6} md={4} xl={3}>
               <AppWidgetSummary
                 color="warning"
                 title="Custom Design Request"
                 onClick={() => navigate('/custom-jewelry')}
                 total={dashboardDetail?.customJewelryCount || 0}
                 icon={<Iconify icon="simple-icons:customink" color="#82589F" width={50} />}
+              />
+            </Grid>
+            <Grid xs={12} sm={6} md={4} xl={3}>
+              <AppWidgetSummary
+                color="warning"
+                title="Discounts"
+                onClick={() => navigate('/discounts')}
+                total={dashboardDetail?.discountsCount || 0}
+                icon={<Iconify width={80} color="#FF6B6B" icon="iconamoon:discount" />}
               />
             </Grid>
           </Grid>

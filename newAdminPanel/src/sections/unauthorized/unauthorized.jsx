@@ -57,7 +57,7 @@ export default function NotFoundView() {
           <Typography sx={{ color: 'text.secondary' }}>
             Oops! It looks like you don't have permission to see this yet, please contact the admin.
           </Typography>
-          <Button size="large" sx={{mt : 3}} variant="contained" onClick={logOutHandler}>
+          <Button size="large" sx={{ mt: 3 }} variant="contained" onClick={logOutHandler}>
             Logout
           </Button>
 

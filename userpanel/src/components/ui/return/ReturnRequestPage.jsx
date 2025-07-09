@@ -320,9 +320,10 @@ const ReturnRequestPage = () => {
                       </div>
                       <div className="flex flex-col pt-1 sm:pt-0 sm:items-end sm:justify-end  sm:gap-2">
                         {orderDetail?.discount > 0 && (
-                          <div className="text-red-600 text-sm md:text-base font-semibold flex flex-wrap gap-2">
+                          <div className="text-lightblack text-sm md:text-base font-semibold flex flex-wrap gap-2">
                             <span className="inline xss:block">Discount:</span>
                             <span className="inline xss:block">
+                              -
                               {helperFunctions?.formatCurrencyWithDollar(
                                 helperFunctions?.splitDiscountAmongProducts({
                                   quantityWiseProductPrice:
@@ -330,23 +331,6 @@ const ReturnRequestPage = () => {
                                     cartItem.returnQuantity,
                                   subTotal: orderDetail?.subTotal,
                                   discountAmount: orderDetail?.discount,
-                                })
-                              )}
-                            </span>
-                          </div>
-                        )}
-                        {orderDetail?.salesTax > 0 && (
-                          <div className="text-green-600 text-sm md:text-base font-semibold flex flex-wrap gap-2">
-                            <span className="inline xss:block">Sales Tax:</span>
-                            <span className="inline xss:block">
-                              {helperFunctions?.formatCurrencyWithDollar(
-                                helperFunctions?.splitTaxAmongProducts({
-                                  quantityWiseProductPrice:
-                                    cartItem?.productPrice *
-                                    cartItem.returnQuantity,
-                                  subTotal: orderDetail?.subTotal,
-                                  discountAmount: orderDetail?.discount || 0,
-                                  totalTaxAmount: orderDetail?.salesTax,
                                 })
                               )}
                             </span>
@@ -434,41 +418,28 @@ const ReturnRequestPage = () => {
                   </span>
                 </div>
 
-                {/* Discount */}
-                <div className="text-sm md:text-base flex justify-between w-full max-w-xs font-semibold text-red-600">
+                <div className="text-sm md:text-base flex justify-between w-full max-w-xs font-semibold text-lightblack">
                   <span>Discount:</span>
                   <span>
                     {returnRequestTotalSummary?.discount
                       ? ` - ${helperFunctions?.formatCurrencyWithDollar(
                           returnRequestTotalSummary?.discount
                         )}`
-                      : "N/A"}
+                      : "$0.00"}
                   </span>
                 </div>
 
-                {/* Sales Tax */}
-                <div className="text-sm md:text-base flex justify-between w-full max-w-xs font-semibold text-green-600">
+                <div className="text-sm md:text-base flex justify-between w-full max-w-xs font-semibold text-lightblack">
                   <span>Sales Tax:</span>
                   <span>
                     {returnRequestTotalSummary?.salesTax
                       ? helperFunctions?.formatCurrencyWithDollar(
                           returnRequestTotalSummary?.salesTax
                         )
-                      : "N/A"}
+                      : "$0.00"}
                   </span>
                 </div>
 
-                {/* Service Fees */}
-                <div className="text-sm md:text-base flex justify-between w-full max-w-xs font-semibold text-yellow-400">
-                  <span>Service Fees:</span>
-                  <span>
-                    {returnRequestTotalSummary?.serviceFees
-                      ? ` - ${helperFunctions?.formatCurrencyWithDollar(
-                          returnRequestTotalSummary?.serviceFees
-                        )}`
-                      : "N/A"}
-                  </span>
-                </div>
 
                 {/* Divider */}
                 <hr className="w-full max-w-xs border-t border-gray-300 my-2" />
@@ -484,7 +455,7 @@ const ReturnRequestPage = () => {
                       : "$0.00"}
                   </span>
                 </div>
-                <p className="text-sm text-red-500 font-medium mt-2">
+                <p className="text-sm text-lightblack font-medium mt-2">
                   {ESTIMATE_AMOUNT_NOTE}
                 </p>
               </div>

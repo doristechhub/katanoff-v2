@@ -86,8 +86,9 @@ export default function Nav({ openNav, onCloseNav }) {
         },
       }}
     >
-      <Logo sx={{ mt: 3, ml: 4 }} />
-
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 1 }}>
+        <Logo />
+      </Box>
       {renderAccount}
 
       {renderMenu}

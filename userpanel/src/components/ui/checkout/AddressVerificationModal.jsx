@@ -76,9 +76,6 @@ const AddressVerificationModal = () => {
 
     localStorage.setItem("address", JSON.stringify(formsValue));
     dispatch(setAddressLoader(false));
-    if (appliedPromoDetail) {
-      localStorage.setItem("appliedCoupon", appliedPromoDetail?.promoCode);
-    }
     router.push("/shipping");
     localStorage.removeItem("selectedShippingMethod");
     checkoutModalClose();

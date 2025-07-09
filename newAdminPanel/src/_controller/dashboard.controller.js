@@ -1,6 +1,7 @@
 import {
   appointmentsUrl,
   customizationSubTypeUrl,
+  discountsUrl,
   fetchWrapperService,
   menuSubCategoriesUrl,
   productTypeUrl,
@@ -27,6 +28,7 @@ const getAllDashboardCount = () => {
       const menuCategoryData = await menuCategoryService.getAllMenuCategory();
       const subCategoryData = await fetchWrapperService.getAll(menuSubCategoriesUrl);
       const productTypeData = await fetchWrapperService.getAll(productTypeUrl);
+      const discountsData = await fetchWrapperService.getAll(discountsUrl);
       const customizationTypeData = await customizationTypeService.getAllCustomizationTypes();
       const customizationSubTypeData = await fetchWrapperService.getAll(customizationSubTypeUrl);
       const collectionData = await collectionService.getAllCollection();
@@ -173,6 +175,7 @@ const getAllDashboardCount = () => {
       const userCount = usersData ? Object.values(usersData).length : 0;
       const menuCategoryCount = menuCategoryData.length;
       const subCategoryCount = subCategoryData ? Object.values(subCategoryData).length : 0;
+      const discountsCount = discountsData ? Object.values(discountsData).length : 0;
       const productTypeCount = productTypeData ? Object.values(productTypeData).length : 0;
       const customizationTypeCount = customizationTypeData.length;
       const customizationSubTypeCount = customizationSubTypeData
@@ -183,7 +186,6 @@ const getAllDashboardCount = () => {
       const showCaseBannerCount = showCaseBannerData.length;
       const productSliderCount = productSliderData.length;
       const brandSliderCount = brandSliderData.length;
-
       const countData = {
         productCount,
         orderCount,
@@ -206,6 +208,7 @@ const getAllDashboardCount = () => {
         approvedApptCount,
         rejectedApptCount,
         customJewelryCount,
+        discountsCount,
 
         orderPendingRefundCount,
         orderFailedRefundCount,

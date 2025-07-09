@@ -38,7 +38,7 @@ const createPaymentIntent = async (req, res) => {
   try {
     const userData = req?.userData;
 
-    const allActiveProductsData = await productService.getAllActiveProducts();
+    const activeProductsList = await productService.getAllActiveProducts();
     if (userData) {
       const findPattern = {
         key: "userId",
@@ -49,11 +49,12 @@ const createPaymentIntent = async (req, res) => {
       req.body.cartList = userWiseCartData;
     }
 
-    const { createdOrder } = await createOrder(
-      req.body,
-      allActiveProductsData,
-      res
-    );
+    const { createdOrder } = await createOrder({
+      payload: req.body,
+      activeProductsList,
+      res,
+      userData,
+    });
     if (createdOrder) {
       const {
         id: orderId,
@@ -258,7 +259,7 @@ const cancelPaymentIntent = async (req, res) => {
   }
 };
 
-const createOrder = async (payload, activeProductsList, res) => {
+const createOrder = async ({ payload, activeProductsList, res, userData }) => {
   try {
     let {
       cartList,
@@ -499,10 +500,9 @@ const createOrder = async (payload, activeProductsList, res) => {
     if (promoCode) {
       const promoValidation = await discountService.validatePromoCode({
         promoCode,
-        userId,
         subTotal,
-        userEmail: email,
         orderService,
+        userData,
       });
       if (!promoValidation?.valid) {
         return res.json({

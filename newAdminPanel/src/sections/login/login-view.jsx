@@ -165,25 +165,22 @@ export default function LoginView() {
         justifyContent: 'center',
       }}
     >
-      <Logo
-        sx={{
-          ml: 3,
-          top: 0,
-          left: 0,
-          display: 'block',
-          position: 'absolute',
-        }}
-      />
-
       <Stack alignItems="center" justifyContent="center" sx={{ height: 1 }}>
+        <Logo />
         <Card
           sx={{
-            p: 5,
-            width: 1,
-            maxWidth: 420,
+            p: {
+              xs: 3,
+              md: 4,
+            },
+            mt: 5,
+            width: { sm: '100%', md: 460 },
+
+            maxWidth: '100%',
+            mx: 'auto', // center horizontally
           }}
         >
-          <Typography variant="h4" sx={{ mt: 2, mb: 5 }}>
+          <Typography variant="h4" sx={{ mb: 3 }}>
             Sign in
           </Typography>
 

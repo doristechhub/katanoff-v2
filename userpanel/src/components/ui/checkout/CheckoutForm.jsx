@@ -33,6 +33,9 @@ import {
   setCouponCode,
   setUserEmail,
 } from "@/store/slices/couponSlice";
+import {
+  checkCouponCodeInCart,
+} from "@/_actions/coupon.action";
 
 const countries = Country.getAllCountries();
 
@@ -84,6 +87,20 @@ const CheckoutForm = () => {
       clearAbortController(); // Cancel request on unmount/route change
     };
   }, []);
+
+  const getCoupon = localStorage.getItem("appliedCoupon");
+
+  useEffect(() => {
+    const subTotal = helperFunctions?.getSubTotal(cartList);
+    if (!appliedPromoDetail && getCoupon) {
+      dispatch(
+        checkCouponCodeInCart({
+          promoCode: getCoupon,
+          orderValue: subTotal,
+        })
+      );
+    }
+  }, [dispatch, appliedPromoDetail, cartList]);
 
   let initialValues = useMemo(() => {
     return {
@@ -238,7 +255,6 @@ const CheckoutForm = () => {
 
     dispatch(setCouponCode(""));
     dispatch(setAppliedPromoDetail(null));
-    localStorage.removeItem("appliedCoupon");
     if (address) {
       address = JSON.parse(address);
       const updatedValues = {
@@ -418,12 +434,14 @@ const CheckoutForm = () => {
                 <input
                   type="email"
                   placeholder="Your Email"
-                  className={`custom-input ${inputClassName}`}
+                  className={`custom-input ${inputClassName} ${
+                    !!currentUser?.email ? "!bg-[#f1f1f1] " : ""
+                  }`}
                   name="email"
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values?.email || ""}
-                  readOnly={!!currentUser?.email} // 👈 this line disables editing if currentUser.email exists
+                  readOnly={!!currentUser?.email}
                 />
 
                 {touched?.email && errors?.email && (

@@ -404,50 +404,12 @@ const ReturnDetail = () => {
                               </span>
                             </Typography>
                             <Divider />
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                fontWeight: 'bold',
-                                fontSize: '0.9rem',
-                              }}
-                            >
-                              <span>Estimated Total:</span>
-                              <span>
-                                {selectedReturn.returnRequestAmount > 0
-                                  ? fCurrency(selectedReturn.returnRequestAmount)
-                                  : 'N/A'}
-                              </span>
-                            </Typography>
-                            {selectedReturn?.refundAmount &&
-                            selectedReturn?.returnRequestAmount - selectedReturn?.refundAmount >
-                              0 ? (
+                            {Number(selectedReturn?.refundAmount) ===
+                            Number(selectedReturn?.returnRequestAmount) ? (
+                              // ✅ Full refund - only show refunded amount
                               <Typography
-                                marginTop={'10px'}
                                 variant="caption"
-                                color={'error.main'}
-                                sx={{
-                                  display: 'flex',
-                                  justifyContent: 'space-between',
-                                  fontWeight: 'bold',
-                                  fontSize: '0.9rem',
-                                }}
-                              >
-                                <span>Deducted Amount:</span>
-                                <span>
-                                  -
-                                  {fCurrency(
-                                    selectedReturn?.returnRequestAmount -
-                                      selectedReturn?.refundAmount
-                                  )}
-                                </span>
-                              </Typography>
-                            ) : null}
-                            {selectedReturn?.refundAmount && (
-                              <Typography
                                 marginTop={'10px'}
-                                variant="caption"
                                 backgroundColor={'#F3F3F4'}
                                 padding={'10px'}
                                 borderRadius={'4px'}
@@ -461,6 +423,68 @@ const ReturnDetail = () => {
                                 <span>Refunded Amount:</span>
                                 <span>{fCurrency(selectedReturn?.refundAmount)}</span>
                               </Typography>
+                            ) : (
+                              <>
+                                {/* ✅ Estimated Total */}
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.9rem',
+                                  }}
+                                >
+                                  <span>Estimated Total:</span>
+                                  <span>
+                                    {selectedReturn?.returnRequestAmount > 0
+                                      ? fCurrency(selectedReturn.returnRequestAmount)
+                                      : 'N/A'}
+                                  </span>
+                                </Typography>
+
+                                {/* ✅ Deducted Amount */}
+                                {selectedReturn?.refundAmount > 0 && (
+                                  <Typography
+                                    variant="caption"
+                                    sx={{
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      fontSize: '0.9rem',
+                                      color: 'text.secondary',
+                                    }}
+                                  >
+                                    <span>Deducted Amount:</span>
+                                    <span>
+                                      -
+                                      {fCurrency(
+                                        selectedReturn.returnRequestAmount -
+                                          selectedReturn.refundAmount
+                                      )}
+                                    </span>
+                                  </Typography>
+                                )}
+
+                                {/* ✅ Refunded Amount */}
+                                {selectedReturn?.refundAmount > 0 && (
+                                  <Typography
+                                    marginTop={'10px'}
+                                    variant="caption"
+                                    backgroundColor={'#F3F3F4'}
+                                    padding={'10px'}
+                                    borderRadius={'4px'}
+                                    sx={{
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      fontWeight: 'bold',
+                                      fontSize: '0.9rem',
+                                    }}
+                                  >
+                                    <span>Refunded Amount:</span>
+                                    <span>{fCurrency(selectedReturn?.refundAmount)}</span>
+                                  </Typography>
+                                )}
+                              </>
                             )}
                             <Typography
                               variant="caption"
