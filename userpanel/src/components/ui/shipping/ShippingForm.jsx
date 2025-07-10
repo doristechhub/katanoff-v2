@@ -23,12 +23,7 @@ import {
 } from "@/store/slices/checkoutSlice";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { LoadingPrimaryButton } from "../button";
 import { setIsHovered, setIsSubmitted } from "@/store/slices/commonSlice";
@@ -38,7 +33,7 @@ import {
   setPaypalPaymentMessage,
 } from "@/store/slices/paymentSlice";
 import { CustomImg } from "@/components/dynamiComponents";
-import { checkCouponCodeInCart } from "@/_actions/coupon.action";
+import { verifyCouponCode } from "@/_actions/coupon.action";
 const paymentOptions = [
   {
     value: STRIPE,
@@ -119,7 +114,7 @@ const shippingForm = () => {
 
     if (!appliedPromoDetail && getCoupon) {
       dispatch(
-        checkCouponCodeInCart({
+        verifyCouponCode({
           promoCode: getCoupon,
           orderValue: subTotal,
         })

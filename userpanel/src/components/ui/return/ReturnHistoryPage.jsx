@@ -1,17 +1,13 @@
 "use client";
 import { fetchOrderHistory } from "@/_actions/order.action";
-import { helperFunctions, messageType } from "@/_helper";
+import { messageType } from "@/_helper";
 import { ITEMS_PER_PAGE } from "@/_utils/common";
-import CommonBgHeading from "@/components/ui/CommonBgHeading";
-import CustomBadge from "@/components/ui/CustomBadge";
 import Pagination from "@/components/ui/Pagination";
 import SkeletonLoader from "@/components/ui/skeletonLoader";
 import moment from "moment";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { IoEyeSharp } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
-import CancelOrder from "@/components/ui/order-history/CancelOrder";
 import { setShowModal } from "@/store/slices/commonSlice";
 import Alert from "@/components/ui/Alert";
 import { useAlertTimeout } from "@/hooks/use-alert-timeout";
@@ -20,13 +16,11 @@ import {
   setCurrentPage,
   setReturnLoader,
   setReturnMessage,
+  setReturnOrder,
 } from "@/store/slices/returnSlice";
-import CancelReturnRequest from "./CancelReturnRequest";
 import { CustomImg } from "@/components/dynamiComponents";
 import threeDots from "@/assets/icons/3dots.svg";
-import deleteRed from "@/assets/icons/deleteRed.svg";
 import eye from "@/assets/icons/eye.svg";
-import download from "@/assets/icons/download.svg";
 
 // Import Floating UI
 import {
@@ -43,10 +37,13 @@ import {
   useInteractions,
 } from "@floating-ui/react";
 import CommonNotFound from "../CommonNotFound";
+import { RxCross2 } from "react-icons/rx";
+import CancelReturnRequestModel from "./CancelReturnRequestModel";
 
 export default function ReturnHistoryPage() {
   const [openId, setOpenId] = useState(null);
   const dropdownRef = useRef(null);
+  const { showModal } = useSelector(({ common }) => common);
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -131,19 +128,19 @@ export default function ReturnHistoryPage() {
     return (
       <thead className="text-xs lg:text-sm text-basegray uppercase bg-[#00000005] dark:text-gray-400">
         <tr>
-          <th scope="col" className="px-6 py-3.5">
+          <th scope="col" className="px-6 py-3.5 whitespace-nowrap">
             Request Date
           </th>
-          <th scope="col" className="px-6 py-3.5">
+          <th scope="col" className="px-6 py-3.5 whitespace-nowrap">
             Order Number
           </th>
-          <th scope="col" className="px-6 py-3.5">
+          <th scope="col" className="px-6 py-3.5 whitespace-nowrap">
             Return Payment Status
           </th>
-          <th scope="col" className="px-6 py-3.5">
+          <th scope="col" className="px-6 py-3.5 whitespace-nowrap">
             Return Status
           </th>
-          <th scope="col" className="px-6 py-3.5">
+          <th scope="col" className="px-6 py-3.5 whitespace-nowrap">
             Action
           </th>
         </tr>
@@ -156,7 +153,7 @@ export default function ReturnHistoryPage() {
         <Alert message={returnMessage.message} type={returnMessage.type} />
       )}
 
-      <div className="container my-10 relative overflow-x-auto pb-4">
+      <div className="container my-8 relative overflow-x-auto pb-4">
         {returnLoader ? (
           <div className={`w-full h-[300px] animate-pulse`}>
             <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 shadow-lg">
@@ -256,16 +253,27 @@ export default function ReturnHistoryPage() {
                 <>
                   {currentOrder?.status === "pending" &&
                     currentOrder?.returnPaymentStatus === "pending" && (
-                      <div className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray">
-                        <CancelReturnRequest returnId={currentOrder?.id} />
-                        Delete
-                      </div>
+                      <button
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray"
+                        onClick={() => {
+                          dispatch(setShowModal(true));
+                          dispatch(setReturnOrder(openId));
+                          setOpenId(null); // Close dropdown
+                        }}
+                      >
+                        <RxCross2
+                          title="Cancel Order"
+                          className={`text-xl !text-[#DC3545]`}
+                        />
+                        Cancel
+                      </button>
                     )}
                 </>
               );
             })()}
           </div>
         )}
+        {showModal && <CancelReturnRequestModel />}
       </div>
       {!returnLoader && returnsList.length > ITEMS_PER_PAGE && (
         <Pagination handlePageClick={handlePageClick} pageCount={pageCount} />

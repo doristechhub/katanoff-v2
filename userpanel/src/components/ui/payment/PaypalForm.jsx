@@ -20,7 +20,7 @@ import { helperFunctions } from "@/_helper";
 import { useRouter } from "next/navigation";
 import { messageType } from "@/_helper/constants";
 import {
-  checkCouponCodeInCart,
+  verifyCouponCode,
 } from "@/_actions/coupon.action";
 
 const PaypalForm = ({ orderData }) => {
@@ -42,7 +42,7 @@ const PaypalForm = ({ orderData }) => {
 
     if (!appliedPromoDetail && getCoupon) {
       dispatch(
-        checkCouponCodeInCart({
+        verifyCouponCode({
           promoCode: getCoupon,
           orderValue: subTotal,
         })

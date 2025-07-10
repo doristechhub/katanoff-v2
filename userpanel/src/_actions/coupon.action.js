@@ -1,9 +1,4 @@
-import {
-  FIXED,
-  messageType,
-  ONE_TIME,
-  PERCENTAGE,
-} from "@/_helper";
+import { FIXED, messageType, ONE_TIME, PERCENTAGE } from "@/_helper";
 import { couponService } from "@/_services";
 import {
   setAppliedPromoDetail,
@@ -13,7 +8,7 @@ import {
   setPromoCodeLoading,
 } from "@/store/slices/couponSlice";
 
-export const checkCouponCodeInCart = ({ promoCode, orderValue }) => {
+export const verifyCouponCode = ({ promoCode, orderValue }) => {
   return async (dispatch) => {
     try {
       const trimmedCode = promoCode?.trim();
@@ -37,7 +32,7 @@ export const checkCouponCodeInCart = ({ promoCode, orderValue }) => {
       }
       dispatch(setPromoCodeLoading(true));
 
-      const matchedCoupon = await couponService?.VerifyCouponCodeInCart({
+      const matchedCoupon = await couponService?.validateCoupon({
         promoCode: trimmedCode,
         orderValue,
       });

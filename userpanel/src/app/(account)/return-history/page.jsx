@@ -4,8 +4,11 @@ import React from "react";
 
 const ReturnHistory = () => {
   return (
-    <div className="pt-12">
-      <CommonBgHeading title="Return History" />
+    <div className="sm:pt-12">
+      <CommonBgHeading
+        title="Return History"
+        titleClassName="!text-[26px] md:!text-3xl"
+      />
       <ReturnHistoryPage />
     </div>
   );

@@ -20,16 +20,16 @@ const Modal = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top: Title & Close */}
-        <div className="flex justify-between items-center px-8 pt-8 pb-6 bg-white">
+        <div className="flex justify-between items-center px-8 pt-6 pb-4 bg-white">
           <h2
-            className={`font-castoro text-lg md:text-xl xl:text-2xl text-baseblack ${titleClassName}`}
+            className={`font-castoro text-xl md:text-2xl xl:text-2xl text-baseblack ${titleClassName}`}
           >
             {title}
           </h2>
         </div>
 
         {/* Middle: Content */}
-        <div className="px-8 py-6">{children}</div>
+        <div className="px-8 py-4">{children}</div>
 
         {/* Bottom: Footer */}
         {footer && <div className="px-8 pb-6 pt-2 ">{footer}</div>}

@@ -81,7 +81,7 @@ export default function CancelReturnRequestModel() {
         {({ isValid }) => (
           <Form>
             <div className="mb-4">
-              <label htmlFor="reason" className="block text-base font-semibold">
+              <label htmlFor="reason" className="block text-lg font-semibold">
                 Reason
               </label>
               <Field
@@ -103,7 +103,7 @@ export default function CancelReturnRequestModel() {
               <ErrorMessage message={returnMessage.message} className="mb-3" />
             )}
 
-            <div className="flex gap-6">
+            <div className="flex gap-4">
               <GrayButton
                 title="CANCEL"
                 onClick={() => dispatch(setShowModal(false))}

@@ -23,7 +23,7 @@ const getAllPromoCodes = () => {
   });
 };
 
-const VerifyCouponCodeInCart = async ({ promoCode, orderValue }) => {
+const validateCoupon = async ({ promoCode, orderValue }) => {
   return new Promise(async (resolve, reject) => {
     try {
       const allCoupons = await getAllPromoCodes();
@@ -136,5 +136,5 @@ const VerifyCouponCodeInCart = async ({ promoCode, orderValue }) => {
 
 export const couponService = {
   getAllPromoCodes,
-  VerifyCouponCodeInCart,
+  validateCoupon,
 };

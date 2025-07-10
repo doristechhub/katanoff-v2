@@ -97,39 +97,39 @@ const PaymentForm = ({ orderId }) => {
     dispatch(clearPaymentMessage());
   };
 
-  const addressesMatch = (shipping, billing) => {
-    const isValidShipping =
-      shipping &&
-      shipping.address &&
-      shipping.city &&
-      shipping.country &&
-      shipping.pinCode &&
-      shipping.stateCode;
-    const isValidBilling =
-      billing &&
-      billing.line1 &&
-      billing.city &&
-      billing.country &&
-      billing.postal_code &&
-      billing.state;
-    if (!isValidShipping || !isValidBilling) {
-      return false;
-    }
-    const matches = {
-      address:
-        shipping?.address?.toLowerCase() === billing?.line1?.toLowerCase(),
-      city: shipping?.city?.toLowerCase() === billing?.city?.toLowerCase(),
-      country:
-        shipping?.country?.toLowerCase() === billing.country?.toLowerCase(),
-      postal_code:
-        shipping.pinCode?.toString().toLowerCase() ===
-        billing?.postal_code?.toLowerCase(),
-      state:
-        shipping?.stateCode?.toLowerCase() === billing?.state?.toLowerCase(),
-    };
+  // const addressesMatch = (shipping, billing) => {
+  //   const isValidShipping =
+  //     shipping &&
+  //     shipping.address &&
+  //     shipping.city &&
+  //     shipping.country &&
+  //     shipping.pinCode &&
+  //     shipping.stateCode;
+  //   const isValidBilling =
+  //     billing &&
+  //     billing.line1 &&
+  //     billing.city &&
+  //     billing.country &&
+  //     billing.postal_code &&
+  //     billing.state;
+  //   if (!isValidShipping || !isValidBilling) {
+  //     return false;
+  //   }
+  //   const matches = {
+  //     address:
+  //       shipping?.address?.toLowerCase() === billing?.line1?.toLowerCase(),
+  //     city: shipping?.city?.toLowerCase() === billing?.city?.toLowerCase(),
+  //     country:
+  //       shipping?.country?.toLowerCase() === billing.country?.toLowerCase(),
+  //     postal_code:
+  //       shipping.pinCode?.toString().toLowerCase() ===
+  //       billing?.postal_code?.toLowerCase(),
+  //     state:
+  //       shipping?.stateCode?.toLowerCase() === billing?.state?.toLowerCase(),
+  //   };
 
-    return Object.values(matches).every((value) => value === true);
-  };
+  //   return Object.values(matches).every((value) => value === true);
+  // };
 
   const onExpressCheckoutReady = ({ element }) => {
     console.log("ExpressCheckoutElement ready:", element);
@@ -165,18 +165,18 @@ const PaymentForm = ({ orderId }) => {
         }
 
         // Validate addresses if billingAddress is provided (not for Express Checkout)
-        if (
-          billingAddress &&
-          !addressesMatch(orderData.shippingAddress, billingAddress)
-        ) {
-          dispatch(
-            setPaymentMessage({
-              message: "The shipping address does not match the card address.",
-              type: messageType.ERROR,
-            })
-          );
-          return false;
-        }
+        // if (
+        //   billingAddress &&
+        //   !addressesMatch(orderData.shippingAddress, billingAddress)
+        // ) {
+        //   dispatch(
+        //     setPaymentMessage({
+        //       message: "The shipping address does not match the card address.",
+        //       type: messageType.ERROR,
+        //     })
+        //   );
+        //   return false;
+        // }
 
         const { error, paymentIntent } = await stripe.confirmPayment({
           elements,
