@@ -47,10 +47,7 @@ import ErrorMessage from "../ErrorMessage";
 import DiamondDetailDrawer from "../customize/DiamondDetailDrawer";
 import { paymentOptions } from "@/_utils/paymentOptions";
 import { setCouponCode, setCouponMessage } from "@/store/slices/couponSlice";
-import {
-  checkCouponCodeInCart,
-  removeCouponCode,
-} from "@/_actions/coupon.action";
+import { verifyCouponCode, removeCouponCode } from "@/_actions/coupon.action";
 const maxQuantity = 5;
 const minQuantity = 1;
 
@@ -92,7 +89,7 @@ const CartPage = () => {
     const calculatedOrderValue =
       orderValue !== null ? orderValue : getSubTotal();
     dispatch(
-      checkCouponCodeInCart({
+      verifyCouponCode({
         promoCode: couponCode,
         orderValue: calculatedOrderValue,
       })
@@ -496,7 +493,9 @@ const CartPage = () => {
                 <input
                   type="text"
                   placeholder="Enter Promo Code"
-                  className="w-full bg-transparent border border-grayborder px-4 py-2 focus:outline-none"
+                  className={`w-full bg-transparent border border-grayborder px-4 py-2 focus:outline-none  ${
+                    appliedPromoDetail ? "!bg-[#f1f1f1]" : ""
+                  }`}
                   value={couponCode}
                   onChange={(e) => {
                     dispatch(setCouponCode(e.target.value));
@@ -511,7 +510,9 @@ const CartPage = () => {
                   onMouseLeave={() => dispatch(setIsHovered(false))}
                 >
                   <LoadingPrimaryButton
-                    className="w-full uppercase"
+                    className={`w-full uppercase ${
+                      appliedPromoDetail ? "" : ""
+                    }`}
                     loading={promoCodeLoading}
                     loaderType={isHovered ? "" : "white"}
                     onClick={() =>

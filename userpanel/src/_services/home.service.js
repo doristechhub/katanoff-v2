@@ -33,6 +33,7 @@ export const getAllMenuList = () => {
       ) => {
         return menuData.productTypes
           .filter((productType) => productType.subCategoryId === subCategoryId)
+          .sort((a, b) => a.position - b.position) // Sort product types by position
           .map((productType) => {
             const type = "productTypes";
             const encodedProductType =
@@ -99,6 +100,7 @@ export const getAllMenuList = () => {
     }
   });
 };
+
 export const homeService = {
   getAllMenuList,
   getAllMenuData,

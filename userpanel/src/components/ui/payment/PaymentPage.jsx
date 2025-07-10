@@ -28,7 +28,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { helperFunctions, stripePublishableKey } from "@/_helper";
 import { deleteOrder, verifyOrder } from "@/_actions/order.action";
 import {
-  checkCouponCodeInCart,
+  verifyCouponCode,
 } from "@/_actions/coupon.action";
 const stripePromise = loadStripe(stripePublishableKey);
 // const appearance = {
@@ -79,7 +79,7 @@ const PaymentPage = () => {
 
     if (!appliedPromoDetail && getCoupon) {
       dispatch(
-        checkCouponCodeInCart({
+        verifyCouponCode({
           promoCode: getCoupon,
           orderValue: subTotal,
         })

@@ -69,11 +69,12 @@ const RefundReturnsDialog = ({
     () => Number(selectedReturn?.returnRequestAmount?.toFixed(2)),
     [selectedReturn]
   );
+
   const refundValidationSchema = Yup.object().shape({
     refundAmount: Yup.number()
-      .max(maxAmount, `Max refund amount must be less or equal to ${maxAmount}`)
-      .required('Refund Amount is required')
-      .positive('Refund Amount must be positive'),
+      .positive('Refund Amount must be greater than 0')
+      .max(maxAmount, `Refund amount must be less or equal to ${maxAmount}`)
+      .required('Refund Amount is required'),
     refundDescription: Yup.string(),
   });
 
@@ -83,6 +84,16 @@ const RefundReturnsDialog = ({
     initialValues: selectedRefundReturn,
     validationSchema: refundValidationSchema,
   });
+
+  // Handler to select input value on click
+  const handleInputClick = (event) => {
+    event.target.select();
+  };
+
+  // Handler to disable mouse wheel value change
+  const handleWheel = (event) => {
+    event.target.blur();
+  };
 
   return (
     <>
@@ -104,6 +115,8 @@ const RefundReturnsDialog = ({
             name="refundAmount"
             onBlur={refundFormik.handleBlur}
             onChange={refundFormik.handleChange}
+            onClick={handleInputClick}
+            onWheel={handleWheel}
             value={refundFormik.values?.refundAmount || ''}
             error={!!(refundFormik.touched?.refundAmount && refundFormik.errors?.refundAmount)}
             helperText={
@@ -157,6 +170,10 @@ const RefundReturnsDialog = ({
             variant="contained"
             loading={refundReturnLoading}
             onClick={refundFormik.handleSubmit}
+            disabled={
+              refundReturnLoading ||
+              !!(refundFormik.touched?.refundAmount && refundFormik.errors?.refundAmount)
+            }
           >
             Refund Payment
           </LoadingButton>

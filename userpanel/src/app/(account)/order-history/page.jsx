@@ -3,29 +3,26 @@ import { fetchOrderHistory } from "@/_actions/order.action";
 import { helperFunctions, messageType } from "@/_helper";
 import { ITEMS_PER_PAGE } from "@/_utils/common";
 import CommonBgHeading from "@/components/ui/CommonBgHeading";
-import CustomBadge from "@/components/ui/CustomBadge";
 import Pagination from "@/components/ui/Pagination";
 import SkeletonLoader from "@/components/ui/skeletonLoader";
-import Spinner from "@/components/ui/spinner";
-import { setCurrentPage, setOrderMessage } from "@/store/slices/orderSlice";
+import {
+  setCurrentPage,
+  setOrderMessage,
+  setSelectedOrder,
+} from "@/store/slices/orderSlice";
 import moment from "moment";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { IoEyeSharp } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { setOrderLoading } from "../../../store/slices/orderSlice";
-import CancelOrder from "@/components/ui/order-history/CancelOrder";
 import DownloadInvoice from "@/components/ui/order-history/downloadInvoice";
 import { setShowModal } from "@/store/slices/commonSlice";
 import Alert from "@/components/ui/Alert";
 import { useAlertTimeout } from "@/hooks/use-alert-timeout";
-import { TbTruckReturn } from "react-icons/tb";
 import returnRequestSvg from "@/assets/icons/returnRequest.svg";
 import { CustomImg } from "@/components/dynamiComponents";
 import threeDots from "@/assets/icons/3dots.svg";
-import deleteRed from "@/assets/icons/deleteRed.svg";
 import eye from "@/assets/icons/eye.svg";
-import download from "@/assets/icons/download.svg";
 
 // Import Floating UI
 import {
@@ -42,11 +39,14 @@ import {
   useInteractions,
 } from "@floating-ui/react";
 import CommonNotFound from "@/components/ui/CommonNotFound";
+import { RxCross2 } from "react-icons/rx";
+import CancelOrderModal from "@/components/ui/order-history/OrderCancelModel";
 
 export default function OrderHistoryPage() {
   // In your main file (above the return)
   const [openId, setOpenId] = useState(null);
   const dropdownRef = useRef(null);
+  const { showModal } = useSelector(({ common }) => common);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -144,29 +144,33 @@ export default function OrderHistoryPage() {
           <th scope="col" className="px-6 py-3.5">
             Order Number
           </th>
-          <th scope="col" className="px-6 py-3.5">
+          <th scope="col" className="px-6 py-3.5 whitespace-nowrap">
             Total
           </th>
           {/* <th scope="col" className="px-6 py-3.5">
             Payment Status
           </th> */}
-          <th scope="col" className="px-6 py-3.5">
+          <th scope="col" className="px-6 py-3.5 whitespace-nowrap">
             Order Status
           </th>
-          <th scope="col" className="px-3 py-3.5">
+          <th scope="col" className="px-3 py-3.5 whitespace-nowrap">
             Action
           </th>
         </tr>
       </thead>
     );
   };
+
   return (
     <>
       {orderMessage?.type === messageType.SUCCESS && (
         <Alert message={orderMessage.message} type={orderMessage.type} />
       )}
-      <div className="pt-12">
-        <CommonBgHeading title="Order History" />
+      <div className="sm:pt-12 pt-2">
+        <CommonBgHeading
+          title="Order History"
+          titleClassName="!text-[26px] md:!text-3xl"
+        />
       </div>
       <div className="container my-10 relative overflow-x-auto pb-4">
         {orderLoading ? (
@@ -211,10 +215,10 @@ export default function OrderHistoryPage() {
                       : null}
                   </th>
                   <td className="px-6 py-4">{order?.orderNumber}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     $ {helperFunctions?.toFixedNumber(order?.total)}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     {helperFunctions?.capitalizeCamelCase(order?.orderStatus)}
                   </td>
 
@@ -272,13 +276,20 @@ export default function OrderHistoryPage() {
                     currentOrder?.orderStatus
                   ) &&
                     currentOrder?.paymentStatus === "success" && (
-                      <div className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray">
-                        <CancelOrder
-                          orderId={openId}
-                          onSuccess={() => setOpenId(null)}
+                      <button
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray"
+                        onClick={() => {
+                          dispatch(setShowModal(true));
+                          dispatch(setSelectedOrder(openId));
+                          setOpenId(null); // Close dropdown
+                        }}
+                      >
+                        <RxCross2
+                          title="Cancel Order"
+                          className={`text-xl text-[#DC3545]`}
                         />
-                        Delete
-                      </div>
+                        Cancel
+                      </button>
                     )}
 
                   {currentOrder?.orderStatus === "delivered" &&
@@ -318,6 +329,7 @@ export default function OrderHistoryPage() {
             })()}
           </div>
         )}
+        {showModal && <CancelOrderModal />}
       </div>
       {!orderLoading && orderList?.length > ITEMS_PER_PAGE && (
         <Pagination handlePageClick={handlePageClick} pageCount={pageCount} />

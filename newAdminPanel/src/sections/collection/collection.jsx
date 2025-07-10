@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import {
   Box,
   Card,
@@ -16,10 +17,14 @@ import {
   Typography,
   TableContainer,
   InputAdornment,
-  TablePagination,
 } from '@mui/material';
+import { alpha, keyframes } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
-import { deleteCollection, getCollectionList } from 'src/actions/collectionActions';
+import {
+  deleteCollection,
+  getCollectionList,
+  updateCollectionPosition,
+} from 'src/actions/collectionActions';
 import Iconify from 'src/components/iconify';
 import Spinner from 'src/components/spinner';
 import Scrollbar from 'src/components/scrollbar';
@@ -27,60 +32,124 @@ import { Button } from 'src/components/button';
 import ConfirmationDialog from 'src/components/confirmation-dialog';
 import ProgressiveImg from 'src/components/progressive-img';
 import { helperFunctions } from 'src/_helpers';
+import { COLLECTION_TYPES } from 'src/_helpers/constants';
 
-// ----------------------------------------------------------------------
+// Bounce animation for arrow
+const bounce = keyframes`
+  0% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.2) rotate(0deg); }
+  100% { transform: scale(1) rotate(180deg); }
+`;
 
 const Collection = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [page, setPage] = useState(0);
   const [open, setOpen] = useState(null);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchedValue, setSearchedValue] = useState('');
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [filterByType, setFilterByType] = useState('all');
   const [selectedCollectionId, setSelectedCollectionId] = useState();
+  const [expandedTypes, setExpandedTypes] = useState({});
 
   const { collectionLoading, collectionList, crudCollectionLoading } = useSelector(
     ({ collection }) => collection
   );
 
-  const searchKey = searchedValue?.trim()?.toLowerCase();
+  useEffect(() => {
+    const initialExpanded = {};
+    Object.keys(COLLECTION_TYPES).forEach((type) => {
+      initialExpanded[type] = true;
+    });
+    setExpandedTypes(initialExpanded);
+  }, []);
 
-  let filteredItems = collectionList?.filter((item) => {
-    const titleMatch = item?.title?.toLowerCase()?.includes(searchKey);
-    const typeMatch = filterByType === 'all' || item?.type === filterByType;
-    return titleMatch && typeMatch;
-  });
+  const toggleType = useCallback((type) => {
+    setExpandedTypes((prev) => ({
+      ...prev,
+      [type]: !prev[type],
+    }));
+  }, []);
 
-  filteredItems = filteredItems?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const groupedItems = useMemo(() => {
+    const grouped = {};
+    collectionList
+      .filter((item) => item && item.id)
+      .forEach((item) => {
+        const type = item.type || 'default';
+        if (!grouped[type]) {
+          grouped[type] = [];
+        }
+        grouped[type].push(item);
+      });
+    Object.keys(grouped).forEach((type) => {
+      grouped[type].sort((a, b) => (a.position || 0) - (b.position || 0));
+    });
+    return grouped;
+  }, [collectionList]);
 
-  const loadData = useCallback(
-    (cPage = page) => {
-      dispatch(getCollectionList());
-      setPage(cPage);
-    },
-    [dispatch, page]
-  );
+  const filteredItems = useMemo(() => {
+    const searchKey = searchedValue?.trim()?.toLowerCase();
+    let items = collectionList?.filter((item) => item?.title?.toLowerCase()?.includes(searchKey));
+    if (filterByType !== 'all') {
+      items = items.filter((item) => (item.type || 'default') === filterByType);
+    }
+    return items;
+  }, [collectionList, searchedValue, filterByType]);
+
+  const groupedFilteredItems = useMemo(() => {
+    const grouped = {};
+    filteredItems.forEach((item) => {
+      const type = item.type || 'default';
+      if (!grouped[type]) {
+        grouped[type] = [];
+      }
+      grouped[type].push(item);
+    });
+    return grouped;
+  }, [filteredItems]);
+
+  const loadData = useCallback(() => {
+    dispatch(getCollectionList());
+  }, [dispatch]);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   const searchValueHandler = useCallback((event) => {
     setSearchedValue(event.target.value);
-    setPage(0);
   }, []);
 
-  const handleChangePage = useCallback((event, newPage) => {
-    setPage(newPage);
-  }, []);
+  const handleDragEnd = useCallback(
+    async (result) => {
+      const { source, destination } = result;
+      if (
+        !destination ||
+        source.index === destination.index ||
+        source.droppableId !== destination.droppableId
+      ) {
+        return;
+      }
 
-  const handleChangeRowsPerPage = useCallback((event) => {
-    setPage(0);
-    setRowsPerPage(parseInt(event.target.value, 10));
-  }, []);
+      const type = source.droppableId;
+      const updatedCollections = [...(groupedItems[type] || [])];
+      const [movedCollection] = updatedCollections.splice(source.index, 1);
+      updatedCollections.splice(destination.index, 0, movedCollection);
 
+      const updatedItems = updatedCollections.map((collection, index) => ({
+        collectionId: collection?.id,
+        position: index + 1,
+      }));
+
+      try {
+        await dispatch(updateCollectionPosition(updatedItems));
+      } catch (error) {
+        console.error('Error updating positions:', error);
+        toast.error('Failed to update collection positions');
+      }
+    },
+    [dispatch, groupedItems]
+  );
   const handlePopup = useCallback(
     (e, reason) => {
       if (crudCollectionLoading && reason === 'backdropClick') return;
@@ -97,12 +166,11 @@ const Collection = () => {
   const handleDelete = useCallback(async () => {
     const res = await dispatch(deleteCollection({ collectionId: selectedCollectionId }));
     if (res) {
-      const cPage = page !== 0 && filteredItems?.length === 1 ? page - 1 : page;
-      loadData(cPage);
+      loadData();
       handlePopup();
       setDeleteDialog(false);
     }
-  }, [dispatch, selectedCollectionId, page, filteredItems]);
+  }, [dispatch, selectedCollectionId, loadData, handlePopup]);
 
   const renderPopup = useMemo(
     () =>
@@ -142,12 +210,172 @@ const Collection = () => {
   );
 
   const collectionTypeOptions = useMemo(() => {
-    const types = collectionList
-      .map((item) => item.type)
-      .filter((type) => type && type.trim() !== '');
-    const uniqueTypes = Array.from(new Set(types));
-    return ['all', ...uniqueTypes];
-  }, [collectionList]);
+    return ['all', ...Object.values(COLLECTION_TYPES).map((type) => type.value)];
+  }, []);
+
+  const renderTypeTables = useMemo(() => {
+    const tables = [];
+    Object.keys(groupedFilteredItems).forEach((type) => {
+      const typeLabel = COLLECTION_TYPES[type]?.label || 'Default';
+      const items = groupedFilteredItems[type] || [];
+      if (items.length === 0) return;
+      const isExpanded = expandedTypes[type] ?? true;
+      tables.push(
+        <Box key={`type-${type}`} sx={{ mb: 3, borderRadius: 1, overflow: 'hidden', boxShadow: 2 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              p: 2,
+              bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
+              '&:hover': {
+                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.16),
+              },
+              transition: 'background-color 0.3s',
+              cursor: 'pointer',
+            }}
+            onClick={() => toggleType(type)}
+          >
+            <Typography
+              variant="h6"
+              sx={{
+                color: 'primary.main',
+                fontWeight: 'fontWeightSemiBold',
+              }}
+            >
+              {typeLabel}
+            </Typography>
+            <Box
+              sx={{
+                p: 1,
+                borderRadius: '50%',
+                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.2),
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Iconify
+                icon="material-icons:expand_circle_down"
+                sx={{
+                  width: 40,
+                  height: 40,
+                  color: 'primary.main',
+                  transform: isExpanded ? 'rotate(0deg)' : 'rotate(180deg)',
+                  animation: isExpanded
+                    ? `${bounce} 0.4s ease-in-out`
+                    : `${bounce} 0.4s ease-in-out`,
+                  '&:hover': {
+                    transform: isExpanded ? 'rotate(0deg) scale(1.2)' : 'rotate(180deg) scale(1.2)',
+                    color: 'primary.dark',
+                  },
+                }}
+              />
+            </Box>
+          </Box>
+          {isExpanded && (
+            <TableContainer sx={{ overflow: 'unset', mt: 1 }}>
+              <Scrollbar>
+                <Table sx={{ minWidth: '100%', tableLayout: 'fixed' }}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ width: '5%' }}></TableCell>
+                      <TableCell sx={{ width: '20%' }}>Title</TableCell>
+                      <TableCell sx={{ width: '15%' }}>Type</TableCell>
+                      <TableCell sx={{ width: '10%' }}>Position</TableCell>
+                      <TableCell sx={{ width: '15%', minWidth: '150px' }}>
+                        Thumbnail Image
+                      </TableCell>
+                      <TableCell sx={{ width: '15%', minWidth: '150px' }}>Desktop Banner</TableCell>
+                      <TableCell sx={{ width: '15%', minWidth: '150px' }}>Mobile Banner</TableCell>
+                      <TableCell sx={{ width: '5%' }}></TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <Droppable droppableId={type} type={`type-${type}`}>
+                    {(provided) => (
+                      <TableBody ref={provided.innerRef} {...provided.droppableProps}>
+                        {items.map((x, index) => (
+                          <Draggable key={x.id} draggableId={x.id} index={index}>
+                            {(provided, snapshot) => (
+                              <TableRow
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                sx={{
+                                  ...(snapshot.isDragging && {
+                                    backgroundColor: 'action.hover',
+                                  }),
+                                }}
+                              >
+                                <TableCell sx={{ width: '5%' }}>
+                                  <Iconify icon="mdi:drag" sx={{ cursor: 'move' }} />
+                                </TableCell>
+                                <TableCell sx={{ width: '20%' }}>{x?.title}</TableCell>
+                                <TableCell sx={{ width: '15%' }} className="capitalize">
+                                  {helperFunctions.stringReplacedWithSpace(x?.type || 'Default')}
+                                </TableCell>
+                                <TableCell sx={{ width: '10%' }}>{x?.position || '-'}</TableCell>
+                                <TableCell sx={{ width: '15%', minWidth: '150px' }}>
+                                  {x?.thumbnailImage ? (
+                                    <ProgressiveImg
+                                      src={x?.thumbnailImage}
+                                      alt="Thumbnail"
+                                      style={{ maxWidth: '90px', height: 'auto' }}
+                                    />
+                                  ) : (
+                                    'No Image'
+                                  )}
+                                </TableCell>
+                                <TableCell sx={{ width: '15%', minWidth: '150px' }}>
+                                  {x?.desktopBannerImage ? (
+                                    <ProgressiveImg
+                                      src={x?.desktopBannerImage}
+                                      alt="Desktop Banner"
+                                      style={{ maxWidth: '100px', height: 'auto' }}
+                                    />
+                                  ) : (
+                                    'No Image'
+                                  )}
+                                </TableCell>
+                                <TableCell sx={{ width: '15%', minWidth: '150px' }}>
+                                  {x?.mobileBannerImage ? (
+                                    <ProgressiveImg
+                                      src={x?.mobileBannerImage}
+                                      alt="Mobile Banner"
+                                      style={{ maxWidth: '100px', height: 'auto' }}
+                                    />
+                                  ) : (
+                                    'No Image'
+                                  )}
+                                </TableCell>
+                                <TableCell sx={{ width: '5%' }}>
+                                  <Iconify
+                                    className="cursor-pointer"
+                                    icon="iconamoon:menu-kebab-vertical-bold"
+                                    onClick={(e) => {
+                                      setOpen(e.currentTarget);
+                                      setSelectedCollectionId(x?.id);
+                                    }}
+                                  />
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </TableBody>
+                    )}
+                  </Droppable>
+                </Table>
+              </Scrollbar>
+            </TableContainer>
+          )}
+        </Box>
+      );
+    });
+    return tables;
+  }, [groupedFilteredItems, expandedTypes, toggleType]);
 
   return (
     <>
@@ -156,193 +384,112 @@ const Collection = () => {
           <Spinner />
         </div>
       ) : (
-        <Container>
-          <Box
-            sx={{
-              mb: 3,
-              gap: 2,
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <Typography variant="h4">Collection</Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-              <TextField
-                size="small"
-                type="search"
-                sx={{ padding: 0 }}
-                placeholder="Search"
-                value={searchedValue}
-                onChange={searchValueHandler}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Iconify
-                        icon="eva:search-fill"
-                        sx={{ ml: 1, width: 20, height: 20, color: 'text.disabled' }}
-                      />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                size="small"
-                select
-                className="capitalize"
-                label="Collection Type"
-                value={filterByType}
-                onChange={(e) => {
-                  setFilterByType(e.target.value);
-                  setPage(0);
-                }}
-                sx={{ minWidth: 150 }}
-              >
-                {collectionTypeOptions.map((option, index) => (
-                  <MenuItem className="capitalize" key={index} value={option}>
-                    {option === 'all' ? 'All' : helperFunctions.stringReplacedWithSpace(option)}
-                  </MenuItem>
-                ))}
-              </TextField>
-
-              <Button
-                onClick={() => {
-                  setFilterByType('all');
-                  setSearchedValue('');
-                }}
-                variant="outlined"
-                startIcon={<Iconify icon="tdesign:filter-clear" key={Math.random()} />}
-              >
-                Clear
-              </Button>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => navigate('/collection/add')}
-              >
-                New Collection
-              </Button>
-            </Box>
-          </Box>
-          <Card>
-            <Box p={'3px'} />
-            <Scrollbar>
-              <TableContainer sx={{ overflow: 'unset' }}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Id</TableCell>
-                      <TableCell>Title</TableCell>
-                      <TableCell>Type</TableCell>
-                      <TableCell>Thumbnail Image</TableCell>
-                      <TableCell>Desktop Banner</TableCell>
-                      <TableCell>Mobile Banner</TableCell>
-                      <TableCell></TableCell>
-                    </TableRow>
-                  </TableHead>
-
-                  <TableBody>
-                    {filteredItems?.length
-                      ? filteredItems?.map((x, i) => (
-                          <TableRow key={`collection-${i}`}>
-                            <TableCell sx={{ width: '100px' }}>{x?.srNo}</TableCell>
-                            <TableCell>{x?.title}</TableCell>
-                            <TableCell className="capitalize">
-                              {helperFunctions.stringReplacedWithSpace(x?.type || 'Default')}
-                            </TableCell>
-                            <TableCell sx={{ minWidth: '150px' }}>
-                              {x?.thumbnailImage ? (
-                                <ProgressiveImg
-                                  src={x?.thumbnailImage}
-                                  alt="Desktop Banner"
-                                  style={{ maxWidth: '90px', height: 'auto' }}
-                                />
-                              ) : (
-                                'No Image'
-                              )}
-                            </TableCell>
-                            <TableCell sx={{ minWidth: '150px' }}>
-                              {x?.desktopBannerImage ? (
-                                <ProgressiveImg
-                                  src={x?.desktopBannerImage}
-                                  alt="Desktop Banner"
-                                  style={{ maxWidth: '100px', height: 'auto' }}
-                                />
-                              ) : (
-                                'No Image'
-                              )}
-                            </TableCell>
-                            <TableCell sx={{ minWidth: '150px' }}>
-                              {x?.mobileBannerImage ? (
-                                <ProgressiveImg
-                                  src={x?.mobileBannerImage}
-                                  alt="Mobile Banner"
-                                  style={{ maxWidth: '100px', height: 'auto' }}
-                                />
-                              ) : (
-                                'No Image'
-                              )}
-                            </TableCell>
-                            <TableCell sx={{ width: '50px' }}>
-                              <Iconify
-                                className="cursor-pointer"
-                                icon="iconamoon:menu-kebab-vertical-bold"
-                                onClick={(e) => {
-                                  setOpen(e.currentTarget);
-                                  setSelectedCollectionId(x?.id);
-                                }}
-                              />
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      : null}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-              {!filteredItems?.length ? (
-                <Typography
-                  variant="body2"
-                  sx={{ color: 'text.secondary', textAlign: 'center', p: 2, mt: 1 }}
+        <DragDropContext onDragEnd={collectionLoading ? () => {} : handleDragEnd}>
+          <Container>
+            <Box
+              sx={{
+                mb: 3,
+                gap: 2,
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Typography variant="h4">Collection</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                <TextField
+                  size="small"
+                  type="search"
+                  sx={{ padding: 0 }}
+                  placeholder="Search"
+                  value={searchedValue}
+                  onChange={searchValueHandler}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Iconify
+                          icon="eva:search-fill"
+                          sx={{ ml: 1, width: 20, height: 20, color: 'text.disabled' }}
+                        />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <TextField
+                  size="small"
+                  select
+                  className="capitalize"
+                  label="Collection Type"
+                  value={filterByType}
+                  onChange={(e) => {
+                    setFilterByType(e.target.value);
+                  }}
+                  sx={{ minWidth: 150 }}
                 >
-                  No Data
-                </Typography>
-              ) : null}
-            </Scrollbar>
-            {collectionList?.length > 5 ? (
-              <TablePagination
-                page={page}
-                component="div"
-                rowsPerPage={rowsPerPage}
-                count={collectionList?.length}
-                onPageChange={handleChangePage}
-                rowsPerPageOptions={[5, 10, 25]}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              />
-            ) : null}
-          </Card>
-        </Container>
+                  {collectionTypeOptions.map((option) => (
+                    <MenuItem className="capitalize" key={option} value={option}>
+                      {option === 'all' ? 'All' : COLLECTION_TYPES[option]?.label || 'Default'}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <Button
+                  onClick={() => {
+                    setFilterByType('all');
+                    setSearchedValue('');
+                  }}
+                  variant="outlined"
+                  startIcon={<Iconify icon="tdesign:filter-clear" key={Math.random()} />}
+                >
+                  Clear
+                </Button>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => navigate('/collection/add')}
+                >
+                  New Collection
+                </Button>
+              </Box>
+            </Box>
+            <Card>
+              <Box sx={{ p: 2, pb: 0 }}>
+                <Scrollbar>
+                  <Box>
+                    {renderTypeTables}
+                    {!filteredItems?.length && (
+                      <Typography
+                        variant="body2"
+                        sx={{ color: 'text.secondary', textAlign: 'center', p: 2, mt: 1 }}
+                      >
+                        No Data
+                      </Typography>
+                    )}
+                  </Box>
+                </Scrollbar>
+              </Box>
+            </Card>
+          </Container>
+          {renderPopup}
+          {deleteDialog && (
+            <ConfirmationDialog
+              open={deleteDialog}
+              setOpen={setDeleteDialog}
+              handleConfirm={handleDelete}
+              loading={crudCollectionLoading}
+            >
+              <div>
+                <p style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+                  Are you sure you want to delete this collection?
+                </p>
+                <p style={{ color: '#666' }}>
+                  Deleting this collection will also remove it from all linked products.
+                </p>
+              </div>
+            </ConfirmationDialog>
+          )}
+        </DragDropContext>
       )}
-
-      {renderPopup}
-
-      {deleteDialog ? (
-        <ConfirmationDialog
-          open={deleteDialog}
-          setOpen={setDeleteDialog}
-          handleConfirm={handleDelete}
-          loading={crudCollectionLoading}
-        >
-          <div>
-            <p style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-              Are you sure you want to delete this collection?
-            </p>
-            <p style={{ color: '#666' }}>
-              Deleting this collection will also remove it from all linked products.
-            </p>
-          </div>
-        </ConfirmationDialog>
-      ) : null}
     </>
   );
 };

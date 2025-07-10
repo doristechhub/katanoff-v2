@@ -23,13 +23,16 @@ const fetchCollectionsByTypes = (types) => {
         data: collections
           .filter((item) => item?.type?.trim() === type?.trim())
           .map((collection) => ({
+            ...collection,
             title: collection.title,
             image: collection.thumbnailImage,
             title: collection.title || "",
             alt: collection.title || "",
             btnText: type !== SLIDER_GRID ? "SHOP NOW" : undefined,
             id: collection.id,
-          })),
+          })).sort(
+            (a, b) => a.position - b.position
+          ),
       }));
       dispatch(setCollectionsData(groupedData));
 

@@ -14,7 +14,7 @@ export const menuSubCategoryModel = {
   },
   position: {
     type: Number,
-    unique: true, // Aligns with menuCategoryModel structure
+    unique: true, // position set categoryId wise
   },
   desktopBannerImage: {
     type: String, // 1920*448

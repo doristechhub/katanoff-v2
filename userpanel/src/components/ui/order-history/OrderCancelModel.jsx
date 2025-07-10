@@ -76,7 +76,7 @@ export default function CancelOrderModal() {
         {({ isValid }) => (
           <Form>
             <div className="mb-4">
-              <label htmlFor="reason" className="block text-base font-semibold">
+              <label htmlFor="reason" className="block text-lg font-semibold">
                 Reason
               </label>
               <Field
@@ -98,7 +98,7 @@ export default function CancelOrderModal() {
               <ErrorMessage message={orderMessage.message} className="mb-3" />
             )}
 
-            <div className="flex gap-6">
+            <div className="flex gap-4">
               <GrayButton
                 title="CANCEL"
                 onClick={() => dispatch(setShowModal(false))}
@@ -112,7 +112,7 @@ export default function CancelOrderModal() {
               >
                 <LoadingPrimaryButton
                   type="submit"
-                  title="Submit"
+                  title="Confirm"
                   loading={cancelOrderLoading}
                   disabled={cancelOrderLoading || !isValid}
                   loaderType={isHovered ? "" : "white"}

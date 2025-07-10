@@ -13,6 +13,10 @@ export const collectionModel = {
     type: String,
     enum: [null, 'slider_grid', 'two_grid', 'three_grid'],
   },
+  position: {
+    type: Number,
+    unique: true, // postion set type wise
+  },
   desktopBannerImage: {
     type: String, // 1920*448
   },

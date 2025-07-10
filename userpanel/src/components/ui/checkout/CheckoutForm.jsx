@@ -22,6 +22,7 @@ import {
   setShowModal,
 } from "@/store/slices/commonSlice";
 import {
+  setSelectedAddressType,
   setSelectedShippingAddress,
   setStandardizedAddress,
   setStateList,
@@ -33,9 +34,7 @@ import {
   setCouponCode,
   setUserEmail,
 } from "@/store/slices/couponSlice";
-import {
-  checkCouponCodeInCart,
-} from "@/_actions/coupon.action";
+import { verifyCouponCode } from "@/_actions/coupon.action";
 
 const countries = Country.getAllCountries();
 
@@ -94,7 +93,7 @@ const CheckoutForm = () => {
     const subTotal = helperFunctions?.getSubTotal(cartList);
     if (!appliedPromoDetail && getCoupon) {
       dispatch(
-        checkCouponCodeInCart({
+        verifyCouponCode({
           promoCode: getCoupon,
           orderValue: subTotal,
         })
@@ -138,7 +137,7 @@ const CheckoutForm = () => {
     async (fieldValues) => {
       try {
         dispatch(handleAddressMessage({ message: "", type: "" }));
-
+        dispatch(setSelectedAddressType(""));
         dispatch(
           handleInvalidAddressDetail({
             setInvalidAddressDetail: {},

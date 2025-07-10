@@ -23,7 +23,7 @@ import { CartNotFound, CustomImg, ProgressiveImg } from "../dynamiComponents";
 import ErrorMessage from "./ErrorMessage";
 import DiamondDetailDrawer from "./customize/DiamondDetailDrawer";
 import { paymentOptions } from "@/_utils/paymentOptions";
-import { checkCouponCodeInCart } from "@/_actions/coupon.action";
+import { verifyCouponCode } from "@/_actions/coupon.action";
 import {
   setDeleteLoader,
   setRemoveCartErrorMessage,
@@ -53,7 +53,7 @@ const CartPopup = () => {
     const calculatedOrderValue =
       orderValue !== null ? orderValue : getSubTotal();
     dispatch(
-      checkCouponCodeInCart({
+      verifyCouponCode({
         promoCode: couponCode,
         orderValue: calculatedOrderValue,
       })
@@ -550,7 +550,7 @@ const CartPopup = () => {
                     </label>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-2 mt-4">
+                  <div className="grid grid-cols-2 gap-2 mt-4">
                     <LinkButton
                       className="!bg-transparent !text-baseblack hover:!bg-primary hover:!text-white !border-black !font-semibold !rounded-none !text-sm"
                       title="CHECKOUT"
@@ -571,17 +571,16 @@ const CartPopup = () => {
                     >
                       CHECKOUT
                     </LinkButton>
-
-                    <Link href={"/cart"}>
-                      <div
-                        onClick={closeCartPopup}
-                        className="justify-center flex "
-                      >
-                        <p className="w-fit border-b border-transparent font-semibold hover:border-black text-[1rem]">
-                          View Your Bag
-                        </p>
-                      </div>
-                    </Link>
+                    <LinkButton
+                      className="!bg-primary !text-white !uppercase hover:!bg-transparent hover:!text-baseblack !border-black !font-semibold !rounded-none !text-sm"
+                      title="View Your Bag"
+                      href="/cart"
+                      onClick={(e) => {
+                        closeCartPopup();
+                      }}
+                    >
+                      View Your Bag
+                    </LinkButton>
                   </div>
 
                   <div className="mt-2 md:mt-2">
