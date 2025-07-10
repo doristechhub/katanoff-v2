@@ -1,7 +1,6 @@
 import { toast } from 'react-toastify';
 
 import { toastError } from '.';
-import { helperFunctions } from 'src/_helpers';
 import { collectionService } from 'src/_services';
 import {
   initCollection,
@@ -13,16 +12,14 @@ import {
 
 // ----------------------------------------------------------------------
 
-export const getCollectionList = () => async (dispatch) => {
+export const getCollectionList = (initLoading = true) => async (dispatch) => {
   try {
-    dispatch(setCollectionLoading(true));
+    if (initLoading) dispatch(setCollectionLoading(true));
     const res = await collectionService.getAllCollection();
 
     if (res) {
-      let list = helperFunctions.sortByField(res);
-      list = list?.map((x, i) => ({ ...x, srNo: i + 1 }));
-      dispatch(setCollectionList(helperFunctions.sortByField(list) || []));
-      return true;
+      dispatch(setCollectionList(res || []));
+      return res || [];
     }
   } catch (e) {
     toastError(e);
@@ -149,6 +146,22 @@ export const updateCollection = (payload) => async (dispatch) => {
 
     if (res) {
       toast.success('Collection updated successfully');
+      return true;
+    }
+  } catch (e) {
+    toastError(e);
+    return false;
+  } finally {
+    dispatch(setCrudCollectionLoading(false));
+  }
+};
+
+export const updateCollectionPosition = (payload) => async (dispatch) => {
+  try {
+    dispatch(setCrudCollectionLoading(true));
+    const res = await collectionService.updateCollectionPosition(payload);
+    if (res) {
+      dispatch(getCollectionList(false));
       return true;
     }
   } catch (e) {

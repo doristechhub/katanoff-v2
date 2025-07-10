@@ -20,7 +20,12 @@ const getAllCollection = () => {
     try {
       const respData = await fetchWrapperService.getAll(collectionUrl);
       const collectionData = respData ? Object.values(respData) : [];
-      resolve(collectionData);
+      resolve(collectionData.sort((a, b) => {
+        if (a.type === b.type) {
+          return (a.position || 0) - (b.position || 0);
+        }
+        return (a.type || '').localeCompare(b.type || '');
+      }));
     } catch (e) {
       reject(e);
     }
@@ -58,6 +63,7 @@ const sanitizeAndValidateInput = (params) => {
   const sanitized = sanitizeObject(params);
   sanitized.title = sanitized.title?.trim() || null;
   sanitized.type = sanitized?.type?.trim() || null;
+  sanitized.position = sanitized?.position ? parseInt(sanitized.position, 10) : null;
   sanitized.desktopBannerFile =
     sanitized.desktopBannerFile && typeof sanitized.desktopBannerFile === 'object'
       ? [sanitized.desktopBannerFile]
@@ -99,6 +105,20 @@ const validateFiles = async (files, type, name) => {
   }
 };
 
+const validatePosition = async (type, position, excludeCollectionIds = []) => {
+  if (!position || !type) return;
+  const allCollections = await getAllCollection();
+  const conflictingCollection = allCollections.find(
+    (collection) =>
+      collection.type === type &&
+      collection.position === position &&
+      !excludeCollectionIds.includes(collection.id)
+  );
+  if (conflictingCollection) {
+    throw new Error(`Position ${position} is already taken for this collection type`);
+  }
+};
+
 const validateCollectionLimits = async (type, collectionId = null) => {
   if (!type || type === 'slider_grid') return; // No limit for null type or slider_grid
   const collections = await getAllCollection();
@@ -116,7 +136,7 @@ const validateCollectionLimits = async (type, collectionId = null) => {
   }
 };
 
-const uploadFiles = async (filesPayload, desktopBannerFile, mobileBannerFile, thumbnailFile) => {
+const uploadFiles = async (filesPayload, desktopBannerFile, mobileBannerFile, thumbnailsFile) => {
   if (!filesPayload.length) return { desktopBannerUrl: '', mobileBannerUrl: '', thumbnailUrl: '' };
 
   const categoryIndices = {
@@ -124,7 +144,7 @@ const uploadFiles = async (filesPayload, desktopBannerFile, mobileBannerFile, th
     mobileBanner: { start: desktopBannerFile.length, length: mobileBannerFile.length },
     thumbnail: {
       start: desktopBannerFile.length + mobileBannerFile.length,
-      length: thumbnailFile.length,
+      length: thumbnailsFile.length,
     },
   };
 
@@ -193,7 +213,7 @@ const insertCollection = (params) => {
   return new Promise(async (resolve, reject) => {
     try {
       const uuid = uid();
-      const { title, type, desktopBannerFile, mobileBannerFile, thumbnailFile, productIds } =
+      const { title, type, position, desktopBannerFile, mobileBannerFile, thumbnailFile, productIds } =
         sanitizeAndValidateInput(params);
 
       if (!title) {
@@ -210,6 +230,19 @@ const insertCollection = (params) => {
 
       if (collectionsList.find((cItem) => cItem.title?.toLowerCase() === title?.toLowerCase())) {
         return reject(new Error('Title already exists'));
+      }
+
+
+      let finalPosition = position;
+      if (!finalPosition) {
+        const typeCollections = collectionsList.filter((x) => x.type === type || (!x.type && !type));
+        const maxPosition = typeCollections.reduce(
+          (max, col) => Math.max(max, col.position || 0),
+          0
+        );
+        finalPosition = maxPosition + 1;
+      } else if (type && finalPosition) {
+        await validatePosition(type, finalPosition);
       }
 
       await validateCollectionLimits(type);
@@ -241,6 +274,7 @@ const insertCollection = (params) => {
         id: uuid,
         title: title,
         type: type || null,
+        position: finalPosition,
         createdDate: Date.now(),
         updatedDate: Date.now(),
         desktopBannerImage: desktopBannerUrl,
@@ -278,6 +312,7 @@ const updateCollection = (params) => {
         collectionId,
         title,
         type,
+        position,
         desktopBannerFile,
         mobileBannerFile,
         thumbnailFile,
@@ -308,6 +343,10 @@ const updateCollection = (params) => {
       );
       if (duplicateCheck?.length) {
         return reject(new Error('Title already exists'));
+      }
+
+      if (type && position !== null && position !== collectionData.position) {
+        await validatePosition(type, position, [collectionId]);
       }
 
       await validateCollectionLimits(type, collectionId);
@@ -381,6 +420,7 @@ const updateCollection = (params) => {
       const payload = {
         title,
         type: type || null,
+        position: position !== null ? position : collectionData?.position,
         desktopBannerImage: desktopBannerUrl || desktopBannerImage,
         mobileBannerImage: mobileBannerUrl || mobileBannerImage,
         thumbnailImage: type ? thumbnailUrl || thumbnailImage : null,
@@ -472,6 +512,55 @@ const getAllProductsByCollectionId = (collectionId) => {
   });
 };
 
+const updateCollectionPosition = (positions) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!Array.isArray(positions) || !positions.length) {
+        return reject(new Error('Invalid positions data'));
+      }
+
+      const allCollections = await getAllCollection();
+
+      const types = new Set(
+        positions.map((pos) => {
+          const collection = allCollections.find((col) => col.id === pos.collectionId);
+          return collection ? collection.type || 'default' : null;
+        })
+      );
+      if (types.size !== 1 || ![...types][0]) {
+        return reject(new Error('All collections must belong to the same type and have a valid type'));
+      }
+
+      const type = [...types][0];
+      const collectionIds = positions.map((pos) => pos.collectionId);
+      for (const { collectionId, position } of positions) {
+        if (!collectionId || !position) {
+          return reject(new Error('Invalid collection ID or position'));
+        }
+        const collectionData = allCollections.find((col) => col.id === collectionId);
+        if (!collectionData) {
+          return reject(new Error(`Collection ${collectionId} not found`));
+        }
+        await validatePosition(type, position, collectionIds);
+      }
+
+      const updatePromises = positions.map(({ collectionId, position }) => {
+        const payload = { position };
+        const updatePattern = {
+          url: `${collectionUrl}/${collectionId}`,
+          payload,
+        };
+        return fetchWrapperService._update(updatePattern);
+      });
+
+      await Promise.all(updatePromises);
+      resolve(true);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 export const collectionService = {
   getAllCollection,
   getSingleCollection,
@@ -479,4 +568,5 @@ export const collectionService = {
   updateCollection,
   deleteCollection,
   getAllProductsByCollectionId,
+  updateCollectionPosition,
 };

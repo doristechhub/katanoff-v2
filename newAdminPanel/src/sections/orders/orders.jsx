@@ -32,7 +32,7 @@ const Orders = () => {
   }, [pathname]);
 
   return (
-    <Container>
+    <Container maxWidth="xl">
       <Card>
         <TabContext value={value}>
           <TabList

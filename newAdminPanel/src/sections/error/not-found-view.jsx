@@ -11,8 +11,16 @@ import { RouterLink } from 'src/routes/components';
 export default function NotFoundView() {
   return (
     <>
-      <Logo sx={{ m: 4 }} />
-
+      <Box
+        sx={{
+          position: 'fixed',
+          top: 8,
+          left: 20,
+          zIndex: 10,
+        }}
+      >
+        <Logo />
+      </Box>
       <Container>
         <Box
           sx={{

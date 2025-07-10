@@ -11,24 +11,24 @@ import { productTypeService } from 'src/_services';
 
 // ----------------------------------------------------------------------
 
-export const getMenuProductTypeList = () => async (dispatch) => {
-  try {
-    dispatch(setMenuProductTypeLoading(true));
-    const res = await productTypeService.getAllProductType();
+export const getMenuProductTypeList =
+  (initLoading = true) =>
+  async (dispatch) => {
+    try {
+      if (initLoading) dispatch(setMenuProductTypeLoading(true));
+      const res = await productTypeService.getAllProductType();
 
-    if (res) {
-      let list = helperFunctions.sortByField(res);
-      list = list?.map((x, i) => ({ ...x, srNo: i + 1 }));
-      dispatch(setMenuProductTypeList(helperFunctions.sortByField(list) || []));
-      return true;
+      if (res) {
+        dispatch(setMenuProductTypeList(res || []));
+        return true;
+      }
+    } catch (e) {
+      toastError(e);
+      return false;
+    } finally {
+      dispatch(setMenuProductTypeLoading(false));
     }
-  } catch (e) {
-    toastError(e);
-    return false;
-  } finally {
-    dispatch(setMenuProductTypeLoading(false));
-  }
-};
+  };
 
 export const createMenuProductType = (payload) => async (dispatch) => {
   try {
@@ -71,6 +71,24 @@ export const deleteMenuProductType = (payload) => async (dispatch) => {
 
     if (res) {
       toast.success('Product type deleted successfully');
+      return true;
+    }
+  } catch (e) {
+    toastError(e);
+    return false;
+  } finally {
+    dispatch(setCrudMenuProductTypeLoading(false));
+  }
+};
+
+export const updateMenuProductTypePosition = (payload) => async (dispatch) => {
+  try {
+    dispatch(setCrudMenuProductTypeLoading(true));
+    const res = await productTypeService.updateProductTypePosition(payload);
+
+    if (res) {
+      // toast.success('Menu product type positions updated successfully');
+      dispatch(getMenuProductTypeList(false));
       return true;
     }
   } catch (e) {

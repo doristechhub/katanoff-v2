@@ -556,8 +556,7 @@ const SubCategory = () => {
       ) : (
         <DragDropContext onDragEnd={menuSubCategoryLoading ? () => {} : handleDragEnd}>
           <Stack
-            my={2}
-            mx={2}
+            m={2}
             gap={2}
             direction="row"
             flexWrap="wrap"
