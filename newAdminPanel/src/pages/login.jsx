@@ -8,7 +8,7 @@ export default function LoginPage() {
   return (
     <>
       <Helmet>
-        <title> Login | Katan Off </title>
+        <title> Login | Katanoff </title>
       </Helmet>
 
       <LoginView />

@@ -8,7 +8,7 @@ export default function AppointmentsPage() {
   return (
     <>
       <Helmet>
-        <title> Custom Jewelry | Katan Off </title>
+        <title> Custom Jewelry | Katanoff </title>
       </Helmet>
 
       <CustomJewelry />

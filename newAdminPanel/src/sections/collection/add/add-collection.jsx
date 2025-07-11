@@ -223,12 +223,12 @@ const AddCollectionPage = () => {
 
   const renderProductInfo = (product) => (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-      <Box sx={{ width: 45, height: 45, borderRadius: 1, overflow: 'hidden', flexShrink: 0 }}>
+      <Box sx={{ width: 40, height: 40, borderRadius: 1, overflow: 'hidden', flexShrink: 0 }}>
         <ProgressiveImg
           alt={product?.productName}
           title={product?.productName}
-          customClassName="h-[45px] w-[45px] object-cover"
-          placeHolderClassName="h-[45px] w-[45px]"
+          customClassName="h-[40px] w-[40px] object-cover"
+          placeHolderClassName="h-[40px] w-[40px]"
           src={product?.yellowGoldThumbnailImage || product?.yellowGoldThumbnailImage?.[0]?.image}
         />
       </Box>
@@ -338,9 +338,9 @@ const AddCollectionPage = () => {
                 Browse Products
               </LoadingButton>
             </Stack>
-            <Card sx={{ border: `1px solid ${grey[200]}`, maxHeight: 400 }}>
+            <Card sx={{ border: `1px solid ${grey[200]}`, maxHeight: 800 }}>
               <Scrollbar>
-                <TableContainer sx={{ maxHeight: 400 }}>
+                <TableContainer sx={{ maxHeight: 800 }}>
                   <Table stickyHeader>
                     <TableHead>
                       <TableRow>
@@ -372,7 +372,14 @@ const AddCollectionPage = () => {
                         values.selectedProductsList.map((product, index) => (
                           <TableRow key={`selected-product-${index}`} hover>
                             <TableCell align="center">{index + 1}</TableCell>
-                            <TableCell>{renderProductInfo(product)}</TableCell>
+                            <TableCell
+                              sx={{ cursor: 'pointer', color: 'primary.main' }}
+                              onClick={() => {
+                                navigate(`/product/add?productId=${product.id}`);
+                              }}
+                            >
+                              {renderProductInfo(product)}
+                            </TableCell>
                             <TableCell sx={{ textTransform: 'capitalize' }}>
                               {product?.gender || 'N/A'}
                             </TableCell>

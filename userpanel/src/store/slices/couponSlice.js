@@ -5,7 +5,6 @@ const initialState = {
   couponCode: "",
   appliedPromoDetail: null,
   couponMessage: { message: "", type: "" },
-  userEmail: "",
   discountAmount: 0,
 };
 
@@ -25,9 +24,6 @@ const couponSlice = createSlice({
     setCouponMessage: (state, action) => {
       state.couponMessage = action.payload;
     },
-    setUserEmail: (state, action) => {
-      state.userEmail = action.payload;
-    },
     setDiscountAmount: (state, action) => {
       state.discountAmount = action.payload;
     },
@@ -39,7 +35,6 @@ export const {
   setCouponCode,
   setAppliedPromoDetail,
   setCouponMessage,
-  setUserEmail,
   setDiscountAmount,
 } = couponSlice.actions;
 

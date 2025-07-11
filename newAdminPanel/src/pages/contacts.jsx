@@ -8,7 +8,7 @@ export default function ContactsPage() {
   return (
     <>
       <Helmet>
-        <title> Contacts | Katan Off </title>
+        <title> Contacts | Katanoff </title>
       </Helmet>
 
       <Contacts />

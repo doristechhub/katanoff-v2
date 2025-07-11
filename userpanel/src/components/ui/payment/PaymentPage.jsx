@@ -27,9 +27,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { helperFunctions, stripePublishableKey } from "@/_helper";
 import { deleteOrder, verifyOrder } from "@/_actions/order.action";
-import {
-  verifyCouponCode,
-} from "@/_actions/coupon.action";
+import { verifyCouponCode } from "@/_actions/coupon.action";
 const stripePromise = loadStripe(stripePublishableKey);
 // const appearance = {
 //   theme: "night",
@@ -74,10 +72,9 @@ const PaymentPage = () => {
 
   const getCoupon = localStorage.getItem("appliedCoupon");
 
+  const subTotal = helperFunctions?.getSubTotal(cartList);
   useEffect(() => {
-    const subTotal = helperFunctions?.getSubTotal(cartList);
-
-    if (!appliedPromoDetail && getCoupon) {
+    if (!appliedPromoDetail && getCoupon && subTotal) {
       dispatch(
         verifyCouponCode({
           promoCode: getCoupon,
@@ -85,7 +82,7 @@ const PaymentPage = () => {
         })
       );
     }
-  }, [dispatch, appliedPromoDetail, cartList]);
+  }, [dispatch, appliedPromoDetail, subTotal]);
 
   // abortcontroller
   const abortControllerRef = useRef(null);

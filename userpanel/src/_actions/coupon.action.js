@@ -37,8 +37,8 @@ export const verifyCouponCode = ({ promoCode, orderValue }) => {
         orderValue,
       });
 
-      dispatch(setAppliedPromoDetail(matchedCoupon));
       let discount = 0;
+
       if (matchedCoupon.discountDetails) {
         const { type, amount } = matchedCoupon.discountDetails;
         if (type === PERCENTAGE) {
@@ -49,7 +49,7 @@ export const verifyCouponCode = ({ promoCode, orderValue }) => {
       }
       const formattedDiscount = parseFloat(discount.toFixed(2));
       dispatch(setDiscountAmount(formattedDiscount));
-
+      dispatch(setAppliedPromoDetail(matchedCoupon));
       dispatch(
         setCouponMessage({
           message:

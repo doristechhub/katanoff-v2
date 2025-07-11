@@ -7,7 +7,6 @@ import { useMemo } from "react";
 export default function CheckoutCommonSummary({
   isMobile = false,
   getSubTotal,
-  getCouponDiscountValue,
   getSalesTaxAmount,
   selectedShippingCharge,
   getGrandTotal,
@@ -15,10 +14,9 @@ export default function CheckoutCommonSummary({
 }) {
   const pathname = usePathname();
 
-  const {
-    appliedPromoDetail,
-  } = useSelector(({ coupon }) => coupon);
-
+  const { appliedPromoDetail, discountAmount } = useSelector(
+    ({ coupon }) => coupon
+  );
   const calculateNextStep = useMemo(() => {
     return <span className="text-lg font-normal">Calculated at next step</span>;
   }, []);
@@ -27,7 +25,6 @@ export default function CheckoutCommonSummary({
     <section
       className={`${isMobile ? "px-4 pt-4 pb-4" : "px-2 xs:px-10 pt-6"}`}
     >
-
       <p className="text-lg text-baseblack flex justify-between font-semibold pt-4">
         Subtotal:{" "}
         <span>{helperFunctions?.formatCurrencyWithDollar(getSubTotal())}</span>
@@ -39,10 +36,7 @@ export default function CheckoutCommonSummary({
             Discount ({appliedPromoDetail?.promoCode})
           </p>
           <span className="text-lg font-medium">
-            -
-            {helperFunctions?.formatCurrencyWithDollar(
-              getCouponDiscountValue()
-            )}
+            -{helperFunctions?.formatCurrencyWithDollar(discountAmount)}
           </span>
         </div>
       )}

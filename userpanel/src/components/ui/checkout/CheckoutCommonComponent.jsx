@@ -2,10 +2,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  FIXED,
   helperFunctions,
   LENGTH,
-  PERCENTAGE,
   RING_SIZE,
 } from "@/_helper";
 import { CustomImg, ProgressiveImg } from "../../dynamiComponents";
@@ -28,7 +26,9 @@ const CheckoutCommonComponent = () => {
   const { isNewYorkState, selectedShippingCharge } = useSelector(
     ({ checkout }) => checkout
   );
-  const { appliedPromoDetail } = useSelector(({ coupon }) => coupon);
+  const { appliedPromoDetail, discountAmount } = useSelector(
+    ({ coupon }) => coupon
+  );
   const pathname = usePathname();
 
   useEffect(() => {
@@ -37,24 +37,6 @@ const CheckoutCommonComponent = () => {
     }
   }, [cartList.length, dispatch]);
 
-  const getCouponDiscountValue = () => {
-    if (!appliedPromoDetail || !appliedPromoDetail.discountDetails) {
-      return 0;
-    }
-
-    const { type, amount } = appliedPromoDetail.discountDetails;
-    const subtotal = getSubTotal();
-    let discount = 0;
-
-    if (type === PERCENTAGE) {
-      discount = (amount / 100) * subtotal;
-    } else if (type === FIXED) {
-      discount = Math.min(amount, subtotal);
-    }
-
-    const formattedDiscount = parseFloat(discount.toFixed(2));
-    return formattedDiscount;
-  };
 
   useEffect(() => {
     const address = localStorage.getItem("address");
@@ -78,12 +60,12 @@ const CheckoutCommonComponent = () => {
   const getSalesTaxAmount = useCallback(() => {
     if (isNewYorkState) {
       const subTotal = Number(getSubTotal(cartList));
-      const discountValue = Number(getCouponDiscountValue()) || 0;
+      const discountValue = Number(discountAmount) || 0;
 
       return (subTotal - discountValue) * salesTaxPerc;
     }
     return 0;
-  }, [cartList, getSubTotal, getCouponDiscountValue, isNewYorkState]);
+  }, [cartList, getSubTotal, discountAmount, isNewYorkState]);
 
   useEffect(() => {
     const contentElement = cartContentRef.current;
@@ -115,7 +97,7 @@ const CheckoutCommonComponent = () => {
 
   const getGrandTotal = useCallback(() => {
     const subTotal = Number(getSubTotal());
-    const discount = getCouponDiscountValue();
+    const discount = discountAmount;
     const discountedSubTotal = subTotal - discount;
 
     const isCheckoutPage = pathname === "/checkout";
@@ -133,7 +115,7 @@ const CheckoutCommonComponent = () => {
     return grandTotal.toFixed(2);
   }, [
     getSubTotal,
-    getCouponDiscountValue,
+    discountAmount,
     isNewYorkState,
     selectedShippingCharge,
     salesTaxPerc,
@@ -230,7 +212,7 @@ const CheckoutCommonComponent = () => {
                                 cartItem?.productSellingPrice *
                                 cartItem?.quantity,
                               subTotal: getSubTotal(),
-                              discountAmount: getCouponDiscountValue(),
+                              discountAmount: discountAmount,
                             })
                           )}
                         </p>
@@ -273,7 +255,6 @@ const CheckoutCommonComponent = () => {
 
             <CheckoutCommonSummary
               getSubTotal={getSubTotal}
-              getCouponDiscountValue={getCouponDiscountValue}
               getSalesTaxAmount={getSalesTaxAmount}
               selectedShippingCharge={selectedShippingCharge}
               getGrandTotal={getGrandTotal}
@@ -377,7 +358,7 @@ const CheckoutCommonComponent = () => {
                               cartItem?.productSellingPrice *
                               cartItem?.quantity,
                             subTotal: getSubTotal(),
-                            discountAmount: getCouponDiscountValue(),
+                            discountAmount: discountAmount,
                           })}
                         </p>
                       )}
@@ -418,7 +399,6 @@ const CheckoutCommonComponent = () => {
             </section>
             <CheckoutCommonSummary
               getSubTotal={getSubTotal}
-              getCouponDiscountValue={getCouponDiscountValue}
               getSalesTaxAmount={getSalesTaxAmount}
               selectedShippingCharge={selectedShippingCharge}
               getGrandTotal={getGrandTotal}

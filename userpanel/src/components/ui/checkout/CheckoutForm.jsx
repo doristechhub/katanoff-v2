@@ -14,7 +14,10 @@ import {
   validateAddress,
 } from "@/_actions/address.action";
 import ErrorMessage from "@/components/ui/ErrorMessage";
-import { LoadingPrimaryButton } from "@/components/ui/button";
+import {
+  GrayLinkButton,
+  LoadingPrimaryButton,
+} from "@/components/ui/button";
 import { messageType, ONE_TIME } from "@/_helper/constants";
 import {
   setIsChecked,
@@ -29,11 +32,7 @@ import {
 } from "@/store/slices/checkoutSlice";
 import { helperFunctions } from "@/_helper";
 import Link from "next/link";
-import {
-  setAppliedPromoDetail,
-  setCouponCode,
-  setUserEmail,
-} from "@/store/slices/couponSlice";
+
 import { verifyCouponCode } from "@/_actions/coupon.action";
 
 const countries = Country.getAllCountries();
@@ -67,12 +66,11 @@ const validationSchema = yup.object({
 const CheckoutForm = () => {
   const dispatch = useDispatch();
   const abortControllerRef = useRef(null);
-  const debounceTimer = useRef(null);
   const { cartList } = useSelector(({ cart }) => cart);
   const { stateList, selectedShippingAddress } = useSelector(
     ({ checkout }) => checkout
   );
-  const { userEmail, appliedPromoDetail } = useSelector(({ coupon }) => coupon);
+  const { appliedPromoDetail } = useSelector(({ coupon }) => coupon);
 
   const { validateAddressLoader, addressMessage, invalidAddressDetail } =
     useSelector(({ address }) => address);
@@ -156,19 +154,6 @@ const CheckoutForm = () => {
 
           return;
         }
-        if (
-          appliedPromoDetail?.purchaseMode === ONE_TIME &&
-          appliedPromoDetail?.appliedEmail?.toLowerCase() !=
-            values?.email?.trim()?.toLowerCase()
-        ) {
-          dispatch(
-            handleAddressMessage({
-              message: "Entered Mail and Coupon Email do not match",
-              type: messageType?.ERROR,
-            })
-          );
-          return;
-        }
 
         const {
           address = "",
@@ -225,13 +210,7 @@ const CheckoutForm = () => {
         clearAbortController();
       }
     },
-    [
-      cartList.length,
-      clearAbortController,
-      dispatch,
-      appliedPromoDetail,
-      userEmail,
-    ]
+    [cartList.length, clearAbortController, dispatch]
   );
 
   const {
@@ -252,8 +231,6 @@ const CheckoutForm = () => {
   useEffect(() => {
     let address = localStorage.getItem("address");
 
-    dispatch(setCouponCode(""));
-    dispatch(setAppliedPromoDetail(null));
     if (address) {
       address = JSON.parse(address);
       const updatedValues = {
@@ -271,20 +248,11 @@ const CheckoutForm = () => {
         apartment: address?.apartment,
         mobile: address?.mobile,
       };
-      if (address?.email) {
-        dispatch(setUserEmail(address?.email));
-      }
+
       setValues(updatedValues);
       dispatch(setSelectedShippingAddress(updatedValues));
       setCountryWiseStateList(address?.countryName);
     }
-    let savedEmail = "";
-    if (address?.email) {
-      savedEmail = address?.email;
-    } else if (currentUser?.email) {
-      savedEmail = currentUser?.email;
-    }
-    dispatch(setUserEmail(savedEmail));
   }, []);
 
   const setCountryWiseStateList = (selectedCountry) => {
@@ -298,35 +266,6 @@ const CheckoutForm = () => {
       dispatch(setStateList(countryWiseStatesList));
     }
   };
-
-  const validateEmail = (email) => {
-    const re = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-    return re.test(email);
-  };
-
-  useEffect(() => {
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current);
-    }
-
-    debounceTimer.current = setTimeout(() => {
-      const email = values.email?.trim();
-
-      if (!currentUser?.email) {
-        const isValid = validateEmail(email);
-
-        if (isValid && email !== userEmail) {
-          dispatch(setUserEmail(email));
-        } else if ((!isValid || !email) && userEmail) {
-          dispatch(setUserEmail(""));
-        }
-      }
-    }, 600);
-
-    return () => {
-      clearTimeout(debounceTimer.current);
-    };
-  }, [values?.email, currentUser, dispatch]);
 
   const handleCountryChange = (value) => {
     setValues((prevValues) => ({
@@ -577,51 +516,65 @@ const CheckoutForm = () => {
             </div>
           </section>
 
-          <div
-            onMouseEnter={() => dispatch(setIsHovered(true))}
-            onMouseLeave={() => dispatch(setIsHovered(false))}
-          >
-            <LoadingPrimaryButton
-              className="w-full uppercase hover:!text-primary"
-              loading={validateAddressLoader}
-              loaderType={isHovered ? "" : "white"}
-              onClick={handleSubmit}
+          <div>
+            <div
+              onMouseEnter={() => dispatch(setIsHovered(true))}
+              onMouseLeave={() => dispatch(setIsHovered(false))}
             >
-              CONTINUE SHIPPING
-            </LoadingPrimaryButton>
-            {addressMessage?.message ? (
-              <ErrorMessage message={addressMessage?.message} />
-            ) : null}
+              <LoadingPrimaryButton
+                className="w-full uppercase hover:!text-primary"
+                loading={validateAddressLoader}
+                loaderType={isHovered ? "" : "white"}
+                onClick={handleSubmit}
+              >
+                CONTINUE SHIPPING
+              </LoadingPrimaryButton>
+              {addressMessage?.message ? (
+                <ErrorMessage message={addressMessage?.message} />
+              ) : null}
 
-            <div className="flex flex-col md:flex-row gap-4 mt-4">
-              {invalidAddressDetail?.unconfirmedComponentTypes?.length > 0 && (
-                <div className="flex-1">
-                  <h4 className="font-semibold text-red-600 mb-2">
-                    Unconfirmed:
-                  </h4>
-                  <ul className="list-inside text-red-500 text-sm">
-                    {invalidAddressDetail?.unconfirmedComponentTypes?.map(
-                      (componentType, index) => (
-                        <li key={index}>{componentType?.replace(/_/g, " ")}</li>
-                      )
+              {invalidAddressDetail?.unconfirmedComponentTypes?.length > 0 ||
+                (invalidAddressDetail?.missingComponentTypes?.length > 0 && (
+                  <div className="flex flex-col md:flex-row gap-4 mt-4">
+                    {invalidAddressDetail?.unconfirmedComponentTypes?.length >
+                      0 && (
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-red-600 mb-2">
+                          Unconfirmed:
+                        </h4>
+                        <ul className="list-inside text-red-500 text-sm">
+                          {invalidAddressDetail?.unconfirmedComponentTypes?.map(
+                            (componentType, index) => (
+                              <li key={index}>
+                                {componentType?.replace(/_/g, " ")}
+                              </li>
+                            )
+                          )}
+                        </ul>
+                      </div>
                     )}
-                  </ul>
-                </div>
-              )}
 
-              {invalidAddressDetail?.missingComponentTypes?.length > 0 && (
-                <div className="flex-1">
-                  <h4 className="font-semibold text-red-600 mb-2">Missing:</h4>
-                  <ul className="list-inside text-red-500 text-sm">
-                    {invalidAddressDetail?.missingComponentTypes?.map(
-                      (componentType, index) => (
-                        <li key={index}>{componentType}</li>
-                      )
+                    {invalidAddressDetail?.missingComponentTypes?.length >
+                      0 && (
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-red-600 mb-2">
+                          Missing:
+                        </h4>
+                        <ul className="list-inside text-red-500 text-sm">
+                          {invalidAddressDetail?.missingComponentTypes?.map(
+                            (componentType, index) => (
+                              <li key={index}>{componentType}</li>
+                            )
+                          )}
+                        </ul>
+                      </div>
                     )}
-                  </ul>
-                </div>
-              )}
+                  </div>
+                ))}
             </div>
+            <GrayLinkButton href="/cart" variant="grayHover" className="mt-4">
+              Back To Cart
+            </GrayLinkButton>
           </div>
         </div>
       </form>

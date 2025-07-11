@@ -4,11 +4,11 @@ import { ShowCaseBanner } from 'src/sections/showcase-banner';
 
 // ----------------------------------------------------------------------
 
-export default function SliderViewAddPage() {
+export default function ShowCaseBannerPage() {
   return (
     <>
       <Helmet>
-        <title> ShowCase Banner | Katan Off </title>
+        <title> ShowCase Banner | Katanoff </title>
       </Helmet>
 
       <ShowCaseBanner />

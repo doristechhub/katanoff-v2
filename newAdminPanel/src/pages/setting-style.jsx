@@ -8,7 +8,7 @@ export default function SettingStylePage() {
   return (
     <>
       <Helmet>
-        <title> Setting style | Katan Off </title>
+        <title> Setting style | Katanoff </title>
       </Helmet>
 
       <SettingStyle />

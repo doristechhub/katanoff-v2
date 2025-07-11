@@ -108,7 +108,12 @@ const sendOtpForEmailVerification = async (req, res) => {
           userService
             .findOneAndUpdate(userFindPattern, updatePattern)
             .then(async () => {
-              const { subject, description } = emailOtpVerification(`${otp}`);
+              const fullName = `${userData?.firstName} ${userData?.lastName}`;
+              const mailPayload = {
+                fullName,
+                otp
+              }
+              const { subject, description } = emailOtpVerification(mailPayload);
               await sendMail(email, subject, description);
 
               return res.json({

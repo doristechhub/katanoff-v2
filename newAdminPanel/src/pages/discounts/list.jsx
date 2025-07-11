@@ -8,7 +8,7 @@ export default function DiscountsPage() {
   return (
     <>
       <Helmet>
-        <title> Discounts | Katan Off </title>
+        <title> Discounts | Katanoff </title>
       </Helmet>
 
       <DiscountsView />

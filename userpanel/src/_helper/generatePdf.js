@@ -25,6 +25,10 @@ export const convertImageToBase64 = async (imageUrl) => {
 };
 
 export const generatePDF = async (orderData, sizePage = "1") => {
+  const logoBase64 = `data:image/webp;base64,${await convertImageToBase64(
+    "/images/logo.webp"
+  )}`;
+
   const invoiceData = {
     ...orderData,
     products: await Promise.all(
@@ -43,66 +47,84 @@ export const generatePDF = async (orderData, sizePage = "1") => {
     date.getMonth() + 1
   } / ${date.getDate()} / ${date.getFullYear()}`;
   const pageWidth = doc.internal.pageSize.getWidth();
-  const topHeight = 25;
   const imageSize = 40;
   const minCellHeight = 45;
+  const imgTopY = 30;
+  const topY = 40;
+  const logoWidth = 60;
+  const logoHeight = 60;
+  const leftColX = 40;
+  const rightColX = pageWidth - 210;
 
-  // Title and Order Info
+  doc.addImage(logoBase64, "WEBP", leftColX, imgTopY, logoWidth, logoHeight);
+
   doc.setFontSize(20);
-  doc.text("Invoice", pageWidth - 150, topHeight);
+  doc.text("Invoice", pageWidth - 145, topY + 15, { align: "right" });
   doc.setFontSize(10);
-  doc
-    .text(formattedDate, pageWidth - 150, topHeight + 15)
-    .setFont(undefined, "bold");
+  doc.text(formattedDate, pageWidth - 125, topY + 35, { align: "right" });
 
-  doc.text("Order Details", 40, topHeight).setFont(undefined, "normal");
-  doc.text(`Order Number: ${invoiceData?.orderNumber}`, 40, topHeight + 15);
+  const sectionTop = topY + logoHeight + 10;
+
+  doc.setFontSize(11);
+  doc.setFont(undefined, "bold");
+  doc.text("Order Details", leftColX, sectionTop);
+  doc.setFont(undefined, "normal");
+  doc.text(
+    `Order Number: ${invoiceData?.orderNumber}`,
+    leftColX,
+    sectionTop + 15
+  );
   doc.text(
     `Order Date: ${new Date(invoiceData?.createdDate)?.toLocaleDateString()}`,
-    40,
-    topHeight + 30
+    leftColX,
+    sectionTop + 30
   );
   doc.text(
     `Order Status: ${helperFunctions?.capitalizeCamelCase(
       invoiceData?.orderStatus
     )}`,
-    40,
-    topHeight + 45
+    leftColX,
+    sectionTop + 45
   );
-  doc
-    .text(
-      `Payment Status: ${helperFunctions?.capitalizeCamelCase(
-        invoiceData?.paymentStatus
-      )}`,
-      40,
-      topHeight + 60
-    )
-    .setFont(undefined, "bold");
+  doc.text(
+    `Payment Status: ${helperFunctions?.capitalizeCamelCase(
+      invoiceData?.paymentStatus
+    )}`,
+    leftColX,
+    sectionTop + 60
+  );
 
-  // Shipping Info
-  doc.text("Shipping Address", 40, topHeight + 80).setFont(undefined, "normal");
-  doc.text(`Name: ${invoiceData?.shippingAddress?.name}`, 40, topHeight + 95);
+  doc.setFont(undefined, "bold");
+  doc.text("Shipping Address", rightColX, sectionTop);
+  doc.setFont(undefined, "normal");
+  doc.text(
+    `Name: ${invoiceData?.shippingAddress?.name}`,
+    rightColX,
+    sectionTop + 15
+  );
   doc.text(
     `Email: ${invoiceData?.shippingAddress?.email}`,
-    40,
-    topHeight + 110
+    rightColX,
+    sectionTop + 30,
+    { maxWidth: pageWidth / 2 - 120 }
   );
   doc.text(
     `Address: ${invoiceData.shippingAddress.address}, ${invoiceData.shippingAddress.city}, ${invoiceData.shippingAddress.state}, ${invoiceData.shippingAddress.country} - ${invoiceData.shippingAddress.pinCode}`,
-    40,
-    topHeight + 125
+    rightColX,
+    sectionTop + 45,
+    { maxWidth: pageWidth / 2 - 120 }
   );
   doc.text(
     `Mobile: ${invoiceData?.shippingAddress?.mobile}`,
-    40,
-    topHeight + 140
+    rightColX,
+    sectionTop + 75
   );
 
   // Table Headers and Body
   const headers = [["IMAGE", "PRODUCT", "QTY", "UNIT PRICE ($)", "TOTAL ($)"]];
   const data = invoiceData?.products?.map((x) => {
     const variations = x?.variations
-      ?.map((y) => `* ${y?.variationName} : ${y?.variationTypeName}`)
+      ?.map((y) => `${y?.variationName} : ${y?.variationTypeName}`)
       .join("\n");
 
     const isDiamond = Boolean(x?.diamondDetail);
@@ -135,7 +157,7 @@ export const generatePDF = async (orderData, sizePage = "1") => {
 
   autoTable(doc, {
     theme: "grid",
-    startY: 190,
+    startY: 220,
     head: [["IMAGE", "PRODUCT", "QTY", "UNIT PRICE ($)", "TOTAL ($)"]],
     body: data,
     headStyles: { fillColor: [32, 42, 78] },
