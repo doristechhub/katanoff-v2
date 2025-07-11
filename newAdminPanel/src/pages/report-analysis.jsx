@@ -4,11 +4,11 @@ import { ReportAnalysisPage } from 'src/sections/report-analysis';
 
 // ----------------------------------------------------------------------
 
-export default function LoginPage() {
+export default function ReportAndAnalysisPage() {
   return (
     <>
       <Helmet>
-        <title> Report & Analysis | Katan Off </title>
+        <title> Report & Analysis | Katanoff </title>
       </Helmet>
 
       <ReportAnalysisPage />

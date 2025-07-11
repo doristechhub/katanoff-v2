@@ -8,7 +8,7 @@ export default function AppointmentsPage() {
   return (
     <>
       <Helmet>
-        <title> Appointments | Katan Off </title>
+        <title> Appointments | Katanoff </title>
       </Helmet>
 
       <Appointments />

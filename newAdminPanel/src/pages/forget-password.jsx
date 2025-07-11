@@ -4,11 +4,11 @@ import { ForgetPassword } from 'src/sections/forgetPassword';
 
 // ----------------------------------------------------------------------
 
-export default function LoginPage() {
+export default function ForgetPasswordPage() {
   return (
     <>
       <Helmet>
-        <title> Signup | Katan Off </title>
+        <title>Forget Password | Katanoff </title>
       </Helmet>
 
       <ForgetPassword />

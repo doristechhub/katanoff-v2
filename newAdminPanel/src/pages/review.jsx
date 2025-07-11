@@ -4,11 +4,11 @@ import { Review } from 'src/sections/review';
 
 // ----------------------------------------------------------------------
 
-export default function AppPage() {
+export default function ReviewsPage() {
   return (
     <>
       <Helmet>
-        <title> Reviews | Katan Off </title>
+        <title> Reviews | Katanoff </title>
       </Helmet>
 
       <Review />

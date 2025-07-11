@@ -4,11 +4,11 @@ import { PermissionsPage } from 'src/sections/permissions';
 
 // ----------------------------------------------------------------------
 
-export default function AppPage() {
+export default function Permissions() {
   return (
     <>
       <Helmet>
-        <title> Permissions | Katan Off </title>
+        <title> Permissions | Katanoff </title>
       </Helmet>
 
       <PermissionsPage />

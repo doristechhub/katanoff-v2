@@ -7,7 +7,7 @@ export default function AddCollectionPage() {
   return (
     <>
       <Helmet>
-        <title> Collections | Katan Off </title>
+        <title> Collections | Katanoff </title>
       </Helmet>
 
       <AddCollection />

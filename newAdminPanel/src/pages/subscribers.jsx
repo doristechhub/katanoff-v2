@@ -8,7 +8,7 @@ export default function Subscribers() {
   return (
     <>
       <Helmet>
-        <title> Subscribers | Katan Off </title>
+        <title> Subscribers | Katanoff </title>
       </Helmet>
 
       <SubscribersPage />

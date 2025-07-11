@@ -8,7 +8,7 @@ export default function ReturnRequest() {
   return (
     <>
       <Helmet>
-        <title> Return Request | Katan Off </title>
+        <title> Return Request | Katanoff </title>
       </Helmet>
 
       <ReturnRequestPage />

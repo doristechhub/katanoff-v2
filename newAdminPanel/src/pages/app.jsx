@@ -8,7 +8,7 @@ export default function AppPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard | Katan Off </title>
+        <title> Dashboard | Katanoff </title>
       </Helmet>
 
       <AppView />

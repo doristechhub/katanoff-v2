@@ -8,7 +8,7 @@ export default function AppPage() {
   return (
     <>
       <Helmet>
-        <title> Customization | Katan Off </title>
+        <title> Customization | Katanoff </title>
       </Helmet>
 
       <Customization />

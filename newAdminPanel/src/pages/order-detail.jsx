@@ -4,11 +4,11 @@ import { OrderDetailPage } from 'src/sections/order-detail';
 
 // ----------------------------------------------------------------------
 
-export default function LoginPage() {
+export default function OrderDetail() {
   return (
     <>
       <Helmet>
-        <title> Order Detail | Katan Off </title>
+        <title> Order Detail | Katanoff </title>
       </Helmet>
 
       <OrderDetailPage />
