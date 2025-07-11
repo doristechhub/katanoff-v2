@@ -307,6 +307,7 @@ const updateOrderStatus = async (req, res) => {
         const { subject, description } = getMailTemplateForOrderStatus(
           orderData.shippingAddress.name,
           orderData.orderNumber,
+          trackingNumber || orderData.trackingNumber,
           orderStatus
         );
         sendMail(orderData.shippingAddress.email, subject, description);
@@ -442,7 +443,7 @@ const cancelOrder = async (req, res) => {
             if (
               !refundsList?.length ||
               refundsList?.filter((x) => x?.status === "canceled")?.length ===
-                refundsList?.length
+              refundsList?.length
             ) {
               const orderUpdatePatternWithRefund = {
                 paymentStatus: "refund_initialization_failed",
@@ -529,7 +530,7 @@ const cancelOrder = async (req, res) => {
           status: 409,
           message: message.custom(
             `You cannot cancel order as the payment status is ${orderData.paymentStatus}` +
-              ` and order status is ${orderData.orderStatus}`
+            ` and order status is ${orderData.orderStatus}`
           ),
         });
       }
@@ -649,8 +650,7 @@ const refundPayment = async (req, res) => {
           return res.json({
             status: 429,
             message: message.custom(
-              `The requested refund amount exceeds your payment amount. The maximum refundable amount is $${
-                paymentIntent.amount / 100
+              `The requested refund amount exceeds your payment amount. The maximum refundable amount is $${paymentIntent.amount / 100
               }.`
             ),
           });
@@ -694,7 +694,7 @@ const refundPayment = async (req, res) => {
           if (
             !refundsList?.length ||
             refundsList?.filter((x) => x?.status === "canceled")?.length ===
-              refundsList?.length
+            refundsList?.length
           ) {
             updatePattern.paymentStatus = "refund_initialization_failed";
             updatePattern.stripeRefundFailureReason = e?.message;
@@ -733,8 +733,7 @@ const refundPayment = async (req, res) => {
           return res.json({
             status: 429,
             message: message.custom(
-              `The requested refund amount exceeds your payment amount. The maximum refundable amount is $${
-                capturedAmount / 100
+              `The requested refund amount exceeds your payment amount. The maximum refundable amount is $${capturedAmount / 100
               }.`
             ),
           });
