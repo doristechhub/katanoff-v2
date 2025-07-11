@@ -173,7 +173,7 @@ export const GrayLinkButton = ({
 }) => {
   const variantClass =
     variant === "grayHover"
-      ? "!text-[#7d7d7d] !rounded-none !bg-transparent hover:!bg-[#7d7d7d14] border border-[#7d7d7d8a] hover:border-transparent text-black text-lg font-medium uppercase !h-12 lg:!h-[2.8rem] 2xl:!h-[3.5rem]"
+      ? "!text-[#7d7d7d] !rounded-none !bg-transparent hover:!bg-[#7d7d7d14] border !border-[#7d7d7d8a] hover:border-transparent text-black text-lg font-medium uppercase !h-12 lg:!h-[2.8rem] 2xl:!h-[3.5rem]"
       : containedGrayBtn;
   return (
     <LinkButton
