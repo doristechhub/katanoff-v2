@@ -317,8 +317,18 @@ const ReturnRequestPage = () => {
                             </p>
                           </div>
                         )}
+
+                        <DiamondDetailDrawer
+                          cartItem={cartItem}
+                          openDiamondDetailDrawer={openDiamondDetailDrawer}
+                          dispatch={dispatch}
+                          setOpenDiamondDetailDrawer={
+                            setOpenDiamondDetailDrawer
+                          }
+                          isOrderPage={true}
+                        />
                       </div>
-                      <div className="flex flex-col pt-1 sm:pt-0 sm:items-end sm:justify-end  sm:gap-2">
+                      <div className="flex flex-col pt-1 sm:pt-0 sm:items-end sm:gap-2 w-48">
                         {orderDetail?.discount > 0 && (
                           <div className="text-lightblack text-sm md:text-base font-semibold flex flex-wrap gap-2">
                             <span className="inline xss:block">Discount:</span>
@@ -376,20 +386,10 @@ const ReturnRequestPage = () => {
                         </div>
                       </div>
                     </div>
-
-                    <div className="hidden xs:block mt-2">
-                      <DiamondDetailDrawer
-                        cartItem={cartItem}
-                        openDiamondDetailDrawer={openDiamondDetailDrawer}
-                        dispatch={dispatch}
-                        setOpenDiamondDetailDrawer={setOpenDiamondDetailDrawer}
-                        isOrderPage={true}
-                      />
-                    </div>
                   </div>
                 </div>
 
-                <div className=" xs:hidden mt-1">
+                {/* <div className=" xs:hidden mt-1">
                   <DiamondDetailDrawer
                     cartItem={cartItem}
                     openDiamondDetailDrawer={openDiamondDetailDrawer}
@@ -397,7 +397,7 @@ const ReturnRequestPage = () => {
                     setOpenDiamondDetailDrawer={setOpenDiamondDetailDrawer}
                     isOrderPage={true}
                   />
-                </div>
+                </div> */}
               </div>
             ))}
             {touched.selectedProducts && errors.selectedProducts && (
@@ -439,7 +439,6 @@ const ReturnRequestPage = () => {
                       : "$0.00"}
                   </span>
                 </div>
-
 
                 {/* Divider */}
                 <hr className="w-full max-w-xs border-t border-gray-300 my-2" />

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Spinner from "./spinner";
 
-const containedBtn = "bg-white border border-white ";
+const containedBtn = "bg-white border border-white";
 const outlinedBtn = "border-2 border-white text-white bg-transparent";
 const primaryBtn = `
   rounded
@@ -165,11 +165,20 @@ export const GrayButton = ({ className, ...rest }) => {
   return <Button className={`${containedGrayBtn} ${className}`} {...rest} />;
 };
 
-export const GrayLinkButton = ({ className, href = "#", ...rest }) => {
+export const GrayLinkButton = ({
+  className,
+  variant = "",
+  href = "#",
+  ...rest
+}) => {
+  const variantClass =
+    variant === "grayHover"
+      ? "!text-[#7d7d7d] !rounded-none !bg-transparent hover:!bg-[#7d7d7d14] border border-[#7d7d7d8a] hover:border-transparent text-black text-lg font-medium uppercase !h-12 lg:!h-[2.8rem] 2xl:!h-[3.5rem]"
+      : containedGrayBtn;
   return (
     <LinkButton
       href={href}
-      className={`${containedGrayBtn} ${className}`}
+      className={`${variantClass} ${className}`}
       {...rest}
     />
   );

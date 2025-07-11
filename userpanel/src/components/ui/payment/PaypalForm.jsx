@@ -19,9 +19,7 @@ import { setCartList } from "@/store/slices/cartSlice";
 import { helperFunctions } from "@/_helper";
 import { useRouter } from "next/navigation";
 import { messageType } from "@/_helper/constants";
-import {
-  verifyCouponCode,
-} from "@/_actions/coupon.action";
+import { verifyCouponCode } from "@/_actions/coupon.action";
 
 const PaypalForm = ({ orderData }) => {
   const dispatch = useDispatch();
@@ -37,10 +35,9 @@ const PaypalForm = ({ orderData }) => {
 
   const getCoupon = localStorage.getItem("appliedCoupon");
 
+  const subTotal = helperFunctions.getSubTotal(cartList);
   useEffect(() => {
-    const subTotal = helperFunctions.getSubTotal(cartList);
-
-    if (!appliedPromoDetail && getCoupon) {
+    if (!appliedPromoDetail && getCoupon && subTotal) {
       dispatch(
         verifyCouponCode({
           promoCode: getCoupon,
@@ -48,7 +45,7 @@ const PaypalForm = ({ orderData }) => {
         })
       );
     }
-  }, [dispatch, appliedPromoDetail, cartList]);
+  }, [dispatch, appliedPromoDetail, subTotal]);
 
   const handleSuccessfulPayment = useCallback(
     async (billingAddressData) => {

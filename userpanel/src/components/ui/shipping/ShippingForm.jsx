@@ -25,7 +25,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { LoadingPrimaryButton } from "../button";
+import { GrayLinkButton, LoadingPrimaryButton } from "../button";
 import { setIsHovered, setIsSubmitted } from "@/store/slices/commonSlice";
 import ErrorMessage from "../ErrorMessage";
 import {
@@ -109,10 +109,9 @@ const shippingForm = () => {
   }, [dispatch, router, cartList, clearAbortController]);
 
   const getCoupon = localStorage.getItem("appliedCoupon");
+  const subTotal = helperFunctions.getSubTotal(cartList);
   useEffect(() => {
-    const subTotal = helperFunctions.getSubTotal(cartList);
-
-    if (!appliedPromoDetail && getCoupon) {
+    if (!appliedPromoDetail && getCoupon && subTotal) {
       dispatch(
         verifyCouponCode({
           promoCode: getCoupon,
@@ -120,7 +119,7 @@ const shippingForm = () => {
         })
       );
     }
-  }, [dispatch, appliedPromoDetail, cartList]);
+  }, [dispatch, appliedPromoDetail, subTotal]);
 
   const processPayment = useCallback(
     async (paymentAction, payload) => {
@@ -337,25 +336,31 @@ const shippingForm = () => {
         </div>
       </div>
 
-      <div
-        className="mt-5 2xl:mt-8 w-full"
-        onMouseEnter={() => dispatch(setIsHovered(true))}
-        onMouseLeave={() => dispatch(setIsHovered(false))}
-      >
-        <LoadingPrimaryButton
-          className="w-full uppercase"
-          loading={paymentIntentLoader || paypalPaymentLoader}
-          loaderType={isHovered ? "" : "white"}
-          onClick={submitShippingMethod}
+      <div>
+        <div
+          className="mt-5 2xl:mt-8 w-full"
+          onMouseEnter={() => dispatch(setIsHovered(true))}
+          onMouseLeave={() => dispatch(setIsHovered(false))}
         >
-          CONTINUE PAYMENT
-        </LoadingPrimaryButton>
-        {isSubmitted && paymentIntentMessage?.message ? (
-          <ErrorMessage message={paymentIntentMessage?.message} />
-        ) : null}
-        {isSubmitted && paypalPaymentMessage?.message ? (
-          <ErrorMessage message={paypalPaymentMessage?.message} />
-        ) : null}
+          <LoadingPrimaryButton
+            className="w-full uppercase"
+            loading={paymentIntentLoader || paypalPaymentLoader}
+            loaderType={isHovered ? "" : "white"}
+            onClick={submitShippingMethod}
+          >
+            CONTINUE PAYMENT
+          </LoadingPrimaryButton>
+          {isSubmitted && paymentIntentMessage?.message ? (
+            <ErrorMessage message={paymentIntentMessage?.message} />
+          ) : null}
+          {isSubmitted && paypalPaymentMessage?.message ? (
+            <ErrorMessage message={paypalPaymentMessage?.message} />
+          ) : null}
+        </div>
+
+        <GrayLinkButton href="/checkout" variant="grayHover" className="mt-4">
+          Back To Checkout
+        </GrayLinkButton>
       </div>
     </div>
   );

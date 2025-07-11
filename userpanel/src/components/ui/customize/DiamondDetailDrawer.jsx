@@ -1,23 +1,19 @@
-const DiamondDetailDrawer = ({ cartItem }) => {
+const DiamondDetailDrawer = ({ cartItem, isCartPopupPage }) => {
   if (!cartItem?.diamondDetail) return null;
 
   return (
-    <div className="mt-1">
+    <div className={`${!isCartPopupPage ? "mt-1" : ""}`}>
       <h4 className="font-semibold text-sm md:text-base">Your Diamond</h4>
 
-      <div className="flex flex-wrap">
-        <p className="   text-sm  text-baseblack">
-          Lab Created {cartItem.diamondDetail.caratWeight} Carat,&nbsp;
-        </p>
-        <p className="   text-sm  text-baseblack">
-          {cartItem.diamondDetail.shapeName} Diamond,&nbsp;
-        </p>
-        <p className="   text-sm  text-baseblack">
-          Clarity- {cartItem.diamondDetail.clarity},&nbsp;
-        </p>
-        <p className="   text-sm  text-baseblack">
-          Color- {cartItem.diamondDetail.color}
-        </p>
+      <div
+        className={`flex flex-wraptext-baseblack font-medium  ${
+          isCartPopupPage ? "text-xs 2xl:text-sm" : "text-sm md:text-base"
+        }`}
+      >
+        <p>Lab Created {cartItem.diamondDetail.caratWeight} Carat,&nbsp;</p>
+        <p>{cartItem.diamondDetail.shapeName} Diamond,&nbsp;</p>
+        <p>Clarity- {cartItem.diamondDetail.clarity},&nbsp;</p>
+        <p>Color- {cartItem.diamondDetail.color}</p>
       </div>
     </div>
   );

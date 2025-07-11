@@ -121,10 +121,12 @@ const getLatestProducts = (length = 8) => {
             }),
             discount: product.discount,
             goldTypeVariations: product?.variations?.find(
-              (x) => x?.variationName.toLowerCase() === GOLD_TYPES.toLowerCase()
+              (x) =>
+                x?.variationName?.toLowerCase() === GOLD_TYPES?.toLowerCase()
             )?.variationTypes,
             goldColorVariations: product?.variations?.find(
-              (x) => x?.variationName.toLowerCase() === GOLD_COLOR.toLowerCase()
+              (x) =>
+                x?.variationName?.toLowerCase() === GOLD_COLOR?.toLowerCase()
             )?.variationTypes,
           };
         });
@@ -178,21 +180,22 @@ const getCollectionsTypeWiseProduct = (
       if (collectionType === "categories") {
         filteredData = allActiveProductsData.filter(
           (item) =>
-            item.categoryName.toLowerCase() === collectionTitle.toLowerCase()
+            item?.categoryName?.toLowerCase() === collectionTitle?.toLowerCase()
         );
       } else if (collectionType === "subCategories") {
         // Filter by subcategory name
         let subCategoryFilter = allActiveProductsData.filter(
           (item) =>
-            item.subCategoryName.toLowerCase() === collectionTitle.toLowerCase()
+            item?.subCategoryName?.toLowerCase() ===
+            collectionTitle?.toLowerCase()
         );
 
         // If parentMainCategory is provided, further filter by category
         if (parentMainCategory) {
           subCategoryFilter = subCategoryFilter.filter(
             (item) =>
-              item.categoryName.toLowerCase() ===
-              parentMainCategory.toLowerCase()
+              item?.categoryName?.toLowerCase() ===
+              parentMainCategory?.toLowerCase()
           );
         }
 
@@ -203,7 +206,7 @@ const getCollectionsTypeWiseProduct = (
           (item) =>
             item.productTypeNames?.length &&
             item.productTypeNames.some(
-              (name) => name.toLowerCase() === collectionTitle.toLowerCase()
+              (name) => name?.toLowerCase() === collectionTitle?.toLowerCase()
             )
         );
 
@@ -211,8 +214,8 @@ const getCollectionsTypeWiseProduct = (
         if (parentCategory) {
           productTypeFilter = productTypeFilter.filter(
             (item) =>
-              item.subCategoryName.toLowerCase() ===
-              parentCategory.toLowerCase()
+              item?.subCategoryName?.toLowerCase() ===
+              parentCategory?.toLowerCase()
           );
         }
 
@@ -220,8 +223,8 @@ const getCollectionsTypeWiseProduct = (
         if (parentMainCategory) {
           productTypeFilter = productTypeFilter.filter(
             (item) =>
-              item.categoryName.toLowerCase() ===
-              parentMainCategory.toLowerCase()
+              item?.categoryName?.toLowerCase() ===
+              parentMainCategory?.toLowerCase()
           );
         }
 
@@ -229,9 +232,9 @@ const getCollectionsTypeWiseProduct = (
       } else if (collectionType === "collection") {
         filteredData = allActiveProductsData.filter(
           (item) =>
-            item.collectionNames?.length &&
-            item.collectionNames.some(
-              (name) => name.toLowerCase() === collectionTitle.toLowerCase()
+            item?.collectionNames?.length &&
+            item?.collectionNames?.some(
+              (name) => name?.toLowerCase() === collectionTitle?.toLowerCase()
             )
         );
       }
@@ -262,10 +265,12 @@ const getCollectionsTypeWiseProduct = (
             variations: product.variations,
             createdDate: product.createdDate,
             goldTypeVariations: product?.variations?.find(
-              (x) => x?.variationName.toLowerCase() === GOLD_TYPES.toLowerCase()
+              (x) =>
+                x?.variationName?.toLowerCase() === GOLD_TYPES?.toLowerCase()
             )?.variationTypes,
             goldColorVariations: product?.variations?.find(
-              (x) => x?.variationName.toLowerCase() === GOLD_COLOR.toLowerCase()
+              (x) =>
+                x?.variationName?.toLowerCase() === GOLD_COLOR?.toLowerCase()
             )?.variationTypes,
             settingStyleNamesWithImg: product?.settingStyleNamesWithImg,
             // Add category and subcategory info for debugging/reference
@@ -301,16 +306,16 @@ const fetchCollectionBanners = async ({
   const sanitizeValue = (value) => typeof value === "string" && value.trim();
   const sanitizedInputs = {
     category: sanitizeValue(collectionCategory)
-      ? collectionCategory.trim().toLowerCase()
+      ? collectionCategory?.trim()?.toLowerCase()
       : null,
     name: sanitizeValue(collectionName)
-      ? collectionName.trim().toLowerCase()
+      ? collectionName?.trim()?.toLowerCase()
       : null,
     parentSubCat: sanitizeValue(parentSubCategory)
-      ? parentSubCategory.trim().toLowerCase()
+      ? parentSubCategory?.trim()?.toLowerCase()
       : null,
     parentMainCat: sanitizeValue(parentMainCategory)
-      ? parentMainCategory.trim().toLowerCase()
+      ? parentMainCategory?.trim()?.toLowerCase()
       : null,
   };
 
@@ -562,7 +567,7 @@ const getReletedProducts = (productName) => {
 
           const reletedProductsWithoutCurrentProduct = relatedProducts?.filter(
             (product) =>
-              product.productName.toLowerCase() !== productName.toLowerCase()
+              product?.productName?.toLowerCase() !== productName?.toLowerCase()
           );
 
           const sortedReletedProductData = helperFunctions
@@ -589,11 +594,13 @@ const getReletedProducts = (productName) => {
                 discount: product.discount,
                 goldTypeVariations: product?.variations?.find(
                   (x) =>
-                    x?.variationName.toLowerCase() === GOLD_TYPES.toLowerCase()
+                    x?.variationName?.toLowerCase() ===
+                    GOLD_TYPES?.toLowerCase()
                 )?.variationTypes,
                 goldColorVariations: product?.variations?.find(
                   (x) =>
-                    x?.variationName.toLowerCase() === GOLD_COLOR.toLowerCase()
+                    x?.variationName?.toLowerCase() ===
+                    GOLD_COLOR?.toLowerCase()
                 )?.variationTypes,
               };
             });
@@ -750,8 +757,8 @@ const getFilteredDiamondProducts = (params) => {
             ? selectedVariations.every((selectedVariation) => {
                 const productVariation = product?.variations?.find(
                   (v) =>
-                    v?.variationName.toLowerCase() ===
-                    selectedVariation.title.toLowerCase()
+                    v?.variationName?.toLowerCase() ===
+                    selectedVariation?.title?.toLowerCase()
                 );
 
                 if (!productVariation) return false;
@@ -761,8 +768,8 @@ const getFilteredDiamondProducts = (params) => {
                   ? selectedVariation.selectedValues.some((selectedValue) =>
                       productVariation.variationTypes.some(
                         (variationType) =>
-                          variationType.variationTypeName.toLowerCase() ===
-                          selectedValue.value.toLowerCase()
+                          variationType?.variationTypeName?.toLowerCase() ===
+                          selectedValue?.value?.toLowerCase()
                       )
                     )
                   : true;
@@ -812,10 +819,12 @@ const getFilteredDiamondProducts = (params) => {
             }),
             discount: product.discount,
             goldTypeVariations: product?.variations?.find(
-              (x) => x?.variationName.toLowerCase() === GOLD_TYPES.toLowerCase()
+              (x) =>
+                x?.variationName?.toLowerCase() === GOLD_TYPES?.toLowerCase()
             )?.variationTypes,
             goldColorVariations: product?.variations?.find(
-              (x) => x?.variationName.toLowerCase() === GOLD_COLOR.toLowerCase()
+              (x) =>
+                x?.variationName?.toLowerCase() === GOLD_COLOR?.toLowerCase()
             )?.variationTypes,
           };
         }
@@ -978,10 +987,12 @@ const getCustomizeProduct = (params) => {
             variations: product.variations,
             createdDate: product.createdDate,
             goldTypeVariations: product?.variations?.find(
-              (x) => x?.variationName.toLowerCase() === GOLD_TYPES.toLowerCase()
+              (x) =>
+                x?.variationName?.toLowerCase() === GOLD_TYPES?.toLowerCase()
             )?.variationTypes,
             goldColorVariations: product?.variations?.find(
-              (x) => x?.variationName.toLowerCase() === GOLD_COLOR.toLowerCase()
+              (x) =>
+                x?.variationName?.toLowerCase() === GOLD_COLOR?.toLowerCase()
             )?.variationTypes,
             settingStyleNamesWithImg: product?.settingStyleNamesWithImg,
           };
@@ -1040,7 +1051,7 @@ const searchProducts = (params) => {
           // Check if any field contains the search term (case-insensitive)
           return fieldsToSearch.some((field) =>
             field
-              ? field.toLowerCase().includes(searchValue.toLowerCase())
+              ? field?.toLowerCase()?.includes(searchValue?.toLowerCase())
               : false
           );
         });
@@ -1057,10 +1068,12 @@ const searchProducts = (params) => {
             ),
             discount: product.discount,
             goldTypeVariations: product?.variations?.find(
-              (x) => x?.variationName.toLowerCase() === GOLD_TYPES.toLowerCase()
+              (x) =>
+                x?.variationName?.toLowerCase() === GOLD_TYPES?.toLowerCase()
             )?.variationTypes,
             goldColorVariations: product?.variations?.find(
-              (x) => x?.variationName.toLowerCase() === GOLD_COLOR.toLowerCase()
+              (x) =>
+                x?.variationName?.toLowerCase() === GOLD_COLOR?.toLowerCase()
             )?.variationTypes,
           };
         });

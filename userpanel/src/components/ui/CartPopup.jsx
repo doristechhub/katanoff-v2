@@ -434,6 +434,7 @@ const CartPopup = () => {
                           <div className="hidden xs:block mt-4">
                             <DiamondDetailDrawer
                               cartItem={cartItem}
+                              isCartPopupPage={true}
                               openDiamondDetailDrawer={openDiamondDetailDrawer}
                               dispatch={dispatch}
                               setOpenDiamondDetailDrawer={
@@ -446,6 +447,7 @@ const CartPopup = () => {
                       <div className="xs:hidden mt-4">
                         <DiamondDetailDrawer
                           cartItem={cartItem}
+                          isCartPopupPage={true}
                           openDiamondDetailDrawer={openDiamondDetailDrawer}
                           dispatch={dispatch}
                           setOpenDiamondDetailDrawer={

@@ -19,7 +19,7 @@ import {
   helperFunctions,
   ordersUrl,
 } from "@/_helper";
-import { LoadingPrimaryButton } from "../button";
+import { GrayLinkButton, LoadingPrimaryButton } from "../button";
 import { setIsHovered, setIsSubmitted } from "@/store/slices/commonSlice";
 import ErrorMessage from "../ErrorMessage";
 import {
@@ -374,6 +374,9 @@ const PaymentForm = ({ orderId }) => {
         {paymentMessage?.message && (
           <ErrorMessage message={paymentMessage?.message} />
         )}
+        <GrayLinkButton href="/shipping" variant="grayHover" className="mt-4">
+          Back To Shipping
+        </GrayLinkButton>
       </form>
     </div>
   );

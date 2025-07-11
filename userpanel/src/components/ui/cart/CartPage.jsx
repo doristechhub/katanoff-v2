@@ -19,11 +19,9 @@ import {
   updateProductQuantityIntoCart,
 } from "@/_actions/cart.action";
 import {
-  FIXED,
   helperFunctions,
   LENGTH,
   messageType,
-  PERCENTAGE,
   RING_SIZE,
 } from "@/_helper";
 import Link from "next/link";
@@ -54,8 +52,13 @@ const minQuantity = 1;
 const CartPage = () => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const { promoCodeLoading, couponCode, appliedPromoDetail, couponMessage } =
-    useSelector(({ coupon }) => coupon);
+  const {
+    promoCodeLoading,
+    couponCode,
+    appliedPromoDetail,
+    couponMessage,
+    discountAmount,
+  } = useSelector(({ coupon }) => coupon);
   const { isHovered } = useSelector(({ common }) => common);
 
   const { isChecked, isSubmitted, openDiamondDetailDrawer } = useSelector(
@@ -198,32 +201,12 @@ const CartPage = () => {
     handleCartQuantity("set", { ...item, quantity: newQty });
   };
 
-  const getCouponDiscountValue = () => {
-    if (!appliedPromoDetail || !appliedPromoDetail.discountDetails) {
-      return 0;
-    }
-
-    const { type, amount } = appliedPromoDetail.discountDetails;
-    const subtotal = getSubTotal();
-    let discount = 0;
-
-    if (type === PERCENTAGE) {
-      discount = (amount / 100) * subtotal;
-    } else if (type === FIXED) {
-      discount = Math.min(amount, subtotal);
-    }
-
-    const formattedDiscount = parseFloat(discount.toFixed(2));
-    return formattedDiscount;
-  };
-
-  // const grandTotal = getSubTotal();
   const grandTotal = useCallback(() => {
-    if (getCouponDiscountValue() > 0) {
-      return getSubTotal() - getCouponDiscountValue();
+    if (discountAmount > 0) {
+      return getSubTotal() - discountAmount;
     }
     return getSubTotal();
-  }, [getSubTotal, getCouponDiscountValue]);
+  }, [getSubTotal, discountAmount]);
 
   const handleRemoveCoupon = () => {
     dispatch(removeCouponCode());
@@ -445,7 +428,7 @@ const CartPage = () => {
                                   cartItem?.productSellingPrice *
                                   cartItem?.quantity,
                                 subTotal: getSubTotal(),
-                                discountAmount: getCouponDiscountValue(),
+                                discountAmount: discountAmount,
                               })
                             )}
                           </span>
@@ -558,10 +541,7 @@ const CartPage = () => {
                   Discount ({appliedPromoDetail?.promoCode}):{" "}
                   <span className="">
                     {" "}
-                    -
-                    {helperFunctions?.formatCurrencyWithDollar(
-                      getCouponDiscountValue()
-                    )}
+                    -{helperFunctions?.formatCurrencyWithDollar(discountAmount)}
                   </span>
                 </p>
               )}
