@@ -41,6 +41,7 @@ const appointmentsRoutes = require("./routes/appointments");
 const returnsRoutes = require("./routes/returns");
 const contactRoutes = require("./routes/contact");
 const paypalRoutes = require("./routes/paypal");
+const discountsRoutes = require("./routes/discounts");
 /*   Routes   */
 app.use("/stripe", stripeRoutes);
 app.use("/order", orderRoutes);
@@ -51,6 +52,7 @@ app.use("/appointments", appointmentsRoutes);
 app.use("/returns", returnsRoutes);
 app.use("/contact", contactRoutes);
 app.use("/paypal", paypalRoutes);
+app.use("/discounts", discountsRoutes);
 
 exports.cloudFunctionsApi = functions.https.onRequest(app);
 

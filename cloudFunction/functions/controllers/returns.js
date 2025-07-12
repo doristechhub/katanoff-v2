@@ -189,7 +189,7 @@ const refundPaymentForReturn = async (req, res) => {
     returnId = sanitizeValue(returnId) ? returnId.trim() : "";
     refundAmount = refundAmount ? Number(refundAmount) : 0;
 
-    if (returnId && refundAmount) {
+    if (returnId && refundAmount && refundAmount > 0) {
       const findPattern = {
         returnId: returnId,
       };

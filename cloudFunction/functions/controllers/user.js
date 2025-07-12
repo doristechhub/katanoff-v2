@@ -10,10 +10,11 @@ const otpGenerator = require("otp-generator");
 const {
   emailOtpVerification,
   welcomeTemplate,
-  signUpDiscountEmail,
+  discountEmail,
 } = require("../utils/template");
 const jwt = require("jsonwebtoken");
 const { SIGN_UP_DISCOUNT } = require("../helpers/common");
+const getDiscountStatus = require("../helpers/discount");
 const encryptor = require("simple-encryptor")(process.env.ENC_KEY);
 
 /**
@@ -295,7 +296,10 @@ const signupWithDiscount = async (req, res) => {
     }
 
     const fullName = `${userData.firstName} ${userData.lastName}`;
-    const { subject, description } = signUpDiscountEmail(fullName, discount);
+    const discountStatus = getDiscountStatus(discount?.dateRange);
+    const mailPayload = { userName: fullName, discount, status: discountStatus };
+
+    const { subject, description } = discountEmail(mailPayload);
     await sendMail(email, subject, description);
 
     return res.json({

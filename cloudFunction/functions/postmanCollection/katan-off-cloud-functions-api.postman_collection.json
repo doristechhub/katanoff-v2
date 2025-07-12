@@ -964,6 +964,95 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "discounts",
+			"item": [
+				{
+					"name": "Notify User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json, text/plain, */*"
+							},
+							{
+								"key": "Accept-Language",
+								"value": "en-US,en;q=0.9"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer 10bf9299bd735f2045ce8d873badb74571f84ff6a88769662ecaaf401a7409a6bcf43b84d44f68a5bf4130e7362c4856kZ4XCVlQRlaH0nevY/cqldOeLZPRU5hgbaZ5iCbEJ32nm2fn7Po8T5DivN4kMrpacyL0ro3tvfMx3m/zfvH+FDYJZkSYZGoyKTU3M+MEQEWuMsQbYpqQwUfSWosFpCBAb5JhwJJNZtpwm71TxTEPv60BoNxkbPgvbaeKANbFBKMvy8JQr0U+cfjrVVeWANHAIm/u6fQeWAh/iNTauEy82Bnv73EqqNwR3lJNk8+wLPU="
+							},
+							{
+								"key": "Connection",
+								"value": "keep-alive"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Origin",
+								"value": "http://localhost:3030"
+							},
+							{
+								"key": "Referer",
+								"value": "http://localhost:3030/"
+							},
+							{
+								"key": "Sec-Fetch-Dest",
+								"value": "empty"
+							},
+							{
+								"key": "Sec-Fetch-Mode",
+								"value": "cors"
+							},
+							{
+								"key": "Sec-Fetch-Site",
+								"value": "cross-site"
+							},
+							{
+								"key": "User-Agent",
+								"value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+							},
+							{
+								"key": "sec-ch-ua",
+								"value": "\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\""
+							},
+							{
+								"key": "sec-ch-ua-mobile",
+								"value": "?0"
+							},
+							{
+								"key": "sec-ch-ua-platform",
+								"value": "\"Windows\""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"id\":\"36abd0e39c5\",\"createdDate\":{},\"name\":\"test213\",\"discountType\":\"Order Discount\",\"applicationMethod\":\"Code\",\"promoCode\":\"12434\",\"discountDetails\":{\"type\":\"Percentage\",\"amount\":24},\"purchaseMode\":\"One-Time\",\"customerEligibility\":\"Everyone\",\"minimumOrderValue\":0,\"dateRange\":{\"beginsAt\":\"07-12-2025 15:07\",\"expiresAt\":\"07-15-2025 00:25\"}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{cloudFunctionsUrl}}/discounts/notify-users",
+							"host": [
+								"{{cloudFunctionsUrl}}"
+							],
+							"path": [
+								"discounts",
+								"notify-users"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }
