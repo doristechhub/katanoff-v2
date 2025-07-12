@@ -9,6 +9,7 @@ import {
   ELIGIBILITY_TYPES,
   PURCHASE_TYPES,
 } from 'src/_helpers/constants';
+import axios from 'axios';
 
 const getAllDiscounts = () => {
   return new Promise(async (resolve, reject) => {
@@ -177,6 +178,7 @@ const insertDiscount = (params) => {
       };
 
       await fetchWrapperService.create(createPattern);
+      axios.post('/discounts/notify-users', sanitizeObject(insertPattern));
       resolve(insertPattern);
     } catch (e) {
       reject(e);
