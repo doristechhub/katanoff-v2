@@ -218,14 +218,12 @@ const OrderDetails = ({
                           Promo Offer:
                           <span>
                             -
-                            {helperFunctions?.formatCurrencyWithDollar(
-                              helperFunctions?.splitDiscountAmongProducts({
-                                quantityWiseProductPrice:
-                                  product?.productPrice * product?.cartQuantity,
-                                subTotal: orderDetail?.subTotal,
-                                discountAmount: orderDetail?.discount,
-                              })
-                            )}
+                            {helperFunctions?.formatDiscountForItem({
+                              productPrice: product?.productPrice,
+                              cartQuantity: product?.cartQuantity,
+                              subTotal: orderDetail?.subTotal,
+                              discountAmount: orderDetail?.discount,
+                            })}
                           </span>
                         </h3>
                       )}

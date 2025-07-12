@@ -203,7 +203,45 @@ const checkPaymentIntentStatus = async (req, res) => {
   } catch (e) {
     return res.json({
       status: 500,
-      message: message.SERVER_ERROR,
+      message: e?.message || message.SERVER_ERROR,
+    });
+  }
+};
+
+/**
+  This API is used for check payment intent status.
+*/
+const fetchPaymentIntent = async (req, res) => {
+  try {
+    let { paymentIntentId } = req.body;
+    paymentIntentId = sanitizeValue(paymentIntentId)
+      ? paymentIntentId.trim()
+      : "";
+    if (paymentIntentId) {
+      const pIFindPattern = {
+        paymentIntentId: paymentIntentId,
+        options: {
+          expand: ["latest_charge.balance_transaction"],
+        },
+      };
+      const paymentIntent = await stripeService.retrivePaymentIntent(
+        pIFindPattern
+      );
+      return res.json({
+        status: 200,
+        paymentIntent,
+        message: message.SUCCESS,
+      });
+    } else {
+      return res.json({
+        status: 400,
+        message: message.INVALID_DATA,
+      });
+    }
+  } catch (e) {
+    return res.json({
+      status: 500,
+      message: e?.message || message.SERVER_ERROR,
     });
   }
 };
@@ -771,6 +809,7 @@ const sendRefundStatusEmail = (eventStatus, orderData) => {
 module.exports = {
   createPaymentIntent,
   checkPaymentIntentStatus,
+  fetchPaymentIntent,
   cancelPaymentIntent,
   createOrder,
   stripeWebhook,

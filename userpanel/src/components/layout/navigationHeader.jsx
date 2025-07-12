@@ -17,6 +17,7 @@ import diamondIcon from "@/assets/icons/diamond.svg";
 import flashDeal from "@/assets/images/flash-deal.webp";
 import engagementHeader from "@/assets/images/engagement-header.webp";
 import {
+  CartIconInCheckout,
   CustomImg,
   ProgressiveImg,
   SearchBar,
@@ -946,7 +947,7 @@ export default function NavigationHeader() {
               className={"hidden lg:block"}
               uniqueId={"desktop-nav-profile"}
             />
-            {!hideCartPopup ? <CartPopup /> : null}
+            {!hideCartPopup ? <CartPopup /> : <CartIconInCheckout />}
           </div>
         ) : null}
       </nav>

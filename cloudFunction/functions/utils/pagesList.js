@@ -47,6 +47,10 @@ const pagesList = [
     pageId: "appointments",
     pageName: "Appointments",
   },
+  {
+    pageId: "discounts",
+    pageName: "Discounts",
+  },
 ];
 
 const dashboardPageId = "dashboard";
@@ -62,6 +66,7 @@ const ordersPageId = "orders";
 const permissionsPageId = "permissions";
 const appointmentsPageId = "appointments";
 const returnsPageId = "returns";
+const discountsPageId = "discounts";
 
 module.exports = {
   pagesList,
@@ -78,4 +83,5 @@ module.exports = {
   permissionsPageId,
   appointmentsPageId,
   returnsPageId,
+  discountsPageId
 };

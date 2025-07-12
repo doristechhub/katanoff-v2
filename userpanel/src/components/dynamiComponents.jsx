@@ -378,3 +378,10 @@ export const HomePagePopupWithLogin = dynamic(
     ssr: false,
   }
 );
+
+export const CartIconInCheckout = dynamic(
+  () => import("./ui/CartIconInCheckout.jsx"),
+  {
+    ssr: false,
+  }
+);

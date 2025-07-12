@@ -606,40 +606,6 @@ const formatCurrencyWithDollar = (amount) => {
   })}`;
 };
 
-const splitTaxAmongProducts = ({
-  quantityWiseProductPrice,
-  subTotal,
-  discountAmount,
-  totalTaxAmount,
-}) => {
-  if (
-    !subTotal ||
-    subTotal <= 0 ||
-    quantityWiseProductPrice <= 0 ||
-    totalTaxAmount <= 0
-  ) {
-    return 0;
-  }
-
-  // Step 1: Calculate per-product discount
-  const proportion = quantityWiseProductPrice / subTotal;
-  const productDiscount = proportion * discountAmount;
-
-  // Step 2: Get discounted product price
-  const discountedProductPrice = quantityWiseProductPrice - productDiscount;
-
-  // Step 3: Calculate total discounted subtotal (used for proportional tax)
-  const discountedSubTotal = subTotal - discountAmount;
-
-  if (!discountedSubTotal || discountedSubTotal <= 0) return 0;
-
-  // Step 4: Apply tax proportionally on discounted product amount
-  const taxProportion = discountedProductPrice / discountedSubTotal;
-  const productTax = taxProportion * totalTaxAmount;
-
-  return parseFloat(productTax.toFixed(2));
-};
-
 const calcReturnPayment = (products, orderDetail) => {
   if (!products?.length || !orderDetail) return {};
   const subTotal = products.reduce(
@@ -672,6 +638,25 @@ const calcReturnPayment = (products, orderDetail) => {
     // serviceFees: Number(serviceFees.toFixed(2)),
     returnRequestAmount: Number(returnRequestAmount.toFixed(2)),
   };
+};
+
+export const formatDiscountForItem = ({
+  productPrice,
+  cartQuantity,
+  subTotal,
+  discountAmount,
+}) => {
+  if (!discountAmount || discountAmount <= 0) return null;
+
+  const quantityWiseProductPrice = productPrice * cartQuantity;
+
+  const perProductDiscount = splitDiscountAmongProducts({
+    quantityWiseProductPrice,
+    subTotal,
+    discountAmount,
+  });
+
+  return formatCurrencyWithDollar(perProductDiscount);
 };
 
 export const helperFunctions = {
@@ -717,6 +702,6 @@ export const helperFunctions = {
   setCustomProductInLocalStorage,
   splitDiscountAmongProducts,
   formatCurrency,
-  splitTaxAmongProducts,
   formatCurrencyWithDollar,
+  formatDiscountForItem,
 };

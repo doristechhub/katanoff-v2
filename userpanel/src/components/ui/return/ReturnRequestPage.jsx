@@ -334,15 +334,12 @@ const ReturnRequestPage = () => {
                             <span className="inline xss:block">Discount:</span>
                             <span className="inline xss:block">
                               -
-                              {helperFunctions?.formatCurrencyWithDollar(
-                                helperFunctions?.splitDiscountAmongProducts({
-                                  quantityWiseProductPrice:
-                                    cartItem?.productPrice *
-                                    cartItem.returnQuantity,
-                                  subTotal: orderDetail?.subTotal,
-                                  discountAmount: orderDetail?.discount,
-                                })
-                              )}
+                              {helperFunctions?.formatDiscountForItem({
+                                productPrice: cartItem?.productPrice,
+                                cartQuantity: cartItem?.returnQuantity,
+                                subTotal: orderDetail?.subTotal,
+                                discountAmount: orderDetail?.discount,
+                              })}
                             </span>
                           </div>
                         )}

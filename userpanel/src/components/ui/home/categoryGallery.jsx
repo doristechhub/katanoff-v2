@@ -34,18 +34,10 @@ export default function CategoryGallery({ categories = [] }) {
           }}
           spaceBetween={20}
           breakpoints={{
-            0: {
-              slidesPerView: 1,
-            },
-            768: {
-              slidesPerView: 2,
-            },
-            1024: {
-              slidesPerView: 3,
-            },
-            1240: {
-              slidesPerView: 4,
-            },
+            0: { slidesPerView: 1 },
+            768: { slidesPerView: 2 },
+            1024: { slidesPerView: 3 },
+            1240: { slidesPerView: 4 },
           }}
           className="!mx-8"
         >
@@ -61,12 +53,15 @@ export default function CategoryGallery({ categories = [] }) {
               <SwiperSlide key={`category-${index}`}>
                 <Link href={href}>
                   <div className="flex flex-col">
-                    <ProgressiveImg
-                      src={category?.image}
-                      alt={category?.alt}
-                      className="w-full"
-                    />
-                    <p className="uppercase mt-3 text-sm lg:text-base 6xl:text-lg font-medium text-baseblack">
+                    <div className="relative w-full aspect-[3/4] overflow-hidden">
+                      {" "}
+                      <ProgressiveImg
+                        src={category?.image}
+                        alt={category?.alt || "Category"}
+                        className="w-full h-full"
+                      />
+                    </div>
+                    <p className="uppercase text-sm lg:text-base 6xl:text-lg font-medium text-baseblack">
                       {category.title}
                     </p>
                   </div>
