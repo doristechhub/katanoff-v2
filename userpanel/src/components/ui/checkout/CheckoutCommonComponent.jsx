@@ -1,11 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  helperFunctions,
-  LENGTH,
-  RING_SIZE,
-} from "@/_helper";
+import { helperFunctions, LENGTH, RING_SIZE } from "@/_helper";
 import { CustomImg, ProgressiveImg } from "../../dynamiComponents";
 import { fetchCart } from "@/_actions/cart.action";
 import { setIsNewYorkState } from "@/store/slices/checkoutSlice";
@@ -36,7 +32,6 @@ const CheckoutCommonComponent = () => {
       dispatch(fetchCart());
     }
   }, [cartList.length, dispatch]);
-
 
   useEffect(() => {
     const address = localStorage.getItem("address");
@@ -206,15 +201,12 @@ const CheckoutCommonComponent = () => {
                       {appliedPromoDetail && (
                         <p className="text-sm font-semibold xs:text-base w-fit flex items-center gap-2">
                           Promo Offer: -
-                          {helperFunctions?.formatCurrencyWithDollar(
-                            helperFunctions?.splitDiscountAmongProducts({
-                              quantityWiseProductPrice:
-                                cartItem?.productSellingPrice *
-                                cartItem?.quantity,
-                              subTotal: getSubTotal(),
-                              discountAmount: discountAmount,
-                            })
-                          )}
+                          {helperFunctions?.formatDiscountForItem({
+                            productPrice: cartItem?.productSellingPrice,
+                            cartQuantity: cartItem?.quantity,
+                            subTotal: getSubTotal(),
+                            discountAmount: discountAmount,
+                          })}
                         </p>
                       )}
 
@@ -352,11 +344,10 @@ const CheckoutCommonComponent = () => {
 
                       {appliedPromoDetail && (
                         <p className="text-sm font-semibold xs:text-base w-fit flex items-center gap-2 ">
-                          Promo Offer: $
-                          {helperFunctions?.splitDiscountAmongProducts({
-                            quantityWiseProductPrice:
-                              cartItem?.productSellingPrice *
-                              cartItem?.quantity,
+                          Promo Offer: -
+                          {helperFunctions?.formatDiscountForItem({
+                            productPrice: cartItem?.productSellingPrice,
+                            cartQuantity: cartItem?.quantity,
                             subTotal: getSubTotal(),
                             discountAmount: discountAmount,
                           })}

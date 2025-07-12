@@ -17,15 +17,21 @@ const createPaymentIntent = (payload, abortController) => {
         { signal }
       );
 
-      const { orderId, status, clientSecret, message, paymentIntentId, paymentMethod } =
-        response.data;
+      const {
+        orderId,
+        status,
+        clientSecret,
+        message,
+        paymentIntentId,
+        paymentMethod,
+      } = response.data;
 
       if (status === 200 && clientSecret) {
         const secretData = {
           clientSecret,
           orderId,
           paymentIntentId,
-          paymentMethod
+          paymentMethod,
         };
         const encoded = btoa(JSON.stringify(secretData));
         resolve({ success: true, encoded });
@@ -65,6 +71,31 @@ const checkPaymentIntentStatus = async (payload, abortController) => {
   }
 };
 
+const retrivePaymentIntent = async (payload) => {
+  try {
+    if (payload) {
+      const response = await axios.post(
+        "/stripe/retrive-payment-intent",
+        sanitizeObject(payload)
+      );
+      const { status, paymentIntent } = response.data;
+      if (status === 200 && paymentIntent) {
+        return { success: true, data: response.data };
+      }
+    }
+    return {
+      success: false,
+      message:
+        "Something went wrong with the retrive payment intent. Please try again later.",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error?.message,
+    };
+  }
+};
+
 const cancelPaymentIntent = (payload) => {
   try {
     if (payload) {
@@ -93,7 +124,7 @@ const cancelPaymentIntent = (payload) => {
 
 const updateBillingAddress = async (payload) => {
   try {
-    const { orderId, billingAddress } = payload;
+    const { orderId, billingAddress, paymentMethodDetails } = payload;
     if (payload) {
       const orderData = await fetchWrapperService.findOne(ordersUrl, {
         id: orderId,
@@ -103,6 +134,7 @@ const updateBillingAddress = async (payload) => {
           url: `${ordersUrl}/${orderId}`,
           payload: {
             billingAddress,
+            paymentMethodDetails,
           },
         };
         fetchWrapperService
@@ -151,13 +183,12 @@ const createOrderForPaypal = (payload, abortController) => {
         payload,
         { signal }
       );
-      const { status, createdOrder, message } =
-        response.data;
+      const { status, createdOrder, message } = response.data;
       if (status == 200 && createdOrder) {
         const secretData = {
           orderId: createdOrder?.id,
           total: createdOrder?.total,
-          paymentMethod: createdOrder?.paymentMethod
+          paymentMethod: createdOrder?.paymentMethod,
         };
         const encoded = btoa(JSON.stringify(secretData));
         resolve({ success: true, encoded });
@@ -175,7 +206,8 @@ const insertPaypalOrder = async (payload) => {
   try {
     if (payload) {
       const response = await axios.post(
-        `${apiUrl}/paypal/create-paypal-order`, payload
+        `${apiUrl}/paypal/create-paypal-order`,
+        payload
       );
 
       const { status, message, paypalOrderData } = response.data;
@@ -193,12 +225,15 @@ const insertPaypalOrder = async (payload) => {
 
 const paypalCaptureOrder = async (payload) => {
   try {
-    const captureRes = await axios.post(`${apiUrl}/paypal/capture-order`, payload);
-    const { paypalOrderCaptureResult, message } = captureRes.data
+    const captureRes = await axios.post(
+      `${apiUrl}/paypal/capture-order`,
+      payload
+    );
+    const { paypalOrderCaptureResult, message } = captureRes.data;
     if (paypalOrderCaptureResult?.status === "COMPLETED") {
-      return { success: true, paypalOrderCaptureResult }
+      return { success: true, paypalOrderCaptureResult };
     }
-    return { success: false, message }
+    return { success: false, message };
   } catch (error) {
     console.log("update payment status error : ", error?.message);
     return { success: false, message: error?.message };
@@ -208,6 +243,7 @@ const paypalCaptureOrder = async (payload) => {
 export const paymentService = {
   createPaymentIntent,
   checkPaymentIntentStatus,
+  retrivePaymentIntent,
   cancelPaymentIntent,
   updateBillingAddress,
   updatePaymentStatus,

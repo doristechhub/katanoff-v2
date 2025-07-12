@@ -34,6 +34,7 @@ import {
 } from "@/_actions/payment.action";
 import { deleteOrder } from "@/_actions/order.action";
 import { setCartList } from "@/store/slices/cartSlice";
+import { paymentService } from "@/_services";
 
 const expressCheckoutOptions = {
   buttonType: {
@@ -136,98 +137,143 @@ const PaymentForm = ({ orderId }) => {
   };
 
   // Consolidated payment confirmation logic
-  const handlePaymentConfirmation = useCallback(
-    async (billingAddress = null) => {
-      if (!stripe || !elements) {
-        console.error("Stripe or Elements not initialized");
+  const handlePaymentConfirmation = useCallback(async () => {
+    if (!stripe || !elements) {
+      console.error("Stripe or Elements not initialized");
+      dispatch(
+        setPaymentMessage({
+          message: "Payment processing is not available. Please try again.",
+          type: messageType.ERROR,
+        })
+      );
+      return false;
+    }
+
+    try {
+      const orderData = await fetchWrapperService.findOne(ordersUrl, {
+        id: orderId,
+      });
+
+      if (!orderData) {
         dispatch(
           setPaymentMessage({
-            message: "Stripe or Elements not initialized.",
+            message: "Order not found.",
             type: messageType.ERROR,
           })
         );
         return false;
       }
 
-      try {
-        const orderData = await fetchWrapperService.findOne(ordersUrl, {
-          id: orderId,
-        });
+      // Validate addresses if billingAddress is provided (not for Express Checkout)
+      // if (
+      //   billingAddress &&
+      //   !addressesMatch(orderData.shippingAddress, billingAddress)
+      // ) {
+      //   dispatch(
+      //     setPaymentMessage({
+      //       message: "The shipping address does not match the card address.",
+      //       type: messageType.ERROR,
+      //     })
+      //   );
+      //   return false;
+      // }
 
-        if (!orderData) {
-          dispatch(
-            setPaymentMessage({
-              message: "Order not found.",
-              type: messageType.ERROR,
-            })
-          );
-          return false;
-        }
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/${checkOutSuccessUrl}`,
+        },
+        redirect: "if_required",
+      });
 
-        // Validate addresses if billingAddress is provided (not for Express Checkout)
-        // if (
-        //   billingAddress &&
-        //   !addressesMatch(orderData.shippingAddress, billingAddress)
-        // ) {
-        //   dispatch(
-        //     setPaymentMessage({
-        //       message: "The shipping address does not match the card address.",
-        //       type: messageType.ERROR,
-        //     })
-        //   );
-        //   return false;
-        // }
-
-        const { error, paymentIntent } = await stripe.confirmPayment({
-          elements,
-          confirmParams: {
-            return_url: `${window.location.origin}/${checkOutSuccessUrl}`,
-          },
-          redirect: "if_required",
-        });
-
-        if (error) {
-          console.error("Payment error:", error);
-          dispatch(
-            setPaymentMessage({
-              message: error?.message,
-              type: messageType.ERROR,
-            })
-          );
-          return false;
-        }
-
-        if (paymentIntent && paymentIntent.status === "succeeded") {
-          await handleSuccessfulPayment(billingAddress || {});
-          return true;
-        }
-
-        if (paymentIntent && paymentIntent.status === "failed") {
-          console.error("Payment failed:", paymentIntent);
-          dispatch(
-            setPaymentMessage({
-              message: "Payment status: " + paymentIntent.status,
-              type: messageType.ERROR,
-            })
-          );
-          dispatch(deleteOrder(orderId));
-          return false;
-        }
-
-        return false;
-      } catch (error) {
-        console.error("Error in payment confirmation:", error);
+      if (error) {
+        console.error("Payment error:", error);
         dispatch(
           setPaymentMessage({
-            message: "An error occurred. Please try again.",
+            message: error?.message || "Payment failed. Please try again.",
             type: messageType.ERROR,
           })
         );
         return false;
       }
-    },
-    [stripe, elements, orderId, dispatch, checkOutSuccessUrl]
-  );
+
+      if (paymentIntent && paymentIntent.status === "succeeded") {
+        let billingAddress = null;
+        let paymentMethodDetails = {
+          type: "",
+          brand: "",
+          lastFour: "",
+          funding: "",
+        };
+
+        // Fetch payment intent details
+        try {
+          const paymentIntentResp = await paymentService.retrivePaymentIntent({
+            paymentIntentId: paymentIntent?.id,
+          });
+
+          const { payment_method_details, billing_details } =
+            paymentIntentResp?.data?.paymentIntent?.latest_charge || {};
+
+          if (payment_method_details) {
+            paymentMethodDetails.type = payment_method_details?.type || "";
+            if (payment_method_details?.card) {
+              paymentMethodDetails = {
+                ...paymentMethodDetails,
+                brand: payment_method_details.card.brand || "",
+                lastFour: payment_method_details.card.last4 || "",
+                funding: payment_method_details.card.funding || "",
+              };
+            }
+          }
+          if (billing_details) {
+            const { address, name, email, phone } = billing_details;
+            const { line1, line2, city, state, country, postal_code } =
+              address || {};
+            billingAddress = {
+              name,
+              email,
+              phone,
+              line1,
+              line2,
+              city,
+              state,
+              country,
+              postal_code,
+            };
+          }
+        } catch (error) {
+          console.error("Error fetching payment intent:", error);
+        }
+
+        await handleSuccessfulPayment({ billingAddress, paymentMethodDetails });
+        return true;
+      }
+
+      if (paymentIntent && paymentIntent.status === "failed") {
+        console.error("Payment failed:", paymentIntent);
+        dispatch(
+          setPaymentMessage({
+            message: "Payment status: " + paymentIntent.status,
+            type: messageType.ERROR,
+          })
+        );
+        dispatch(deleteOrder(orderId));
+        return false;
+      }
+
+      return false;
+    } catch (error) {
+      console.error("Error in payment confirmation:", error);
+      dispatch(
+        setPaymentMessage({
+          message: "An error occurred. Please try again.",
+          type: messageType.ERROR,
+        })
+      );
+      return false;
+    }
+  }, [stripe, elements, orderId, dispatch, checkOutSuccessUrl]);
 
   const onExpressCheckoutConfirm = async () => {
     dispatch(setPaymentLoader(true));
@@ -256,7 +302,7 @@ const PaymentForm = ({ orderId }) => {
           return;
         }
 
-        await handlePaymentConfirmation(values.address);
+        await handlePaymentConfirmation();
       } finally {
         dispatch(setPaymentLoader(false));
         dispatch(setIsSubmitted(false));
@@ -273,7 +319,7 @@ const PaymentForm = ({ orderId }) => {
     });
 
   const handleSuccessfulPayment = useCallback(
-    async (billingAddressData) => {
+    async ({ billingAddress, paymentMethodDetails }) => {
       try {
         const currentUser = helperFunctions?.getCurrentUser();
 
@@ -285,7 +331,8 @@ const PaymentForm = ({ orderId }) => {
 
         const billingPayload = {
           orderId: orderId,
-          billingAddress: billingAddressData,
+          billingAddress,
+          paymentMethodDetails,
         };
 
         await dispatch(updateBillingAddress(billingPayload));
@@ -343,7 +390,11 @@ const PaymentForm = ({ orderId }) => {
           onReady={onExpressCheckoutReady}
           onConfirm={onExpressCheckoutConfirm}
         />
-        <LinkAuthenticationElement id="email" onChange={handleEmailChange} />
+        <LinkAuthenticationElement
+          id="email"
+          onChange={handleEmailChange}
+          headerText="Email"
+        />
         {touched?.email && errors?.email && (
           <ErrorMessage message={errors?.email} />
         )}

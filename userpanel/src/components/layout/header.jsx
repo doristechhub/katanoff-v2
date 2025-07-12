@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useRef } from "react";
 import {
+  CartIconInCheckout,
   CustomImg,
   NavigationHeader,
   SearchBar,
@@ -214,11 +215,9 @@ export default function Header() {
               className={"hidden lg:block"}
               uniqueId={"desktop-header-profile"}
             />
-            {!hideCartPopup && (
-              <div className="pe-3.5 lg:pe-0 inline-flex">
-                <CartPopup />
-              </div>
-            )}
+            <div className="pe-3.5 lg:pe-0 inline-flex">
+              {!hideCartPopup ? <CartPopup /> : <CartIconInCheckout />}
+            </div>
           </div>
         </div>
         <SearchBar

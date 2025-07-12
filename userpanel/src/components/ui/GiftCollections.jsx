@@ -17,7 +17,7 @@ export default function GiftCollections({ giftCategories = [], className }) {
             <ProgressiveImg
               src={category?.image}
               alt={category?.alt}
-              className="object-cover w-full"
+              className="w-full object-contain"
             />
             <p className="pt-4 text-sm font-semibold uppercase inline-block border-b-2 border-transparent group-hover:border-primary group-hover:text-primary transition-all duration-300">
               {category?.title}

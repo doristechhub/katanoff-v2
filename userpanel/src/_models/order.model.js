@@ -131,13 +131,23 @@ export const orderModel = {
   },
   billingAddress: {
     type: {
+      name: {
+        type: String,
+        required: true,
+      },
+      email: {
+        type: String,
+        required: true,
+      },
+      phone: {
+        type: String,
+      },
       line1: {
         type: String,
         required: true,
       },
       line2: {
         type: String,
-        required: false,
       },
       city: {
         type: String,
@@ -154,6 +164,32 @@ export const orderModel = {
       postal_code: {
         type: String,
         required: true,
+      },
+    },
+    require: false,
+  },
+  paymentMethodDetails: {
+    type: {
+      type: {
+        type: String,
+        enum: [
+          "card",
+          "klarna",
+          "affirm",
+          "amazon_pay",
+          "link",
+          "us_bank_account",
+        ], // more...
+      },
+      brand: {
+        type: String,
+      },
+      lastFour: {
+        type: String,
+      },
+      funding: {
+        type: String,
+        enum: ["credit", "debit", "prepaid"],
       },
     },
     require: false,

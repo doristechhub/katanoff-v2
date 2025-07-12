@@ -18,12 +18,7 @@ import {
   removeProductIntoCart,
   updateProductQuantityIntoCart,
 } from "@/_actions/cart.action";
-import {
-  helperFunctions,
-  LENGTH,
-  messageType,
-  RING_SIZE,
-} from "@/_helper";
+import { helperFunctions, LENGTH, messageType, RING_SIZE } from "@/_helper";
 import Link from "next/link";
 import {
   LinkButton,
@@ -422,15 +417,12 @@ const CartPage = () => {
                           <span className="inline xss:block">Promo Offer:</span>
                           <span className="inline xss:block">
                             -
-                            {helperFunctions?.formatCurrencyWithDollar(
-                              helperFunctions?.splitDiscountAmongProducts({
-                                quantityWiseProductPrice:
-                                  cartItem?.productSellingPrice *
-                                  cartItem?.quantity,
-                                subTotal: getSubTotal(),
-                                discountAmount: discountAmount,
-                              })
-                            )}
+                            {helperFunctions?.formatDiscountForItem({
+                              productPrice: cartItem?.productSellingPrice,
+                              cartQuantity: cartItem?.quantity,
+                              subTotal: getSubTotal(),
+                              discountAmount: discountAmount,
+                            })}
                           </span>
                         </div>
                       )}

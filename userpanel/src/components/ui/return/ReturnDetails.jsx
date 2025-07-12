@@ -26,32 +26,8 @@ const ReturnDetails = ({
   const dispatch = useDispatch();
   const cartContentRef = useRef(null);
 
-  // Format currency for display
   const formatCurrency = (value) =>
     helperFunctions.formatCurrencyWithDollar(value);
-
-  // Calculate discount for a product
-  const calculateProductDiscount = (product, returnDetail) => {
-    return formatCurrency(
-      helperFunctions.splitDiscountAmongProducts({
-        quantityWiseProductPrice: product.productPrice * product.returnQuantity,
-        subTotal: returnDetail.subTotal,
-        discountAmount: returnDetail.discount,
-      })
-    );
-  };
-
-  // Calculate tax for a product
-  const calculateProductTax = (product, returnDetail) => {
-    return formatCurrency(
-      helperFunctions.splitTaxAmongProducts({
-        quantityWiseProductPrice: product.productPrice * product.returnQuantity,
-        subTotal: returnDetail.subTotal,
-        discountAmount: returnDetail.discount || 0,
-        totalTaxAmount: returnDetail.salesTax,
-      })
-    );
-  };
 
   // Order metadata fields configuration
   const orderMetaFields = [
@@ -229,7 +205,13 @@ const ReturnDetails = ({
                           <h3 className="font-medium text-sm md:text-base pt-1 text-lightblack">
                             Discount:{" "}
                             <span>
-                              -{calculateProductDiscount(product, returnDetail)}
+                              -
+                              {helperFunctions?.formatDiscountForItem({
+                                productPrice: product?.productPrice,
+                                cartQuantity: product?.returnQuantity,
+                                subTotal: returnDetail?.subTotal,
+                                discountAmount: returnDetail?.discount,
+                              })}
                             </span>
                           </h3>
                         )}
