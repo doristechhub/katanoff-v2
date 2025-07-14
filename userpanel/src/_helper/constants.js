@@ -122,7 +122,7 @@ export const ENGAGEMENT = "Engagement";
 
 export const PAYPAL = "paypal";
 export const STRIPE = "stripe";
-
+export const CARD = "card";
 // Object map for gold color to thumbnail field
 export const GOLD_COLOR_MAP = {
   "rose gold": "roseGoldThumbnailImage",

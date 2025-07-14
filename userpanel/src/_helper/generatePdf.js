@@ -1,7 +1,7 @@
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { helperFunctions } from "./helperFunctions";
-import { SALES_TAX_NOTE } from "./constants";
+import { CARD, SALES_TAX_NOTE } from "./constants";
 
 export const convertImageToBase64 = async (imageUrl) => {
   try {
@@ -120,6 +120,39 @@ export const generatePDF = async (orderData, sizePage = "1") => {
     sectionTop + 75
   );
 
+  if (invoiceData?.paymentMethodDetails?.type) {
+    doc.setFontSize(11);
+    doc.setFont(undefined, "bold");
+    doc.text("Payment Details", leftColX, sectionTop + 90);
+    doc.setFont(undefined, "normal");
+  }
+
+  if (invoiceData?.paymentMethodDetails?.type) {
+    const paymentText =
+      invoiceData.paymentMethodDetails.type === CARD
+        ? `${invoiceData.paymentMethodDetails.brand} ending in ${invoiceData.paymentMethodDetails.lastFour}`
+        : invoiceData.paymentMethodDetails.type;
+
+    doc.text(`Payment Method: ${paymentText}`, leftColX, sectionTop + 105);
+  }
+
+  // Billing Address
+  const address = invoiceData?.billingAddress;
+  if (
+    address?.line1 &&
+    address?.city &&
+    address?.state &&
+    address?.country &&
+    address?.postal_code
+  ) {
+    doc.text(
+      `Billing Address: ${address?.line1} ${address?.line2}, ${address.city}, ${address?.state}, ${address?.country} - ${address?.postal_code}`,
+      leftColX,
+      sectionTop + 120,
+      { maxWidth: pageWidth / 2 - 120 }
+    );
+  }
+
   // Table Headers and Body
   const headers = [["IMAGE", "PRODUCT", "QTY", "UNIT PRICE ($)", "TOTAL ($)"]];
   const data = invoiceData?.products?.map((x) => {
@@ -157,7 +190,7 @@ export const generatePDF = async (orderData, sizePage = "1") => {
 
   autoTable(doc, {
     theme: "grid",
-    startY: 220,
+    startY: 280,
     head: [["IMAGE", "PRODUCT", "QTY", "UNIT PRICE ($)", "TOTAL ($)"]],
     body: data,
     headStyles: { fillColor: [32, 42, 78] },

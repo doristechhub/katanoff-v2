@@ -20,7 +20,7 @@ const ReturnDetailPage = () => {
   }, [returnId]);
   return (
     <>
-      <div className="pt-12">
+      <div className="pt-6 lg:pt-12">
         <CommonBgHeading title="Return Summary" />
       </div>
       <div className="container">

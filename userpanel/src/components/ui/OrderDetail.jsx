@@ -1,6 +1,6 @@
 "use client";
 import { CustomImg, ProgressiveImg } from "@/components/dynamiComponents";
-import { helperFunctions, SALES_TAX_NOTE } from "@/_helper";
+import { CARD, helperFunctions, SALES_TAX_NOTE } from "@/_helper";
 import DownloadInvoice from "@/components/ui/order-history/downloadInvoice";
 import CancelOrder from "@/components/ui/order-history/CancelOrder";
 import Spinner from "@/components/ui/spinner";
@@ -91,6 +91,39 @@ const OrderDetails = ({
     },
   ];
 
+  const paymentDataFields = [
+    {
+      label: "Payment Method",
+      value: orderDetail?.paymentMethodDetails?.type ? (
+        <>
+          {orderDetail?.paymentMethodDetails?.type === CARD ? (
+            <>
+              {orderDetail?.paymentMethodDetails?.brand} ending in{" "}
+              {orderDetail?.paymentMethodDetails?.lastFour}
+            </>
+          ) : (
+            orderDetail?.paymentMethodDetails?.type
+          )}
+        </>
+      ) : null,
+      isOptional: true,
+    },
+    {
+      label: "Billing Address",
+      value: orderDetail?.billingAddress ? (
+        <>
+          {orderDetail?.billingAddress?.line1}{" "}
+          {orderDetail?.billingAddress?.line2},{" "}
+          {orderDetail?.billingAddress?.city},{" "}
+          {orderDetail?.billingAddress?.state},{" "}
+          {orderDetail?.billingAddress?.country},{" "}
+          {orderDetail?.billingAddress?.postal_code}
+        </>
+      ) : null,
+      isOptional: true,
+    },
+  ];
+
   useEffect(() => {
     const contentElement = cartContentRef.current;
     if (!contentElement) return;
@@ -117,6 +150,7 @@ const OrderDetails = ({
     };
   }, []);
   const cartContentRef = useRef(null);
+
   return orderLoading ? (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 container my-8">
       {/* Left Panel Skeleton */}
@@ -381,6 +415,22 @@ const OrderDetails = ({
                     </div>
                   );
                 }
+              )}
+            </div>
+          </div>
+          <div className="p-4 lg:p-6">
+            <h3 className="font-castoro text-2xl">Payment Details</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 text-sm md:text-base pt-4">
+              {paymentDataFields.map(
+                ({ label, value, render, isOptional }) =>
+                  (!isOptional || value) && (
+                    <div key={`meta-${label}`}>
+                      <p className="text-basegray">{label}</p>
+                      <span className="font-medium break-words mt-1 inline-block">
+                        {render ? render(value) : value}
+                      </span>
+                    </div>
+                  )
               )}
             </div>
           </div>

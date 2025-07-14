@@ -21,7 +21,7 @@ export default function OrderDetailPage() {
   }, [orderId]);
   return (
     <>
-      <div className="pt-12">
+      <div className="pt-6 md:pt-12">
         <CommonBgHeading title="Order Summary" />
       </div>
 
