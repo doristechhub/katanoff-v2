@@ -297,7 +297,7 @@ const signupWithDiscount = async (req, res) => {
 
     const fullName = `${userData.firstName} ${userData.lastName}`;
     const discountStatus = getDiscountStatus(discount?.dateRange);
-    const mailPayload = { userName: fullName, discount, status: discountStatus };
+    const mailPayload = { userName: fullName, discount, status: discountStatus, isSignUp: true };
 
     const { subject, description } = discountEmail(mailPayload);
     await sendMail(email, subject, description);

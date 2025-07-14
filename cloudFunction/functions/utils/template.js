@@ -502,82 +502,88 @@ const contactUsEmail = ({ fullName }) => {
   return { subject, description: html(body) };
 };
 
-const discountEmail = ({ userName, discount, status }) => {
+const discountEmail = ({ userName, discount, status, isSignUp = false }) => {
   const subjectMap = {
-    active: `🎉 Your Exclusive Discount from ${COMPANY_NAME} is Active Now!`,
-    scheduled: `⏳ Your Discount from ${COMPANY_NAME} Starts Soon!`,
+    active: `🎉 Your Exclusive Discount from ${COMPANY_NAME} is Now Active!`,
+    scheduled: `⏳ Your Discount from ${COMPANY_NAME} Will Start Soon!`,
     expired: `⚠️ Your Discount from ${COMPANY_NAME} Has Expired`,
   };
 
   const introMap = {
-    active: `We're thrilled to let you know that your exclusive discount is now live!`,
-    scheduled: `We’re excited to announce that your exclusive discount is scheduled to begin soon.`,
-    expired: `We’d like to inform you that your previous discount has expired.`,
+    active: `We're excited to let you know that your exclusive discount is now live!`,
+    scheduled: `Good news! Your exclusive discount is scheduled to begin soon.`,
+    expired: `We’d like to inform you that your previous discount has now expired.`,
   };
 
   const formattedDate = (dateString) => {
-    if (!dateString) return "No expiration";
+    if (!dateString) return "No expiration date";
     return moment(dateString, "MM-DD-YYYY HH:mm").format("MMMM Do, YYYY [at] hh:mm A");
   };
 
   const subject = subjectMap[status] || `Your Discount Update from ${COMPANY_NAME}`;
   const startsAtFormatted = formattedDate(discount?.dateRange?.beginsAt);
   const expiresAtFormatted = formattedDate(discount?.dateRange?.expiresAt);
+
   const discountAmount =
     discount?.discountDetails?.type === "Percentage"
-      ? `${discount?.discountDetails?.amount}% off`
-      : `$${discount?.discountDetails?.amount} off`;
-
+      ? `${discount?.discountDetails?.amount}% Off`
+      : `$${discount?.discountDetails?.amount} Off`;
+  const welcomeBlock = isSignUp ? `
+    <p>Welcome to <strong>${COMPANY_NAME}</strong>! Thank you for joining our community of jewelry enthusiasts. We're thrilled to have you with us!</p>
+    <p>To celebrate your new account, we're excited to offer you an exclusive <strong>Sign Up Discount</strong></p>
+  ` : null;
   const body = `
-    <div style="color: #2b2b2b; font-size: clamp(14px, 2vw, 18px); padding: 1vw 0; font-family: 'Roboto', sans-serif; font-weight: 400;">
-      <p style="text-transform:capitalize;">Dear ${userName},</p>
+    <div style="color: #2b2b2b; font-size: clamp(14px, 2vw, 18px); font-family: 'Roboto', sans-serif; font-weight: 400; line-height: 1.6; padding: 1vw 0;">
+      <p style="text-transform: capitalize;">Dear ${userName},</p>
       <p>${introMap[status]}</p>
 
+      ${welcomeBlock}
+      
       ${status === 'scheduled' ? `
-        <p><strong>This offer will start on:</strong> ${startsAtFormatted}</p>
+        <p><strong>Offer Starts On:</strong> ${startsAtFormatted}</p>
       ` : ''}
 
       ${status !== 'expired' ? `
-        <p>Use the promo code below to claim your offer:</p>
+        <p><strong>Use the promo code below to enjoy your discount:</strong></p>
         <div style="text-align: center; margin: 1.5vw 0;">
           <span style="
             display: inline-block;
             padding: 0.5vw 1.5vw;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             border: 2px dashed #202a4e;
-            border-radius: 5px;
-            background: #f4f4f4;
+            border-radius: 8px;
+            background: #f0f0f0;
             font-size: clamp(20px, 4vw, 28px);
             color: #202a4e;
-            font-family: 'Roboto', sans-serif;
-            font-weight: 500;
+            font-weight: 600;
           ">${discount?.promoCode}</span>
         </div>
 
-        <p style="color: #202a4e;">Discount Details:</p>
+        <p><strong>Discount Details:</strong></p>
         <ul>
           <li><strong>Amount:</strong> ${discountAmount}</li>
           <li><strong>Valid Until:</strong> ${expiresAtFormatted}</li>
           ${discount?.minimumOrderValue ? `<li><strong>Minimum Order Value:</strong> $${discount.minimumOrderValue}</li>` : ""}
-          <li><strong>Applicable To:</strong> ${discount?.purchaseMode || "All"} purchases</li>
+          <li><strong>Applicable On:</strong> ${discount?.purchaseMode || "All"} purchases</li>
         </ul>
 
         <p style="text-align: center; margin: 2vw 0;">
           <a href="${WEBSITE_URL}" style="
             display: inline-block;
             padding: 1vw 2vw;
-            background: #202a4e;
-            color: white;
+            background-color: #202a4e;
+            color: #ffffff;
             text-decoration: none;
             border-radius: 5px;
+            font-weight: 500;
           ">Shop Now</a>
         </p>
       ` : `
-        <p>This promotion has ended, but don't worry — more exciting offers are on the way!</p>
+        <p>This promotion has ended. But stay tuned — we’ll be launching more exciting offers soon!</p>
       `}
 
-      <p>If you have any questions, feel free to contact us at <a href="mailto:${COMPANY_EMAIL}">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}">${COMPANY_MOBILE_NO}</a>.</p>
-      <p style="margin: 1vw 0;">Best Regards,<br />${COMPANY_NAME}</p>
+      <p>If you have any questions, feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>.</p>
+      <p style="margin-top: 1.5vw;">Best regards,<br/><strong>${COMPANY_NAME}</strong></p>
     </div>
   `;
 
