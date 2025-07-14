@@ -160,6 +160,7 @@ const shippingForm = () => {
         shippingCharge: 0,
         promoCode: appliedPromoDetail?.promoCode || "",
       };
+
       if (!cartList.length) {
         dispatch(handleCreatePaymentIntentError("Cart is empty"));
         return;

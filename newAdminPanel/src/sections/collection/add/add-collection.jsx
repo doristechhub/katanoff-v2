@@ -22,6 +22,9 @@ import {
   InputAdornment,
   Stack,
   IconButton,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import {
@@ -93,6 +96,11 @@ const AddCollectionPage = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [selectedProductCount, setSelectedProductCount] = useState(0);
+  const [expandedAccordions, setExpandedAccordions] = useState({
+    desktopBanner: false,
+    mobileBanner: false,
+    thumbnail: false,
+  });
 
   const loadData = useCallback(async () => {
     try {
@@ -221,6 +229,14 @@ const AddCollectionPage = () => {
     [formik, productList, dispatch]
   );
 
+  const handleAccordionChange = (panel) => (event, isExpanded) => {
+    setExpandedAccordions((prev) => ({
+      ...prev,
+
+      [panel]: isExpanded,
+    }));
+  };
+
   const renderProductInfo = (product) => (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
       <Box sx={{ width: 40, height: 40, borderRadius: 1, overflow: 'hidden', flexShrink: 0 }}>
@@ -279,46 +295,87 @@ const AddCollectionPage = () => {
             </TextField>
           </Grid>
           <Grid xs={12} lg={4} mt={3}>
-            <Typography variant="subtitle2" gutterBottom>
-              Desktop Banner (1920x448)
-            </Typography>
-            <FileDrop
-              mediaLimit={1}
-              formik={formik}
-              productId={selectedCollection}
-              fileKey="desktopBannerFile"
-              previewKey="desktopBannerPreviewImage"
-              deleteKey="desktopBannerUploadedDeletedImage"
-              loading={crudCollectionLoading}
-            />
+            <Accordion defaultExpanded={false} onChange={handleAccordionChange('desktopBanner')}>
+              <AccordionSummary expandIcon={<Iconify icon="eva:chevron-down-fill" />}>
+                <Typography variant="subtitle2">Desktop Banner (1920x448)</Typography>
+              </AccordionSummary>
+
+              <AccordionDetails>
+                <FileDrop
+                  mediaLimit={1}
+                  formik={formik}
+                  productId={selectedCollection}
+                  fileKey="desktopBannerFile"
+                  previewKey="desktopBannerPreviewImage"
+                  deleteKey="desktopBannerUploadedDeletedImage"
+                  loading={crudCollectionLoading}
+                />
+              </AccordionDetails>
+            </Accordion>
+
+            {!expandedAccordions.desktopBanner &&
+              formik.touched.desktopBannerPreviewImage &&
+              formik.errors.desktopBannerPreviewImage && (
+                <Typography variant="caption" color="error" sx={{ mt: 1 }}>
+                  {formik.errors.desktopBannerPreviewImage}
+                </Typography>
+              )}
           </Grid>
           <Grid xs={12} lg={4} mt={3}>
-            <Typography variant="subtitle2" gutterBottom>
-              Mobile Banner (1500x738)
-            </Typography>
-            <FileDrop
-              mediaLimit={1}
-              formik={formik}
-              productId={selectedCollection}
-              fileKey="mobileBannerFile"
-              previewKey="mobileBannerPreviewImage"
-              deleteKey="mobileBannerUploadedDeletedImage"
-              loading={crudCollectionLoading}
-            />
+            <Accordion defaultExpanded={false} onChange={handleAccordionChange('mobileBanner')}>
+              <AccordionSummary expandIcon={<Iconify icon="eva:chevron-down-fill" />}>
+                <Typography variant="subtitle2">Mobile Banner (1500x738)</Typography>
+              </AccordionSummary>
+
+              <AccordionDetails>
+                <FileDrop
+                  mediaLimit={1}
+                  formik={formik}
+                  productId={selectedCollection}
+                  fileKey="mobileBannerFile"
+                  previewKey="mobileBannerPreviewImage"
+                  deleteKey="mobileBannerUploadedDeletedImage"
+                  loading={crudCollectionLoading}
+                />
+              </AccordionDetails>
+            </Accordion>
+
+            {!expandedAccordions.mobileBanner &&
+              formik.touched.mobileBannerPreviewImage &&
+              formik.errors.mobileBannerPreviewImage && (
+                <Typography variant="caption" color="error" sx={{ mt: 1 }}>
+                  {formik.errors.mobileBannerPreviewImage}
+                </Typography>
+              )}
           </Grid>
           <Grid xs={12} lg={4} mt={3}>
-            <Typography variant="subtitle2" gutterBottom>
-              Thumbnail Images ({COLLECTION_TYPES[values.type]?.thumbnailDimensions})
-            </Typography>
-            <FileDrop
-              mediaLimit={1}
-              formik={formik}
-              productId={selectedCollection}
-              fileKey="thumbnailFile"
-              previewKey="thumbnailPreviewImage"
-              deleteKey="thumbnailUploadedDeletedImage"
-              loading={crudCollectionLoading}
-            />
+            <Accordion defaultExpanded={false} onChange={handleAccordionChange('thumbnail')}>
+              <AccordionSummary expandIcon={<Iconify icon="eva:chevron-down-fill" />}>
+                <Typography variant="subtitle2">
+                  Thumbnail Images ({COLLECTION_TYPES[values.type]?.thumbnailDimensions})
+                </Typography>
+              </AccordionSummary>
+
+              <AccordionDetails>
+                <FileDrop
+                  mediaLimit={1}
+                  formik={formik}
+                  productId={selectedCollection}
+                  fileKey="thumbnailFile"
+                  previewKey="thumbnailPreviewImage"
+                  deleteKey="thumbnailUploadedDeletedImage"
+                  loading={crudCollectionLoading}
+                />
+              </AccordionDetails>
+            </Accordion>
+
+            {!expandedAccordions.thumbnail &&
+              formik.touched.thumbnailPreviewImage &&
+              formik.errors.thumbnailPreviewImage && (
+                <Typography variant="caption" color="error" sx={{ mt: 1 }}>
+                  {formik.errors.thumbnailPreviewImage}
+                </Typography>
+              )}
           </Grid>
           <Grid xs={12} mt={3}>
             <Stack

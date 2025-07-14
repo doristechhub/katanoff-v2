@@ -182,3 +182,5 @@ export const COLLECTION_TYPES = {
   two_grid: { value: 'two_grid', label: 'Two Grid', thumbnailDimensions: '825x784' },
   three_grid: { value: 'three_grid', label: 'Three Grid', thumbnailDimensions: '544x472' },
 };
+ 
+export const CARD = 'card';
