@@ -50,7 +50,7 @@ import {
   StyledDialogContent,
   StyledDialogTitle,
 } from 'src/components/dialog/styles';
-import Variations from './Variations';
+import Variations from './variations';
 import Dialog from 'src/components/dialog';
 import Switch from 'src/components/switch';
 import Spinner from 'src/components/spinner';

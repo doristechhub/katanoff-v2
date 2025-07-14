@@ -7,7 +7,7 @@ import ProtectedRoutes from 'src/guard/ProtectedRoutes';
 export const IndexPage = lazy(() => import('src/pages/app'));
 export const UserPage = lazy(() => import('src/pages/user'));
 export const Review = lazy(() => import('src/pages/review'));
-export const Orders = lazy(() => import('src/pages/Orders'));
+export const Orders = lazy(() => import('src/pages/orders'));
 export const Returns = lazy(() => import('src/pages/returns'));
 export const LoginPage = lazy(() => import('src/pages/login'));
 export const MenuPage = lazy(() => import('src/pages/menu/menu'));

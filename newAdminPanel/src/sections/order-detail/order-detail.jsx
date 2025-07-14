@@ -28,6 +28,7 @@ import CancelOrderDialog from '../orders/order-cancel-dialog';
 import RefundOrderDialog from '../orders/refund-order-dialog';
 import UpdateStatusOrderDialog from '../orders/order-update-status-dialog';
 import ProgressiveImg from 'src/components/progressive-img';
+import { CARD } from 'src/_helpers/constants';
 
 // ----------------------------------------------------------------------
 
@@ -482,6 +483,25 @@ const OrderDetail = () => {
                             {helperFunctions?.capitalizeCamelCase(selectedOrder?.paymentMethod)}
                           </Box>
                         </Stack>
+                        {selectedOrder?.paymentMethodDetails?.type ? (
+                          selectedOrder?.paymentMethodDetails?.type === CARD ? (
+                            <Stack direction={'row'} sx={font14} gap={1}>
+                              <Box sx={sx}>Payment Method Details</Box>
+                              <Box sx={sxPrimaryColor}>
+                                {selectedOrder?.paymentMethodDetails?.brand} ending in{' '}
+                                {selectedOrder?.paymentMethodDetails?.lastFour}
+                              </Box>
+                            </Stack>
+                          ) : (
+                            <Stack direction={'row'} sx={font14} gap={1}>
+                              <Box sx={sx}>Payment Method Details</Box>
+                              <Box sx={sxPrimaryColor}>
+                                {selectedOrder?.paymentMethodDetails?.type}
+                              </Box>
+                            </Stack>
+                          )
+                        ) : null}
+
                         {selectedOrder?.paymentMethod === 'paypal' ? (
                           <>
                             {selectedOrder?.paypalCaptureId ? (
