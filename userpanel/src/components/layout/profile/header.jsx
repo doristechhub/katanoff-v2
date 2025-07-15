@@ -14,7 +14,7 @@ import { IoMenu } from "react-icons/io5";
 import { RxCross2 } from "react-icons/rx";
 import diamondIcon from "@/assets/icons/diamond.svg";
 import calendarIcon from "@/assets/icons/calendar.svg";
-import textLogo from "@/assets/images/logo-text.svg";
+import textLogo from "@/assets/images/logo-text.webp";
 import miniLogo from "@/assets/images/mini-logo.webp";
 import CartPopup from "../../ui/CartPopup";
 import { fetchCart } from "@/_actions/cart.action";
@@ -109,13 +109,14 @@ export default function Header() {
         className={` w-full z-50 transition-all duration-700 ease-in-out 
     ${
       isHeaderVisible
-        ? "fixed -top-2 animate-slideDown animate-duration-900 animate-ease-in-out clear-both"
+        ? // ? "fixed -top-2 animate-slideDown animate-duration-900 animate-ease-in-out clear-both"
+          "fixed -top-14 animate-slideDown animate-duration-900 animate-ease-in-out clear-both"
         : ""
     }
    
   bg-white`}
       >
-        <div className="flex justify-between items-center pt-3 pb-3 !px-5 lg:pt-[30px] lg:px-0 2xl:px-4 container">
+        <div className="flex justify-between items-center pt-3 !px-5 lg:pt-[15px] lg:px-0 2xl:px-4 container">
           <div className="items-center gap-6 font-extralight text-[#2B2B2B] text-[14px] 2xl:text-base hidden lg:flex">
             <Link href={"/contact-us"} className="flex items-center gap-1">
               <CustomImg
@@ -159,7 +160,8 @@ export default function Header() {
           <Link href={"/"}>
             <CustomImg
               srcAttr={textLogo}
-              className="hidden lg:block w-32 xs:w-48 lg:w-52 2xl:w-64"
+              // className="hidden lg:block w-32 xs:w-48 lg:w-52 2xl:w-64"
+              className="hidden lg:block lg:w-36 2xl:w-40"
             />
             <CustomImg srcAttr={miniLogo} className="lg:hidden w-12 2xl:w-12" />
           </Link>

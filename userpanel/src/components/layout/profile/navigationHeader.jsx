@@ -69,7 +69,8 @@ export default function NavigationHeader() {
   return (
     <header
       className={`w-full   ${
-        lastScrollY > 100 ? "bg-white shadow-lg" : "lg:pt-4"
+        // lastScrollY > 100 ? "bg-white shadow-lg" : "lg:pt-4"
+        lastScrollY > 100 ? "bg-white shadow-lg" : "lg:pt-2"
       } z-40 transition-all duration-500 ease-in-out ${
         isHeaderVisible
           ? "fixed top-0 left-0 clear-both"
