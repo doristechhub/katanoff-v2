@@ -147,6 +147,9 @@ const insertProduct = (params) => {
         productTypeIds,
         gender,
         netWeight,
+        grossWeight,
+        centerDiamondWeight,
+        totalCaratWeight,
         sideDiamondWeight,
         shortDescription,
         description,
@@ -186,6 +189,18 @@ const insertProduct = (params) => {
       netWeight =
         !isNaN(netWeight) && netWeight !== '' && netWeight !== null
           ? Math.round(parseFloat(netWeight) * 100) / 100
+          : 0;
+      grossWeight =
+        !isNaN(grossWeight) && grossWeight !== '' && grossWeight !== null
+          ? Math.round(parseFloat(grossWeight) * 100) / 100
+          : 0;
+      centerDiamondWeight =
+        !isNaN(centerDiamondWeight) && centerDiamondWeight !== '' && centerDiamondWeight !== null
+          ? Math.round(parseFloat(centerDiamondWeight) * 100) / 100
+          : 0;
+      totalCaratWeight =
+        !isNaN(totalCaratWeight) && totalCaratWeight !== '' && totalCaratWeight !== null
+          ? Math.round(parseFloat(totalCaratWeight) * 100) / 100
           : 0;
 
       // Process sideDiamondWeight: Parse, round to 2 decimal places, and store as number
@@ -269,6 +284,18 @@ const insertProduct = (params) => {
 
         if (netWeight && netWeight <= 0) {
           reject(new Error('Invalid Net Weight: Must be a positive number'));
+          return;
+        }
+        if (grossWeight && grossWeight <= 0) {
+          reject(new Error('Invalid Gross Weight: Must be a positive number'));
+          return;
+        }
+        if (centerDiamondWeight && centerDiamondWeight <= 0) {
+          reject(new Error('Invalid Center Diamond Weight: Must be a positive number'));
+          return;
+        }
+        if (totalCaratWeight && totalCaratWeight <= 0) {
+          reject(new Error('Invalid Total Carat Weight: Must be a positive number'));
           return;
         }
 
@@ -675,6 +702,9 @@ const insertProduct = (params) => {
                   productTypeIds: productTypeIds.map((id) => id?.trim()),
                   gender,
                   netWeight,
+                  grossWeight,
+                  totalCaratWeight,
+                  centerDiamondWeight,
                   sideDiamondWeight,
                   shortDescription,
                   description,
@@ -1705,6 +1735,9 @@ const updateProduct = (params) => {
         productTypeIds,
         gender,
         netWeight,
+        grossWeight,
+        centerDiamondWeight,
+        totalCaratWeight,
         sideDiamondWeight,
         shortDescription,
         description,
@@ -1721,7 +1754,9 @@ const updateProduct = (params) => {
         isDiamondFilter,
         diamondFilters,
       } = sanitizeObject(params);
-
+      console.log('grossWeight', grossWeight);
+      console.log('centerDiamondWeight', centerDiamondWeight);
+      console.log('totalCaratWeight', totalCaratWeight);
       if (productId) {
         const productData = await fetchWrapperService.findOne(productsUrl, {
           id: productId,
@@ -1735,7 +1770,21 @@ const updateProduct = (params) => {
           netWeight =
             !isNaN(netWeight) && netWeight !== '' && netWeight !== null
               ? Math.round(parseFloat(netWeight) * 100) / 100
-              : productData.netWeight || 0;
+              : 0;
+          grossWeight =
+            !isNaN(grossWeight) && grossWeight !== '' && grossWeight !== null
+              ? Math.round(parseFloat(grossWeight) * 100) / 100
+              : 0;
+          centerDiamondWeight =
+            !isNaN(centerDiamondWeight) &&
+            centerDiamondWeight !== '' &&
+            centerDiamondWeight !== null
+              ? Math.round(parseFloat(centerDiamondWeight) * 100) / 100
+              : 0;
+          totalCaratWeight =
+            !isNaN(totalCaratWeight) && totalCaratWeight !== '' && totalCaratWeight !== null
+              ? Math.round(parseFloat(totalCaratWeight) * 100) / 100
+              : 0;
           sideDiamondWeight =
             !isNaN(sideDiamondWeight) && sideDiamondWeight !== '' && sideDiamondWeight !== null
               ? Math.round(parseFloat(sideDiamondWeight) * 100) / 100
@@ -1761,6 +1810,18 @@ const updateProduct = (params) => {
 
           if (netWeight && netWeight <= 0) {
             reject(new Error('Invalid Net Weight: Must be a positive number'));
+            return;
+          }
+          if (grossWeight && grossWeight <= 0) {
+            reject(new Error('Invalid Gross Weight: Must be a positive number'));
+            return;
+          }
+          if (centerDiamondWeight && centerDiamondWeight <= 0) {
+            reject(new Error('Invalid Center Diamond Weight: Must be a positive number'));
+            return;
+          }
+          if (totalCaratWeight && totalCaratWeight <= 0) {
+            reject(new Error('Invalid Total Carat Weight: Must be a positive number'));
             return;
           }
 
@@ -2189,6 +2250,9 @@ const updateProduct = (params) => {
               : productData.productTypeIds,
             gender,
             netWeight,
+            grossWeight,
+            totalCaratWeight,
+            centerDiamondWeight,
             sideDiamondWeight,
             shortDescription: shortDescription
               ? shortDescription.trim()
@@ -2204,7 +2268,7 @@ const updateProduct = (params) => {
             diamondFilters: isDiamondFilter ? diamondFilters : null,
             updatedDate: Date.now(),
           };
-
+          console.log('payload', payload);
           // Update product
           const updatePattern = {
             url: `${productsUrl}/${productId}`,

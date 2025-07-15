@@ -63,7 +63,6 @@ export const productModel = {
   whiteGoldVideo: {
     type: String,
   },
-
   sku: {
     type: String,
     required: true,
@@ -106,6 +105,15 @@ export const productModel = {
   },
   netWeight: {
     type: Number, // in gram
+  },
+  grossWeight: {
+    type: Number, // in gram
+  },
+  centerDiamondWeight: {
+    type: Number, // in carat
+  },
+  totalCaratWeight: {
+    type: Number, // in carat
   },
   sideDiamondWeight: {
     type: Number, // in carat
