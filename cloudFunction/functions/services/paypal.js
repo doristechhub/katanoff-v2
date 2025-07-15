@@ -179,4 +179,44 @@ exportFunction.getCaptureDetails = (params) => {
   });
 };
 
+//  for testing purpose for fetching card details
+exportFunction.getCardDetails = async (params) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const { captureId } = params;
+      if (!captureId) throw new Error("Missing captureId parameter");
+      const access_token = await getPaypalAccessToken();
+      const captureRes = await axios.get(
+        `${paypalBaseApiUrl}/v2/payments/captures/${captureId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      );
+      // const orderId =
+      //   captureRes?.data?.supplementary_data?.related_ids?.order_id;
+
+      // const orderRes = await axios.get(
+      //   `${paypalBaseApiUrl}/v2/checkout/orders/${orderId}`,
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${access_token}`,
+      //     },
+      //   }
+      // );
+      // const orderDetails = orderRes?.data;
+
+      // resolve({
+      //   capture: captureRes.data,
+      //   order: orderDetails || null,
+      // });
+
+      resolve(captureRes);
+    } catch (error) {
+      reject(new Error(`Failed to fetch order details: ${error.message}`));
+    }
+  });
+};
+
 module.exports = exportFunction;

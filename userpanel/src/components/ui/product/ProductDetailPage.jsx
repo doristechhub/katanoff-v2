@@ -44,6 +44,8 @@ import {
   GOLD_TYPES,
   MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT,
   messageType,
+  METAL_COLOR,
+  METAL_TYPES,
   RING_SIZE,
   SETTING_STYLE,
 } from "@/_helper/constants";
@@ -466,6 +468,9 @@ const ProductDetailPage = ({ customizePage }) => {
 
             <div className="flex flex-col pl-4 md:pl-0">
               <h2 className="text-xl font-semibold">
+                {productDetail?.totalCaratWeight
+                  ? `${productDetail?.totalCaratWeight} ctw `
+                  : null}
                 {productDetail?.productName}
               </h2>
               {displayValues ? (
@@ -900,14 +905,14 @@ const ProductDetailTabs = ({ selectedVariations = [] }) => {
             {selectedVariations?.length > 0 ? (
               <>
                 {renderInfoRow(
-                  GOLD_TYPES,
+                  METAL_TYPES,
                   helperFunctions?.getVariationValue(
                     selectedVariations,
                     GOLD_TYPES
                   )
                 )}
                 {renderInfoRow(
-                  GOLD_COLOR,
+                  METAL_COLOR,
                   helperFunctions?.getVariationValue(
                     selectedVariations,
                     GOLD_COLOR
@@ -921,11 +926,18 @@ const ProductDetailTabs = ({ selectedVariations = [] }) => {
                   )
                 )}
                 {renderInfoRow(
+                  "Approx Weight",
+                  productDetail?.grossWeight
+                    ? `${productDetail?.grossWeight} gm`
+                    : ""
+                )}
+
+                {/* {renderInfoRow(
                   "Approx Net Wt",
                   productDetail?.netWeight
                     ? `${productDetail?.netWeight} g`
                     : ""
-                )}
+                )} */}
               </>
             ) : null}
           </div>
@@ -949,6 +961,12 @@ const ProductDetailTabs = ({ selectedVariations = [] }) => {
                 selectedVariations,
                 DIAMOND_QUALITY
               )
+            )}
+            {renderInfoRow(
+              "Total Carat Weight",
+              productDetail?.totalCaratWeight
+                ? `${productDetail?.totalCaratWeight} ctw`
+                : ""
             )}
 
             {productDetail?.settingStyleNamesWithImg?.length > 0 &&

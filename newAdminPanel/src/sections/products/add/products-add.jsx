@@ -380,6 +380,16 @@ export default function AddProductPage() {
     [dispatch, selectedProduct]
   );
 
+  // Handler to select input value on click
+  const handleInputClick = (event) => {
+    event.target.select();
+  };
+
+  // Handler to disable mouse wheel value change
+  const handleWheel = (event) => {
+    event.target.blur();
+  };
+
   return (
     <>
       <Container sx={{ height: '100%' }}>
@@ -647,6 +657,8 @@ export default function AddProductPage() {
                                   label="Discount %"
                                   onBlur={handleBlur}
                                   onChange={handleChange}
+                                  onClick={handleInputClick}
+                                  onWheel={handleWheel}
                                   value={values.discount || ''}
                                   error={!!(touched?.discount && errors?.discount)}
                                   helperText={
@@ -890,6 +902,8 @@ export default function AddProductPage() {
                                       : '';
                                     setFieldValue('netWeight', roundedValue);
                                   }}
+                                  onClick={handleInputClick}
+                                  onWheel={handleWheel}
                                   value={values.netWeight || ''}
                                   error={!!(touched?.netWeight && errors?.netWeight)}
                                   helperText={
@@ -903,7 +917,7 @@ export default function AddProductPage() {
                                 <TextField
                                   type="number"
                                   name="sideDiamondWeight"
-                                  label="Side Diamond Weight (Ct.)"
+                                  label="Side Diamond Weight (ctw)"
                                   onBlur={handleBlur}
                                   onChange={(event) => {
                                     const value = event?.target?.value;
@@ -912,6 +926,8 @@ export default function AddProductPage() {
                                       : '';
                                     setFieldValue('sideDiamondWeight', roundedValue);
                                   }}
+                                  onClick={handleInputClick}
+                                  onWheel={handleWheel}
                                   value={values.sideDiamondWeight || ''}
                                   error={
                                     !!(touched?.sideDiamondWeight && errors?.sideDiamondWeight)
@@ -919,6 +935,88 @@ export default function AddProductPage() {
                                   helperText={
                                     touched?.sideDiamondWeight && errors?.sideDiamondWeight
                                       ? errors?.sideDiamondWeight
+                                      : ''
+                                  }
+                                  sx={{ width: '100%' }}
+                                  inputProps={{ min: 0 }}
+                                />
+                              </Grid>
+                              <Grid xs={12} sm={6} md={6}>
+                                <TextField
+                                  type="number"
+                                  name="grossWeight"
+                                  label="Gross Weight (g)"
+                                  onBlur={handleBlur}
+                                  onChange={(event) => {
+                                    const value = event?.target?.value;
+                                    const roundedValue = value
+                                      ? Math.round(parseFloat(value) * 100) / 100
+                                      : '';
+                                    setFieldValue('grossWeight', roundedValue);
+                                  }}
+                                  onClick={handleInputClick}
+                                  onWheel={handleWheel}
+                                  value={values.grossWeight || ''}
+                                  error={!!(touched?.grossWeight && errors?.grossWeight)}
+                                  helperText={
+                                    touched?.grossWeight && errors?.grossWeight
+                                      ? errors?.grossWeight
+                                      : ''
+                                  }
+                                  sx={{ width: '100%' }}
+                                  inputProps={{ min: 0 }}
+                                />
+                              </Grid>
+
+                              <Grid xs={12} sm={6} md={6}>
+                                <TextField
+                                  type="number"
+                                  name="centerDiamondWeight"
+                                  label="Center Diamond Weight (ctw)"
+                                  onBlur={handleBlur}
+                                  onChange={(event) => {
+                                    const value = event?.target?.value;
+                                    const roundedValue = value
+                                      ? Math.round(parseFloat(value) * 100) / 100
+                                      : '';
+                                    setFieldValue('centerDiamondWeight', roundedValue);
+                                  }}
+                                  onClick={handleInputClick}
+                                  onWheel={handleWheel}
+                                  value={values.centerDiamondWeight || ''}
+                                  error={
+                                    !!(touched?.centerDiamondWeight && errors?.centerDiamondWeight)
+                                  }
+                                  helperText={
+                                    touched?.centerDiamondWeight && errors?.centerDiamondWeight
+                                      ? errors?.centerDiamondWeight
+                                      : ''
+                                  }
+                                  sx={{ width: '100%' }}
+                                  inputProps={{ min: 0 }}
+                                />
+                              </Grid>
+
+                              <Grid xs={12} sm={6} md={6}>
+                                <TextField
+                                  type="number"
+                                  name="totalCaratWeight"
+                                  label="Total Carat Weight (ctw)"
+                                  onBlur={handleBlur}
+                                  onChange={(event) => {
+                                    const value = event?.target?.value;
+                                    const roundedValue = value
+                                      ? Math.round(parseFloat(value) * 100) / 100
+                                      : '';
+                                    setFieldValue('totalCaratWeight', roundedValue);
+                                  }}
+                                  onClick={handleInputClick}
+                                  onWheel={handleWheel}
+                                  value={values.totalCaratWeight || ''}
+                                  error={!!(touched?.totalCaratWeight && errors?.totalCaratWeight)}
+                                  helperText={
+                                    touched?.totalCaratWeight && errors?.totalCaratWeight
+                                      ? errors?.totalCaratWeight
                                       : ''
                                   }
                                   sx={{ width: '100%' }}

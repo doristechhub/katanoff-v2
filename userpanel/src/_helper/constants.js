@@ -28,6 +28,8 @@ export const headerLinks = [
 
 export const GOLD_TYPES = "Gold Type";
 export const GOLD_COLOR = "Gold Color";
+export const METAL_TYPES = "Metal Type";
+export const METAL_COLOR = "Metal Color";
 
 export const RING_SIZE = "Ring Size";
 export const LENGTH = "Length";
@@ -96,7 +98,7 @@ export const CARAT_RANGE_PRICES = [
 
 export const METAL_PRICE_PER_GRAM = 75;
 export const SIDE_DIAMOND_PRICE_PER_CARAT = 150;
-export const PRICE_MULTIPLIER = 3;
+export const PRICE_MULTIPLIER = 4;
 
 export const sortByList = [
   { value: "date_new_to_old", title: "New to Old" },

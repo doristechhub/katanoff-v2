@@ -2,6 +2,7 @@ const message = require("../utils/messages");
 const { orderService, paypalService } = require("../services");
 const { getNonCustomizedProducts } = require("../helpers/common");
 const { updateProductQty } = require("../services/product");
+const sanitizeValue = require("../helpers/sanitizeParams");
 
 // Utility function to handle order deletion and product quantity update
 const deleteOrderAndUpdateProductQty = async ({ orderId }) => {
@@ -183,9 +184,44 @@ const refundPaypalPayment = async (req, res) => {
   }
 };
 
+const fetchPaymentCapture = async (req, res) => {
+  try {
+    let { paypalCaptureId } = req.body;
+    paypalCaptureId = sanitizeValue(paypalCaptureId)
+      ? paypalCaptureId.trim()
+      : "";
+    if (paypalCaptureId) {
+      const findPattern = {
+        captureId: paypalCaptureId,
+      };
+      const paymentCapture = await paypalService.getCardDetails(
+        findPattern
+      );
+      if (paymentCapture) {
+        return res.json({
+          status: 200,
+          paymentCapture,
+          message: message.SUCCESS,
+        });
+      } else {
+        return res.json({
+          status: 404,
+          message: message.custom("Invalid payment capture id"),
+        });
+      }
+    }
+  } catch (e) {
+    return res.json({
+      status: 500,
+      message: e?.message || message.SERVER_ERROR,
+    });
+  }
+}
+
 module.exports = {
   getAccessToken,
   createPaypalOrder,
   capturePaypalOrder,
   refundPaypalPayment,
+  fetchPaymentCapture
 };
