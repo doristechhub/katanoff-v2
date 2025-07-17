@@ -229,7 +229,8 @@ const Home = () => {
   let currentUser = helperFunctions?.getCurrentUser();
   return (
     <>
-      {currentUser ? <HomePagePopupWithLogin /> : <HomePagePopup />}
+      {/* {currentUser ? <HomePagePopupWithLogin /> : <HomePagePopup />} */}
+      {!currentUser && <HomePagePopup />}
       <HeroBanner isHomePage={true} titleAttr="" altAttr="Hero Banner" />
       <section className="bg-white pt-16 pb-16 xl:pb-20">
         <RingSettingCenterStone />

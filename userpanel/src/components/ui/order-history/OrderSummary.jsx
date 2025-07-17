@@ -3,7 +3,11 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
 import { fetchOrderDetail } from "@/_actions/order.action";
-import { helperFunctions, SALES_TAX_NOTE } from "@/_helper";
+import {
+  helperFunctions,
+  SALES_TAX_NOTE,
+  SALES_TAX_PERCENTAGE_VALUE,
+} from "@/_helper";
 import CustomBadge from "@/components/ui/CustomBadge";
 import { ProgressiveImg } from "@/components/dynamiComponents";
 import SkeletonLoader from "@/components/ui/skeletonLoader";
@@ -24,7 +28,7 @@ export default function OrderSummary({ orderId }) {
   const billingItems = [
     { label: "Sub Total", value: `$${orderDetail?.subTotal}` },
     {
-      label: "Sales Tax(8%)",
+      label: `Sales Tax( ${SALES_TAX_PERCENTAGE_VALUE})`,
       value: `$${helperFunctions.toFixedNumber(orderDetail?.salesTax)}`,
     },
     { label: "Shipping Charge", value: `$${orderDetail?.shippingCharge}` },

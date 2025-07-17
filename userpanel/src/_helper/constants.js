@@ -159,6 +159,8 @@ export const ASSCHER = "Asscher";
 export const RADIANT = "Radiant";
 export const PEAR = "Pear";
 
+export const SALES_TAX_PERCENTAGE = 0.08875;
+export const SALES_TAX_PERCENTAGE_VALUE = "8.875%";
 export const SALES_TAX_NOTE =
   "* Sales tax will be applied to addresses within New York State.";
 export const ESTIMATE_AMOUNT_NOTE =

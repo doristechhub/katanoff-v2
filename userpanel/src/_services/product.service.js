@@ -1009,78 +1009,102 @@ const searchProducts = (params) => {
     try {
       let { searchValue } = sanitizeObject(params);
       searchValue = searchValue ? searchValue.trim() : null;
-      if (searchValue) {
-        const allActiveProductsData =
-          await productService.getAllActiveProducts();
 
-        const searchResults = allActiveProductsData.filter((product) => {
-          const fieldsToSearch = [
-            product.categoryName,
-            product.subCategoryName,
-            product.sku,
-            product.saltSKU,
-            product.productName,
-          ];
-
-          if (
-            product.productTypeNames &&
-            Array.isArray(product.productTypeNames)
-          ) {
-            product.productTypeNames.forEach((productTypeName) => {
-              fieldsToSearch.push(productTypeName);
-            });
-          }
-
-          if (product.variations && Array.isArray(product.variations)) {
-            product.variations.forEach((variation) => {
-              fieldsToSearch.push(variation.variationName);
-              variation.variationTypes.forEach((variationType) => {
-                fieldsToSearch.push(variationType.variationTypeName);
-              });
-            });
-          }
-          if (
-            product.collectionNames &&
-            Array.isArray(product.collectionNames)
-          ) {
-            product.collectionNames.forEach((collection) => {
-              fieldsToSearch.push(collection);
-            });
-          }
-
-          // Check if any field contains the search term (case-insensitive)
-          return fieldsToSearch.some((field) =>
-            field
-              ? field?.toLowerCase()?.includes(searchValue?.toLowerCase())
-              : false
-          );
-        });
-        const updatedSearchResults = searchResults.map((product) => {
-          const { price = 0 } = helperFunctions.getMinPriceVariCombo(
-            product.variComboWithQuantity
-          );
-          return {
-            ...product,
-            basePrice: price,
-            baseSellingPrice: helperFunctions.getSellingPrice(
-              price,
-              product.discount
-            ),
-            discount: product.discount,
-            goldTypeVariations: product?.variations?.find(
-              (x) =>
-                x?.variationName?.toLowerCase() === GOLD_TYPES?.toLowerCase()
-            )?.variationTypes,
-            goldColorVariations: product?.variations?.find(
-              (x) =>
-                x?.variationName?.toLowerCase() === GOLD_COLOR?.toLowerCase()
-            )?.variationTypes,
-          };
-        });
-        resolve(updatedSearchResults);
-      } else {
-        reject("Invalid Data");
+      if (!searchValue) {
+        return reject("Invalid Data");
       }
+
+      const ctwMatch = searchValue.match(/^(\d*\.?\d*)\s?ctw$/i);
+      const caratWeightQuery = ctwMatch ? parseFloat(ctwMatch[1]) : null;
+
+      // Normalize searchValue for non-ctw searches (remove "ctw" for partial matches)
+      const normalizedSearchValue = searchValue
+        .toLowerCase()
+        .replace(/\s?ctw/i, "");
+
+      const allActiveProductsData = await productService.getAllActiveProducts();
+
+      const searchResults = allActiveProductsData.filter((product) => {
+        // Generate formatted name using helper function
+        const formattedName = helperFunctions.formatProductNameWithCarat({
+          caratWeight: product.totalCaratWeight,
+          productName: product.productName,
+        });
+
+        const fieldsToSearch = [
+          product.categoryName,
+          product.subCategoryName,
+          product.sku,
+          product.saltSKU,
+          product.productName,
+          formattedName,
+        ];
+
+        if (product.totalCaratWeight) {
+          fieldsToSearch.push(product.totalCaratWeight.toString());
+        }
+
+        // Add other fields (productTypeNames, variations, collectionNames)
+        if (
+          product.productTypeNames &&
+          Array.isArray(product.productTypeNames)
+        ) {
+          product.productTypeNames.forEach((productTypeName) => {
+            fieldsToSearch.push(productTypeName);
+          });
+        }
+
+        if (product.variations && Array.isArray(product.variations)) {
+          product.variations.forEach((variation) => {
+            fieldsToSearch.push(variation.variationName);
+            variation.variationTypes.forEach((variationType) => {
+              fieldsToSearch.push(variationType.variationTypeName);
+            });
+          });
+        }
+
+        if (product.collectionNames && Array.isArray(product.collectionNames)) {
+          product.collectionNames.forEach((collection) => {
+            fieldsToSearch.push(collection);
+          });
+        }
+
+        // Check if any field contains the normalized search term (case-insensitive)
+        const matchesSearch = fieldsToSearch.some((field) =>
+          field ? field.toLowerCase().includes(normalizedSearchValue) : false
+        );
+
+        // Check for exact carat weight match if query is like "3ctw"
+        const matchesCaratWeight = caratWeightQuery
+          ? product.totalCaratWeight === caratWeightQuery
+          : true;
+
+        return matchesSearch || matchesCaratWeight;
+      });
+
+      const updatedSearchResults = searchResults.map((product) => {
+        const { price = 0 } = helperFunctions.getMinPriceVariCombo(
+          product.variComboWithQuantity
+        );
+        return {
+          ...product,
+          basePrice: price,
+          baseSellingPrice: helperFunctions.getSellingPrice(
+            price,
+            product.discount
+          ),
+          discount: product.discount,
+          goldTypeVariations: product?.variations?.find(
+            (x) => x?.variationName?.toLowerCase() === GOLD_TYPES?.toLowerCase()
+          )?.variationTypes,
+          goldColorVariations: product?.variations?.find(
+            (x) => x?.variationName?.toLowerCase() === GOLD_COLOR?.toLowerCase()
+          )?.variationTypes,
+          caratWeight: product.totalCaratWeight,
+        };
+      });
+
+      resolve(updatedSearchResults);
     } catch (e) {
       reject(e);
     }

@@ -419,12 +419,12 @@ export default function SelectDiamondPage() {
                         />
                       </button>
                     </div>
-                    <div className="flex 2xl:gap-1">
+                    <div className="flex gap-2 2xl:gap-1">
                       {ALLOWED_DIA_CLARITIES.map((item, index) => (
                         <div
                           key={`diamond-clarity-${index}`}
                           title={item?.title}
-                          className={`hover:border !w-[55px] flex justify-center items-center px-2 py-1 2xl:py-1.5 cursor-pointer transition-all duration-100 ${
+                          className={`hover:border !w-[60px] flex justify-center items-center px-2 py-1 2xl:py-1.5 cursor-pointer transition-all duration-100 ${
                             diamondSelection.clarity?.value === item.value
                               ? "text-baseblack  border-baseblack rounded-[3px] border"
                               : "border-approxgray text-baseblack hover:border-baseblack hover:rounded-[3px]"

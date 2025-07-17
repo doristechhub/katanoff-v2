@@ -1,7 +1,12 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { helperFunctions, LENGTH, RING_SIZE } from "@/_helper";
+import {
+  helperFunctions,
+  LENGTH,
+  RING_SIZE,
+  SALES_TAX_PERCENTAGE,
+} from "@/_helper";
 import { CustomImg, ProgressiveImg } from "../../dynamiComponents";
 import { fetchCart } from "@/_actions/cart.action";
 import { setIsNewYorkState } from "@/store/slices/checkoutSlice";
@@ -12,7 +17,7 @@ import { paymentOptions } from "@/_utils/paymentOptions";
 import effect from "@/assets/icons/effect.png";
 import CheckoutCommonSummary from "./CheckoutCommonSummary";
 import { usePathname } from "next/navigation";
-const salesTaxPerc = 0.08;
+const salesTaxPerc = SALES_TAX_PERCENTAGE;
 
 const CheckoutCommonComponent = () => {
   const dispatch = useDispatch();
@@ -149,7 +154,10 @@ const CheckoutCommonComponent = () => {
 
                     <div className="flex-1 w-full">
                       <p className="text-base font-semibold">
-                        {cartItem?.productName}
+                        {helperFunctions?.formatProductNameWithCarat({
+                          caratWeight: cartItem?.totalCaratWeight,
+                          productName: cartItem?.productName,
+                        })}
                       </p>
 
                       <p className="text-baseblack flex flex-wrap text-sm xs:text-[15px]">
@@ -295,7 +303,10 @@ const CheckoutCommonComponent = () => {
 
                     <div className="flex-1 w-full">
                       <p className="text-base font-semibold">
-                        {cartItem?.productName}
+                        {helperFunctions?.formatProductNameWithCarat({
+                          caratWeight: cartItem?.totalCaratWeight,
+                          productName: cartItem?.productName,
+                        })}
                       </p>
                       <p className="text-baseblack flex flex-wrap text-sm xs:text-[15px]">
                         {helperFunctions?.displayVariationsLabel(

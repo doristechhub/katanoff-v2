@@ -255,7 +255,10 @@ const CartPage = () => {
                             }
                             className="md:text-base lg:text-lg font-semibold hover:underline"
                           >
-                            {cartItem?.productName}
+                            {helperFunctions?.formatProductNameWithCarat({
+                              caratWeight: cartItem?.totalCaratWeight,
+                              productName: cartItem?.productName,
+                            })}
                           </Link>
 
                           <div className="sm:hidden">

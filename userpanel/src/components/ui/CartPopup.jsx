@@ -288,7 +288,10 @@ const CartPopup = () => {
                                 }}
                                 className="text-xs  2xl:text-base font-semibold text-baseblack"
                               >
-                                {cartItem?.productName}
+                                {helperFunctions?.formatProductNameWithCarat({
+                                  caratWeight: cartItem?.totalCaratWeight,
+                                  productName: cartItem?.productName,
+                                })}
                               </Link>
                               <p className="text-baseblack font-medium  flex flex-wrap text-xs  2xl:text-sm">
                                 {helperFunctions?.displayVariationsLabel(

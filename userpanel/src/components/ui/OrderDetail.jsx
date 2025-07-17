@@ -1,6 +1,11 @@
 "use client";
 import { CustomImg, ProgressiveImg } from "@/components/dynamiComponents";
-import { CARD, helperFunctions, SALES_TAX_NOTE } from "@/_helper";
+import {
+  CARD,
+  helperFunctions,
+  SALES_TAX_NOTE,
+  SALES_TAX_PERCENTAGE_VALUE,
+} from "@/_helper";
 import DownloadInvoice from "@/components/ui/order-history/downloadInvoice";
 import CancelOrder from "@/components/ui/order-history/CancelOrder";
 import Spinner from "@/components/ui/spinner";
@@ -208,7 +213,13 @@ const OrderDetails = ({
 
                     <div className="w-full">
                       <div className="flex justify-between text-sm md:text-base">
-                        <h3 className="font-medium">{product?.productName}</h3>
+                        <h3 className="font-medium">
+                          {helperFunctions?.formatProductNameWithCarat({
+                            caratWeight: product?.totalCaratWeight,
+                            productName: product?.productName,
+                          })}
+                          ;
+                        </h3>
                         <h3 className="font-semibold">
                           ${helperFunctions.toFixedNumber(product?.unitAmount)}
                         </h3>
@@ -314,7 +325,7 @@ const OrderDetails = ({
                   ]
                 : []),
               {
-                label: "Sales Tax(8%)",
+                label: `Sales Tax (${SALES_TAX_PERCENTAGE_VALUE})`,
                 value:
                   orderDetail?.salesTax > 0
                     ? helperFunctions?.formatCurrencyWithDollar(

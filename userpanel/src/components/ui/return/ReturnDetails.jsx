@@ -7,7 +7,11 @@ import {
   ProductNotFound,
   ProgressiveImg,
 } from "@/components/dynamiComponents";
-import { ESTIMATE_AMOUNT_NOTE, helperFunctions } from "@/_helper";
+import {
+  ESTIMATE_AMOUNT_NOTE,
+  helperFunctions,
+  SALES_TAX_PERCENTAGE_VALUE,
+} from "@/_helper";
 import SkeletonLoader from "../skeletonLoader";
 import DiamondDetailDrawer from "@/components/ui/customize/DiamondDetailDrawer";
 import CancelReturnRequest from "./CancelReturnRequest";
@@ -118,7 +122,7 @@ const ReturnDetails = ({
     return <ProductNotFound message="Sorry, no order found." />;
   }
   return (
-    <div className={`md:px-2 lg:px-6 my-8 ${isShadow ? "shadow-lg" : ""}`}>
+    <div className={`md:px-2 lg:px-6 my-6 ${isShadow ? "shadow-lg" : ""}`}>
       {/* Action Buttons */}
       <div className="flex justify-end gap-2 mb-2">
         {returnDetail?.status === "pending" &&
@@ -160,7 +164,12 @@ const ReturnDetails = ({
                   {/* Product Details */}
                   <div className="w-full">
                     <div className="flex flex-col xs:flex-row xs:justify-between text-sm md:text-base gap-1 xs:gap-0">
-                      <h3 className="font-medium">{product?.productName}</h3>
+                      <h3 className="font-medium">
+                        {helperFunctions?.formatProductNameWithCarat({
+                          caratWeight: product?.totalCaratWeight,
+                          productName: product?.productName,
+                        })}
+                      </h3>
                       <h3 className="font-semibold">
                         {formatCurrency(product?.unitAmount)}
                       </h3>
@@ -270,7 +279,9 @@ const ReturnDetails = ({
               </div>
             )}
             <div className="flex justify-between text-lightblack">
-              <h4 className="font-medium">Sales Tax(8%)</h4>
+              <h4 className="font-medium">
+                Sales Tax ({SALES_TAX_PERCENTAGE_VALUE})
+              </h4>
               <p className="font-semibold">
                 {returnDetail?.salesTax > 0
                   ? formatCurrency(returnDetail?.salesTax)

@@ -35,6 +35,7 @@ import {
 import { deleteOrder } from "@/_actions/order.action";
 import { setCartList } from "@/store/slices/cartSlice";
 import { paymentService } from "@/_services";
+import { removeCouponCode } from "@/_actions/coupon.action";
 
 const expressCheckoutOptions = {
   buttonType: {
@@ -341,6 +342,8 @@ const PaymentForm = ({ orderId }) => {
         );
 
         if (paymentResponse) {
+          localStorage.removeItem("appliedCoupon");
+          dispatch(removeCouponCode());
           router.push(`/order/success/${paymentResponse?.orderNumber}`);
           if (!currentUser) {
             localStorage.removeItem("cart");

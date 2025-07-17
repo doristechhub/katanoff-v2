@@ -573,6 +573,7 @@ const processReturnProductItem = ({
     ...returnProductItem,
     productName: findedProduct.productName,
     productImage: thumbnailImage,
+    totalCaratWeight: findedProduct?.totalCaratWeight,
     variations: variationArray,
     diamondDetail,
   };

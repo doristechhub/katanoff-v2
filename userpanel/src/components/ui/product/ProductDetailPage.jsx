@@ -468,10 +468,10 @@ const ProductDetailPage = ({ customizePage }) => {
 
             <div className="flex flex-col pl-4 md:pl-0">
               <h2 className="text-xl font-semibold">
-                {productDetail?.totalCaratWeight
-                  ? `${productDetail?.totalCaratWeight} ctw `
-                  : null}
-                {productDetail?.productName}
+                {helperFunctions?.formatProductNameWithCarat({
+                  caratWeight: productDetail?.totalCaratWeight,
+                  productName: productDetail?.productName,
+                })}
               </h2>
               {displayValues ? (
                 <h2 className="text-sm md:text-sm text-basegray font-semibold pt-1">
@@ -901,7 +901,7 @@ const ProductDetailTabs = ({ selectedVariations = [] }) => {
               Item Details
             </p>
 
-            {renderInfoRow("SKU", productDetail?.sku)}
+            {renderInfoRow("SKU", productDetail?.saltSKU)}
             {selectedVariations?.length > 0 ? (
               <>
                 {renderInfoRow(

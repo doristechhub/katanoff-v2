@@ -203,16 +203,17 @@ export default function Header() {
           </Link>
 
           <div className="text-xl flex items-center gap-3 lg:w-64 justify-end">
-            <SearchBar
-              isMobile={false}
-              searchContainerRef={searchContainerRef}
-              resultsContainerRef={resultsContainerRef}
-              navSearchInputRef={searchInputRef}
-              mobileSearchInputRef={mobileSearchInputRef}
-              lastScrollY={lastScrollY}
-              isHeaderVisible={isHeaderVisible}
-            />
-
+            {lastScrollY <= 100 ? (
+              <SearchBar
+                isMobile={false}
+                searchContainerRef={searchContainerRef}
+                resultsContainerRef={resultsContainerRef}
+                navSearchInputRef={searchInputRef}
+                mobileSearchInputRef={mobileSearchInputRef}
+                lastScrollY={lastScrollY}
+                isHeaderVisible={isHeaderVisible}
+              />
+            ) : null}
             <ProfileDropdown
               className={"hidden lg:block"}
               uniqueId={"desktop-header-profile"}

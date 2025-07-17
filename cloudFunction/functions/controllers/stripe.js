@@ -563,7 +563,7 @@ const createOrder = async ({ payload, activeProductsList, res, userData }) => {
     // Recalculate totals
     const finalSubTotal = subTotal - orderDiscount;
     const isNewYorkState = state.toLowerCase() === NEW_YORK.toLowerCase();
-    const salesTaxPerc = isNewYorkState ? 8 : 0;
+    const salesTaxPerc = isNewYorkState ? 8.875 : 0;
     const salesTax = +(finalSubTotal * (salesTaxPerc / 100)).toFixed(2);
     const total = +(finalSubTotal + shippingCharge + salesTax).toFixed(2);
 
