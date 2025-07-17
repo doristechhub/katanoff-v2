@@ -120,10 +120,6 @@ export default function Header() {
   }, [isCartOpen]);
 
   useEffect(() => {
-    dispatch(fetchCart());
-  }, [dispatch]);
-
-  useEffect(() => {
     return () => {
       dispatch(setIsMenuOpen(false));
     };
