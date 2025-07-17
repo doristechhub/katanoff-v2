@@ -1,6 +1,7 @@
 export const apiUrl = process.env.REACT_APP_API_URL;
 
 export const productWebsiteUrl = process.env.REACT_APP_PRODUCT_WEBSITE_URL;
+export const prefixSaltSku = process.env.REACT_APP_PREFIX_SALT_SKU;
 
 export const userUrl = process.env.REACT_APP_USER;
 export const menuUrl = process.env.REACT_APP_MENU;

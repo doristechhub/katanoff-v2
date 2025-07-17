@@ -2,6 +2,7 @@ import { uid } from 'uid';
 import {
   customizationUrl,
   fetchWrapperService,
+  prefixSaltSku,
   productSliderUrl,
   productsUrl,
   sanitizeObject,
@@ -2405,9 +2406,10 @@ const updateProductQtyForReturn = async (products) => {
 };
 
 const generateSaltSKU = ({ styleNo, saltSKU }) => {
-  const randomNumber = helperFunctions.getRandomNumberLimitedDigits();
-  const lastDigits = saltSKU ? saltSKU?.split('-')?.pop() : randomNumber;
-  return `UJ-${styleNo}-${lastDigits}`;
+  // const randomNumber = helperFunctions.getRandomNumberLimitedDigits();
+  // const lastDigits = saltSKU ? saltSKU?.split('-')?.pop() : randomNumber;
+  // return `${prefixSaltSku}-${styleNo}-${lastDigits}`;
+  return `${prefixSaltSku}-${styleNo}`;
 };
 
 const generateSpecification = (item) => {

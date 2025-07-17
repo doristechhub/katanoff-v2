@@ -57,7 +57,7 @@ import Spinner from 'src/components/spinner';
 import Iconify from 'src/components/iconify';
 import Specifications from './specifications';
 import { Editor } from 'src/components/editor';
-import { helperFunctions } from 'src/_helpers';
+import { helperFunctions, prefixSaltSku } from 'src/_helpers';
 import { FileDrop } from 'src/components/file-drop';
 import { Button, LoadingButton } from 'src/components/button';
 import { getCollectionList } from 'src/actions/collectionActions';
@@ -205,9 +205,10 @@ export default function AddProductPage() {
 
   const skuChangeHandler = useCallback(
     (val, formik) => {
-      const lastDigits = productId ? selectedProduct?.saltSKU?.split('-')?.pop() : randomNumber;
       formik.setFieldValue('sku', val);
-      const saltSKU = val ? `UJ-${val}-${lastDigits}` : '';
+      // const lastDigits = productId ? selectedProduct?.saltSKU?.split('-')?.pop() : randomNumber;
+      // const saltSKU = val ? `UJ-${val}-${lastDigits}` : '';
+      const saltSKU = val ? `${prefixSaltSku}-${val}` : '';
       formik.setFieldValue('saltSKU', saltSKU);
     },
     [randomNumber, productId, selectedProduct?.saltSKU]

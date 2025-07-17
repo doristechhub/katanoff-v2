@@ -16,7 +16,7 @@ import {
   setIsDuplicateProduct,
   setSelectedProduct,
 } from 'src/store/slices/productSlice';
-import { helperFunctions } from 'src/_helpers';
+import { helperFunctions, prefixSaltSku } from 'src/_helpers';
 
 const validationSchema = Yup.object({
   productName: Yup.string()
@@ -161,15 +161,17 @@ const DuplicateProductDialog = ({ open, setOpen, loading }) => {
     initialValues: {
       productName: selectedProduct.productName + ' copy',
       sku: selectedProduct.sku + '-copy',
-      saltSKU: `UJ-${selectedProduct.sku}-copy-${randomNumber}`,
+      // saltSKU: `UJ-${selectedProduct.sku}-copy-${randomNumber}`,
+      saltSKU: `${prefixSaltSku}-${selectedProduct.sku}-copy`,
     },
   });
 
   const skuChangeHandler = useCallback(
     (val) => {
-      const lastDigits = randomNumber;
+      // const lastDigits = randomNumber;
       setFieldValue('sku', val);
-      const saltSKU = val ? `UJ-${val}-${lastDigits}` : '';
+      // const saltSKU = val ? `UJ-${val}-${lastDigits}` : '';
+      const saltSKU = val ? `${prefixSaltSku}-${val}` : '';
       setFieldValue('saltSKU', saltSKU);
     },
     [randomNumber]
