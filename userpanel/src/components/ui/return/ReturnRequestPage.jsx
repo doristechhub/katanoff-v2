@@ -279,7 +279,10 @@ const ReturnRequestPage = () => {
                   <div className="flex-1 w-full">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
                       <h2 className="md:text-base lg:text-lg font-semibold">
-                        {cartItem?.productName}
+                        {helperFunctions?.formatProductNameWithCarat({
+                          caratWeight: cartItem?.totalCaratWeight,
+                          productName: cartItem?.productName,
+                        })}
                       </h2>
 
                       <p className="text-base md:text-lg font-bold">

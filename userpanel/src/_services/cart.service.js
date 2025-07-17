@@ -115,10 +115,9 @@ const getAllCartWithProduct = () => {
           const thumbnailField =
             GOLD_COLOR_MAP[goldColor] || "yellowGoldThumbnailImage";
           const thumbnailImage = findedProduct[thumbnailField];
-
           return {
             ...cartItem,
-            productSku: findedProduct.sku,
+            productSku: findedProduct.saltSKU,
             productName: findedProduct.productName,
             productImage: thumbnailImage,
             productQuantity: quantity,
@@ -129,6 +128,7 @@ const getAllCartWithProduct = () => {
             productDiscountPerc: findedProduct.discount || 0,
             variations: variationArray,
             netWeight: findedProduct?.netWeight,
+            totalCaratWeight: findedProduct?.totalCaratWeight,
             diamondDetail,
           };
         } else {

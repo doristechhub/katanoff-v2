@@ -1,7 +1,7 @@
 import { usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
 import { CustomImg } from "@/components/dynamiComponents";
-import { helperFunctions } from "@/_helper";
+import { helperFunctions, SALES_TAX_PERCENTAGE_VALUE } from "@/_helper";
 import { useMemo } from "react";
 
 export default function CheckoutCommonSummary({
@@ -25,14 +25,14 @@ export default function CheckoutCommonSummary({
     <section
       className={`${isMobile ? "px-4 pt-4 pb-4" : "px-2 xs:px-10 pt-6"}`}
     >
-      <p className="text-lg text-baseblack flex justify-between font-semibold pt-4">
+      <p className="text-base sm:text-lg text-baseblack flex justify-between font-semibold pt-4">
         Subtotal:{" "}
         <span>{helperFunctions?.formatCurrencyWithDollar(getSubTotal())}</span>
       </p>
 
       {appliedPromoDetail && (
-        <div className="flex justify-between pt-4 text-baseblack">
-          <p className="text-lg font-semibold">
+        <div className="flex justify-between pt-2 sm:pt-4 text-baseblack">
+          <p className="text-base sm:text-lg font-semibold">
             Discount ({appliedPromoDetail?.promoCode})
           </p>
           <span className="text-lg font-medium">
@@ -42,47 +42,49 @@ export default function CheckoutCommonSummary({
       )}
 
       {pathname === "/checkout" ? (
-        <p className="text-lg font-semibold pt-4 flex justify-between text-baseblack">
+        <p className="text-base sm:text-lg font-semibold pt-2 sm:pt-4 flex justify-between text-baseblack">
           Sales Tax {calculateNextStep}
         </p>
       ) : (
-        <div className="flex justify-between pt-4 text-baseblack">
-          <p className="text-lg font-semibold max-w-[75%]">
-            Sales Tax (8%)
+        <div className="flex justify-between pt-2 sm:pt-4 text-baseblack">
+          <p className="text-base sm:text-lg font-semibold max-w-[75%]">
+            Sales Tax ({SALES_TAX_PERCENTAGE_VALUE})
             <br />
             <span className="text-xs text-gray-500 font-normal leading-snug">
               *Applies to New York addresses only.
             </span>
           </p>
-          <span className="text-lg font-medium">
+          <span className="text-base sm:text-lg font-medium">
             {helperFunctions?.formatCurrencyWithDollar(getSalesTaxAmount())}
           </span>
         </div>
       )}
 
       {pathname === "/checkout" ? (
-        <p className="text-lg font-semibold flex justify-between pt-4 text-baseblack">
+        <p className="text-base sm:text-lg font-semibold flex justify-between pt-4 text-baseblack">
           Shipping {calculateNextStep}
         </p>
       ) : (
-        <div className="flex justify-between pt-4 text-baseblack">
-          <p className="text-lg font-semibold max-w-[75%]">Shipping</p>
+        <div className="flex justify-between pt-2 sm:pt-4 text-baseblack">
+          <p className="text-base sm:text-lg font-semibold max-w-[75%]">
+            Shipping
+          </p>
           <span className="text-lg font-medium">
             {selectedShippingCharge > 0 ? "$" + selectedShippingCharge : "Free"}
           </span>
         </div>
       )}
 
-      <p className="my-4 border-t border-grayborder" />
+      <p className="my-2 sm:my-4 border-t border-grayborder" />
 
-      <p className="text-lg flex font-semibold pt-2 justify-between  text-baseblack">
+      <p className="text-base sm:text-lg flex font-semibold pt-2 justify-between  text-baseblack">
         Grand Total:{" "}
         <span>
           {helperFunctions?.formatCurrencyWithDollar(getGrandTotal())}
         </span>
       </p>
 
-      <div className="py-6">
+      <div className="py-3 sm:py-6">
         <div className="flex items-center justify-center gap-4 mb-2">
           <div className="flex-grow h-px bg-gray-300" />
           <p className="text-sm md:text-base font-medium uppercase">

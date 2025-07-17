@@ -369,12 +369,12 @@ const processOrderProductItem = ({
   const thumbnailField =
     GOLD_COLOR_MAP[goldColor] || "yellowGoldThumbnailImage";
   const thumbnailImage = findedProduct[thumbnailField];
-
   return {
     ...orderProductItem,
-    productSku: findedProduct.sku,
+    productSku: findedProduct.saltSKU,
     productName: findedProduct.productName,
     productImage: thumbnailImage,
+    totalCaratWeight: findedProduct?.totalCaratWeight,
     variations: variationArray,
     diamondDetail,
   };

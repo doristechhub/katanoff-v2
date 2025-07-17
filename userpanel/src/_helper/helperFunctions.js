@@ -659,6 +659,11 @@ export const formatDiscountForItem = ({
   return formatCurrencyWithDollar(perProductDiscount);
 };
 
+export const formatProductNameWithCarat = ({ caratWeight, productName }) => {
+  const caratText = caratWeight > 0 ? `${caratWeight} ctw ` : "";
+  return `${caratText}${productName || ""}`.trim();
+};
+
 export const helperFunctions = {
   debounce,
   generateUniqueId,
@@ -704,4 +709,5 @@ export const helperFunctions = {
   formatCurrency,
   formatCurrencyWithDollar,
   formatDiscountForItem,
+  formatProductNameWithCarat,
 };

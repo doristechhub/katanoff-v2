@@ -162,13 +162,17 @@ export const generatePDF = async (orderData, sizePage = "1") => {
 
     const isDiamond = Boolean(x?.diamondDetail);
 
-    const nameLine = `${x?.productName}`;
+    const nameLine = helperFunctions?.formatProductNameWithCarat({
+      caratWeight: x?.totalCaratWeight,
+      productName: x?.productName,
+    });
+
     const diamondDetail = isDiamond
       ? `\n\nDiamond Details:\n` +
-        `- Carat: ${x.diamondDetail.caratWeight}\n` +
-        `- Clarity: ${x.diamondDetail.clarity}\n` +
-        `- Color: ${x.diamondDetail.color}\n` +
-        `- Shape: ${x.diamondDetail.shapeName}`
+        `- Carat: ${x?.diamondDetail?.caratWeight}\n` +
+        `- Clarity: ${x?.diamondDetail?.clarity}\n` +
+        `- Color: ${x?.diamondDetail?.color}\n` +
+        `- Shape: ${x?.diamondDetail?.shapeName}`
       : "";
 
     const unitPrice = x.productPrice;

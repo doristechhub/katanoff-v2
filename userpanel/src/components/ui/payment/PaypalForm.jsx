@@ -19,7 +19,7 @@ import { setCartList } from "@/store/slices/cartSlice";
 import { helperFunctions } from "@/_helper";
 import { useRouter } from "next/navigation";
 import { messageType } from "@/_helper/constants";
-import { verifyCouponCode } from "@/_actions/coupon.action";
+import { removeCouponCode, verifyCouponCode } from "@/_actions/coupon.action";
 
 const PaypalForm = ({ orderData }) => {
   const dispatch = useDispatch();
@@ -69,6 +69,8 @@ const PaypalForm = ({ orderData }) => {
         );
 
         if (paymentResponse) {
+          localStorage.removeItem("appliedCoupon");
+          dispatch(removeCouponCode());
           router.push(`/order/success/${paymentResponse?.orderNumber}`);
           if (!currentUser) {
             localStorage.removeItem("cart");
