@@ -24,6 +24,31 @@ exportFunction.getAllActiveProducts = () => {
   });
 };
 
+exportFunction.getActiveProductsByIds = (productIds) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!Array.isArray(productIds) || !productIds.length) {
+        resolve([]);
+        return;
+      }
+
+      const productRef = productsDbInstance.ref(`${productUrl}`);
+      const promises = productIds.map(async (productId) => {
+        const snapshot = await productRef.child(productId).once("value");
+        const product = snapshot.exists() ? snapshot.val() : null;
+        return product && product.active ? product : null;
+      });
+
+      const products = (await Promise.all(promises)).filter(
+        (product) => product !== null
+      );
+      resolve(products);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 exportFunction.getAllCustomizations = () => {
   return new Promise(async (resolve, reject) => {
     try {

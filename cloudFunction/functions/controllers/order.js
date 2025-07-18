@@ -26,7 +26,6 @@ const insertOrder = async (req, res) => {
   try {
     const userData = req?.userData;
 
-    const activeProductsList = await productService.getAllActiveProducts();
     if (userData) {
       const findPattern = {
         key: "userId",
@@ -39,7 +38,6 @@ const insertOrder = async (req, res) => {
 
     const { createdOrder } = await createOrder({
       payload: req.body,
-      activeProductsList,
       res,
       userData,
     });

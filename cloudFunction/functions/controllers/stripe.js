@@ -38,7 +38,6 @@ const createPaymentIntent = async (req, res) => {
   try {
     const userData = req?.userData;
 
-    const activeProductsList = await productService.getAllActiveProducts();
     if (userData) {
       const findPattern = {
         key: "userId",
@@ -51,7 +50,6 @@ const createPaymentIntent = async (req, res) => {
 
     const { createdOrder } = await createOrder({
       payload: req.body,
-      activeProductsList,
       res,
       userData,
     });
@@ -297,7 +295,7 @@ const cancelPaymentIntent = async (req, res) => {
   }
 };
 
-const createOrder = async ({ payload, activeProductsList, res, userData }) => {
+const createOrder = async ({ payload, res, userData }) => {
   try {
     let {
       cartList,
@@ -362,6 +360,16 @@ const createOrder = async ({ payload, activeProductsList, res, userData }) => {
       });
     }
 
+    // Get product IDs from cart
+    const productIds = cartList
+      .filter((item) => item.productId)
+      .map((item) => item.productId);
+
+    // Fetch only the required products
+    const activeProductsList = await productService.getActiveProductsByIds(
+      productIds
+    );
+
     // Process cart items
     const allCustomizations = await productService.getAllCustomizations();
 
@@ -403,22 +411,6 @@ const createOrder = async ({ payload, activeProductsList, res, userData }) => {
         continue; // Skip if variations are invalid
       }
 
-      // Map variations to include variationTypeName and variationName
-      const enrichedVariations = variations.map((variation) => {
-        const type = allCustomizations.customizationType.find(
-          (t) => t.id === variation.variationId
-        );
-        const subType = allCustomizations.customizationSubType.find(
-          (s) => s.id === variation.variationTypeId
-        );
-        return {
-          variationId: variation.variationId,
-          variationName: type?.title || "Unknown Variation",
-          variationTypeId: variation.variationTypeId,
-          variationTypeName: subType?.title || "Unknown Type",
-        };
-      });
-
       if (isCustomized) {
         // Handle customized product with diamondDetail
 
@@ -436,8 +428,8 @@ const createOrder = async ({ payload, activeProductsList, res, userData }) => {
 
         if (
           !diamondShapeIds.includes(shapeId) ||
-          caratWeight < caratWeightRange.min ||
-          caratWeight > caratWeightRange.max
+          caratWeight < caratWeightRange?.min ||
+          caratWeight > caratWeightRange?.max
         ) {
           continue; // Skip if diamond details are invalid
         }
