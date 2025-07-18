@@ -131,4 +131,20 @@ exportFunction.findOneAndUpdate = (findPattern, updatePattern) => {
   });
 };
 
+exportFunction.getOrdersByPromoCode = (promoCode) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const orderRef = ordersDbInstance.ref(`${orderUrl}`);
+      const snapshot = await orderRef
+        .orderByChild("promoCode")
+        .equalTo(promoCode)
+        .once("value");
+      const orderList = snapshot.exists() ? Object.values(snapshot.val()) : [];
+      resolve(orderList);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 module.exports = exportFunction;

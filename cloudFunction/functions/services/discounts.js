@@ -242,12 +242,14 @@ exportFunction.validatePromoCode = async ({
         };
       }
 
-      const orders = await orderService.getAll();
+      const orders = await orderService.getOrdersByPromoCode(
+        foundDiscount?.promoCode
+      );
 
       const existingOrder = orders?.find(
         (order) =>
           order?.shippingAddress?.email?.toUpperCase() ===
-            userEmail?.toUpperCase() &&
+          userEmail?.toUpperCase() &&
           order?.promoCode?.toUpperCase() === promoCode?.toUpperCase()
       );
 
