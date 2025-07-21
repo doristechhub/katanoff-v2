@@ -1089,10 +1089,10 @@ const searchProducts = (params) => {
         return {
           ...product,
           basePrice: price,
-          baseSellingPrice: helperFunctions.getSellingPrice(
+          baseSellingPrice: helperFunctions.getSellingPrice({
             price,
-            product.discount
-          ),
+            discount: product?.discount,
+          }),
           discount: product.discount,
           goldTypeVariations: product?.variations?.find(
             (x) => x?.variationName?.toLowerCase() === GOLD_TYPES?.toLowerCase()

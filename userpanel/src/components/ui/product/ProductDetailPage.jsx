@@ -682,6 +682,7 @@ const ProductDetailPage = ({ customizePage }) => {
             cartMessage={cartMessage}
             selectedVariations={selectedVariations}
             isActive={productDetail?.active}
+            selectedPrice={selectedPrice}
           />
         </>
       ) : (
@@ -708,7 +709,27 @@ const AddToBagBar = ({
   cartMessage,
   selectedVariations,
   isActive,
+  selectedPrice,
 }) => {
+  const getButtonLabel = useCallback(
+    ({ isActive, availableQty, selectedPrice }) => {
+      if (!isActive) {
+        return "INACTIVE";
+      }
+
+      if (availableQty <= 0) {
+        return "OUT OF STOCK";
+      }
+
+      if (selectedPrice <= 0) {
+        return "PRODUCT UNAVAILABLE";
+      }
+
+      return "ADD TO BAG";
+    },
+    []
+  );
+
   const baseClasses = `w-full bg-white shadow-md transition-opacity duration-300 z-40 ${
     position === "bottom" ? "fixed bottom-0 left-0" : "relative mt-4 lg:mt-12"
   }`;
@@ -738,7 +759,7 @@ const AddToBagBar = ({
               {(isActive && availableQty && availableQty > 0) ||
               customizePage === "completeRing"
                 ? "Made-to-Order"
-                : isActive
+                : isActive || !selectedPrice > 0
                 ? "Out of Stock"
                 : "Inactive"}{" "}
               | {estimatedDate}
@@ -785,7 +806,8 @@ const AddToBagBar = ({
                     !availableQty ||
                     availableQty < 0 ||
                     isInValidSelectedVariation ||
-                    !isActive
+                    !isActive ||
+                    !selectedPrice > 0
                   }
                   loaderType={isHovered ? "" : "white"}
                   onClick={onAddToCart}
@@ -793,12 +815,7 @@ const AddToBagBar = ({
                   {/* {isActive && availableQty && availableQty > 0
                     ? "ADD TO BAG"
                     : "OUT OF STOCK"} */}
-
-                  {isActive && availableQty && availableQty > 0
-                    ? "ADD TO BAG"
-                    : isActive
-                    ? "OUT OF STOCK"
-                    : "INACTIVE"}
+                  {getButtonLabel({ isActive, availableQty, selectedPrice })}
                 </LoadingPrimaryButton>
               )}
             </div>

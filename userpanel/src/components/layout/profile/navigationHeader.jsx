@@ -14,6 +14,7 @@ import Cookies from "js-cookie";
 import { fetchCart } from "@/_actions/cart.action";
 import { useRouter } from "next/navigation";
 import { helperFunctions } from "@/_helper";
+
 export default function NavigationHeader() {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -126,7 +127,6 @@ export default function NavigationHeader() {
         ) : null}
       </nav>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
@@ -212,8 +212,6 @@ export default function NavigationHeader() {
                   </HeaderLinkButton>
                 </div>
               )}
-
-              {/* <ProfileDropdown /> */}
             </nav>
           </motion.div>
         )}

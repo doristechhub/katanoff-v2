@@ -4,6 +4,7 @@ import { HiOutlineShoppingBag } from "react-icons/hi2";
 import dropdownArrow from "@/assets/icons/dropdownArrow.svg";
 import effect from "@/assets/icons/effect.png";
 import {
+  fetchCart,
   handleSelectCartItem,
   removeProductIntoCart,
   updateProductQuantityIntoCart,
@@ -115,6 +116,10 @@ const CartPopup = () => {
     setVH();
     window.addEventListener("resize", setVH);
     return () => window.removeEventListener("resize", setVH);
+  }, []);
+
+  useEffect(() => {
+    dispatch(fetchCart());
   }, []);
 
   const removeFromCart = useCallback(

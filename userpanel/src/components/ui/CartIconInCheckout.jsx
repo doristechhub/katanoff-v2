@@ -10,10 +10,8 @@ const CartIconInCheckout = () => {
   const { cartList } = useSelector(({ cart }) => cart);
 
   useEffect(() => {
-    if (cartList?.length === 0) {
-      dispatch(fetchCart());
-    }
-  }, [dispatch]);
+    dispatch(fetchCart());
+  }, []);
 
   return (
     <Link href="/cart">
