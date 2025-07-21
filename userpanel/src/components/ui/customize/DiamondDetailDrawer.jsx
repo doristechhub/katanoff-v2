@@ -6,7 +6,7 @@ const DiamondDetailDrawer = ({ cartItem, isCartPopupPage }) => {
       <h4 className="font-semibold text-sm md:text-base">Your Diamond</h4>
 
       <div
-        className={`flex flex-wraptext-baseblack font-medium  ${
+        className={`flex flex-wrap text-baseblack font-medium  ${
           isCartPopupPage ? "text-xs 2xl:text-sm" : "text-sm md:text-base"
         }`}
       >

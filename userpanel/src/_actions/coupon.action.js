@@ -77,6 +77,7 @@ export const verifyCouponCode = ({ promoCode, orderValue }) => {
 
 export const removeCouponCode = () => {
   return (dispatch) => {
+    localStorage.removeItem("appliedCoupon");
     dispatch(setCouponCode(""));
     dispatch(setAppliedPromoDetail(null));
     dispatch(setCouponMessage({ message: "", type: "" }));

@@ -69,7 +69,6 @@ const PaypalForm = ({ orderData }) => {
         );
 
         if (paymentResponse) {
-          localStorage.removeItem("appliedCoupon");
           dispatch(removeCouponCode());
           router.push(`/order/success/${paymentResponse?.orderNumber}`);
           if (!currentUser) {

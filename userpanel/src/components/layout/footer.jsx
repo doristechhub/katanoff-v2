@@ -36,7 +36,10 @@ const footerLinks = [
   {
     title: "Contact",
     navLinks: [
-      { title: companyPhoneNo, href: `tel:${companyPhoneNo}` },
+      {
+        title: companyPhoneNo,
+        href: `tel:${companyPhoneNo.replaceAll("-", "")}`,
+      },
       { title: "Email Us", href: `mailto:${companyEmail}` },
       { title: "Book an Appointment", href: "/book-appointment" },
     ],

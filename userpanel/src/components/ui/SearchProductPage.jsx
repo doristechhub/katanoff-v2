@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  ProductFilter,
-  ProductGrid,
-} from "@/components/dynamiComponents";
+import { ProductFilter, ProductGrid } from "@/components/dynamiComponents";
 import KeyFeatures from "@/components/ui/KeyFeatures";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";

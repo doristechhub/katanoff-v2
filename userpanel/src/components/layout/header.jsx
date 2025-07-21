@@ -193,9 +193,9 @@ export default function Header() {
             <CustomImg
               srcAttr={textLogo}
               // className="hidden lg:block w-32 xs:w-48 lg:w-52 2xl:w-64"
-              className="hidden lg:block lg:w-36 2xl:w-40"
+              className="w-[75px] md:w-24 lg:w-36 2xl:w-40"
             />
-            <CustomImg srcAttr={miniLogo} className="lg:hidden w-12 2xl:w-12" />
+            {/* <CustomImg srcAttr={miniLogo} className="lg:hidden w-12 2xl:w-12" /> */}
           </Link>
 
           <div className="text-xl flex items-center gap-3 lg:w-64 justify-end">

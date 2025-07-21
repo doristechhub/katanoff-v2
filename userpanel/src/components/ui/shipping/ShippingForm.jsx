@@ -168,7 +168,22 @@ const shippingForm = () => {
 
       const userData = helperFunctions.getCurrentUser();
       if (!userData) {
-        payload.cartList = cartList;
+        payload.cartList = cartList?.map((x) => ({
+          productId: x?.productId,
+          quantity: x?.quantity,
+          variations: x?.variations?.map((v) => ({
+            variationId: v?.variationId,
+            variationTypeId: v?.variationTypeId,
+          })),
+          ...(x?.diamondDetail && {
+            diamondDetail: {
+              shapeId: x.diamondDetail.shapeId,
+              caratWeight: x.diamondDetail.caratWeight,
+              clarity: x.diamondDetail.clarity,
+              color: x.diamondDetail.color,
+            },
+          }),
+        }));
       }
 
       if (selectedPaymentMethod === STRIPE) {
