@@ -137,7 +137,7 @@ export default function Header() {
     ${
       isHeaderVisible
         ? // ? "fixed -top-2 animate-slideDown animate-duration-900 animate-ease-in-out clear-both"
-          "fixed -top-14 animate-slideDown animate-duration-900 animate-ease-in-out clear-both"
+          "fixed -top-0 lg:-top-20 animate-slideDown animate-duration-900 animate-ease-in-out clear-both"
         : ""
     }
     ${
@@ -145,7 +145,7 @@ export default function Header() {
     }
   bg-white`}
       >
-        <div className="flex justify-between items-center pt-3 !px-5 lg:pt-[15px] lg:px-0 2xl:px-4 container">
+        <div className="flex justify-between items-center pt-3 pb-2.5 lg:pb-0 !px-5 lg:pt-[15px] lg:px-0 2xl:px-4 container">
           <div className="items-center gap-6 font-extralight text-[#2B2B2B] text-[14px] 2xl:text-base hidden lg:flex">
             <Link href={"/contact-us"} className="flex items-center gap-1">
               <CustomImg
