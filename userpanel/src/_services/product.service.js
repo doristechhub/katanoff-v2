@@ -1014,13 +1014,8 @@ const searchProducts = (params) => {
         return reject("Invalid Data");
       }
 
-      const ctwMatch = searchValue.match(/^(\d*\.?\d*)\s?ctw$/i);
-      const caratWeightQuery = ctwMatch ? parseFloat(ctwMatch[1]) : null;
-
       // Normalize searchValue for non-ctw searches (remove "ctw" for partial matches)
-      const normalizedSearchValue = searchValue
-        .toLowerCase()
-        .replace(/\s?ctw/i, "");
+      const normalizedSearchValue = searchValue?.toLowerCase();
 
       const allActiveProductsData = await productService.getAllActiveProducts();
 
@@ -1039,10 +1034,6 @@ const searchProducts = (params) => {
           product.productName,
           formattedName,
         ];
-
-        if (product.totalCaratWeight) {
-          fieldsToSearch.push(product.totalCaratWeight.toString());
-        }
 
         // Add other fields (productTypeNames, variations, collectionNames)
         if (
@@ -1074,12 +1065,7 @@ const searchProducts = (params) => {
           field ? field.toLowerCase().includes(normalizedSearchValue) : false
         );
 
-        // Check for exact carat weight match if query is like "3ctw"
-        const matchesCaratWeight = caratWeightQuery
-          ? product.totalCaratWeight === caratWeightQuery
-          : true;
-
-        return matchesSearch || matchesCaratWeight;
+        return matchesSearch;
       });
 
       const updatedSearchResults = searchResults.map((product) => {
