@@ -5,54 +5,54 @@ import { useInView } from "react-intersection-observer";
 const colorData = [
   {
     label: "D, E, F",
-    range: "Colourless",
+    range: "Colorless",
     appearance:
-      "D Is The Whitest Possible Colour, But An Untrained Eye Will Not Notice A Difference Between D, E And F.",
+      "D Is The Whitest Possible Color, But An Untrained Eye Will Not Notice A Difference Between D, E And F.",
     considerations:
-      "These Are Rarest, And Therefore The Most Valued Diamonds. Purists Should Aim For D, E Or F Colour. Metal Setting Choice Should Be Carefully Considered When Selecting A Colourless Diamond As, For Example, A Yellow Gold Setting Will Show Up Through The Diamond Therefore Negating It's Prized Colourlessness.",
+      "These are the highest-quality color grades available. D is absolutely colorless, while E and F show virtually no detectable hue even under magnification. These diamonds are incredibly rare and prized for their icy white brilliance, making them ideal for platinum or white gold settings where purity and sparkle are everything.",
     link: "/diamond-color/def",
   },
   {
     label: "G, H, I, J",
-    range: "Near Colourless",
+    range: "Near Colorless",
     appearance:
-      "Extremely Faint Hints Of Colour Are Indiscernible To The Untrained Eye.",
+      "Extremely Faint Hints Of Color Are Indiscernible To The Untrained Eye.",
     considerations:
-      "These Offer Excellent Value And Are An Ideal Option For Diamond Engagement Rings.",
+      "These diamonds appear colorless to most eyes, especially once set in jewelry. G and H display just a hint of warmth, while I and J may show a soft tint under close inspection. They offer excellent value while maintaining a bright, clean appearance perfect for those seeking both beauty and budget balance",
     link: "/diamond-color/ghij",
   },
   {
     label: "K, L, M",
     range: "Slightly Tinted",
     appearance:
-      "Will Show Hints Of Colour To The Naked Eye When Compared Against A Pure White Background.",
+      "Will Show Hints Of Color To The Naked Eye When Compared Against A Pure White Background.",
     considerations:
-      "Traces Of Colour Can Be Enhanced Or Reduced By Metal Choice. A Gold Setting, For Example, Will Increase Yellow Tones That Support An Attractive Vintage Aesthetic. Platinum Or White Gold May Reduce That Same Yellowness. If A Yellow Diamond Is Desired, This Offers Excellent Value As A K Coloured Diamond May Be Up To Half The Price Of A G Diamond.",
+      "Diamonds in this range display a faint yellow or warm tone that’s more visible to the naked eye. While they’re not considered colorless, they can still look beautiful especially when set in yellow or rose gold, where the metal complements and masks the tint, giving the piece a harmonious, vintage-inspired warmth.",
     link: "/diamond-color/klm",
   },
   {
     label: "N - T",
-    range: "Very Lightly Coloured",
-    appearance: "Very Light Yellow Colour.",
+    range: "Very Lightly Colored",
+    appearance: "Very Light Yellow Color.",
     considerations:
-      "Because These Diamonds Are More Yellow In Colour They Are Not Eligible For The Forevermark Inscription.",
+      "These diamonds show noticeable color, usually pale yellow or brown. While not common in luxury fine jewelry, they may be used for those who prefer a distinct character in their stone or are working within a specific budget. Their softer hue can work in antique settings or for artistic, custom pieces.",
     link: "/diamond-color/n-t",
   },
   {
     label: "U - Z",
-    range: "Lightly Coloured",
-    appearance: "Noticeable Light Yellow Colour.",
+    range: "Lightly Colored",
+    appearance: "Noticeable Light Yellow Color.",
     considerations:
-      "As The Most Natural Yellow In Colour, These Diamonds Are Also Not Eligible For The Forevermark Inscription.",
+      "Diamonds graded U through Z have clearly visible yellow or brown coloring that impacts their brilliance and sparkle. They are typically not selected for traditional engagement rings or fine settings, but may be chosen for unconventional, bold, or design-driven pieces with a specific creative vision in mind.",
     link: "/diamond-color/u-z",
   },
   {
-    label: "Fancy Colour",
+    label: "Fancy Color",
     range: "       ",
     appearance:
       "Green, Blue, Purple Yellow, Brown, Grey, Orange, Pink And Red.",
     considerations:
-      "Red Diamonds Are The Rarest Diamonds Of All. Pink And Blue Diamonds Are Also Extremely Highly Valued Of Often Very Coveted.",
+      "Fancy color diamonds like pink, blue, green, and intense yellow are graded on a completely different scale. Rather than penalizing color, these stones are valued for their hue, saturation, and rarity. Lab-grown fancy color diamonds offer a sustainable, accessible way to own something uniquely vibrant, luxurious, and expressive.",
     link: "/diamond-color/u-z",
   },
 ];
@@ -74,14 +74,17 @@ const DiamondColorChartSection = () => {
         <div className="flex items-center justify-center mb-6 sm:mb-8 md:mb-10">
           <div className="border-t border-gray-200 w-1/6 " />
           <h2 className="text-center px-4 text-2xl xss:text-3xl md:text-4xl font-castoro">
-            Diamond colour chart
+            Color
           </h2>
           <div className="border-t border-gray-200 w-1/6 " />
         </div>
 
         <p className="text-center text-sm sm:text-base md:text-lg mb-8 sm:mb-10 md:mb-12">
-          See below a useful summary table showing the colour scale. Find out
-          the differences in diamond colour ranges.
+          Diamond color refers to the presence of any hue within the stone, with
+          truly colorless diamonds being the rarest. The less color a diamond
+          shows, the higher its value and brilliance. Lab-grown diamonds are
+          graded on the same scale as natural ones—from colorless to lightly
+          tinted, and even rare fancy hues.
         </p>
 
         <div className="flex justify-center w-full px-4 sm:px-6 md:px-8 lg:px-20 xl:px-30">

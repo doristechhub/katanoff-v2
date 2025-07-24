@@ -1,5 +1,3 @@
-import { ALLOW_MAX_CARAT_WEIGHT, ALLOW_MIN_CARAT_WEIGHT } from 'src/_helpers/constants';
-
 export const productModel = {
   id: {
     type: String,
@@ -92,12 +90,10 @@ export const productModel = {
   subCategoryId: {
     type: String,
     ref: 'subCategories',
-    // required: true,
   },
   productTypeIds: {
     type: Array,
     ref: 'productType',
-    // required: true,
   },
   gender: {
     type: String,
@@ -108,12 +104,14 @@ export const productModel = {
   },
   grossWeight: {
     type: Number, // in gram
+    required: true,
   },
   centerDiamondWeight: {
     type: Number, // in carat
   },
   totalCaratWeight: {
     type: Number, // in carat
+    required: true,
   },
   sideDiamondWeight: {
     type: Number, // in carat
@@ -176,12 +174,10 @@ export const productModel = {
     default: false,
   },
   diamondFilters: {
-    // api Response Field Name ==> shape
     diamondShapeIds: {
       type: [String],
       default: [],
     },
-    // api Response Field Name ==> size
     caratWeightRange: {
       min: { type: Number, default: ALLOW_MIN_CARAT_WEIGHT },
       max: { type: Number, default: ALLOW_MAX_CARAT_WEIGHT },
@@ -198,6 +194,11 @@ export const productModel = {
         },
       },
     ],
+  },
+  priceCalculationMode: {
+    type: String,
+    default: 'automatic',
+    enum: ['automatic', 'manual'],
   },
   active: {
     type: Boolean,

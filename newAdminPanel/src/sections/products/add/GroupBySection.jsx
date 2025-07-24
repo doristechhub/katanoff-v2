@@ -1,4 +1,4 @@
-import { memo, useEffect, useState, useMemo, useRef } from 'react';
+import { memo, useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { FieldArray, getIn } from 'formik';
 import {
   Table,
@@ -10,24 +10,26 @@ import {
   TextField,
   Typography,
   IconButton,
-  Checkbox,
   Select,
   MenuItem,
   FormControl,
   InputLabel,
   Box,
   Tooltip,
+  FormGroup,
+  FormControlLabel,
 } from '@mui/material';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { helperFunctions } from 'src/_helpers';
 import { useSelector } from 'react-redux';
-
-// ----------------------------------------------------------------------
+import { PRICE_CALCULATION_MODES } from 'src/_helpers/constants';
+import Switch from 'src/components/switch'; // Import the custom Switch component
 
 const GroupBySection = ({ formik }) => {
   const { customizationTypesList, customizationSubTypesList } = useSelector(
     ({ product }) => product
   );
+  const { priceMultiplier } = useSelector(({ settings }) => settings);
 
   const { values, handleBlur, setFieldValue, errors, touched } = formik;
 
@@ -128,17 +130,48 @@ const GroupBySection = ({ formik }) => {
 
   // Handler to select input value on click
   const handleInputClick = (event) => {
-    event.target.select();
+    if (event?.target?.value) {
+      event.target.select();
+    }
   };
 
   // Handler to disable mouse wheel value change
   const handleWheel = (event) => {
-    event.target.blur();
+    if (event?.target?.value) {
+      event.target.blur();
+    }
   };
-
+  const handleCalculatePriceModeChange = useCallback(
+    ({ values, setFieldValue }) => {
+      const newMode =
+        values.priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC
+          ? PRICE_CALCULATION_MODES.MANUAL
+          : PRICE_CALCULATION_MODES.AUTOMATIC;
+      setFieldValue('priceCalculationMode', newMode);
+      if (newMode === PRICE_CALCULATION_MODES.AUTOMATIC) {
+        const updatedCombinations = helperFunctions.calculateAutomaticPrices({
+          combinations: values.tempVariComboWithQuantity,
+          customizationSubTypesList,
+          grossWeight: values.grossWeight,
+          totalCaratWeight: values.totalCaratWeight,
+          priceMultiplier,
+        });
+        setFieldValue('tempVariComboWithQuantity', updatedCombinations);
+      }
+    },
+    [customizationSubTypesList, priceMultiplier]
+  );
   return (
     <>
-      <Box sx={{ mb: 2 }}>
+      <Box
+        sx={{
+          my: 2,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: 2,
+        }}
+      >
         <FormControl size="small" sx={{ minWidth: 120 }}>
           <InputLabel>Group By</InputLabel>
           <Select
@@ -164,6 +197,29 @@ const GroupBySection = ({ formik }) => {
             )}
           </Select>
         </FormControl>
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Switch
+                name="priceCalculationMode"
+                sx={{ mx: 1 }} // Match the margin styling from AddProductPage
+                checked={values.priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC}
+                onBlur={handleBlur}
+                onChange={(e) =>
+                  handleCalculatePriceModeChange({
+                    values,
+                    setFieldValue,
+                  })
+                }
+              />
+            }
+            label={
+              values?.priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC
+                ? 'Automatic Pricing'
+                : 'Manual Pricing'
+            }
+          />
+        </FormGroup>
       </Box>
 
       <TableContainer sx={{ overflow: 'unset' }}>
@@ -266,6 +322,9 @@ const GroupBySection = ({ formik }) => {
                                         `tempVariComboWithQuantity.${mainVariantIndex}.price`
                                       )
                                     : ''
+                                }
+                                disabled={
+                                  values?.priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC
                                 }
                               />
                             </Tooltip>
@@ -411,6 +470,10 @@ const GroupBySection = ({ formik }) => {
                                             `tempVariComboWithQuantity.${globalIndex}.price`
                                           )
                                         : ''
+                                    }
+                                    disabled={
+                                      values?.priceCalculationMode ===
+                                      PRICE_CALCULATION_MODES.AUTOMATIC
                                     }
                                   />
                                 </TableCell>

@@ -11,28 +11,28 @@ const cutData = {
   excellent: {
     title: "Excellent",
     description:
-      "Diamonds in this category have the greatest sparkle. As light enters these diamonds it is reflected internally, from one mirror-like facet to another, and dispersed evenly. This perfectly balances the brilliant white light with intense flashes of fire (dispersion), giving the diamond its shine",
+      "Reflects nearly all light that enters. Maximum brilliance, fire, and sparkle only 3% of diamonds achieve this superior grade.",
     img: excellent,
     alt: "Excellent Cut",
   },
   veryGood: {
     title: "Very Good",
     description:
-      "While the cut is not perfect, the majority of the light entering the diamond is still reflected through the top, or crown. This produces a level of very high white light often referred to as brilliance.",
+      "Reflects most light well with minimal loss. Delivers impressive sparkle, ideal for those who want high beauty with balanced value.",
     img: veryGood,
     alt: "Very Good Cut",
   },
   good: {
     title: "Good",
     description:
-      "Though it still reflects most of the light, a Good cut diamond appears slightly darker with a lack of contrast. Diamonds of this grade are not as brilliant as those of Excellent and Very Good grades, and so they are not eligible for the Forevermark inscription..",
+      "Reflects light reasonably well. Some brilliance is lost, but still offers a nice appearance at a more affordable price.",
     img: good,
     alt: "Good Cut",
   },
   poor: {
     title: "Fair",
     description:
-      "A Fair cut diamond, with facets cut only a few degrees out of alignment, can result in light leakage. This is where light exits through the bottom of the diamond instead of from the top, as is desired. This makes the diamonds slightly duller and therefore ineligible for Forevermark",
+      "Limited light return. Noticeable dullness or darkness in the stone. Generally not recommended for fine jewelry due to low brilliance.",
     img: fair,
     alt: "Fair Cut",
   },
@@ -57,18 +57,18 @@ const CutSection = () => {
 
         <div className="text-sm xss:text-base sm:text-lg md:text-[17px] text-baseblack font-medium leading-relaxed space-y-4 px-2 sm:px-6">
           <p>
-            The term “Diamond Cut” refers to the quality of a diamond’s
-            proportions and symmetry. These elements determine how much light a
-            diamond captures and reflects, and therefore how much it sparkles.
+            Cut determines how well a diamond reflects light, giving it that
+            signature sparkle. It’s not about shape it's about symmetry,
+            proportions, and polish.
           </p>
           <p>
-            There are four grades of diamond cut: Excellent, Very Good, Good,
-            and Poor.
+            Even a perfectly clear diamond can look dull if poorly cut. A well
+            cut diamond will shine brightly, capturing and reflecting light
+            beautifully.
           </p>
           <p>
-            Cut is the most important of the 4 Cs as it has the greatest impact
-            on sparkle and appearance. Better cut grades also command higher
-            prices.
+            At Katanoff, we prioritize precision cuts that bring out maximum
+            brilliance because cut is what brings a diamond to life.
           </p>
         </div>
       </div>

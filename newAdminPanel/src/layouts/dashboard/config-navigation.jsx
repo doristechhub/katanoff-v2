@@ -13,6 +13,7 @@ import InsertEmoticonTwoToneIcon from '@mui/icons-material/InsertEmoticonTwoTone
 import Inventory2TwoToneIcon from '@mui/icons-material/Inventory2TwoTone';
 import PentagonTwoToneIcon from '@mui/icons-material/PentagonTwoTone';
 import DiscountIcon from '@mui/icons-material/Discount';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 import Iconify from 'src/components/iconify';
 import SvgColor from 'src/components/svg-color';
@@ -94,6 +95,13 @@ const navConfig = [
   //   icon: <SlideshowTwoToneIcon />,
   //   children: [],
   // },
+  {
+    title: 'Setting',
+    pageId: 'settings',
+    path: '/settings',
+    icon: <SettingsIcon />,
+    children: ['/settings'],
+  },
   {
     title: 'order',
     pageId: 'orders',

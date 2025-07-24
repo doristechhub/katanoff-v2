@@ -27,6 +27,8 @@ export const customizationTypeUrl = process.env.REACT_APP_CUSTOMIZATION_TYPE;
 export const menuSubCategoriesUrl = process.env.REACT_APP_MENU_SUB_CATEGORIES;
 export const customizationSubTypeUrl = process.env.REACT_APP_CUSTOMIZATION_SUB_TYPE;
 export const discountsUrl = process.env.REACT_APP_DISCOUNTS;
+export const settingsUrl = process.env.REACT_APP_SETTINGS;
+export const priceMultiplierUrl = process.env.REACT_APP_PRICE_MULTIPLIER;
 
 export const storageUrl = process.env.REACT_APP_STORAGE;
 

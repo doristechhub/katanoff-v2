@@ -27,6 +27,7 @@ import VariantionTypes from './variations-types';
 import VariationTableRow from './variation-table-row';
 import VariationTableHead from './variation-table-head';
 import { productInitDetails } from 'src/store/slices/productSlice';
+import { PRICE_CALCULATION_MODES } from 'src/_helpers/constants';
 
 // ----------------------------------------------------------------------
 
@@ -37,30 +38,49 @@ const Variations = memo(({ formik }) => {
   const { customizationTypesList, customizationSubTypesList } = useSelector(
     ({ product }) => product
   );
+  const { priceMultiplier } = useSelector(({ settings }) => settings);
 
-  // Function to generate and update combinations
+  // Generates and updates product variation combinations
   const updateCombinations = useCallback(
-    (newVariations) => {
-      const arrayOfCombinations = helperFunctions?.getCombinationDetail({
-        variations: newVariations,
+    (updatedVariations) => {
+      // Generate combinations based on variations and customizations
+      const combinations = helperFunctions?.getCombinationDetail({
+        variations: updatedVariations,
         customizations: {
           customizationType: customizationTypesList,
           customizationSubType: customizationSubTypesList,
         },
       });
-      const tempVariComboWithQuantity = helperFunctions?.getCombiDetailWithPriceAndQty({
-        arrayOfCombinations,
+
+      // Merge combinations with existing price and quantity data
+      let updatedCombinations = helperFunctions?.getCombiDetailWithPriceAndQty({
+        arrayOfCombinations: combinations,
         oldCombinations: values?.tempVariComboWithQuantity,
       });
 
-      // Update Formik field with combinations
-      setFieldValue('tempVariComboWithQuantity', tempVariComboWithQuantity);
+      // Apply automatic price calculations if enabled
+      if (values?.priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC) {
+        updatedCombinations = helperFunctions?.calculateAutomaticPrices({
+          combinations: updatedCombinations,
+          customizationSubTypesList,
+          grossWeight: values.grossWeight,
+          totalCaratWeight: values.totalCaratWeight,
+          priceMultiplier,
+        });
+      }
+
+      // Update Formik state with the new combinations
+      setFieldValue('tempVariComboWithQuantity', updatedCombinations);
     },
     [
       customizationTypesList,
       customizationSubTypesList,
       setFieldValue,
       values?.tempVariComboWithQuantity,
+      values?.grossWeight,
+      values?.totalCaratWeight,
+      priceMultiplier,
+      values?.priceCalculationMode,
     ]
   );
 

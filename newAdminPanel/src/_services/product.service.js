@@ -1,5 +1,6 @@
 import { uid } from 'uid';
 import {
+  customizationSubTypeUrl,
   customizationUrl,
   fetchWrapperService,
   prefixSaltSku,
@@ -20,12 +21,14 @@ import {
   ALLOW_MIN_CARAT_WEIGHT,
   GOLD_COLOR,
   GOLD_TYPE,
+  PRICE_CALCULATION_MODES,
 } from 'src/_helpers/constants';
 import { isBoolean } from 'lodash';
 import axios from 'axios';
 import { customizationTypeService } from './customizationType.service';
 import { customizationSubTypeService } from './customizationSubType.service';
 import { menuCategoryService } from './menuCategory.service';
+import { settingsService } from './settings.service';
 
 export const validateProductName = (productName) => {
   // Check if the length is higher than 60 characters
@@ -160,6 +163,7 @@ const insertProduct = (params) => {
         active,
         isDiamondFilter,
         diamondFilters,
+        priceCalculationMode,
       } = sanitizeObject(params);
 
       // Sanitize and process inputs
@@ -218,6 +222,9 @@ const insertProduct = (params) => {
       active = JSON.parse(active);
       isDiamondFilter = isBoolean(isDiamondFilter) ? isDiamondFilter : false;
       diamondFilters = typeof diamondFilters === 'object' ? diamondFilters : {};
+      priceCalculationMode = priceCalculationMode
+        ? priceCalculationMode.trim()
+        : PRICE_CALCULATION_MODES.AUTOMATIC;
 
       // Validate inputs
       if (
@@ -233,7 +240,12 @@ const insertProduct = (params) => {
         variations.length &&
         variComboWithQuantity.length &&
         [true, false].includes(active) &&
-        uuid
+        uuid &&
+        grossWeight &&
+        totalCaratWeight &&
+        [PRICE_CALCULATION_MODES.AUTOMATIC, PRICE_CALCULATION_MODES.MANUAL].includes(
+          priceCalculationMode
+        )
       ) {
         const pNameErrorMsg = validateProductName(productName);
         if (pNameErrorMsg) {
@@ -259,7 +271,20 @@ const insertProduct = (params) => {
           return;
         }
 
-        const variComboWithQuantityArray = getVariComboWithQuantityArray(variComboWithQuantity);
+        let variComboWithQuantityArray = getVariComboWithQuantityArray(variComboWithQuantity);
+
+        // Apply automatic price calculations if enabled
+        if (priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC) {
+          const customizationSubTypesList = await customizationSubTypeService.getAllSubTypes();
+          const priceMultiplier = await settingsService.fetchPriceMultiplier();
+          variComboWithQuantityArray = helperFunctions.calculateAutomaticPrices({
+            combinations: variComboWithQuantityArray,
+            customizationSubTypesList,
+            grossWeight,
+            totalCaratWeight,
+            priceMultiplier,
+          });
+        }
 
         if (collectionIds?.length) {
           const hasInvalidValues = collectionIds.some((id) => !id);
@@ -287,15 +312,17 @@ const insertProduct = (params) => {
           reject(new Error('Invalid Net Weight: Must be a positive number'));
           return;
         }
-        if (grossWeight && grossWeight <= 0) {
+
+        if (grossWeight <= 0) {
           reject(new Error('Invalid Gross Weight: Must be a positive number'));
           return;
         }
+
         if (centerDiamondWeight && centerDiamondWeight <= 0) {
           reject(new Error('Invalid Center Diamond Weight: Must be a positive number'));
           return;
         }
-        if (totalCaratWeight && totalCaratWeight <= 0) {
+        if (totalCaratWeight <= 0) {
           reject(new Error('Invalid Total Carat Weight: Must be a positive number'));
           return;
         }
@@ -714,6 +741,7 @@ const insertProduct = (params) => {
                   isDiamondFilter,
                   diamondFilters: isDiamondFilter ? diamondFilters : null,
                   specifications,
+                  priceCalculationMode,
                   active,
                   salesTaxPercentage: 0,
                   shippingCharge: 0,
@@ -1754,10 +1782,9 @@ const updateProduct = (params) => {
         active,
         isDiamondFilter,
         diamondFilters,
+        priceCalculationMode,
       } = sanitizeObject(params);
-      console.log('grossWeight', grossWeight);
-      console.log('centerDiamondWeight', centerDiamondWeight);
-      console.log('totalCaratWeight', totalCaratWeight);
+
       if (productId) {
         const productData = await fetchWrapperService.findOne(productsUrl, {
           id: productId,
@@ -1775,7 +1802,7 @@ const updateProduct = (params) => {
           grossWeight =
             !isNaN(grossWeight) && grossWeight !== '' && grossWeight !== null
               ? Math.round(parseFloat(grossWeight) * 100) / 100
-              : 0;
+              : productData?.grossWeight;
           centerDiamondWeight =
             !isNaN(centerDiamondWeight) &&
             centerDiamondWeight !== '' &&
@@ -1785,7 +1812,7 @@ const updateProduct = (params) => {
           totalCaratWeight =
             !isNaN(totalCaratWeight) && totalCaratWeight !== '' && totalCaratWeight !== null
               ? Math.round(parseFloat(totalCaratWeight) * 100) / 100
-              : 0;
+              : productData?.totalCaratWeight;
           sideDiamondWeight =
             !isNaN(sideDiamondWeight) && sideDiamondWeight !== '' && sideDiamondWeight !== null
               ? Math.round(parseFloat(sideDiamondWeight) * 100) / 100
@@ -1795,6 +1822,12 @@ const updateProduct = (params) => {
             : productData.isDiamondFilter || false;
           diamondFilters =
             typeof diamondFilters === 'object' ? diamondFilters : productData.diamondFilters || {};
+          priceCalculationMode = [
+            PRICE_CALCULATION_MODES.AUTOMATIC,
+            PRICE_CALCULATION_MODES.MANUAL,
+          ].includes(priceCalculationMode)
+            ? priceCalculationMode
+            : productData.priceCalculationMode;
 
           // Validate inputs
           const pNameErrorMsg = validateProductName(productName);
@@ -1813,7 +1846,8 @@ const updateProduct = (params) => {
             reject(new Error('Invalid Net Weight: Must be a positive number'));
             return;
           }
-          if (grossWeight && grossWeight <= 0) {
+
+          if (grossWeight <= 0) {
             reject(new Error('Invalid Gross Weight: Must be a positive number'));
             return;
           }
@@ -1821,7 +1855,8 @@ const updateProduct = (params) => {
             reject(new Error('Invalid Center Diamond Weight: Must be a positive number'));
             return;
           }
-          if (totalCaratWeight && totalCaratWeight <= 0) {
+
+          if (totalCaratWeight <= 0) {
             reject(new Error('Invalid Total Carat Weight: Must be a positive number'));
             return;
           }
@@ -2202,11 +2237,24 @@ const updateProduct = (params) => {
               : productData.variations;
 
           variComboWithQuantity = Array.isArray(variComboWithQuantity) ? variComboWithQuantity : [];
-          const variComboWithQuantityArray =
+          let variComboWithQuantityArray =
             variComboWithQuantity.length &&
             !isInValidVariComboWithQuantityArray(variComboWithQuantity)
               ? getVariComboWithQuantityArray(variComboWithQuantity)
               : productData.variComboWithQuantity;
+
+          // Apply automatic price calculations if enabled
+          if (priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC) {
+            const customizationSubTypesList = await customizationSubTypeService.getAllSubTypes();
+            const priceMultiplier = await settingsService.fetchPriceMultiplier();
+            variComboWithQuantityArray = helperFunctions.calculateAutomaticPrices({
+              combinations: variComboWithQuantityArray,
+              customizationSubTypesList,
+              grossWeight,
+              totalCaratWeight,
+              priceMultiplier,
+            });
+          }
 
           // Prepare payload
           const payload = {
@@ -2265,11 +2313,11 @@ const updateProduct = (params) => {
               ? specifications
               : productData.specifications,
             active: [true, false].includes(active) ? active : productData.active,
+            priceCalculationMode,
             isDiamondFilter,
             diamondFilters: isDiamondFilter ? diamondFilters : null,
             updatedDate: Date.now(),
           };
-          console.log('payload', payload);
           // Update product
           const updatePattern = {
             url: `${productsUrl}/${productId}`,
@@ -2712,6 +2760,87 @@ const processBulkProductsWithApi = async () => {
   }
 };
 
+/**
+ * Updates the price of a single product's variation combinations based on provided parameters.
+ *
+ * @param {Object} params - Input parameters for updating product prices.
+ * @param {Object} params.product - Product object with variation combinations and price calculation mode.
+ * @param {number} params.priceMultiplier - Multiplier to adjust the final price (must be positive).
+ * @param {Array<Object>} [params.allSubTypes=[]] - Array of subtype objects with price and unit info.
+ * @returns {Promise<Object|null>} Updated product object or null if inputs are invalid.
+ *
+ * @description
+ * - Validates inputs: checks for valid product, positive priceMultiplier, and non-empty variation combinations.
+ * - Returns unchanged product if price calculation mode is not 'automatic'.
+ * - Fetches subtypes from customizationSubTypeUrl if not provided.
+ * - Updates variation combinations with new prices and units from matched subtypes.
+ * - Calculates updated price using calculateNonCustomizedProductPrice helper.
+ * - Updates product in database and returns updated product object.
+ * - Logs errors for invalid inputs or failed subtype fetch.
+ */
+const updateSingleProductPrice = async ({ product, priceMultiplier, allSubTypes = [] }) => {
+  // Validate input parameters
+  if (
+    !product ||
+    !Number.isFinite(priceMultiplier) ||
+    priceMultiplier <= 0 ||
+    !Array.isArray(product.variComboWithQuantity) ||
+    !product.variComboWithQuantity.length
+  ) {
+    console.error(
+      "Invalid inputs: 'product' must have valid 'variComboWithQuantity', 'priceMultiplier' must be a positive number."
+    );
+    return product;
+  }
+
+  // Return unchanged product if price calculation mode is not automatic
+  if (product.priceCalculationMode !== 'automatic') {
+    console.log('Price calculation mode is not automatic, returning unchanged product.');
+    return product;
+  }
+
+  // Fetch subtypes if not provided
+  let subTypes = allSubTypes;
+  if (!subTypes.length) {
+    try {
+      subTypes = await customizationSubTypeService.getAllSubTypes();
+    } catch (error) {
+      throw new Error(`Failed to fetch subtypes: ${error.message}`);
+    }
+  }
+
+  // Update variation combinations with new prices and units
+  const updatedVariCombos = product.variComboWithQuantity.map((combo) => {
+    const updatedVariations = combo.combination.map((variation) => {
+      const matchedSubType = subTypes.find((subType) => subType.id === variation.variationTypeId);
+      return {
+        ...variation,
+        price: matchedSubType?.price ?? 0,
+        unit: matchedSubType?.unit ?? '',
+      };
+    });
+
+    // Calculate updated price for the combination
+    const updatedPrice = helperFunctions.calculateNonCustomizedProductPrice({
+      grossWeight: product.grossWeight || 0,
+      totalCaratWeight: product.totalCaratWeight || 0,
+      variations: updatedVariations,
+      priceMultiplier,
+    });
+
+    return { ...combo, price: updatedPrice, combination: updatedVariations };
+  });
+
+  // Update product in the database
+  await fetchWrapperService._update({
+    url: `${productsUrl}/${product.id}`,
+    payload: { variComboWithQuantity: updatedVariCombos },
+  });
+
+  // Return updated product
+  return { ...product, variComboWithQuantity: updatedVariCombos };
+};
+
 export const productService = {
   insertProduct,
   getAllProductsWithPagging,
@@ -2726,4 +2855,5 @@ export const productService = {
   searchProducts,
   updateProductQtyForReturn,
   processBulkProductsWithApi,
+  updateSingleProductPrice,
 };

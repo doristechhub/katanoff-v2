@@ -3,14 +3,14 @@ import img from "@/assets/images/education/diamond-cleaning.webp";
 import img1 from "@/assets/images/education/diamond-on-fabric.webp";
 const LabGrownDiamondCare = () => {
   return (
-    <div className="container py-8 lg:py-12 2xl:py-20 ">
+    <div className="container py-8 lg:py-12 2xl:py-16">
       <div className="text-center mb-10">
         <h2 className="text-2xl xss:text-3xl md:text-4xl font-medium mb-3 font-castoro text-baseblack">
-          How to Care for Lab-Grown Diamonds
+          Protect What You Treasure
         </h2>
         <p className="text-sm sm:text-base md:text-lg text-baseblack font-medium max-w-3xl mx-auto">
-          Caring for lab-grown diamonds is the same as caring for natural
-          diamonds, to maintain their brilliance.
+          Keep your lab-grown diamond jewelry shining with simple, thoughtful
+          care and regular cleaning.
         </p>
       </div>
 
@@ -24,13 +24,22 @@ const LabGrownDiamondCare = () => {
             className="shadow-md w-full max-w-[900px] object-cover "
           />
 
-          <ul className="mt-4 flex flex-col md:flex-row md:flex-wrap gap-2 md:gap-4 text-xs xss:text-sm sm:text-base md:text-[17px] lg:text-sm xl:text-lg text-gray-800 list-disc list-outside pl-5 max-w-2xl">
+          <ul className="mt-6 flex flex-col md:flex-row md:flex-wrap gap-2 md:gap-4 text-xs xss:text-sm sm:text-base md:text-[17px] lg:text-sm xl:text-lg text-gray-800 list-disc list-outside pl-5 max-w-2xl">
             <li className="md:w-auto">
-              Clean regularly with warm, soapy water and a soft brush.
+              Use mild soap, warm water, and a soft brush to keep diamonds
+              sparkling.
             </li>
-            <li className="md:w-auto">Store separately to avoid scratches.</li>
             <li className="md:w-auto">
-              Have them professionally cleaned and checked periodically.
+              Remove jewelry when using cleaning agents, perfumes, or lotions to
+              prevent buildup or damage.
+            </li>
+            <li className="md:w-auto">
+              Keep your pieces in a soft pouch or lined box to avoid scratches
+              and tangling.
+            </li>
+            <li className="md:w-auto">
+              Take off your jewelry during intense activities, workouts, or
+              heavy lifting to protect settings.
             </li>
           </ul>
         </div>

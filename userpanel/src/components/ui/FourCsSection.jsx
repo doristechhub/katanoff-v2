@@ -10,7 +10,7 @@ const FourCsSection = () => {
       <div className="flex items-center justify-center mb-10">
         <div className="border-t border-gray-200 w-1/6"></div>
         <h2 className="px-4 py-4 text-center text-2xl xss:text-3xl sm:text-4xl font-castoro text-baseblack">
-          Understanding the 4Cs
+          What Defines Diamond Quality
         </h2>
         <div className="border-t border-gray-200 w-1/6 "></div>
       </div>
@@ -23,7 +23,8 @@ const FourCsSection = () => {
               Cut
             </h3>
             <p className="text-base 2xl:text-lg mt-2 lg:mt-4">
-              Maximizing brilliance through precise cutting techniques.
+              The way a diamond is shaped and faceted, affecting its brilliance
+              and sparkle.
             </p>
           </div>
           <CustomImg srcAttr={frame1} className="order-1 md:order-1" />
@@ -34,8 +35,8 @@ const FourCsSection = () => {
               Clarity
             </h3>
             <p className="text-base 2xl:text-lg mt-2 lg:mt-4">
-              Our diamonds feature VS1 clarity, ensuring minimal inclusions and
-              superior sparkle.
+              Refers to internal or surface flaws; fewer inclusions mean higher
+              clarity and rarity.
             </p>
           </div>
           <CustomImg srcAttr={frame3} className="order-2 md:order-2" />
@@ -49,7 +50,8 @@ const FourCsSection = () => {
               Color
             </h3>
             <p className="text-base 2xl:text-lg mt-2 lg:mt-4">
-              We offer diamonds in the finest grades, including rare F Color.
+              Measures how colorless a diamond is the less color, the more
+              valuable and radiant.
             </p>
           </div>
           <CustomImg srcAttr={frame2} className="order-1 md:order-1" />
@@ -60,8 +62,8 @@ const FourCsSection = () => {
               Carat
             </h3>
             <p className="text-base 2xl:text-lg mt-2 lg:mt-4">
-              Choose from a variety of carat weights to suit your style and
-              budget.
+              Indicates the diamond's weight not always size but plays a big
+              role in value.
             </p>
           </div>
           <CustomImg srcAttr={frame4} className="order-2 lg:order-2" />

@@ -23,6 +23,7 @@ import {
   TableRow,
   TextField,
 } from '@mui/material';
+import { PRICE_CALCULATION_MODES } from 'src/_helpers/constants';
 
 // ----------------------------------------------------------------------
 
@@ -73,6 +74,7 @@ const CombinationDialog = ({
   openDialog,
   onCloseDialog,
   combinationsDetail,
+  priceCalculationMode,
 }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -122,7 +124,7 @@ const CombinationDialog = ({
       active: fields?.active,
       isDiamondFilter: fields?.isDiamondFilter,
       diamondFilters: fields?.diamondFilters,
-      // Below fields use for update
+      priceCalculationMode: fields?.priceCalculationMode,
       deletedRoseGoldImages: fields?.roseGoldUploadedDeletedImages?.map((item) => item?.image),
       deletedRoseGoldVideo: fields?.roseGoldDeleteUploadedVideo?.[0]?.video,
       deletedYellowGoldImages: fields?.yellowGoldUploadedDeletedImages?.map((item) => item?.image),
@@ -232,6 +234,9 @@ const CombinationDialog = ({
                                   getIn(errors, `variComboWithQuantity.${index}.price`)
                                     ? getIn(errors, `variComboWithQuantity.${index}.price`)
                                     : ''
+                                }
+                                disabled={
+                                  priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC
                                 }
                               />
                             </TableCell>

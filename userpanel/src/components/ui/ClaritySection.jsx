@@ -11,27 +11,22 @@ const clarityData = {
   FL: {
     title: "Flawless (FL)",
     description:
-      "Extremely rare, with no inclusions at all. Flawless diamonds are among the rarest and most expensive.",
+      "No internal or surface imperfections visible under 10x magnification. Extremely rare, highly prized, and represents the highest clarity a diamond can achieve.",
     img: clarityFL,
   },
   VVS: {
     title: "Very Very Slightly Included (VVS)",
     description:
-      "No visible inclusions to the naked eye, only very minute inclusions are visible to trained experts at 10x magnification. These make a beautiful option for an engagement ring.",
+      "Tiny inclusions that are extremely difficult to detect under magnification. Offers near-flawless clarity with exceptional brilliance and purity, even to trained professionals.",
     img: clarityVVS,
   },
   VS: {
     title: "Very Slightly Included (VS)",
     description: (
       <>
-        Sub divided into either VS1 and VS2.
-        <br />
-        No visible inclusions to the naked eye and, again, these are difficult
-        to see even by a trained expert at 10x magnification. However, these
-        inclusions are bigger, or there may be more of them, than seen in a VVS
-        diamond. These diamonds offer good value for someone looking for a
-        diamond engagement ring as the inclusions are still not visible to the
-        naked eye.
+        Minor inclusions that are difficult to see without magnification. High
+        clarity with excellent brilliance, Ideal for buyers seeking quality with
+        slight savings over VVS.
       </>
     ),
     img: clarityVS,
@@ -40,12 +35,9 @@ const clarityData = {
     title: "Slightly Included (SI)",
     description: (
       <>
-        Sub divided into either SI1 and SI2.
-        <br />
-        Diamonds are those whose imperfections are visible at 10x magnification.
-        A typical SI diamond might have a cloud, a feather, and an included
-        crystal of another mineral. Neither the diamond’s transparency nor face
-        up appearance may be affected by these inclusions.
+        Visible inclusions under 10x magnification, sometimes faintly visible to
+        the naked eye. Still beautiful and budget-friendly, especially in
+        smaller stones or complex settings.
       </>
     ),
     img: claritySI,
@@ -53,7 +45,7 @@ const clarityData = {
   I: {
     title: "Included (I)",
     description:
-      "Diamonds that feature blemishes which can be seen by the naked eye and therefore are not eligible for Forevermark.",
+      " Inclusions are easily visible and may affect brilliance. Common in commercial-grade diamonds, not usually chosen for high-end fine jewelry due to lower clarity.",
     img: clarityI,
   },
 };
@@ -69,14 +61,14 @@ const ClaritySection = () => {
       <div className="flex items-center justify-center mb-4 sm:mb-6 md:mb-8">
         <div className="border-t border-gray-200 w-1/6"></div>
         <h2 className="text-center text-xl xxs:text-2xl sm:text-3xl md:text-4xl font-castoro text-baseblack px-4">
-          Diamond clarity chart
+          Clarity
         </h2>
         <div className="border-t border-gray-200 w-1/6"></div>
       </div>
 
       <p className="text-center text-xs xxs:text-sm sm:text-base md:text-lg mb-6 md:mb-12 max-w-4xl mx-auto">
-        See below a useful summary table showing the clarity scale. Find out the
-        differences in diamond clarity ranges.
+        Clarity measures internal flaws or blemishes in a diamond, affecting its
+        rarity not always its visible beauty.
       </p>
 
       <div className="flex justify-center mb-4 sm:mb-6 md:mb-8 ">

@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { ALLOW_MAX_CARAT_WEIGHT, ALLOW_MIN_CARAT_WEIGHT } from 'src/_helpers/constants';
+import { ALLOW_MAX_CARAT_WEIGHT, ALLOW_MIN_CARAT_WEIGHT, PRICE_CALCULATION_MODES } from 'src/_helpers/constants';
 
 export const initDiamondFilters = {
   diamondShapeIds: [],
@@ -48,6 +48,9 @@ export const productInitDetails = {
   productTypeIds: [],
   gender: '',
   netWeight: '',
+  grossWeight: '',
+  totalCaratWeight: '',
+  centerDiamondWeight: '',
   sideDiamondWeight: '',
   shortDescription: '',
   description: '',
@@ -63,6 +66,7 @@ export const productInitDetails = {
     },
   ],
   active: true,
+  priceCalculationMode: PRICE_CALCULATION_MODES.AUTOMATIC,
   specifications: [],
   tempVariComboWithQuantity: [],
   isDiamondFilter: false,

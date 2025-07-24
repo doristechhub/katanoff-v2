@@ -23,6 +23,7 @@ import {
   InputAdornment,
   TablePagination,
   FormControlLabel,
+  Alert,
 } from '@mui/material';
 
 import {
@@ -47,7 +48,11 @@ import Iconify from 'src/components/iconify';
 import Spinner from 'src/components/spinner';
 import Scrollbar from 'src/components/scrollbar';
 import { Button, LoadingButton } from 'src/components/button';
-import { GOLD_TYPE_SUB_TYPES_LIST, GOLD_COLOR_SUB_TYPES_LIST } from 'src/_helpers/constants';
+import {
+  GOLD_TYPE_SUB_TYPES_LIST,
+  GOLD_COLOR_SUB_TYPES_LIST,
+  UNIT_TYPES,
+} from 'src/_helpers/constants';
 import { FileDrop } from 'src/components/file-drop';
 import ProgressiveImg from 'src/components/progressive-img';
 
@@ -57,6 +62,18 @@ const validationSchema = Yup.object().shape({
   type: Yup.string().required('Type is required'),
   title: Yup.string().required('Title is required'),
   customizationTypeId: Yup.string().required('Customization type is required'),
+  unit: Yup.string().nullable(),
+  price: Yup.number()
+    .nullable()
+    .when('unit', {
+      is: (unit) => unit === UNIT_TYPES.CARAT || unit === UNIT_TYPES.GRAM,
+      then: () =>
+        Yup.number().min(0, 'Price must be equal or greater than 0').required('Price is required'),
+      otherwise: () =>
+        Yup.number()
+          .nullable()
+          .transform(() => null),
+    }),
 });
 
 const isImageType = (type) => {
@@ -124,6 +141,8 @@ const CustomizationSubType = () => {
       type: val?.type,
       title: val?.title,
       customizationTypeId: val?.customizationTypeId,
+      unit: val?.unit === 'other' ? '' : val?.unit,
+      price: val?.unit === 'other' ? null : val?.price,
     };
     if (isImageType(val?.type) && val?.imageFile?.length) payload.imageFile = val?.imageFile[0];
     if (isColorType(val?.type)) payload.hexCode = val?.hexCode;
@@ -197,6 +216,8 @@ const CustomizationSubType = () => {
       dispatch(
         setSelectedCustomizationSubType({
           ...customizationSubType,
+          price: customizationSubType?.price || 0,
+          unit: customizationSubType?.unit || 'other',
           imageFile: [],
           deleteUploadedImage: [],
           previewImage,
@@ -220,9 +241,17 @@ const CustomizationSubType = () => {
     }
   }, [selectedCustomizationSubTypeId, page, currentItems]);
 
+  const handleInputClick = (event) => {
+    event.target.select();
+  };
+
+  const handleWheel = (event) => {
+    event.target.blur();
+  };
+
   const renderPopup = useMemo(() => {
     if (!open) return null;
-    const isNonEditable = selectedItem
+    const isNonDeletable = selectedItem
       ? NON_EDITABLE_DELETABLE_SUBTYPE.includes(selectedItem.title)
       : false;
     return (
@@ -236,14 +265,14 @@ const CustomizationSubType = () => {
         anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuItem onClick={handleEdit} disabled={crudCustomizationSubTypeLoading || isNonEditable}>
+        <MenuItem onClick={handleEdit} disabled={crudCustomizationSubTypeLoading}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
           Edit
         </MenuItem>
 
         <MenuItem
           onClick={handleDelete}
-          disabled={crudCustomizationSubTypeLoading || isNonEditable}
+          disabled={crudCustomizationSubTypeLoading || isNonDeletable}
           sx={{ color: 'error.main' }}
         >
           {crudCustomizationSubTypeLoading ? (
@@ -348,6 +377,8 @@ const CustomizationSubType = () => {
                     <TableCell>Title</TableCell>
                     <TableCell>CustomizationType</TableCell>
                     <TableCell>Type</TableCell>
+                    <TableCell>Unit</TableCell>
+                    <TableCell>Price</TableCell>
                     <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
@@ -391,7 +422,11 @@ const CustomizationSubType = () => {
                             ) : null}
                           </TableCell>
                           <TableCell>{x?.customizationTypeName}</TableCell>
-                          <TableCell>{x?.type}</TableCell>
+                          <TableCell sx={{ textTransform: 'capitalize' }}>{x?.type}</TableCell>
+                          <TableCell sx={{ textTransform: 'capitalize' }}>
+                            {x?.unit || 'other'}
+                          </TableCell>
+                          <TableCell>${x?.price || 0}</TableCell>
                           <TableCell sx={{ width: '50px' }}>
                             <Iconify
                               className={'cursor-pointer'}
@@ -452,6 +487,7 @@ const CustomizationSubType = () => {
               resetForm,
               setFieldValue,
             } = formik;
+            const isNonEditable = NON_EDITABLE_DELETABLE_SUBTYPE.includes(values?.title);
             return (
               <Form onSubmit={handleSubmit}>
                 <Dialog
@@ -472,7 +508,7 @@ const CustomizationSubType = () => {
                         alignItems: 'center',
                       }}
                     >
-                      <FormLabel id="Customization SubType">Type</FormLabel>
+                      <FormLabel id="Customization SubType">Type :</FormLabel>
                       <RadioGroup
                         name="type"
                         onBlur={handleBlur}
@@ -519,6 +555,7 @@ const CustomizationSubType = () => {
                           ? errors?.customizationTypeId
                           : ''
                       }
+                      disabled={isNonEditable}
                     >
                       {customizationTypeList?.length > 0 ? (
                         customizationTypeList?.map((option) => (
@@ -542,6 +579,64 @@ const CustomizationSubType = () => {
                       error={!!(touched?.title && errors?.title)}
                       onChange={(e) => setFieldValue('title', e.target.value)}
                       helperText={touched?.title && errors?.title ? errors?.title : ''}
+                      disabled={isNonEditable}
+                    />
+                    <FormControl
+                      sx={{
+                        mt: '10px',
+                        gap: 2,
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <FormLabel id="Unit">Unit :</FormLabel>
+                      <RadioGroup
+                        name="unit"
+                        onBlur={handleBlur}
+                        value={values?.unit}
+                        onChange={(e) => {
+                          handleChange(e);
+                          if (e.target.value === 'other') {
+                            setFieldValue('price', null);
+                          }
+                        }}
+                        aria-labelledby="Unit"
+                        sx={{ display: 'flex', flexDirection: 'row' }}
+                      >
+                        <FormControlLabel value="other" control={<Radio />} label="Other" />
+                        <FormControlLabel value={UNIT_TYPES.CARAT} control={<Radio />} label="Carat" />
+                        <FormControlLabel value={UNIT_TYPES.GRAM} control={<Radio />} label="Gram" />
+                      </RadioGroup>
+                      {touched?.unit && errors?.unit ? (
+                        <Typography variant="caption" color="error">
+                          {errors?.unit}
+                        </Typography>
+                      ) : null}
+                    </FormControl>
+                    <TextField
+                      sx={{
+                        my: '10px',
+                        width: '100%',
+                        minWidth: '300px',
+                      }}
+                      min={0}
+                      onBlur={handleBlur}
+                      label={`Price ${values?.unit === UNIT_TYPES.CARAT ? 'Per Carat' : values?.unit === UNIT_TYPES.GRAM ? 'Per Gram' : ''}`}
+                      name="price"
+                      type="number"
+                      value={values?.price || 0}
+                      error={!!(touched?.price && errors?.price)}
+                      onChange={handleChange}
+                      onClick={handleInputClick}
+                      onWheel={handleWheel}
+                      helperText={touched?.price && errors?.price ? errors?.price : ''}
+                      InputProps={{
+                        startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                      }}
+                      disabled={
+                        values?.unit !== UNIT_TYPES.CARAT && values?.unit !== UNIT_TYPES.GRAM
+                      }
                     />
                     {values?.type === 'image' ? (
                       <FileDrop
@@ -553,6 +648,13 @@ const CustomizationSubType = () => {
                         deleteKey={'deleteUploadedImage'}
                         loading={crudCustomizationSubTypeLoading}
                       />
+                    ) : null}
+                    {selectedCustomizationSubType?.id ? (
+                      <Alert severity="info">
+                        Updating the price or unit for this customization subtype will automatically
+                        update the prices of all pre-designed products using this subtype in
+                        automatic price calculation mode. Do you wish to proceed?
+                      </Alert>
                     ) : null}
                   </StyledDialogContent>
                   <StyledDialogActions>

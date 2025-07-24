@@ -32,6 +32,7 @@ export const ReportAnalysis = lazy(() => import('src/pages/report-analysis'));
 export const ProductsPage = lazy(() => import('src/pages/products/products'));
 export const AddProductPage = lazy(() => import('src/pages/products/add'));
 export const DiscountsPage = lazy(() => import('src/pages/discounts/list'));
+export const SettingsPage = lazy(() => import('src/pages/settings/settings'));
 export const AddDiscountPage = lazy(() => import('src/pages/discounts/add'));
 export const ForgetPassword = lazy(() => import('src/pages/forget-password'));
 export const ShowCaseBanner = lazy(() => import('src/pages/showcase-banner'));
@@ -190,6 +191,14 @@ export default function Router() {
           element: (
             <ProtectedRoutes pageId={'discounts'}>
               <AddDiscountPage />
+            </ProtectedRoutes>
+          ),
+        },
+        {
+          path: '/settings',
+          element: (
+            <ProtectedRoutes pageId={'settings'}>
+              <SettingsPage />
             </ProtectedRoutes>
           ),
         },
