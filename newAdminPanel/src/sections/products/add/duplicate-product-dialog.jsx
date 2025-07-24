@@ -41,6 +41,7 @@ const fieldKeys = [
   'shortDescription',
   'variations',
   'specifications',
+  'priceCalculationMode',
 ];
 
 const fieldLabels = {
@@ -55,6 +56,7 @@ const fieldLabels = {
   shortDescription: 'Short Description',
   variations: 'Variations',
   specifications: 'Specifications',
+  priceCalculationMode: 'Price Calculation Mode',
 };
 
 const DuplicateProductDialog = ({ open, setOpen, loading }) => {

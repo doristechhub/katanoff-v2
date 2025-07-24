@@ -89,11 +89,17 @@ const getMinPriceVariCombo = (arrayOfCombinations, key = 'price') => {
   return;
 };
 
+export const roundOffPrice = (price) => {
+  const decimal = price - Math.floor(price);
+  return decimal >= 0.5 ? Math.ceil(price) : Math.floor(price);
+};
+
 const getSellingPrice = (price, discount = 0) => {
   const cprice = Number(price);
   const cdiscount = Number(discount);
   const sellingPrice = cprice - (cprice * cdiscount) / 100;
-  return Number(helperFunctions.toFixedNumber(sellingPrice));
+  const finalPrice = Number(helperFunctions.toFixedNumber(sellingPrice));
+  return roundOffPrice(finalPrice);
 };
 
 const getStatusBg = (status) => {
