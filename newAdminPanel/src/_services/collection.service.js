@@ -20,12 +20,14 @@ const getAllCollection = () => {
     try {
       const respData = await fetchWrapperService.getAll(collectionUrl);
       const collectionData = respData ? Object.values(respData) : [];
-      resolve(collectionData.sort((a, b) => {
-        if (a.type === b.type) {
-          return (a.position || 0) - (b.position || 0);
-        }
-        return (a.type || '').localeCompare(b.type || '');
-      }));
+      resolve(
+        collectionData.sort((a, b) => {
+          if (a.type === b.type) {
+            return (a.position || 0) - (b.position || 0);
+          }
+          return (a.type || '').localeCompare(b.type || '');
+        })
+      );
     } catch (e) {
       reject(e);
     }
@@ -213,8 +215,15 @@ const insertCollection = (params) => {
   return new Promise(async (resolve, reject) => {
     try {
       const uuid = uid();
-      const { title, type, position, desktopBannerFile, mobileBannerFile, thumbnailFile, productIds } =
-        sanitizeAndValidateInput(params);
+      const {
+        title,
+        type,
+        position,
+        desktopBannerFile,
+        mobileBannerFile,
+        thumbnailFile,
+        productIds,
+      } = sanitizeAndValidateInput(params);
 
       if (!title) {
         return reject(new Error('Title is required'));
@@ -232,10 +241,11 @@ const insertCollection = (params) => {
         return reject(new Error('Title already exists'));
       }
 
-
       let finalPosition = position;
       if (!finalPosition) {
-        const typeCollections = collectionsList.filter((x) => x.type === type || (!x.type && !type));
+        const typeCollections = collectionsList.filter(
+          (x) => x.type === type || (!x.type && !type)
+        );
         const maxPosition = typeCollections.reduce(
           (max, col) => Math.max(max, col.position || 0),
           0
@@ -251,7 +261,11 @@ const insertCollection = (params) => {
       await validateFiles(mobileBannerFile, 'IMAGE_FILE_NAME', 'mobile');
       if (type) {
         if (!thumbnailFile?.length) {
-          return reject(new Error(`Thumbnail image is required for ${type === 'slider_grid' ? 'slider grid' : type === 'two_grid' ? 'two grid' : 'three grid'}`));
+          return reject(
+            new Error(
+              `Thumbnail image is required for ${type === 'slider_grid' ? 'slider grid' : type === 'two_grid' ? 'two grid' : 'three grid'}`
+            )
+          );
         }
         await validateFiles(
           thumbnailFile,
@@ -369,8 +383,7 @@ const updateCollection = (params) => {
       // ===== Thumbnail Validation Start =====
       if (type) {
         const readableType =
-          type === 'slider_grid' ? 'slider grid' :
-            type === 'two_grid' ? 'two grid' : 'three grid';
+          type === 'slider_grid' ? 'slider grid' : type === 'two_grid' ? 'two grid' : 'three grid';
 
         const resolution = IMAGE_RESOLUTIONS[type.toUpperCase()];
         const typeChanged = type !== collectionData.type;
@@ -385,7 +398,11 @@ const updateCollection = (params) => {
         if (hasNewThumbnail) {
           await validateFiles(thumbnailFile, 'IMAGE_FILE_NAME', type.toUpperCase());
         } else if (typeChanged && hasExistingThumbnail) {
-          const isValid = await validateImageResolution(thumbnailImage, resolution.width, resolution.height);
+          const isValid = await validateImageResolution(
+            thumbnailImage,
+            resolution.width,
+            resolution.height
+          );
           if (!isValid) {
             return reject(
               new Error(
@@ -420,13 +437,12 @@ const updateCollection = (params) => {
       const payload = {
         title,
         type: type || null,
-        position: position !== null ? position : collectionData?.position,
+        position: position ? position : collectionData?.position,
         desktopBannerImage: desktopBannerUrl || desktopBannerImage,
         mobileBannerImage: mobileBannerUrl || mobileBannerImage,
         thumbnailImage: type ? thumbnailUrl || thumbnailImage : null,
         updatedDate: Date.now(),
       };
-
       const updatePattern = {
         url: `${collectionUrl}/${collectionId}`,
         payload,
@@ -445,9 +461,12 @@ const updateCollection = (params) => {
         await updateProductCollections(productsToRemove, collectionId, false);
       }
 
-      let removeThumbnailImage = deletedThumbnailImage
-      if (type !== collectionData.type && !['slider_grid', 'two_grid', 'three_grid'].includes(type)) {
-        removeThumbnailImage = collectionData.thumbnailImage
+      let removeThumbnailImage = deletedThumbnailImage;
+      if (
+        type !== collectionData.type &&
+        !['slider_grid', 'two_grid', 'three_grid'].includes(type)
+      ) {
+        removeThumbnailImage = collectionData.thumbnailImage;
       }
       await deleteFiles([
         deletedDesktopBannerImage,
@@ -528,7 +547,9 @@ const updateCollectionPosition = (positions) => {
         })
       );
       if (types.size !== 1 || ![...types][0]) {
-        return reject(new Error('All collections must belong to the same type and have a valid type'));
+        return reject(
+          new Error('All collections must belong to the same type and have a valid type')
+        );
       }
 
       const type = [...types][0];
