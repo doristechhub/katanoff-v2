@@ -54,141 +54,100 @@ const faqData = [
 
 const mockReviews = [
   {
-    date: "10/21/24",
-    title: "Love my heart shaped ring.",
-    rating: 3,
+    rating: 5,
     content:
-      "Love my heart shaped ring. The band is nice and thick very comfortable. The diamond is spectacular.",
-    author: "Anamaria M.",
-    starImage: fiveStar,
+      "Absolutely stunning! I was blown away by the sparkle. Can’t believe it’s lab-grown!",
+    author: "Sarah L.",
   },
   {
-    date: "10/25/24",
-    title: "Best purchase ever! Fast shipping",
+    rating: 3,
+    content:
+      "Elegant, ethical, and affordable what more could you ask for? Got so many compliments on my necklace!",
+    author: "Priya D.",
+  },
+  {
+    rating: 3,
+    content:
+      "I love my ring, though I had to get it resized. The quality is undeniable.",
+    author: "Jason K.",
+  },
+  {
     rating: 4,
     content:
-      "Best purchase ever! Fast shipping got it to my door in time even after a last minute decision. The diamonds are dazzling and brilliant.",
-    author: "Mark T.",
-    starImage: fourStar,
+      "My earrings are gorgeous! Light catches them perfectly. I’ll be back for more 💎",
+    author: "Renee F.",
   },
   {
-    date: "11/04/24",
-    title: "Best site out there",
-    rating: 3,
+    rating: 5,
     content:
-      "The ring was everything and more. My fiancé loves it 💍. Cheapest price and best quality. I shopped around multiple stores who weren’t even close.",
-    author: "Evan B.",
-    starImage: fourAndHalfStar,
+      "The bracelet I ordered is exquisite. Lab-grown is definitely the future of fine jewelry!",
+    author: "Omar R.",
   },
   {
-    date: "10/21/24",
-    title: "Love my heart shaped ring.",
-    content: "Love my ",
-    author: "Anamaria M.",
-    rating: 3,
-    starImage: fiveStar,
-  },
-  {
-    date: "10/25/24",
-    title: "Best purchase ever! Fast shipping",
-    rating: 3,
-    content: "Best purchase ever! Fast shipping got it to my door in ",
-    author: "Mark T.",
-    starImage: fourStar,
-  },
-  {
-    date: "10/21/24",
-    title: "Love my heart shaped ring.",
-    rating: 3,
-    content:
-      "Love my heart shaped ring. The band is nice and thick very comfortable. The diamond is spectacular.",
-    author: "Anamaria M.",
-    starImage: fiveStar,
-  },
-  {
-    date: "10/25/24",
-    title: "Best purchase ever! Fast shipping",
     rating: 4,
     content:
-      "Best purchase ever! Fast shipping got it to my door in time even after a last minute decision. The diamonds are dazzling and brilliant.",
-    author: "Mark T.",
-    starImage: fourStar,
+      "Shipping took a bit longer than expected, but the quality made it worth the wait.",
+    author: "Natasha M.",
   },
   {
-    date: "11/04/24",
-    title: "Best site out there",
-    rating: 3,
+    rating: 5,
     content:
-      "The ring was everything and more. My fiancé loves it 💍. Cheapest price and best quality. I shopped around multiple stores who weren’t even close.",
-    author: "Evan B.",
-    starImage: fourAndHalfStar,
+      "Bought this as a gift for my wife, she cried. The diamond sparkled just as much as she did 😊",
+    author: "Marcus J.",
   },
   {
-    date: "10/21/24",
-    title: "Love my heart shaped ring.",
-    content: "Love my ",
-    author: "Anamaria M.",
-    rating: 3,
-    starImage: fiveStar,
-  },
-  {
-    date: "10/25/24",
-    title: "Best purchase ever! Fast shipping",
-    rating: 3,
-    content: "Best purchase ever! Fast shipping got it to my door in ",
-    author: "Mark T.",
-    starImage: fourStar,
-  },
-  {
-    date: "10/21/24",
-    title: "Love my heart shaped ring.",
-    rating: 3,
-    content:
-      "Love my heart shaped ring. The band is nice and thick very comfortable. The diamond is spectacular.",
-    author: "Anamaria M.",
-    starImage: fiveStar,
-  },
-  {
-    date: "10/25/24",
-    title: "Best purchase ever! Fast shipping",
     rating: 4,
     content:
-      "Best purchase ever! Fast shipping got it to my door in time even after a last minute decision. The diamonds are dazzling and brilliant.",
-    author: "Mark T.",
-    starImage: fourStar,
+      "I’m obsessed with my lab-grown engagement ring! Ethically sourced AND stunning.",
+    author: "Alina G.",
   },
   {
-    date: "11/04/24",
-    title: "Best site out there",
+    rating: 5,
+    content:
+      "This is my second order from them. The consistency in brilliance and finish is amazing.",
+    author: "Tara W.",
+  },
+  {
     rating: 3,
     content:
-      "The ring was everything and more. My fiancé loves it 💍. Cheapest price and best quality. I shopped around multiple stores who weren’t even close.",
-    author: "Evan B.",
-    starImage: fourAndHalfStar,
+      "Great craftsmanship. Just wish there were more customizable options for the band.",
+    author: "Aiden H.",
   },
   {
-    date: "10/21/24",
-    title: "Love my heart shaped ring.",
-    content: "Love my ",
-    author: "Anamaria M.",
-    rating: 3,
-    starImage: fiveStar,
+    rating: 5,
+    content:
+      "Shocked at how vibrant the diamonds are. You wouldn’t know they’re lab-grown. I love it!",
+    author: "Chloe S.",
   },
   {
-    date: "10/25/24",
-    title: "Best purchase ever! Fast shipping",
-    rating: 3,
-    content: "Best purchase ever! Fast shipping got it to my door in ",
-    author: "Mark T.",
-    starImage: fourStar,
+    rating: 4,
+    content:
+      "Got my custom pendant delivered last week—it’s flawless. Thank you!",
+    author: "Rajan P.",
   },
   {
-    date: "11/04/24",
-    title: "Best site out there",
-    rating: 3,
-    content: "The ring was everything and more. My fiancé loves it 💍",
-    author: "Evan B.",
-    starImage: fourAndHalfStar,
+    rating: 4,
+    content:
+      "Beautiful jewelry and a guilt-free purchase. Minor issue with the clasp but customer service handled it fast.",
+    author: "Naomi C.",
+  },
+  {
+    rating: 5,
+    content:
+      "Lab-grown never looked so luxurious. Excellent finish, eco-friendly, and budget-friendly.",
+    author: "James T.",
+  },
+  {
+    rating: 5,
+    content:
+      "Perfect for our anniversary. My wife loved her new eternity band. Highly recommend!",
+    author: "Daniel B.",
+  },
+  {
+    rating: 5,
+    content:
+      "I was skeptical about lab diamonds until I saw this piece in person. I’m a believer now.",
+    author: "Mira V.",
   },
 ];
 

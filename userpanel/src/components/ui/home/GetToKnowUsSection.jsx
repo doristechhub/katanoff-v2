@@ -31,30 +31,33 @@ export default function GetToKnowUsSection() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {CARD_DATA.map((card, index) => (
-          <Link
+          <div
             key={index}
-            href={card.link}
-            className="group relative overflow-hidden"
+            className={`${
+              index % 2 === 0 ? "justify-self-end" : "justify-self-start"
+            }`}
           >
-            <div>
-              <CustomImg
-                srcAttr={card.image}
-                altAttr={card.title}
-                className="group-hover:scale-105 transition-transform duration-500"
-              />
-            </div>
+            <Link href={card.link} className="group relative overflow-hidden">
+              <div>
+                <CustomImg
+                  srcAttr={card.image}
+                  altAttr={card.title}
+                  className="group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
 
-            <div className="absolute flex flex-col lg:left-[5%] top-[47%] h-full px-6 text-black">
-              <h3
-                className={`text-xl lg:text-3xl 2xl:text-4xl 4xl:text-4xl font-medium mb-4 uppercase`}
-              >
-                {card.title}
-              </h3>
-              <span className="uppercase pt-[2%] md:pt-[4%] text-sm lg:text-base xl:text-lg font-medium tracking-wider underline hover:opacity-80 transition ">
-                Explore
-              </span>
-            </div>
-          </Link>
+              <div className="absolute flex flex-col lg:left-[5%] top-[47%] h-full px-6 text-black">
+                <h3
+                  className={`text-xl lg:text-3xl 2xl:text-4xl 4xl:text-4xl font-medium mb-4 uppercase`}
+                >
+                  {card.title}
+                </h3>
+                <span className="uppercase pt-[2%] md:pt-[4%] text-sm lg:text-base xl:text-lg font-medium tracking-wider underline hover:opacity-80 transition ">
+                  Explore
+                </span>
+              </div>
+            </Link>
+          </div>
         ))}
       </div>
     </>

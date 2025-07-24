@@ -1,13 +1,11 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { Navigation, Autoplay, Pagination } from "swiper/modules";
+import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { CustomImg } from "../dynamiComponents";
-import { FaStar, FaRegStar } from "react-icons/fa";
+import { FaStar } from "react-icons/fa";
 export default function ReviewSlider({ reviews = [], totalCount = 0 }) {
   const [currentPage, setCurrentPage] = useState(0);
   const swiperRef = useRef(null);
@@ -24,7 +22,6 @@ export default function ReviewSlider({ reviews = [], totalCount = 0 }) {
 
   return (
     <section className="py-20 container">
-      {/* Header */}
       <div className="text-center mb-12">
         <h3 className="text-base md:text-lg font-bold text-[#BE944B] uppercase">
           Testimonials
