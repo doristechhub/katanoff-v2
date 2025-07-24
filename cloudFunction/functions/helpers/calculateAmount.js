@@ -8,6 +8,11 @@ const {
   DISCOUNT_DETAIL_TYPES,
 } = require("./common");
 
+const roundOffPrice = (price) => {
+  const decimal = price - Math.floor(price);
+  return decimal >= 0.5 ? Math.ceil(price) : Math.floor(price);
+};
+
 const getSellingPrice = ({ price, discount = 0, isCustomized = false }) => {
   let cprice = Number(price);
   const cdiscount = Number(discount);
@@ -17,7 +22,7 @@ const getSellingPrice = ({ price, discount = 0, isCustomized = false }) => {
   } else {
     // Apply discount for non-customized products
     cprice = cprice - (cprice * cdiscount) / 100;
-    return Number(cprice.toFixed(2));
+    return roundOffPrice(Number(cprice.toFixed(2)));
   }
 };
 
@@ -170,6 +175,7 @@ const calculateCustomizedProductPrice = ({
 
 module.exports = {
   getSellingPrice,
+  roundOffPrice,
   calculateOrderDiscount,
   calculateSubTotal,
   calculateCustomizedProductPrice,
