@@ -1508,7 +1508,7 @@ export default function ProductFilter({
                               renderTrack={multipleTrack}
                             />
                             <div className="flex justify-between mt-4">
-                              <div className="flex items-center border border-baseblack w-20">
+                              <div className="flex items-center border border-baseblack w-24">
                                 <span className="pl-1">$</span>
                                 <input
                                   type="text"
@@ -1516,10 +1516,10 @@ export default function ProductFilter({
                                   onChange={(e) => handleInputChange(e, 0)}
                                   onBlur={formik.handleBlur}
                                   onKeyDown={handleKeyDown}
-                                  className="p-1 w-full text-center border-none focus:outline-none"
+                                  className="p-1 w-full border-none focus:outline-none"
                                 />
                               </div>
-                              <div className="flex items-center border border-baseblack w-20">
+                              <div className="flex items-center border border-baseblack w-24">
                                 <span className="pl-1">$</span>
                                 <input
                                   type="text"
@@ -1527,7 +1527,7 @@ export default function ProductFilter({
                                   onChange={(e) => handleInputChange(e, 1)}
                                   onBlur={formik.handleBlur}
                                   onKeyDown={handleKeyDown}
-                                  className="p-1 w-full text-center border-none focus:outline-none"
+                                  className="p-1 w-full border-none focus:outline-none"
                                 />
                               </div>
                               {touched?.priceRange &&

@@ -282,16 +282,10 @@ const CartPage = () => {
                             {cartItem?.productDiscountPerc &&
                             !cartItem?.diamondDetail ? (
                               <span className="text-sm md:text-base lg:text-lg text-gray-500 line-through mr-2">
-                                $
-                                {helperFunctions.toFixedNumber(
-                                  cartItem?.quantityWisePrice
-                                )}
+                                ${cartItem?.quantityWisePrice}
                               </span>
                             ) : null}
-                            $
-                            {helperFunctions.toFixedNumber(
-                              cartItem?.quantityWiseSellingPrice
-                            )}
+                            ${cartItem?.quantityWiseSellingPrice}
                           </p>
                           <div className="hidden sm:block">
                             <button

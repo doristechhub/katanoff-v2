@@ -482,7 +482,7 @@ const ProductDetailPage = ({ customizePage }) => {
               {isCustomizePage ? (
                 <div className="flex items-center gap-2 mb-4 lg:mb-4">
                   <span className="text-xl md:text-xl 3xl:text-2xl font-normal font-castoro">
-                    ${customProductPrice}
+                    ${helperFunctions?.roundOffPrice(customProductPrice)}
                   </span>
                 </div>
               ) : (
@@ -490,16 +490,19 @@ const ProductDetailPage = ({ customizePage }) => {
                   <div className="flex items-center gap-2 mt-2  mb-6 lg:mb-6">
                     <span className="text-xl md:text-xl 3xl:text-2xl font-normal font-castoro">
                       {selectedPrice
-                        ? `$${(
+                        ? `$${helperFunctions?.roundOffPrice(
                             selectedPrice *
-                            productQuantity *
-                            (1 - productDetail?.discount / 100)
-                          ).toFixed(2)}`
-                        : "$0.00"}
+                              productQuantity *
+                              (1 - productDetail?.discount / 100)
+                          )}`
+                        : "$0"}
                     </span>
                     {productDetail?.discount && selectedPrice ? (
                       <span className="text-gray-500 line-through text-xl font-castoro">
-                        ${(selectedPrice * productQuantity).toFixed(2)}
+                        $
+                        {helperFunctions?.roundOffPrice(
+                          selectedPrice * productQuantity
+                        )}
                       </span>
                     ) : null}
                     {productDetail?.discount && selectedPrice ? (

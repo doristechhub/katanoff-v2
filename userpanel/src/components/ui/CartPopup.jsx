@@ -307,25 +307,16 @@ const CartPopup = () => {
                             <div className="pr-2 items-center flex">
                               {cartItem?.diamondDetail ? (
                                 <p className="text-sm font-semibold text-baseblack">
-                                  $
-                                  {helperFunctions?.toFixedNumber(
-                                    cartItem?.quantityWiseSellingPrice
-                                  )}
+                                  ${cartItem?.quantityWiseSellingPrice}
                                 </p>
                               ) : (
                                 <p className="text-base font-bold">
                                   {cartItem?.productDiscountPerc ? (
                                     <span className="text-base text-gray-500 line-through mr-2">
-                                      $
-                                      {helperFunctions?.toFixedNumber(
-                                        cartItem?.quantityWisePrice
-                                      )}
+                                      ${cartItem?.quantityWisePrice}
                                     </span>
                                   ) : null}
-                                  $
-                                  {helperFunctions?.toFixedNumber(
-                                    cartItem?.quantityWiseSellingPrice
-                                  )}
+                                  ${cartItem?.quantityWiseSellingPrice}
                                 </p>
                               )}
                             </div>

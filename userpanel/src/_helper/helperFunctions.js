@@ -155,11 +155,11 @@ const getSellingPrice = ({ price, discount = 0, isCustomized = false }) => {
   const cdiscount = Number(discount);
   if (isCustomized) {
     // No discount applied for customized products
-    return Number(helperFunctions.toFixedNumber(cprice));
+    return Number(toFixedNumber(cprice));
   } else {
     // Apply discount for non-customized products
     cprice = cprice - (cprice * cdiscount) / 100;
-    return Number(helperFunctions.toFixedNumber(cprice));
+    return Number(roundOffPrice(cprice));
   }
 };
 
@@ -659,9 +659,43 @@ export const formatDiscountForItem = ({
   return formatCurrencyWithDollar(perProductDiscount);
 };
 
+const getFraction = (num) => {
+  const whole = Math.floor(num);
+  const decimal = +(num - whole).toFixed(3);
+
+  const fractionMap = {
+    0.125: "1/8",
+    0.2: "1/5",
+    0.25: "1/4",
+    0.333: "1/3",
+    0.375: "3/8",
+    0.5: "1/2",
+    0.625: "5/8",
+    0.666: "2/3",
+    0.75: "3/4",
+    0.875: "7/8",
+  };
+
+  const closest = Object.keys(fractionMap).find(
+    (key) => Math.abs(decimal - parseFloat(key)) < 0.05
+  );
+
+  const fraction = closest ? fractionMap[closest] : "";
+
+  return whole === 0 && fraction
+    ? fraction
+    : `${whole > 0 ? whole : ""} ${fraction}`;
+};
+
 export const formatProductNameWithCarat = ({ caratWeight, productName }) => {
-  const caratText = caratWeight > 0 ? `${caratWeight} ctw ` : "";
-  return `${caratText}${productName || ""}`.trim();
+  const formattedCarat =
+    caratWeight > 0 ? `${getFraction(caratWeight)} ctw ` : "";
+  return `${formattedCarat}${productName || ""}`.trim();
+};
+
+export const roundOffPrice = (price) => {
+  const decimal = price - Math.floor(price);
+  return decimal >= 0.5 ? Math.ceil(price) : Math.floor(price);
 };
 
 export const helperFunctions = {
@@ -710,4 +744,5 @@ export const helperFunctions = {
   formatCurrencyWithDollar,
   formatDiscountForItem,
   formatProductNameWithCarat,
+  roundOffPrice,
 };

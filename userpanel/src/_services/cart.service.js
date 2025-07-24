@@ -102,11 +102,11 @@ const getAllCartWithProduct = () => {
 
           const diamondDetail = cartItem?.diamondDetail
             ? {
-                ...cartItem?.diamondDetail,
-                shapeName: findedProduct.diamondFilters?.diamondShapes.find(
-                  (shape) => shape.id === cartItem?.diamondDetail?.shapeId
-                )?.title,
-              }
+              ...cartItem?.diamondDetail,
+              shapeName: findedProduct.diamondFilters?.diamondShapes.find(
+                (shape) => shape.id === cartItem?.diamondDetail?.shapeId
+              )?.title,
+            }
             : null;
 
           const goldColor = variationArray
@@ -121,10 +121,14 @@ const getAllCartWithProduct = () => {
             productName: findedProduct.productName,
             productImage: thumbnailImage,
             productQuantity: quantity,
-            productSellingPrice: sellingPrice,
-            productBasePrice: price,
-            quantityWisePrice: price * cartItem.quantity,
-            quantityWiseSellingPrice: sellingPrice * cartItem.quantity,
+            productSellingPrice: helperFunctions?.roundOffPrice(sellingPrice),
+            productBasePrice: helperFunctions?.roundOffPrice(price),
+            quantityWisePrice: helperFunctions?.roundOffPrice(
+              price * cartItem.quantity
+            ),
+            quantityWiseSellingPrice: helperFunctions?.roundOffPrice(
+              sellingPrice * cartItem.quantity
+            ),
             productDiscountPerc: findedProduct.discount || 0,
             variations: variationArray,
             netWeight: findedProduct?.netWeight,
