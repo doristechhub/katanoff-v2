@@ -40,7 +40,7 @@ const validationSchema = Yup.object({
       ),
       price: Yup.number()
         .min(0, 'Price must be zero or positive')
-        .integer('Price must be an integer')
+        // .integer('Price must be an integer')
         .required('Price is required'),
       quantity: Yup.number()
         .min(0, 'Quantity must be zero or positive')
