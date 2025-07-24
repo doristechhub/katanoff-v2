@@ -186,21 +186,13 @@ const CheckoutCommonComponent = () => {
 
                       <p className="text-sm font-semibold xs:text-base w-fit flex items-center gap-2">
                         $
-                        {cartItem?.productSellingPrice?.toLocaleString(
-                          "en-US",
-                          {
-                            minimumFractionDigits: 2,
-                          }
-                        )}
+                        {cartItem?.productSellingPrice?.toLocaleString("en-US")}
                         {` × ${cartItem?.quantity}`}
                         {cartItem?.productDiscountPerc ? (
                           <span className="text-xs xs:text-sm text-basegray line-through ml-2 font-normal">
                             $
                             {cartItem?.productBasePrice?.toLocaleString(
-                              "en-US",
-                              {
-                                minimumFractionDigits: 2,
-                              }
+                              "en-US"
                             )}
                           </span>
                         ) : null}

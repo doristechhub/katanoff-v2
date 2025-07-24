@@ -109,15 +109,15 @@ const SettingsViewPage = () => {
             </Box>
           </Stack>
         </form>
-        <Alert sx={{ mt: 2 }} severity="info">
-          The value you set here will automatically be multiplied with the base price of all
-          pre-designed products whose price calculate with automatic mode.
-        </Alert>
         {setttingsError && (
           <Typography color="error" sx={{ mt: 1, mb: 2 }}>
             {setttingsError}
           </Typography>
         )}
+        <Alert sx={{ mt: 2 }} severity="info">
+          The value you set here will automatically be multiplied with the base price of all
+          pre-designed products whose price calculate with automatic mode.
+        </Alert>
       </Container>
     </>
   );

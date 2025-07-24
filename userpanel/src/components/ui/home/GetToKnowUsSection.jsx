@@ -33,11 +33,11 @@ export default function GetToKnowUsSection() {
         {CARD_DATA.map((card, index) => (
           <div
             key={index}
-            className={`${
+            className={`group relative overflow-hidden ${
               index % 2 === 0 ? "justify-self-end" : "justify-self-start"
             }`}
           >
-            <Link href={card.link} className="group relative overflow-hidden">
+            <Link href={card.link}>
               <div>
                 <CustomImg
                   srcAttr={card.image}

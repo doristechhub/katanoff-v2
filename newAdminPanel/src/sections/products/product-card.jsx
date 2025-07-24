@@ -11,7 +11,7 @@ import { fCurrency } from 'src/utils/format-number';
 
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
-import { helperFunctions, productWebsiteUrl } from 'src/_helpers';
+import { helperFunctions, productWebsiteUrl, roundOffPrice } from 'src/_helpers';
 import { Tooltip } from '@mui/material';
 import { grey } from 'src/theme/palette';
 import { useCallback, useState } from 'react';
@@ -55,6 +55,27 @@ export default function ProductCard({
       {product?.active ? 'active' : 'inActive'}
     </Label>
   );
+
+  const renderDiscountBadge = product?.discount ? (
+    <Label
+      variant="filled"
+      color="warning"
+      sx={{
+        top: 8,
+        zIndex: 9,
+        left: 8,
+        position: 'absolute',
+        textTransform: 'uppercase',
+        padding: '6px',
+        height: '18px',
+        fontSize: '9px',
+        borderRadius: '3px',
+      }}
+    >
+      {product.discount}% OFF
+    </Label>
+  ) : null;
+
   const handleDuplicateProduct = useCallback(
     (e) => {
       setDuplicateDialog(true);
@@ -84,7 +105,9 @@ export default function ProductCard({
           textDecoration: 'line-through',
         }}
       >
-        {product?.discount && product?.basePrice ? fCurrency(product?.basePrice) : null}
+        {product?.discount && product?.basePrice
+          ? fCurrency(roundOffPrice(product?.basePrice))
+          : null}
       </Typography>
       &nbsp;
       {product?.baseSellingPrice ? fCurrency(product?.baseSellingPrice) : '$0.00'}
@@ -95,6 +118,7 @@ export default function ProductCard({
     <Card className="group !rounded-lg">
       <Box className="flex justify-center items-center">
         {renderStatus}
+        {renderDiscountBadge}
         {renderImg}
       </Box>
       <Stack spacing={1} sx={{ py: 1, px: 2, bgcolor: 'white' }}>
