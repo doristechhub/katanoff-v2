@@ -22,4 +22,11 @@ export const customizationSubTypeModel = {
   image: {
     type: String,
   },
+  unit: {
+    type: String,
+    enum: ['gram', 'carat'],
+  },
+  price: {
+    type: Number,
+  },
 };

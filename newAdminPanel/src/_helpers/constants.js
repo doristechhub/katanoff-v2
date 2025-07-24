@@ -184,3 +184,13 @@ export const COLLECTION_TYPES = {
 };
  
 export const CARD = 'card';
+
+export const UNIT_TYPES = {
+  GRAM: 'gram',
+  CARAT: 'carat',
+};
+
+export const PRICE_CALCULATION_MODES = {
+  AUTOMATIC: 'automatic',
+  MANUAL: 'manual',
+}

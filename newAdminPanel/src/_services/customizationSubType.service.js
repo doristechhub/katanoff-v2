@@ -12,15 +12,15 @@ import {
 import { productService } from './product.service';
 import { customizationTypeService } from './customizationType.service';
 import fileSettings from 'src/_utils/fileSettings';
+import { settingsService } from './settings.service';
 
 const getAllCustomizationSubTypes = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const respData = await fetchWrapperService.getAll(customizationSubTypeUrl);
-      const tempSubTypeData = respData ? Object.values(respData) : [];
-      const customizatinTypesData = await customizationTypeService.getAllCustomizationTypes();
+      const tempSubTypeData = await getAllSubTypes();
+      const customizationTypesData = await customizationTypeService.getAllCustomizationTypes();
       const customizationSubTypeData = tempSubTypeData.map((customizationSubType) => {
-        const findedItem = customizatinTypesData.find(
+        const findedItem = customizationTypesData.find(
           (customizationType) => customizationType.id === customizationSubType.customizationTypeId
         );
         return {
@@ -35,22 +35,39 @@ const getAllCustomizationSubTypes = () => {
   });
 };
 
+const getAllSubTypes = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const respData = await fetchWrapperService.getAll(customizationSubTypeUrl);
+      const customizationTypesData = respData ? Object.values(respData) : [];
+      resolve(customizationTypesData);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 const insertCustomizationSubType = (params) => {
   return new Promise(async (resolve, reject) => {
     try {
       const uuid = uid();
-      let { title, customizationTypeId, type, hexCode, imageFile } = sanitizeObject(params);
+      let { title, customizationTypeId, type, hexCode, imageFile, unit, price } =
+        sanitizeObject(params);
       type = type ? type.trim() : null;
       customizationTypeId = customizationTypeId ? customizationTypeId.trim() : null;
       title = title ? title.trim() : null;
       hexCode = hexCode ? hexCode.trim() : '';
+      unit = unit ? unit?.trim() : null;
+      price =
+        !isNaN(price) && price !== '' && price !== null
+          ? Math.round(parseFloat(price) * 100) / 100
+          : 0;
       imageFile = typeof imageFile === 'object' ? [imageFile] : [];
 
       if (title && customizationTypeId && type && uuid) {
         // Check for duplicate title within the specific customizationTypeId using getAll
-        const allSubTypes = await fetchWrapperService.getAll(customizationSubTypeUrl);
-        const tempSubTypeData = allSubTypes ? Object.values(allSubTypes) : [];
-        const isDuplicate = tempSubTypeData.some(
+        const allSubTypes = await getAllSubTypes();
+        const isDuplicate = allSubTypes.some(
           (subType) =>
             subType.title?.toLowerCase() === title?.toLowerCase() &&
             subType.customizationTypeId === customizationTypeId
@@ -69,12 +86,18 @@ const insertCustomizationSubType = (params) => {
               reject(new Error('Image not found'));
               return;
             }
+
+            if (price && price <= 0) {
+              reject(new Error('Invalid Price: Must be a positive number'));
+              return;
+            }
+
             let imageUrl = '';
             if (type === 'image' && imageFile.length) {
               if (imageFile?.length > fileSettings.CUSTOMIZATION_SUB_TYPE_IMAGE_FILE_LIMIT) {
                 reject(
                   new Error(
-                    `You can only ${fileSettings.CUSTOMIZATION_SUB_TYPE_IMAGE_FILE_LIMIT} image upload here`
+                    `You can only upload ${fileSettings.CUSTOMIZATION_SUB_TYPE_IMAGE_FILE_LIMIT} image`
                   )
                 );
                 return;
@@ -106,16 +129,18 @@ const insertCustomizationSubType = (params) => {
 
             const insertPattern = {
               id: uuid,
-              type: type,
-              customizationTypeId: customizationTypeId,
-              title: title,
+              type,
+              customizationTypeId,
+              title,
               hexCode,
               image: imageUrl,
+              unit,
+              price: unit ? price : 0,
               createdDate: Date.now(),
             };
             const createPattern = {
               url: `${customizationSubTypeUrl}/${uuid}`,
-              insertPattern: insertPattern,
+              insertPattern,
             };
             fetchWrapperService
               .create(createPattern)
@@ -130,13 +155,13 @@ const insertCustomizationSubType = (params) => {
                 }
               });
           } else {
-            reject(new Error('customization type data not found'));
+            reject(new Error('Customization type data not found'));
           }
         } else {
-          reject(new Error('title already exists for this customization type'));
+          reject(new Error('Title already exists for this customization type'));
         }
       } else {
-        reject(new Error('title is required'));
+        reject(new Error('Title, customization type, and type are required'));
       }
     } catch (e) {
       reject(e);
@@ -155,134 +180,206 @@ const updateCustomizationSubType = (params) => {
         hexCode,
         imageFile,
         deletedImage,
+        unit,
+        price,
       } = sanitizeObject(params);
-      title = title ? title.trim() : null;
-      type = type ? type.trim() : null;
+      title = title?.trim() ?? null;
+      type = type?.trim() ?? null;
+      unit = unit?.trim() ?? null;
+      price =
+        !isNaN(price) && price !== '' && price !== null
+          ? Math.round(parseFloat(price) * 100) / 100
+          : 0;
 
-      if (customizationSubTypeId && title && type) {
-        const customizationSubTypeData = await fetchWrapperService.findOne(
-          customizationSubTypeUrl,
-          { id: customizationSubTypeId }
-        );
-        if (customizationSubTypeData) {
-          // Check for duplicate title within the specific customizationTypeId using getAll
-          const allSubTypes = await fetchWrapperService.getAll(customizationSubTypeUrl);
-          const tempSubTypeData = allSubTypes ? Object.values(allSubTypes) : [];
-          const isDuplicate = tempSubTypeData.some(
-            (subType) =>
-              subType.title?.toLowerCase() === title?.toLowerCase() &&
-              subType.customizationTypeId ===
-                (customizationTypeId || customizationSubTypeData.customizationTypeId) &&
-              subType.id !== customizationSubTypeId
-          );
-
-          if (!isDuplicate) {
-            customizationTypeId = customizationTypeId
-              ? customizationTypeId.trim()
-              : customizationSubTypeData.customizationTypeId;
-            const customizationTypeData = await fetchWrapperService.findOne(customizationTypeUrl, {
-              id: customizationTypeId,
-            });
-            if (customizationTypeData) {
-              let uHexCode = '';
-              if (type === 'color') {
-                uHexCode = hexCode ? hexCode?.trim() : customizationTypeData?.hexCode ?? '';
-                if (!uHexCode) {
-                  reject(new Error('Hex code not found'));
-                  return;
-                }
-              }
-
-              imageFile = typeof imageFile === 'object' ? [imageFile] : [];
-              deletedImage = deletedImage ? deletedImage.trim() : null;
-
-              if (type === 'image' && !deletedImage && !imageFile.length) {
-                reject(new Error('Image not found'));
-                return;
-              }
-
-              let uploadedImage = '';
-              if (type === 'image' && imageFile.length) {
-                if (imageFile.length > fileSettings.CUSTOMIZATION_SUB_TYPE_IMAGE_FILE_LIMIT) {
-                  reject(
-                    new Error(
-                      `You can only ${fileSettings.CUSTOMIZATION_SUB_TYPE_IMAGE_FILE_LIMIT} image upload here`
-                    )
-                  );
-                  return;
-                }
-
-                const imageValidFileType = isValidFileType(fileSettings.IMAGE_FILE_NAME, imageFile);
-                if (!imageValidFileType) {
-                  reject(new Error('Invalid file! (Only JPG, JPEG, PNG, WEBP files are allowed!)'));
-                  return;
-                }
-
-                const imageValidFileSize = isValidFileSize(fileSettings.IMAGE_FILE_NAME, imageFile);
-                if (!imageValidFileSize) {
-                  reject(new Error('Invalid File Size! (Only 5 MB are allowed!)'));
-                  return;
-                }
-
-                const filesPayload = [...imageFile];
-                await uploadFile(customizationSubTypeUrl, filesPayload)
-                  .then((fileNames) => {
-                    if (imageFile.length) {
-                      uploadedImage = fileNames[0];
-                    }
-                  })
-                  .catch((e) => {
-                    reject(new Error('An error occurred during image uploading.'));
-                    return;
-                  });
-              }
-
-              const imageUrl = deletedImage ? '' : customizationSubTypeData?.image ?? '';
-
-              const payload = {
-                title: title,
-                customizationTypeId,
-                type,
-                hexCode: uHexCode,
-                image: type === 'image' ? (imageFile.length ? uploadedImage : imageUrl) : '',
-              };
-              const updatePattern = {
-                url: `${customizationSubTypeUrl}/${customizationSubTypeId}`,
-                payload: payload,
-              };
-              fetchWrapperService
-                ._update(updatePattern)
-                .then((response) => {
-                  resolve(true);
-                  // Whenever a new file is uploaded for a customization sub type, the old file will be deleted.
-
-                  let oldImgrl = deletedImage;
-                  if (type !== 'image' && customizationSubTypeData?.image) {
-                    oldImgrl = customizationSubTypeData?.image;
-                  }
-
-                  if (oldImgrl) {
-                    deleteFile(customizationSubTypeUrl, oldImgrl);
-                  }
-                })
-                .catch((e) => {
-                  reject(new Error('An error occurred during update customizationSubType.'));
-                  // whenever an error occurs for updating a customization sub type image the uploaded file is deleted
-                  if (uploadedImage) {
-                    deleteFile(customizationSubTypeUrl, uploadedImage);
-                  }
-                });
-            } else {
-              reject(new Error('customization type data not found'));
-            }
-          } else {
-            reject(new Error('title already exists for this customization type'));
-          }
-        } else {
-          reject(new Error('customization sub Type not found!'));
-        }
-      } else {
+      if (!customizationSubTypeId || !title || !type) {
         reject(new Error('Invalid Data'));
+        return;
+      }
+
+      const customizationSubTypeData = await fetchWrapperService.findOne(customizationSubTypeUrl, {
+        id: customizationSubTypeId,
+      });
+      if (!customizationSubTypeData) {
+        reject(new Error('Customization sub type not found!'));
+        return;
+      }
+
+      let products = [];
+      if (
+        (customizationTypeId &&
+          customizationSubTypeData.customizationTypeId !== customizationTypeId) ||
+        Number(customizationSubTypeData?.price || 0) !== price ||
+        customizationSubTypeData?.unit !== unit
+      ) {
+        products = await productService.getAllProductsWithPagging();
+        if (
+          customizationTypeId &&
+          customizationSubTypeData.customizationTypeId !== customizationTypeId &&
+          products.some((product) =>
+            product.variComboWithQuantity?.some((combo) =>
+              combo.combination?.some(
+                (variation) => variation.variationTypeId === customizationSubTypeId
+              )
+            )
+          )
+        ) {
+          reject(
+            new Error('Cannot update Customization Type because this subtype is used in products.')
+          );
+          return;
+        }
+      }
+
+      // Check for duplicate title within the specific customizationTypeId using getAll
+      const allSubTypes = await getAllSubTypes();
+      const isDuplicate = allSubTypes.some(
+        (subType) =>
+          subType.title?.toLowerCase() === title.toLowerCase() &&
+          subType.customizationTypeId ===
+            (customizationTypeId || customizationSubTypeData.customizationTypeId) &&
+          subType.id !== customizationSubTypeId
+      );
+
+      if (isDuplicate) {
+        reject(new Error('Title already exists for this customization type'));
+        return;
+      }
+
+      customizationTypeId =
+        customizationTypeId?.trim() ?? customizationSubTypeData.customizationTypeId;
+      const customizationTypeData = await fetchWrapperService.findOne(customizationTypeUrl, {
+        id: customizationTypeId,
+      });
+      if (!customizationTypeData) {
+        reject(new Error('Customization type data not found'));
+        return;
+      }
+
+      let uHexCode = '';
+      if (type === 'color') {
+        uHexCode = hexCode?.trim() ?? customizationTypeData?.hexCode ?? '';
+        if (!uHexCode) {
+          reject(new Error('Hex code not found'));
+          return;
+        }
+      }
+
+      if (price && price <= 0) {
+        reject(new Error('Invalid Price: Must be a positive number'));
+        return;
+      }
+
+      imageFile = typeof imageFile === 'object' ? [imageFile] : [];
+      deletedImage = deletedImage?.trim() ?? null;
+
+      if (type === 'image' && !deletedImage && !imageFile.length) {
+        reject(new Error('Image not found'));
+        return;
+      }
+
+      let uploadedImage = '';
+      if (type === 'image' && imageFile.length) {
+        if (imageFile.length > fileSettings.CUSTOMIZATION_SUB_TYPE_IMAGE_FILE_LIMIT) {
+          reject(
+            new Error(
+              `You can only upload ${fileSettings.CUSTOMIZATION_SUB_TYPE_IMAGE_FILE_LIMIT} image`
+            )
+          );
+          return;
+        }
+
+        if (!isValidFileType(fileSettings.IMAGE_FILE_NAME, imageFile)) {
+          reject(new Error('Invalid file! (Only JPG, JPEG, PNG, WEBP files are allowed!)'));
+          return;
+        }
+
+        if (!isValidFileSize(fileSettings.IMAGE_FILE_NAME, imageFile)) {
+          reject(new Error('Invalid File Size! (Only 5 MB are allowed!)'));
+          return;
+        }
+
+        const filesPayload = [...imageFile];
+        await uploadFile(customizationSubTypeUrl, filesPayload)
+          .then((fileNames) => {
+            if (imageFile.length) {
+              uploadedImage = fileNames[0] || '';
+            }
+          })
+          .catch((e) => {
+            reject(new Error('An error occurred during image uploading.'));
+            return;
+          });
+      }
+
+      const imageUrl = deletedImage ? '' : customizationSubTypeData?.image ?? '';
+      price = unit ? price : 0;
+      const payload = {
+        title,
+        customizationTypeId,
+        type,
+        hexCode: uHexCode,
+        image: type === 'image' ? (imageFile.length ? uploadedImage : imageUrl) : '',
+        unit,
+        price,
+      };
+
+      const updatePattern = {
+        url: `${customizationSubTypeUrl}/${customizationSubTypeId}`,
+        payload,
+      };
+
+      try {
+        await fetchWrapperService._update(updatePattern);
+
+        if (
+          Number(customizationSubTypeData?.price || 0) !== price ||
+          customizationSubTypeData?.unit !== unit
+        ) {
+          const priceMultiplier = await settingsService.fetchPriceMultiplier();
+          const updatePromises = products
+            .filter((product) =>
+              product.variComboWithQuantity?.some((combo) =>
+                combo.combination?.some(
+                  (variation) => variation.variationTypeId === customizationSubTypeId
+                )
+              )
+            )
+            .map(async (product) => {
+              const updatedSubTypes = allSubTypes.map((subType) => {
+                if (subType.id === customizationSubTypeId) {
+                  return {
+                    ...subType,
+                    price,
+                    unit,
+                  };
+                }
+                return subType;
+              });
+
+              await productService.updateSingleProductPrice({
+                product,
+                priceMultiplier,
+                allSubTypes: updatedSubTypes,
+              });
+            });
+
+          await Promise.all(updatePromises);
+        }
+
+        // Whenever a new file is uploaded for a customization sub type, the old file will be deleted.
+        const oldImage =
+          deletedImage || (type !== 'image' && customizationSubTypeData?.image) || null;
+        if (oldImage) {
+          await deleteFile(customizationSubTypeUrl, oldImage);
+        }
+
+        resolve(true);
+      } catch (e) {
+        // whenever an error occurs for updating a customization sub type image the uploaded file is deleted
+        if (uploadedImage) {
+          await deleteFile(customizationSubTypeUrl, uploadedImage);
+        }
+        reject(new Error('An error occurred during update customizationSubType.'));
       }
     } catch (e) {
       reject(e);
@@ -310,10 +407,12 @@ const deleteCustomizationSubType = (params) => {
             }
             resolve(true);
           } else {
-            reject(new Error('Customization sub type can not delete Because it is products'));
+            reject(
+              new Error('Customization sub type cannot be deleted because it is used in products')
+            );
           }
         } else {
-          reject(new Error('customization sub Type not found!'));
+          reject(new Error('Customization sub type not found!'));
         }
       } else {
         reject(new Error('Invalid Id'));
@@ -329,7 +428,7 @@ const getAllProductsBySubTypeId = (customizationSubTypeId) => {
     try {
       const activeProductData = await productService.getAllActiveProducts();
       const productsWithCustomizationSubTypeId = activeProductData.filter((product) => {
-        const variations = product.variations || [];
+        const variations = product?.variations || [];
         return variations.some((variation) => {
           const variationTypes = variation.variationTypes || [];
           return variationTypes.some((type) => type.variationTypeId === customizationSubTypeId);
@@ -343,6 +442,7 @@ const getAllProductsBySubTypeId = (customizationSubTypeId) => {
 };
 
 export const customizationSubTypeService = {
+  getAllSubTypes,
   getAllCustomizationSubTypes,
   insertCustomizationSubType,
   updateCustomizationSubType,

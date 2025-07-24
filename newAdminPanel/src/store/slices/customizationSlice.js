@@ -8,6 +8,8 @@ export const initCustomizationSubType = {
   title: '',
   hexCode: '',
   type: 'default',
+  unit: 'other',
+  price: 0,
   customizationTypeId: '',
   imageFile: [],
   previewImage: [],

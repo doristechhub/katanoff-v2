@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { authenticationService } from '../_services';
 import navConfig from 'src/layouts/dashboard/config-navigation';
-import { DATE_FORMAT, DEFAULT_QTY } from './constants';
+import { DATE_FORMAT, DEFAULT_QTY, UNIT_TYPES } from './constants';
 
 const getCurrentUser = () => {
   const currentUserJson = localStorage.getItem('adminCurrentUser');
@@ -518,6 +518,120 @@ const splitDiscountAmongProducts = ({ quantityWiseProductPrice, subTotal, discou
   return parseFloat(productDiscount.toFixed(2));
 };
 
+/**
+ * Calculates prices for combinations in automatic price calculation mode.
+ * @param {Object} params - Parameters for price calculation
+ * @param {Array} params.combinations - Array of combination objects
+ * @param {Array} params.customizationSubTypesList - List of customization subtypes
+ * @param {number} params.grossWeight - Gross weight of the product
+ * @param {number} params.totalCaratWeight - Total carat weight of the product
+ * @param {number} params.priceMultiplier - Price multiplier from settings
+ * @returns {Array} Updated combinations with recalculated prices
+ */
+const calculateAutomaticPrices = ({
+  combinations,
+  customizationSubTypesList,
+  grossWeight,
+  totalCaratWeight,
+  priceMultiplier,
+}) => {
+  return combinations.map((item) => {
+    const recalculatedPrice = calculateNonCustomizedProductPrice({
+      grossWeight,
+      totalCaratWeight,
+      variations: item.combination.map((combo) => {
+        const subType = customizationSubTypesList?.find(
+          (type) => type?.id === combo.variationTypeId
+        );
+        return {
+          ...combo,
+          price: subType?.price ?? 0,
+          unit: subType?.unit ?? '',
+        };
+      }),
+      priceMultiplier,
+    });
+
+    return {
+      ...item,
+      price: recalculatedPrice,
+    };
+  });
+};
+
+/**
+ * Calculates the total price of a non-customized product based on gross weight, total carat weight, and variations.
+ *
+ * @param {Object} params - Input parameters for price calculation.
+ * @param {number} params.grossWeight - Product gross weight in grams (must be positive).
+ * @param {number} params.totalCaratWeight - Total carat weight of product (must be non-negative).
+ * @param {Array<Object>} params.variations - Array of variation objects with price and unit properties.
+ * @param {number} [params.priceMultiplier=1] - Multiplier for additional charges (e.g., labor, design).
+ * @returns {number} Final product price, rounded to 2 decimal places, or 0 if inputs are invalid.
+ *
+ * @description
+ * - Computes variation price based on unit type:
+ *   - 'carat': price per carat * totalCaratWeight.
+ *   - 'gram': price per gram * grossWeight.
+ * - Adds 50% markup to the sum of variation prices.
+ * - Applies priceMultiplier to the total base price.
+ * - Returns 0 and logs error for invalid inputs.
+ */
+const calculateNonCustomizedProductPrice = ({
+  grossWeight,
+  totalCaratWeight,
+  variations,
+  priceMultiplier = 1,
+}) => {
+  // Validate inputs
+  if (
+    !Number.isFinite(grossWeight) ||
+    grossWeight <= 0 ||
+    !Number.isFinite(totalCaratWeight) ||
+    totalCaratWeight < 0 ||
+    !Array.isArray(variations) ||
+    !variations.length
+  ) {
+    console.log(
+      "Invalid inputs: 'grossWeight' must be positive, 'totalCaratWeight' must be non-negative, and 'variations' must be a non-empty array."
+    );
+    return 0;
+  }
+
+  let totalPrice = 0;
+
+  // Calculate price based on variations
+  variations.forEach((variation) => {
+    const variationPrice = Number(variation.price) || 0;
+    const variationUnit = variation.unit;
+
+    if (variationPrice > 0) {
+      if (variationUnit === UNIT_TYPES.CARAT && totalCaratWeight > 0) {
+        totalPrice += variationPrice * totalCaratWeight;
+      } else if (variationUnit === UNIT_TYPES.GRAM && grossWeight > 0) {
+        totalPrice += variationPrice * grossWeight;
+      }
+    }
+  });
+
+  // Apply 50% markup to the total price
+  const fiftyPercentMarkup = totalPrice / 2;
+  const totalBasePrice = totalPrice + fiftyPercentMarkup;
+
+  // Apply PRICE_MULTIPLIER and round to 2 decimal places
+  const finalPrice = Number((totalBasePrice * priceMultiplier).toFixed(2));
+
+  return finalPrice;
+};
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
+
 export const helperFunctions = {
   getCurrentUser,
   getVariationsArray,
@@ -559,4 +673,7 @@ export const helperFunctions = {
   parseDateTime,
   splitTaxAmongProducts,
   splitDiscountAmongProducts,
+  calculateNonCustomizedProductPrice,
+  calculateAutomaticPrices,
+  debounce
 };

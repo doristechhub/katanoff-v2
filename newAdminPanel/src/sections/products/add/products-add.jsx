@@ -1,6 +1,5 @@
 import * as Yup from 'yup';
 import { Form, Formik } from 'formik';
-import { toast } from 'react-toastify';
 import { useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -72,10 +71,12 @@ import {
   GOLD_COLOR_SUB_TYPES_LIST,
   GOLD_TYPE,
   INIT_GOLD_TYPE_SUB_TYPES_LIST,
+  PRICE_CALCULATION_MODES,
   RING_SIZE,
 } from 'src/_helpers/constants';
 import ClearIcon from '@mui/icons-material/Clear';
 import GroupBySection from './GroupBySection';
+import { fetchPriceMultiplier } from 'src/actions/settingsAction';
 
 // ----------------------------------------------------------------------
 
@@ -96,6 +97,12 @@ const validationSchema = Yup.object({
     ),
   sku: Yup.string().required('SKU is required'),
   discount: Yup.number().min(0, 'Discount must be positive').max(100, 'Maximum discount is 100'),
+  grossWeight: Yup.number()
+    .required('Gross weight is required')
+    .min(0.01, 'Gross weight must be positive'),
+  totalCaratWeight: Yup.number()
+    .required('Total carat weight is required')
+    .min(0.01, 'Total carat weight must be positive'),
   categoryId: Yup.string().required('Category is required'),
   description: Yup.string().required('Description is required'),
   variations: Yup.array()
@@ -147,6 +154,7 @@ const validationSchema = Yup.object({
     }
     return Yup.mixed().notRequired();
   }),
+  priceCalculationMode: Yup.string().required('Price calculation mode is required'),
 });
 
 // ----------------------------------------------------------------------
@@ -173,6 +181,7 @@ export default function AddProductPage() {
   } = useSelector(({ product }) => product);
   const { collectionList } = useSelector(({ collection }) => collection);
   const { settingStyleList } = useSelector(({ settingStyle }) => settingStyle);
+  const { priceMultiplier } = useSelector(({ settings }) => settings);
 
   useEffect(() => {
     dispatch(getCollectionList());
@@ -181,6 +190,7 @@ export default function AddProductPage() {
     dispatch(getAllMenuCategoryList());
     dispatch(getAllCustomizationTypeList());
     dispatch(getAllCustomizationSubTypeList());
+    dispatch(fetchPriceMultiplier());
     return () => dispatch(setSelectedProduct(productInitDetails));
   }, [dispatch]);
 
@@ -383,13 +393,53 @@ export default function AddProductPage() {
 
   // Handler to select input value on click
   const handleInputClick = (event) => {
-    event.target.select();
+    if (event?.target?.value) {
+      event.target.select();
+    }
   };
 
   // Handler to disable mouse wheel value change
   const handleWheel = (event) => {
-    event.target.blur();
+    if (event?.target?.value) {
+      event.target.blur();
+    }
   };
+
+  const handleGrossWeightChange = useCallback(
+    (value, { values, setFieldValue }) => {
+      const newGrossWeight = value ? Math.round(parseFloat(value) * 100) / 100 : '';
+      setFieldValue('grossWeight', newGrossWeight);
+      if (values.priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC) {
+        const updatedCombinations = helperFunctions?.calculateAutomaticPrices({
+          combinations: values.tempVariComboWithQuantity,
+          customizationSubTypesList,
+          grossWeight: newGrossWeight,
+          totalCaratWeight: values.totalCaratWeight,
+          priceMultiplier,
+        });
+        setFieldValue('tempVariComboWithQuantity', updatedCombinations);
+      }
+    },
+    [customizationSubTypesList, priceMultiplier]
+  );
+
+  const handleTotalCaratWeightChange = useCallback(
+    (value, { values, setFieldValue }) => {
+      const newTotalCaratWeight = value ? Math.round(parseFloat(value) * 100) / 100 : '';
+      setFieldValue('totalCaratWeight', newTotalCaratWeight);
+      if (values.priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC) {
+        const updatedCombinations = helperFunctions?.calculateAutomaticPrices({
+          combinations: values.tempVariComboWithQuantity,
+          customizationSubTypesList,
+          grossWeight: values?.grossWeight,
+          totalCaratWeight: newTotalCaratWeight,
+          priceMultiplier,
+        });
+        setFieldValue('tempVariComboWithQuantity', updatedCombinations);
+      }
+    },
+    [customizationSubTypesList, priceMultiplier]
+  );
 
   return (
     <>
@@ -454,6 +504,10 @@ export default function AddProductPage() {
                     formik.setFieldValue('description', product?.description);
                     formik.setFieldValue('specifications', product?.specifications || []);
                     formik.setFieldValue('active', product?.active);
+                    formik.setFieldValue(
+                      'priceCalculationMode',
+                      product?.priceCalculationMode || PRICE_CALCULATION_MODES.AUTOMATIC
+                    );
                   }
                 }, [productId]);
 
@@ -948,13 +1002,12 @@ export default function AddProductPage() {
                                   name="grossWeight"
                                   label="Gross Weight (g)"
                                   onBlur={handleBlur}
-                                  onChange={(event) => {
-                                    const value = event?.target?.value;
-                                    const roundedValue = value
-                                      ? Math.round(parseFloat(value) * 100) / 100
-                                      : '';
-                                    setFieldValue('grossWeight', roundedValue);
-                                  }}
+                                  onChange={(e) =>
+                                    handleGrossWeightChange(e.target.value, {
+                                      values,
+                                      setFieldValue,
+                                    })
+                                  }
                                   onClick={handleInputClick}
                                   onWheel={handleWheel}
                                   value={values.grossWeight || ''}
@@ -1004,13 +1057,12 @@ export default function AddProductPage() {
                                   name="totalCaratWeight"
                                   label="Total Carat Weight (ctw)"
                                   onBlur={handleBlur}
-                                  onChange={(event) => {
-                                    const value = event?.target?.value;
-                                    const roundedValue = value
-                                      ? Math.round(parseFloat(value) * 100) / 100
-                                      : '';
-                                    setFieldValue('totalCaratWeight', roundedValue);
-                                  }}
+                                  onChange={(e) =>
+                                    handleTotalCaratWeightChange(e.target.value, {
+                                      values,
+                                      setFieldValue,
+                                    })
+                                  }
                                   onClick={handleInputClick}
                                   onWheel={handleWheel}
                                   value={values.totalCaratWeight || ''}
@@ -1332,6 +1384,7 @@ export default function AddProductPage() {
                         openDialog={openCombinationDialog}
                         onCloseDialog={setCombinantionDialog}
                         combinationsDetail={values?.tempVariComboWithQuantity}
+                        priceCalculationMode={values.priceCalculationMode}
                       />
                     )}
                     {statusConfirmationDialog && (
