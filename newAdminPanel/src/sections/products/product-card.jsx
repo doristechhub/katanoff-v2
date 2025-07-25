@@ -11,7 +11,7 @@ import { fCurrency } from 'src/utils/format-number';
 
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
-import { helperFunctions, productWebsiteUrl, roundOffPrice } from 'src/_helpers';
+import { helperFunctions, productWebsiteUrl } from 'src/_helpers';
 import { Tooltip } from '@mui/material';
 import { grey } from 'src/theme/palette';
 import { useCallback, useState } from 'react';
@@ -105,9 +105,7 @@ export default function ProductCard({
           textDecoration: 'line-through',
         }}
       >
-        {product?.discount && product?.basePrice
-          ? fCurrency(roundOffPrice(product?.basePrice))
-          : null}
+        {product?.discount && product?.basePrice ? fCurrency(product?.basePrice) : null}
       </Typography>
       &nbsp;
       {product?.baseSellingPrice ? fCurrency(product?.baseSellingPrice) : '$0.00'}

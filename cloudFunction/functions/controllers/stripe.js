@@ -371,7 +371,7 @@ const createOrder = async ({ payload, res, userData }) => {
     );
 
     // Process cart items
-    const allCustomizations = await productService.getAllCustomizations();
+    // const allCustomizations = await productService.getAllCustomizations();
 
     const availableCartItems = [];
 
@@ -501,6 +501,13 @@ const createOrder = async ({ payload, res, userData }) => {
       return res.json({
         status: 409,
         message: "No valid items in cart or insufficient quantity available",
+      });
+    }
+
+    if (availableCartItems.some(item => item.productPrice <= 0)) {
+      return res.json({
+        status: 400,
+        message: "Order cannot be created with zero-priced products",
       });
     }
 

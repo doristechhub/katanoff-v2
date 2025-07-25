@@ -28,7 +28,6 @@ import {
   getCustomizationTypeList,
   getCustomizationSubTypeList,
   getSettingStyleList,
-  processBulkProductsWithApi,
 } from 'src/actions';
 import { Button, LoadingButton } from 'src/components/button';
 import { perPageCountOptions, productStatusOptions } from 'src/_helpers/constants';
@@ -38,7 +37,8 @@ import {
   setExportExcelLoading,
   setIsDuplicateProduct,
   setPerPageCount,
-  setSelectedProduct,
+  setFilterState,
+  clearFilterState,
 } from 'src/store/slices/productSlice';
 
 import ProductCard from '../product-card';
@@ -50,20 +50,32 @@ export default function ProductsView() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [page, setPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [activeProduct, setActiveProduct] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [filteredList, setFilteredList] = useState([]);
-  const [searchedValue, setSearchedValue] = useState('');
-  const [activeProduct, setActiveProduct] = useState(null);
   const [currentPageData, setCurrentPageData] = useState([]);
-  const [selectedProductStatus, setSelectedProductStatus] = useState('all');
 
-  const [filterByCategory, setFilterByCategory] = useState('all');
-  const [filterBySubCategory, setFilterBySubCategory] = useState('all');
-  const [filterByCollection, setFilterByCollection] = useState('all');
-  const [filterBySettingStyle, setFilterBySettingStyle] = useState('all');
-  const [filterByProductType, setFilterByProductType] = useState('all');
+  const { collectionList } = useSelector(({ collection }) => collection);
+  const { settingStyleList } = useSelector(({ settingStyle }) => settingStyle);
+  const {
+    productList = [],
+    menuList = { subCategories: [], productType: [] },
+    productLoading = false,
+    crudProductLoading = false,
+    perPageCount = 10,
+    exportExcelLoading = false,
+    categoriesList = [],
+    filterState: {
+      searchQuery = '',
+      selectedProductStatus = 'all',
+      filterByCategory = 'all',
+      filterBySubCategory = 'all',
+      filterByCollection = 'all',
+      filterBySettingStyle = 'all',
+      filterByProductType = 'all',
+      page = 1,
+    } = {},
+  } = useSelector(({ product }) => product);
 
   useEffect(() => {
     dispatch(getAllMenuCategoryList());
@@ -71,36 +83,15 @@ export default function ProductsView() {
     dispatch(getSettingStyleList());
     dispatch(getCustomizationTypeList());
     dispatch(getCustomizationSubTypeList());
-  }, []);
-  const { collectionList } = useSelector(({ collection }) => collection);
-  const { settingStyleList } = useSelector(({ settingStyle }) => settingStyle);
-
-  const {
-    productList = [],
-    menuList,
-    productLoading,
-    crudProductLoading,
-    perPageCount,
-    exportExcelLoading,
-    categoriesList,
-    selectedProduct,
-  } = useSelector(({ product }) => product);
-
-  const { customizationTypeList, customizationSubTypeList } = useSelector(
-    ({ customization }) => customization
-  );
+  }, [dispatch]);
 
   const loadData = useCallback(
     (pageNo = page) => {
       dispatch(getProducts());
-      setPage(pageNo);
+      dispatch(setFilterState({ page: pageNo }));
     },
     [dispatch, page]
   );
-
-  const bulkNewProduct = useCallback(() => {
-    dispatch(processBulkProductsWithApi());
-  }, []);
 
   useEffect(() => {
     loadData();
@@ -108,7 +99,7 @@ export default function ProductsView() {
 
   useEffect(() => {
     let filteredList = productList?.filter((item) => {
-      const searchValue = typeof searchQuery !== 'boolean' && searchQuery?.toLowerCase()?.trim();
+      const searchValue = typeof searchQuery === 'string' ? searchQuery?.toLowerCase()?.trim() : '';
       const matchesSearch =
         !searchValue ||
         item?.productName?.toLowerCase()?.includes(searchValue) ||
@@ -132,7 +123,7 @@ export default function ProductsView() {
         item?.settingStyleIds?.some((id) => String(id) === String(filterBySettingStyle));
       const matchesProductType =
         filterByProductType === 'all' ||
-        item.productTypeIds?.some((id) => String(id) === String(filterByProductType));
+        item?.productTypeIds?.some((id) => String(id) === String(filterByProductType));
 
       const matchesStatus =
         selectedProductStatus === 'all' || String(item.active) === String(selectedProductStatus);
@@ -167,10 +158,7 @@ export default function ProductsView() {
 
   const onChangeProductStatus = (item) => {
     const value = item !== 'all' ? item : '';
-    setSelectedProductStatus(item);
-    setSearchQuery(value);
-    setSearchedValue('');
-    setPage(1);
+    dispatch(setFilterState({ selectedProductStatus: item, searchQuery: value, page: 1 }));
   };
 
   const productStatus = (
@@ -197,7 +185,7 @@ export default function ProductsView() {
       value={perPageCount}
       onChange={(e) => {
         dispatch(setPerPageCount(e.target.value));
-        setPage(1);
+        dispatch(setFilterState({ page: 1 }));
       }}
     >
       {perPageCountOptions?.map((option) => (
@@ -209,7 +197,7 @@ export default function ProductsView() {
   );
 
   const handleChangePage = (e, newPage) => {
-    setPage(newPage);
+    dispatch(setFilterState({ page: newPage }));
   };
 
   const handleClose = async (id) => {
@@ -227,36 +215,35 @@ export default function ProductsView() {
 
   const searchValueHandler = (event) => {
     const value = event.target.value;
-    setSearchedValue(value);
-    setSearchQuery(value);
-    setSelectedProductStatus('all');
-    setPage(1);
+    dispatch(setFilterState({ searchQuery: value, selectedProductStatus: 'all', page: 1 }));
   };
 
   const clearFilter = useCallback(() => {
-    setFilterByCategory('all');
-    setFilterByCollection('all');
-    setFilterByProductType('all');
-    setFilterBySubCategory('all');
-    onChangeProductStatus('all');
-  }, []);
+    dispatch(clearFilterState());
+  }, [dispatch]);
 
   const onExport = useCallback(async () => {
     dispatch(setExportExcelLoading(true));
-    const tempArry = productList?.map((pItem) => {
-      return {
-        productName: pItem.productName,
-        sku: pItem.sku,
-      };
-    });
+    const tempArry = filteredList?.map((pItem) => ({
+      'Product Name': pItem.productName || '',
+      SKU: pItem.sku || '',
+      'Salt SKU': pItem.saltSKU || '',
+      'Gross Wt (g)': pItem?.grossWeight || '',
+      'Net Wt (g)': pItem?.netWeight || '',
+      'Center Dia Wt (ctw)': pItem?.centerDiamondWeight || '',
+      'Side Dia Wt (ctw)': pItem?.sideDiamondWeight || '',
+      'Total Carat Wt (ctw)': pItem?.totalCaratWeight || '',
+      'Discount (%)': pItem?.discount || '',
+      Status: pItem?.active ? 'Active' : 'In-Active',
+    }));
     await generateExcel(tempArry, 'Product List');
     dispatch(setExportExcelLoading(false));
-  }, [productList]);
+  }, [filteredList, dispatch]);
 
   const newProduct = useCallback(() => {
     dispatch(setIsDuplicateProduct(false));
     navigate('/product/add');
-  }, []);
+  }, [dispatch, navigate]);
 
   return (
     <Container sx={{ height: '100%' }}>
@@ -270,14 +257,14 @@ export default function ProductsView() {
           justifyContent: 'space-between',
         }}
       >
-        <Typography variant="h4">Products ({productList?.length})</Typography>
+        <Typography variant="h4">Products ({productList?.length || 0})</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
           <TextField
             size="small"
             type="search"
             sx={{ padding: 0 }}
             placeholder="Search"
-            value={searchedValue}
+            value={searchQuery}
             onChange={searchValueHandler}
             InputProps={{
               startAdornment: (
@@ -300,15 +287,6 @@ export default function ProductsView() {
           >
             Export
           </LoadingButton>
-          {/* <LoadingButton
-            variant="contained"
-            color="success"
-            onClick={bulkNewProduct}
-            loading={crudProductLoading}
-            startIcon={<AddIcon />}
-          >
-            Bulk New Product With API
-          </LoadingButton> */}
 
           <Button variant="contained" startIcon={<AddIcon />} onClick={newProduct}>
             New Product
@@ -324,10 +302,14 @@ export default function ProductsView() {
           label="Category"
           value={filterByCategory}
           onChange={(e) => {
-            setFilterByCategory(e.target.value);
-            setFilterBySubCategory('all');
-            setFilterByProductType('all');
-            setPage(1);
+            dispatch(
+              setFilterState({
+                filterByCategory: e.target.value,
+                filterBySubCategory: 'all',
+                filterByProductType: 'all',
+                page: 1,
+              })
+            );
           }}
         >
           <MenuItem value="all">All</MenuItem>
@@ -349,15 +331,19 @@ export default function ProductsView() {
           label="Subcategory"
           value={filterBySubCategory}
           onChange={(e) => {
-            setFilterBySubCategory(e.target.value);
-            setFilterByProductType('all');
-            setPage(1);
+            dispatch(
+              setFilterState({
+                filterBySubCategory: e.target.value,
+                filterByProductType: 'all',
+                page: 1,
+              })
+            );
           }}
         >
           <MenuItem value="all">All</MenuItem>
           {filterByCategory !== 'all' && menuList.subCategories.length > 0 ? (
             menuList.subCategories
-              .filter((subCat) => subCat.categoryId === filterByCategory) // Filter subcategories based on selected category
+              .filter((subCat) => String(subCat.categoryId) === String(filterByCategory))
               .map((subCat) => (
                 <MenuItem value={subCat.id} key={subCat.id}>
                   {subCat.title}
@@ -374,14 +360,13 @@ export default function ProductsView() {
           label="Product Type"
           value={filterByProductType}
           onChange={(e) => {
-            setFilterByProductType(e.target.value);
-            setPage(1);
+            dispatch(setFilterState({ filterByProductType: e.target.value, page: 1 }));
           }}
         >
           <MenuItem value="all">All</MenuItem>
           {filterBySubCategory !== 'all' && menuList.productType.length > 0 ? (
             menuList.productType
-              .filter((subCat) => subCat.subCategoryId === filterBySubCategory)
+              .filter((subCat) => String(subCat.subCategoryId) === String(filterBySubCategory))
               .map((subCat) => (
                 <MenuItem value={subCat.id} key={subCat.id}>
                   {subCat.title}
@@ -402,8 +387,7 @@ export default function ProductsView() {
           label="Collection"
           value={filterByCollection}
           onChange={(e) => {
-            setFilterByCollection(e.target.value);
-            setPage(1);
+            dispatch(setFilterState({ filterByCollection: e.target.value, page: 1 }));
           }}
         >
           <MenuItem value="all">All</MenuItem>
@@ -427,8 +411,7 @@ export default function ProductsView() {
           label="Setting Style"
           value={filterBySettingStyle}
           onChange={(e) => {
-            setFilterBySettingStyle(e.target.value);
-            setPage(1);
+            dispatch(setFilterState({ filterBySettingStyle: e.target.value, page: 1 }));
           }}
         >
           <MenuItem value="all">All</MenuItem>
@@ -502,7 +485,9 @@ export default function ProductsView() {
                     }}
                   >
                     <Stack sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-                      <Typography variant="subtitle2">Products: {filteredList?.length}</Typography>
+                      <Typography variant="subtitle2">
+                        Products: {filteredList?.length || 0}
+                      </Typography>
                       {pageCount}
                     </Stack>
                   </Stack>
@@ -510,7 +495,7 @@ export default function ProductsView() {
                     page={page}
                     onChange={handleChangePage}
                     className="flex justify-center items-center"
-                    count={fPageCount(filteredList?.length, perPageCount)}
+                    count={fPageCount(filteredList?.length || 0, perPageCount)}
                   />
                 </Stack>
               </Stack>
