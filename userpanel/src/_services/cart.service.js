@@ -13,6 +13,36 @@ import {
   MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT,
 } from "@/_helper/constants";
 
+const filterActiveCartItems = (cartData, activeProductIds, userData = null) => {
+  if (!Array.isArray(cartData) || !Array.isArray(activeProductIds)) {
+    console.warn(
+      "Invalid cartData or activeProductIds, returning empty array."
+    );
+    return [];
+  }
+
+  const inactiveCartItems = cartData.filter(
+    (item) => !activeProductIds.includes(item.productId)
+  );
+
+  if (userData && inactiveCartItems.length > 0) {
+    // For logged-in users, delete inactive items from the database
+    inactiveCartItems.forEach(async (item) => {
+      try {
+        await fetchWrapperService._delete(`${cartsUrl}/${item.id}`);
+      } catch (err) {
+        console.error(
+          `Error deleting cart item ${item.id} from database:`,
+          err.message
+        );
+      }
+    });
+  }
+
+  // Filter and return only active cart items
+  return cartData.filter((item) => activeProductIds.includes(item.productId));
+};
+
 const getAllCartWithProduct = () => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -29,7 +59,18 @@ const getAllCartWithProduct = () => {
         cartData = getCartItemOnOffline();
       }
 
-      const allActiveProductsData = await productService.getAllActiveProducts();
+      const allActiveProductsData = await productService.getActiveProductsByIds(
+        cartData.map((cartItem) => cartItem.productId)
+      );
+
+      const activeProductIds = allActiveProductsData.map((p) => p.id);
+      cartData = filterActiveCartItems(cartData, activeProductIds, userData);
+
+      // Update localStorage for non-logged-in users
+      if (!userData) {
+        localStorage.setItem("cart", JSON.stringify(cartData));
+      }
+
       const customizations = await productService.getAllCustomizations();
 
       const cartDataWithProduct = cartData.map((cartItem) => {
@@ -102,11 +143,11 @@ const getAllCartWithProduct = () => {
 
           const diamondDetail = cartItem?.diamondDetail
             ? {
-              ...cartItem?.diamondDetail,
-              shapeName: findedProduct.diamondFilters?.diamondShapes.find(
-                (shape) => shape.id === cartItem?.diamondDetail?.shapeId
-              )?.title,
-            }
+                ...cartItem?.diamondDetail,
+                shapeName: findedProduct.diamondFilters?.diamondShapes.find(
+                  (shape) => shape.id === cartItem?.diamondDetail?.shapeId
+                )?.title,
+              }
             : null;
 
           const goldColor = variationArray

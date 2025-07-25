@@ -18,7 +18,7 @@ const getSellingPrice = ({ price, discount = 0, isCustomized = false }) => {
   const cdiscount = Number(discount);
   if (isCustomized) {
     // No discount applied for customized products
-    return Number(cprice.toFixed(2));
+    return roundOffPrice(Number(cprice.toFixed(2)));
   } else {
     // Apply discount for non-customized products
     cprice = cprice - (cprice * cdiscount) / 100;

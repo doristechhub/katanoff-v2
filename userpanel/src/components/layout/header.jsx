@@ -27,7 +27,6 @@ import textLogo from "@/assets/images/logo-text.webp";
 import diamondIcon from "@/assets/icons/diamond.svg";
 import calendarIcon from "@/assets/icons/calendar.svg";
 import CartPopup from "@/components/ui/CartPopup";
-import { fetchCart } from "@/_actions/cart.action";
 import ProfileDropdown from "@/components/ui/ProfileDropdown";
 import { usePathname } from "next/navigation";
 import { getMenuList } from "@/_actions/home.action";

@@ -182,7 +182,7 @@ export const COLLECTION_TYPES = {
   two_grid: { value: 'two_grid', label: 'Two Grid', thumbnailDimensions: '825x784' },
   three_grid: { value: 'three_grid', label: 'Three Grid', thumbnailDimensions: '544x472' },
 };
- 
+
 export const CARD = 'card';
 
 export const UNIT_TYPES = {
@@ -193,4 +193,38 @@ export const UNIT_TYPES = {
 export const PRICE_CALCULATION_MODES = {
   AUTOMATIC: 'automatic',
   MANUAL: 'manual',
-}
+};
+
+export const ALLOWED_DIA_COLORS = [
+  {
+    title: 'D - Colorless',
+    value: 'D',
+  },
+  {
+    title: 'E - Colorless',
+    value: 'E',
+  },
+  {
+    title: 'F - Colorless',
+    value: 'F',
+  },
+];
+
+export const ALLOWED_DIA_CLARITIES = [
+  {
+    title: 'Very, Very Slightly Included (VVS1)',
+    value: 'VVS1',
+  },
+  {
+    title: 'Very, Very Slightly Included (VVS2)',
+    value: 'VVS2',
+  },
+  {
+    title: 'Very Slightly Included (VS1)',
+    value: 'VS1',
+  },
+  {
+    title: 'Very Slightly Included (VS2)',
+    value: 'VS2',
+  },
+];

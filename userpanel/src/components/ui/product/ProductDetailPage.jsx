@@ -432,8 +432,8 @@ const ProductDetailPage = ({ customizePage }) => {
 
     const centerDiamondDetail = {
       caratWeight: customProductDetails?.diamondDetails?.caratWeight,
-      clarity: customProductDetails?.diamondDetails?.clarity,
-      color: customProductDetails?.diamondDetails?.color,
+      clarity: customProductDetails?.diamondDetails?.clarity?.value,
+      color: customProductDetails?.diamondDetails?.color?.value,
     };
 
     customProductPrice = helperFunctions?.calculateCustomizedProductPrice({
@@ -951,18 +951,10 @@ const ProductDetailTabs = ({ selectedVariations = [] }) => {
                     ? `${productDetail?.grossWeight} gm`
                     : ""
                 )}
-
-                {/* {renderInfoRow(
-                  "Approx Net Wt",
-                  productDetail?.netWeight
-                    ? `${productDetail?.netWeight} g`
-                    : ""
-                )} */}
               </>
             ) : null}
           </div>
 
-          {/* Diamond Information */}
           <div className="text-sm lg:text-[15px] font-medium">
             <p className="text-base lg:text-lg inline-block font-semibold text-baseblack pb-2 3xl:pb-4">
               Diamond Information

@@ -25,6 +25,7 @@ export default function Header() {
   const { isMenuOpen, lastScrollY, isCartOpen } = useSelector(
     ({ common }) => common
   );
+  const { cartList } = useSelector(({ cart }) => cart);
 
   const searchContainerRef = useRef(null);
   const resultsContainerRef = useRef(null);
@@ -93,9 +94,12 @@ export default function Header() {
       document.body.style.overflow = "";
     };
   }, [isCartOpen]);
+
   useEffect(() => {
-    dispatch(fetchCart());
-  }, [dispatch]);
+    if (!cartList.length) {
+      dispatch(fetchCart());
+    }
+  }, [dispatch, cartList.length]);
 
   return (
     <>

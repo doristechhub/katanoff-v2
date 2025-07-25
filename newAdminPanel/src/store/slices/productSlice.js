@@ -1,5 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { ALLOW_MAX_CARAT_WEIGHT, ALLOW_MIN_CARAT_WEIGHT, PRICE_CALCULATION_MODES } from 'src/_helpers/constants';
+import {
+  ALLOW_MAX_CARAT_WEIGHT,
+  ALLOW_MIN_CARAT_WEIGHT,
+  PRICE_CALCULATION_MODES,
+} from 'src/_helpers/constants';
 
 export const initDiamondFilters = {
   diamondShapeIds: [],
@@ -107,6 +111,16 @@ const initialState = {
   isDuplicateProduct: false,
   combinations: combinationInitDetails,
   exportExcelLoading: false,
+  filterState: {
+    searchQuery: '',
+    selectedProductStatus: 'all',
+    filterByCategory: 'all',
+    filterBySubCategory: 'all',
+    filterByCollection: 'all',
+    filterBySettingStyle: 'all',
+    filterByProductType: 'all',
+    page: 1,
+  },
 };
 
 const productSlice = createSlice({
@@ -158,6 +172,21 @@ const productSlice = createSlice({
     setExportExcelLoading: (state, action) => {
       state.exportExcelLoading = action.payload;
     },
+    setFilterState(state, action) {
+      state.filterState = { ...state.filterState, ...action.payload };
+    },
+    clearFilterState(state) {
+      state.filterState = {
+        searchQuery: '',
+        selectedProductStatus: 'all',
+        filterByCategory: 'all',
+        filterBySubCategory: 'all',
+        filterByCollection: 'all',
+        filterBySettingStyle: 'all',
+        filterByProductType: 'all',
+        page: 1,
+      };
+    },
   },
 });
 
@@ -177,5 +206,7 @@ export const {
   setCustomizationSubTypesList,
   setExportExcelLoading,
   setDuplicateProductLoading,
+  setFilterState,
+  clearFilterState,
 } = productSlice.actions;
 export default productSlice.reducer;

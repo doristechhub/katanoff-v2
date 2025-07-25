@@ -1,7 +1,9 @@
 import {
   getDatabase,
-  set,
   ref,
+  child,
+  get,
+  set,
   onValue,
   remove,
   update,
@@ -89,7 +91,7 @@ const getDBFromUrl = (url) => {
   } else if ([returnsUrl].includes(url)) {
     return getDatabase(returnsApp);
   } else {
-    getDatabase(defaultApp);
+    return getDatabase(defaultApp);
   }
 };
 
@@ -275,6 +277,34 @@ const getOrderByChildWithEqualto = (url, findPattern) => {
   });
 };
 
+// Generic function to fetch items by IDs from any database path
+const getItemsByIds = async ({ url, itemIds }) => {
+  try {
+    // Validate inputs
+    if (!url || !Array.isArray(itemIds) || itemIds.length === 0) {
+      return [];
+    }
+
+    // Get database instance for the provided URL
+    const db = getDBFromUrl(url);
+    const itemRef = ref(db, url);
+
+    // Fetch items concurrently
+    const promises = itemIds.map(async (itemId) => {
+      const snapshot = await get(child(itemRef, itemId));
+      const item = snapshot.exists() ? { id: itemId, ...snapshot.val() } : null;
+      return item;
+    });
+
+    // Filter out null results and return items
+    const items = (await Promise.all(promises)).filter((item) => item !== null);
+    return items;
+  } catch (error) {
+    console.error(`Error fetching items from ${url}:`, error);
+    throw new Error(`Failed to fetch items from ${url}`);
+  }
+};
+
 export const fetchWrapperService = {
   getAll,
   create,
@@ -283,4 +313,5 @@ export const fetchWrapperService = {
   _delete,
   _update,
   getAppFromUrl,
+  getItemsByIds,
 };
