@@ -15,7 +15,7 @@ export const fetchCart = () => {
     try {
       dispatch(setCartLoading(true));
 
-      const cartData = await cartService.getAllCartWithProduct();
+      const cartData = await cartService?.getAllCartWithProduct();
       if (cartData) {
         dispatch(setCartList(cartData));
       }

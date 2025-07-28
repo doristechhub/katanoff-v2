@@ -197,34 +197,34 @@ export const PRICE_CALCULATION_MODES = {
 
 export const ALLOWED_DIA_COLORS = [
   {
-    title: 'D - Colorless',
+    title: 'D',
     value: 'D',
   },
   {
-    title: 'E - Colorless',
+    title: 'E',
     value: 'E',
   },
   {
-    title: 'F - Colorless',
+    title: 'F',
     value: 'F',
   },
 ];
 
 export const ALLOWED_DIA_CLARITIES = [
   {
-    title: 'Very, Very Slightly Included (VVS1)',
+    title: 'VVS1',
     value: 'VVS1',
   },
   {
-    title: 'Very, Very Slightly Included (VVS2)',
+    title: 'VVS2',
     value: 'VVS2',
   },
   {
-    title: 'Very Slightly Included (VS1)',
+    title: 'VS1',
     value: 'VS1',
   },
   {
-    title: 'Very Slightly Included (VS2)',
+    title: 'VS2',
     value: 'VS2',
   },
 ];

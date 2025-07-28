@@ -19,7 +19,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { setSelectedDiamondInfoModel } from "@/store/slices/commonSlice";
 
 import StepsGrid from "../StepsGrid";
-import { fetchUniqueShapesAndCaratBounds } from "@/_actions/customize.action";
+import {
+  // fetchCustomizeProductSettings,
+  fetchUniqueShapesAndCaratBounds,
+} from "@/_actions/customize.action";
 import CustomImg from "../../custom-img";
 import question3steps from "@/assets/icons/question3steps.svg";
 import checkMark3Step from "@/assets/icons/checkmark3step.svg";
@@ -40,9 +43,12 @@ export default function SelectDiamondPage() {
   const { uniqueDiamondShapesAndCaratBounds } = useSelector(
     ({ common }) => common
   );
-  const { diamondSelection, diamondMessage, diamondLoading } = useSelector(
-    ({ selectedDiamond }) => selectedDiamond
-  );
+  const {
+    diamondSelection,
+    diamondMessage,
+    diamondLoading,
+    // customizeProductSettings,
+  } = useSelector(({ selectedDiamond }) => selectedDiamond);
   const dispatch = useDispatch();
   const caratWeightRange = uniqueDiamondShapesAndCaratBounds?.caratBounds;
   const minCarat = caratWeightRange?.[0] || 0;
@@ -115,6 +121,24 @@ export default function SelectDiamondPage() {
     }
   }, [customProductDetails]);
 
+  // const clarityOptions =
+  //   customizeProductSettings?.diamondClarities?.flatMap((clarity) =>
+  //     clarity.compatibleOptions.map((option) => ({
+  //       value: option,
+  //       title: option,
+  //       pricePerCarat: clarity.pricePerCarat,
+  //     }))
+  //   ) || [];
+
+  // const colorOptions =
+  //   customizeProductSettings?.diamondColors?.flatMap((color) =>
+  //     color.compatibleOptions.map((option) => ({
+  //       value: option,
+  //       title: option,
+  //       pricePerCarat: color.pricePerCarat,
+  //     }))
+  //   ) || [];
+
   const initialCustomProduct =
     JSON.parse(localStorage.getItem("customProduct")) || {};
   const initialShape = initialCustomProduct?.diamondDetails?.shape || null;
@@ -122,11 +146,13 @@ export default function SelectDiamondPage() {
   const initialColor = initialCustomProduct?.diamondDetails?.color?.value
     ? initialCustomProduct?.diamondDetails?.color
     : null;
+
   const initialCaratWeight =
     initialCustomProduct?.diamondDetails?.caratWeight || null;
   const loadData = useCallback(async () => {
     try {
       dispatch(setDiamondLoading(true));
+      // await dispatch(fetchCustomizeProductSettings());
       await dispatch(fetchUniqueShapesAndCaratBounds());
       dispatch(setDiamondLoading(false));
     } catch (error) {
@@ -169,6 +195,8 @@ export default function SelectDiamondPage() {
       const defaultShape = allShapes[0];
       // const defaultShape = uniqueDiamondShapesAndCaratBounds.distinctShapes[0];
       const finalShape = urlShape || initialShape || defaultShape;
+      // const defaultClarity = clarityOptions[0] || null;
+      // const defaultColor = colorOptions[0] || null;
       const defaultClarity = ALLOWED_DIA_CLARITIES[0] || null;
       const defaultColor = ALLOWED_DIA_COLORS[0] || null;
       const defaultCaratWeight =
@@ -462,7 +490,7 @@ export default function SelectDiamondPage() {
                       </button>
                     </div>
                     <div className="flex  gap-2 2xl:gap-1">
-                      {ALLOWED_DIA_COLORS.map((item, index) => (
+                      {ALLOWED_DIA_COLORS?.map((item, index) => (
                         <div
                           key={`diamond-color-${index}`}
                           title={item?.title}

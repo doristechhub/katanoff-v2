@@ -5,6 +5,7 @@ const {
   stripeService,
   returnService,
   discountService,
+  customizeProductService,
 } = require("../services/index");
 const sanitizeValue = require("../helpers/sanitizeParams");
 const orderNum = require("../helpers/orderNum");
@@ -370,6 +371,10 @@ const createOrder = async ({ payload, res, userData }) => {
       productIds
     );
 
+    // Fetch customizeProductSettingsData
+    const customizeProductSettingsData =
+      (await customizeProductService?.getAll()) || {};
+
     // Process cart items
     // const allCustomizations = await productService.getAllCustomizations();
 
@@ -434,6 +439,26 @@ const createOrder = async ({ payload, res, userData }) => {
           continue; // Skip if diamond details are invalid
         }
 
+        // Validate clarity and color against customizeProductSettingsData
+        const validClarity =
+          customizeProductSettingsData?.diamondClarities?.some((clarityObj) =>
+            clarityObj.compatibleOptions?.includes(clarity)
+          )
+            ? clarity
+            : null;
+        const validColor = customizeProductSettingsData?.diamondColors?.some(
+          (colorObj) => colorObj.compatibleOptions?.includes(color)
+        )
+          ? color
+          : null;
+
+        if (!validClarity || !validColor) {
+          console.log(
+            `Invalid clarity (${clarity}) or color (${color}) for product ${productId}`
+          );
+          continue; // Skip if clarity or color is invalid
+        }
+
         // Validate quantity for customized product
         if (
           adjustedQuantity <= 0 ||
@@ -455,6 +480,7 @@ const createOrder = async ({ payload, res, userData }) => {
           productPrice = calculateCustomizedProductPrice({
             centerDiamondDetail,
             productDetail: customProductDetail,
+            customizeProductSettingsData,
           });
         } catch (e) {
           continue; // Skip if price calculation fails
@@ -504,7 +530,7 @@ const createOrder = async ({ payload, res, userData }) => {
       });
     }
 
-    if (availableCartItems.some(item => item.productPrice <= 0)) {
+    if (availableCartItems.some((item) => item.productPrice <= 0)) {
       return res.json({
         status: 400,
         message: "Order cannot be created with zero-priced products",

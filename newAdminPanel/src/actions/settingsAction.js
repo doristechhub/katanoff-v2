@@ -1,24 +1,24 @@
 import { toast } from 'react-toastify';
 import { settingsService } from 'src/_services';
-import { setPriceMultiplier, setLoading, setSetttingsError } from 'src/store/slices/settingsSlice';
+import { setPriceMultiplier, setCustomizedLoading, setNonCustomizedError, setCustomizedError, setCustomizedSettings, customizedSettingsInit, setNonCustomizedLoading } from 'src/store/slices/settingsSlice';
 
 export const fetchPriceMultiplier = () => async (dispatch) => {
   try {
-    dispatch(setLoading(true));
+    dispatch(setNonCustomizedLoading(true));
     const priceMultiplier = await settingsService.fetchPriceMultiplier();
     dispatch(setPriceMultiplier(priceMultiplier));
     return true;
   } catch (e) {
-    dispatch(setSetttingsError(e.message));
+    dispatch(setNonCustomizedError(e.message));
     return false;
   } finally {
-    dispatch(setLoading(false));
+    dispatch(setNonCustomizedLoading(false));
   }
 };
 
 export const upsertPriceMultiplier = (payload) => async (dispatch) => {
   try {
-    dispatch(setLoading(true));
+    dispatch(setNonCustomizedLoading(true));
     const res = await settingsService.upsertPriceMultiplier(payload);
 
     if (res) {
@@ -29,9 +29,40 @@ export const upsertPriceMultiplier = (payload) => async (dispatch) => {
     dispatch(setPriceMultiplier(1));
   } catch (e) {
     dispatch(setPriceMultiplier(1));
-    dispatch(setSetttingsError(e.message));
+    dispatch(setNonCustomizedError(e.message));
     return false;
   } finally {
-    dispatch(setLoading(false));
+    dispatch(setNonCustomizedLoading(false));
+  }
+};
+
+export const fetchCustomizedSettings = () => async (dispatch) => {
+  try {
+    dispatch(setCustomizedLoading(true));
+    const customizedSettings = await settingsService.fetchCustomizedSettings();
+    dispatch(setCustomizedSettings(customizedSettings || customizedSettingsInit));
+    return true;
+  } catch (e) {
+    dispatch(setCustomizedError(e.message));
+    dispatch(setCustomizedSettings(customizedSettingsInit));
+    return false;
+  } finally {
+    dispatch(setCustomizedLoading(false));
+  }
+};
+
+export const upsertCustomizedSettings = (payload) => async (dispatch) => {
+  try {
+    dispatch(setCustomizedLoading(true));
+    const res = await settingsService.upsertCustomizedSettings(payload);
+    dispatch(setCustomizedSettings(res || customizedSettingsInit));
+    toast.success(`Customized Settings updated successfully`);
+    return true;
+  } catch (e) {
+    dispatch(setCustomizedError(e.message));
+    dispatch(setCustomizedSettings(customizedSettingsInit));
+    return false;
+  } finally {
+    dispatch(setCustomizedLoading(false));
   }
 };

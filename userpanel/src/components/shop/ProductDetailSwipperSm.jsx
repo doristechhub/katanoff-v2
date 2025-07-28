@@ -16,7 +16,6 @@ export default function ProductDetailSwipperSm({ images = [], video }) {
           clickable: true,
         }}
         loop={true}
-        grabCursor={true}
         spaceBetween={12}
         breakpoints={{
           320: { slidesPerView: 1 },

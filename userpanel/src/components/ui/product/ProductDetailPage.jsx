@@ -57,6 +57,7 @@ import returnsIcon from "@/assets/icons/returns.svg";
 import shippingIcon from "@/assets/icons/shippingDetail.svg";
 import warrantyIcon from "@/assets/icons/warranty.svg";
 import Link from "next/link";
+import { fetchCustomizeProductSettings } from "@/_actions/customize.action";
 export const minProductQuantity = 1;
 export const maxProductQuantity = 5;
 
@@ -101,6 +102,9 @@ const ProductDetailPage = ({ customizePage }) => {
   const { isHovered, isSubmitted, customProductDetails } = useSelector(
     ({ common }) => common
   );
+  const { customizeProductSettings } = useSelector(
+    ({ selectedDiamond }) => selectedDiamond
+  );
 
   const isCustomizePage = customizePage === "completeRing";
   const goldColor = helperFunctions?.stringReplacedWithSpace(
@@ -114,7 +118,6 @@ const ProductDetailPage = ({ customizePage }) => {
 
   const loadData = useCallback(async () => {
     dispatch(setProductMessage({ message: "", type: "" }));
-
     if (productName) {
       const response = await dispatch(
         fetchProductDetailByProductName(productName)
@@ -151,6 +154,7 @@ const ProductDetailPage = ({ customizePage }) => {
         dispatch(setSelectedVariations(initialSelections));
       }
     } else if (productId || customProductIdFromLocalStorage) {
+      await dispatch(fetchCustomizeProductSettings());
       const response = await dispatch(
         fetchSingleProductDataById(productId || customProductIdFromLocalStorage)
       );
@@ -439,6 +443,7 @@ const ProductDetailPage = ({ customizePage }) => {
     customProductPrice = helperFunctions?.calculateCustomizedProductPrice({
       centerDiamondDetail,
       productDetail: customProductDetail,
+      customizeProductSettingsData: customizeProductSettings,
     });
   }
 
@@ -670,7 +675,6 @@ const ProductDetailPage = ({ customizePage }) => {
                 </section>
               </>
             )}
-
           <StickyAddToBag
             customizePage={customizePage}
             availableQty={availableQty}
@@ -685,7 +689,7 @@ const ProductDetailPage = ({ customizePage }) => {
             cartMessage={cartMessage}
             selectedVariations={selectedVariations}
             isActive={productDetail?.active}
-            selectedPrice={selectedPrice}
+            selectedPrice={isCustomizePage ? customProductPrice : selectedPrice}
           />
         </>
       ) : (
@@ -714,8 +718,16 @@ const AddToBagBar = ({
   isActive,
   selectedPrice,
 }) => {
+  console.log("selectedPrice", selectedPrice);
   const getButtonLabel = useCallback(
-    ({ isActive, availableQty, selectedPrice }) => {
+    ({ isActive, availableQty, selectedPrice, customizePage }) => {
+      console.log("selectedPrice inside", selectedPrice);
+      if (customizePage) {
+        if (selectedPrice <= 0) {
+          return "PRODUCT UNAVAILABLE";
+        }
+        return "ADD TO BAG";
+      }
       if (!isActive) {
         return "INACTIVE";
       }
@@ -792,11 +804,21 @@ const AddToBagBar = ({
                 <LoadingPrimaryButton
                   className="w-full uppercase"
                   loading={cartLoading}
-                  disabled={cartLoading || isInValidSelectedVariation}
+                  disabled={
+                    cartLoading ||
+                    isInValidSelectedVariation ||
+                    !selectedPrice > 0
+                  }
                   loaderType={isHovered ? "" : "white"}
                   onClick={onAddToCart}
                 >
-                  ADD TO BAG
+                  {/* ADD TO BAG */}
+                  {getButtonLabel({
+                    isActive,
+                    availableQty,
+                    selectedPrice,
+                    customizePage,
+                  })}
                 </LoadingPrimaryButton>
               )}
 
@@ -818,7 +840,12 @@ const AddToBagBar = ({
                   {/* {isActive && availableQty && availableQty > 0
                     ? "ADD TO BAG"
                     : "OUT OF STOCK"} */}
-                  {getButtonLabel({ isActive, availableQty, selectedPrice })}
+                  {getButtonLabel({
+                    isActive,
+                    availableQty,
+                    selectedPrice,
+                    customizePage,
+                  })}
                 </LoadingPrimaryButton>
               )}
             </div>

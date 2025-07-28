@@ -7,6 +7,7 @@ import {
   MenuItem,
   IconButton,
   InputAdornment,
+  ListItem,
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
@@ -31,12 +32,20 @@ const DiamondFilters = memo(({ formik }) => {
   const { diamondShapeList } = useSelector(({ diamondShape }) => diamondShape);
   const { handleBlur, handleChange, values, errors, touched, setFieldValue } = formik;
 
-  const handlePositivePriceChange = useCallback((e, handleChange) => {
-    const value = e.target.value;
-    if (value === '' || value >= 0) {
-      handleChange(e);
+  // Handle toggle for Select All/Unselect All
+  const handleToggleAll = useCallback(() => {
+    const isAllSelected =
+      values?.diamondFilters?.diamondShapeIds?.length === diamondShapeList.length;
+    if (isAllSelected) {
+      setFieldValue('diamondFilters.diamondShapeIds', []);
+    } else {
+      const allShapeIds = diamondShapeList.map((option) => option.id);
+      setFieldValue('diamondFilters.diamondShapeIds', allShapeIds);
     }
-  }, []);
+  }, [diamondShapeList, setFieldValue, values?.diamondFilters?.diamondShapeIds]);
+
+  // Determine if all options are selected
+  const isAllSelected = values?.diamondFilters?.diamondShapeIds?.length === diamondShapeList.length;
 
   return (
     <>
@@ -46,13 +55,16 @@ const DiamondFilters = memo(({ formik }) => {
             multiple
             freeSolo
             name="diamondFilters.diamondShapeIds"
-            options={diamondShapeList}
+            options={[{ id: 'selectAll', title: 'Select All' }, ...diamondShapeList]}
             value={
               values?.diamondFilters?.diamondShapeIds?.map((value) => {
                 return diamondShapeList.find((option) => option?.id === value) || value;
               }) || []
             }
-            getOptionLabel={(option) => option?.title || option}
+            getOptionLabel={(option) => {
+              if (typeof option === 'string') return option;
+              return option?.title || '';
+            }}
             onChange={(e, newValue) => {
               const updatedValues = newValue.map((item) =>
                 typeof item === 'string' ? item : item?.id
@@ -60,6 +72,30 @@ const DiamondFilters = memo(({ formik }) => {
               setFieldValue('diamondFilters.diamondShapeIds', updatedValues);
             }}
             renderOption={(props, option, { selected }) => {
+              // Handle Select All option
+              if (option.id === 'selectAll') {
+                return (
+                  <ListItem
+                    {...props}
+                    key={option.id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleAll();
+                    }}
+                    sx={{ fontWeight: 'bold' }}
+                  >
+                    <Checkbox
+                      icon={icon}
+                      checked={isAllSelected}
+                      checkedIcon={checkedIcon}
+                      readOnly
+                    />
+                    {option.title}
+                  </ListItem>
+                );
+              }
+
+              // Regular diamond shape option
               const isChecked =
                 selected || values?.diamondFilters?.diamondShapeIds?.includes(option?.id);
               const handleDiaTypeChange = () => {

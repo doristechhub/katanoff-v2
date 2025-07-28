@@ -16,3 +16,4 @@ export * from "./appointment.service";
 export * from "./customJewelry.service";
 export * from "./contact.service";
 export * from "./coupon.service";
+export * from "./customize.service";
