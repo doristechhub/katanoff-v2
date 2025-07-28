@@ -1,15 +1,9 @@
 import { uid } from "uid";
 import {
-  ALLOWED_DIA_CLARITIES,
-  ALLOWED_DIA_COLORS,
-  CARAT_RANGE_PRICES,
   GOLD_COLOR,
   GOLD_TYPES,
   DIAMOND_SHAPE,
-  METAL_PRICE_PER_GRAM,
-  PRICE_MULTIPLIER,
   RING_SIZE,
-  SIDE_DIAMOND_PRICE_PER_CARAT,
 } from "./constants";
 
 const generateUniqueId = () => {
@@ -418,34 +412,52 @@ const updateGoldColorInUrl = (newGoldColor) => {
   url.searchParams.set("goldColor", formattedColor);
   window.history.replaceState(null, "", url.toString());
 };
-
 // Function to get the price per carat based on carat weight
-const getCaratWeightPricePerCarat = (caratWeight) => {
-  const range = CARAT_RANGE_PRICES?.find((range) =>
-    range?.carats?.includes(caratWeight)
+const getCaratWeightPricePerCarat = ({
+  caratWeight,
+  customizeProductSettingsData,
+}) => {
+  const range = customizeProductSettingsData?.caratRanges?.find(
+    (r) => caratWeight >= r.minCarat && caratWeight <= r.maxCarat
   );
-  return range ? range?.pricePerCarat : 0;
+  return range?.pricePerCarat || 0;
 };
 
 // Function to get the price per carat based on clarity
-const getClarityPricePerCarat = (clarity) => {
-  const clarityData = ALLOWED_DIA_CLARITIES?.find(
-    (item) => item?.value === clarity
+
+const getClarityPricePerCarat = ({ clarity, customizeProductSettingsData }) => {
+  const match = customizeProductSettingsData?.diamondClarities?.find((c) =>
+    c?.compatibleOptions?.includes(clarity)
   );
-  return clarityData ? clarityData?.pricePerCarat : 0;
+  return match?.pricePerCarat || 0;
 };
 
-// Function to get the price per carat based on color
-const getColorPricePerCarat = (color) => {
-  const colorData = ALLOWED_DIA_COLORS?.find((item) => item?.value === color);
-  return colorData ? colorData.pricePerCarat : 0;
+const getColorPricePerCarat = ({ color, customizeProductSettingsData }) => {
+  const match = customizeProductSettingsData?.diamondColors?.find((c) =>
+    c.compatibleOptions?.includes(color)
+  );
+  return match?.pricePerCarat || 0;
 };
 
 // Calculate the price of the center diamond
-const calculateCenterDiamondPrice = ({ caratWeight, clarity, color }) => {
-  const caratWeightPricePerCarat = getCaratWeightPricePerCarat(caratWeight);
-  const clarityPricePerCarat = getClarityPricePerCarat(clarity);
-  const colorPricePerCarat = getColorPricePerCarat(color);
+const calculateCenterDiamondPrice = ({
+  caratWeight,
+  clarity,
+  color,
+  customizeProductSettingsData,
+}) => {
+  const caratWeightPricePerCarat = getCaratWeightPricePerCarat({
+    caratWeight,
+    customizeProductSettingsData,
+  });
+  const clarityPricePerCarat = getClarityPricePerCarat({
+    clarity,
+    customizeProductSettingsData,
+  });
+  const colorPricePerCarat = getColorPricePerCarat({
+    color,
+    customizeProductSettingsData,
+  });
 
   const calculatedPricePerCarat =
     caratWeightPricePerCarat + clarityPricePerCarat + colorPricePerCarat;
@@ -454,15 +466,19 @@ const calculateCenterDiamondPrice = ({ caratWeight, clarity, color }) => {
 };
 
 // Calculate the metal price
-const calculateMetalPrice = ({ netWeight }) => {
-  const goldWithLabor = netWeight * METAL_PRICE_PER_GRAM;
-  return goldWithLabor;
+const calculateMetalPrice = ({ netWeight, customizeProductSettingsData }) => {
+  return netWeight * (customizeProductSettingsData?.metalPricePerGram || 0);
 };
 
 // Calculate the side diamond price
-const calculateSideDiamondPrice = ({ sideDiamondWeight }) => {
-  const sideDiamondPrice = sideDiamondWeight * SIDE_DIAMOND_PRICE_PER_CARAT;
-  return sideDiamondPrice;
+const calculateSideDiamondPrice = ({
+  sideDiamondWeight,
+  customizeProductSettingsData,
+}) => {
+  return (
+    sideDiamondWeight *
+    (customizeProductSettingsData?.sideDiamondPricePerCarat || 0)
+  );
 };
 
 /**
@@ -492,6 +508,7 @@ const calculateSideDiamondPrice = ({ sideDiamondWeight }) => {
 const calculateCustomizedProductPrice = ({
   centerDiamondDetail = {},
   productDetail = {},
+  customizeProductSettingsData = {},
 }) => {
   // Validate center diamond details
   if (
@@ -522,13 +539,24 @@ const calculateCustomizedProductPrice = ({
   }
 
   // Calculate center diamond price based on carat weight, clarity, and color
-  const centerDiamondPrice = calculateCenterDiamondPrice(centerDiamondDetail);
+  const centerDiamondPrice = calculateCenterDiamondPrice({
+    caratWeight: centerDiamondDetail?.caratWeight,
+    clarity: centerDiamondDetail?.clarity,
+    color: centerDiamondDetail?.color,
+    customizeProductSettingsData: customizeProductSettingsData,
+  });
 
   // Calculate metal price based on net weight
-  const metalPrice = calculateMetalPrice(productDetail);
+  const metalPrice = calculateMetalPrice({
+    netWeight: productDetail.netWeight,
+    customizeProductSettingsData: customizeProductSettingsData,
+  });
 
   // Calculate side diamond price based on side diamond weight
-  const sideDiamondPrice = calculateSideDiamondPrice(productDetail);
+  const sideDiamondPrice = calculateSideDiamondPrice({
+    sideDiamondWeight: productDetail.sideDiamondWeight,
+    customizeProductSettingsData: customizeProductSettingsData,
+  });
 
   // Apply 50% markup to the sum of center diamond, metal, and side diamond prices
   const fiftyPercentMarkup =
@@ -538,9 +566,10 @@ const calculateCustomizedProductPrice = ({
   const totalBasePrice =
     centerDiamondPrice + metalPrice + sideDiamondPrice + fiftyPercentMarkup;
 
-  // Apply PRICE_MULTIPLIER and round to 2 decimal places
-  const finalPrice = Number((totalBasePrice * PRICE_MULTIPLIER).toFixed(2));
+  const multiplier =
+    customizeProductSettingsData?.customProductPriceMultiplier || 1;
 
+  const finalPrice = Number((totalBasePrice * multiplier).toFixed(2));
   return finalPrice;
 };
 

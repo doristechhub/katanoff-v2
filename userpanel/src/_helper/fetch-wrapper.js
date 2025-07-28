@@ -51,6 +51,7 @@ import {
   subscribersUrl,
   userUrl,
   discountsUrl,
+  customizedProductSettingsUrl,
 } from "./environment";
 
 // Get the default database instance
@@ -71,6 +72,7 @@ const getDBFromUrl = (url) => {
       productSliderUrl,
       brandSliderUrl,
       discountsUrl,
+      customizedProductSettingsUrl,
     ].includes(url)
   ) {
     return getDatabase(amsApp);
@@ -110,6 +112,7 @@ const getAppFromUrl = (url) => {
       productSliderUrl,
       brandSliderUrl,
       discountsUrl,
+      customizedProductSettingsUrl,
     ].includes(url)
   ) {
     return amsApp;

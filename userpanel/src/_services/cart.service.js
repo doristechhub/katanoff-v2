@@ -12,6 +12,7 @@ import {
   GOLD_COLOR_MAP,
   MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT,
 } from "@/_helper/constants";
+import { customizeService } from "./customize.service";
 
 const filterActiveCartItems = (cartData, activeProductIds, userData = null) => {
   if (!Array.isArray(cartData) || !Array.isArray(activeProductIds)) {
@@ -47,6 +48,8 @@ const getAllCartWithProduct = () => {
   return new Promise(async (resolve, reject) => {
     try {
       const userData = helperFunctions.getCurrentUser();
+      const customizeProductSettingsData =
+        await customizeService?.fetchCustomizeProductSettings();
       let cartData = [];
       if (userData) {
         const findPattern = {
@@ -54,16 +57,17 @@ const getAllCartWithProduct = () => {
           key: "userId",
           value: userData.id,
         };
-        cartData = await fetchWrapperService.find(findPattern);
+        cartData = await fetchWrapperService?.find(findPattern);
       } else {
         cartData = getCartItemOnOffline();
       }
 
-      const allActiveProductsData = await productService.getActiveProductsByIds(
-        cartData.map((cartItem) => cartItem.productId)
-      );
+      const allActiveProductsData =
+        await productService?.getActiveProductsByIds(
+          cartData?.map((cartItem) => cartItem?.productId)
+        );
 
-      const activeProductIds = allActiveProductsData.map((p) => p.id);
+      const activeProductIds = allActiveProductsData?.map((p) => p?.id);
       cartData = filterActiveCartItems(cartData, activeProductIds, userData);
 
       // Update localStorage for non-logged-in users
@@ -116,6 +120,7 @@ const getAllCartWithProduct = () => {
               price = helperFunctions.calculateCustomizedProductPrice({
                 centerDiamondDetail,
                 productDetail: customProductDetail,
+                customizeProductSettingsData: customizeProductSettingsData,
               });
               quantity = MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT;
             } catch (err) {
@@ -144,8 +149,8 @@ const getAllCartWithProduct = () => {
           const diamondDetail = cartItem?.diamondDetail
             ? {
                 ...cartItem?.diamondDetail,
-                shapeName: findedProduct.diamondFilters?.diamondShapes.find(
-                  (shape) => shape.id === cartItem?.diamondDetail?.shapeId
+                shapeName: findedProduct?.diamondFilters?.diamondShapes?.find(
+                  (shape) => shape?.id === cartItem?.diamondDetail?.shapeId
                 )?.title,
               }
             : null;

@@ -8,6 +8,7 @@ import {
 } from "../_helper";
 import { GOLD_COLOR, GOLD_TYPES } from "../_helper/constants";
 import { collectionService } from "./collection.service";
+import { customizeService } from "./customize.service";
 import { diamondShapeService } from "./diamondShape.service";
 import { homeService } from "./home.service";
 import { settingStyleService } from "./settingStyle.service";
@@ -107,9 +108,41 @@ const getActiveProductsByIds = (productIds) => {
         itemIds: productIds,
       });
 
-      const activeProductsByIds = productsByIds.filter(
-        (product) => product?.active
-      );
+      const diamondShapeList = await diamondShapeService.getAllDiamondShapes();
+
+      const activeProductsByIds = productsByIds
+        .filter((product) => product?.active)
+        .map((product) => {
+          const diamondShapes = product.isDiamondFilter
+            ? product?.diamondFilters?.diamondShapeIds?.map((shapeId) => {
+                const foundedShape = diamondShapeList?.find(
+                  (shape) => shape?.id === shapeId
+                );
+                if (!foundedShape) {
+                  return {
+                    title: "Unknown Shape",
+                    image: null,
+                    id: shapeId,
+                  };
+                }
+                return {
+                  title: foundedShape?.title,
+                  image: foundedShape?.image,
+                  id: foundedShape?.id,
+                };
+              }) || []
+            : [];
+
+          return {
+            ...product,
+            diamondFilters: product.isDiamondFilter
+              ? {
+                  ...product?.diamondFilters,
+                  diamondShapes,
+                }
+              : product?.diamondFilters || {},
+          };
+        });
 
       resolve(activeProductsByIds);
     } catch (e) {
@@ -962,11 +995,11 @@ const getCustomizeProduct = (params) => {
     try {
       const { caratWeight, diamondShapeId } = params || {};
       const allActiveProductsData = await getAllActiveProducts();
-
+      const customizeProductSettingsData =
+        await customizeService?.fetchCustomizeProductSettings();
       const filteredData = allActiveProductsData.filter((item) => {
         // Base filter: isDiamondFilter must be true
         if (!item.isDiamondFilter) return false;
-
         // Carat weight filter: check if caratWeight is within range
         if (caratWeight) {
           const { min = ALLOW_MIN_CARAT_WEIGHT, max = ALLOW_MAX_CARAT_WEIGHT } =
@@ -989,9 +1022,11 @@ const getCustomizeProduct = (params) => {
           // Price calculation: separate metal and side diamond prices
           const metalPrice = helperFunctions?.calculateMetalPrice({
             netWeight: product?.netWeight,
+            customizeProductSettingsData: customizeProductSettingsData,
           });
           const sideDiamondPrice = helperFunctions?.calculateSideDiamondPrice({
             sideDiamondWeight: product?.sideDiamondWeight,
+            customizeProductSettingsData: customizeProductSettingsData,
           });
           const totalBasePrice = metalPrice + sideDiamondPrice;
 

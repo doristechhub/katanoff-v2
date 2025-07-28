@@ -424,12 +424,13 @@ const PaymentForm = ({ orderId }) => {
             PAY NOW
           </LoadingPrimaryButton>
         </div>
-        {paymentMessage?.message && (
-          <ErrorMessage message={paymentMessage?.message} />
-        )}
+
         <GrayLinkButton href="/shipping" variant="grayHover" className="mt-4">
           Back To Shipping
         </GrayLinkButton>
+        {paymentMessage?.message && (
+          <ErrorMessage message={paymentMessage?.message} />
+        )}
       </form>
     </div>
   );

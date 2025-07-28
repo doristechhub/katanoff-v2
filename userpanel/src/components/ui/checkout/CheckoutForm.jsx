@@ -14,10 +14,7 @@ import {
   validateAddress,
 } from "@/_actions/address.action";
 import ErrorMessage from "@/components/ui/ErrorMessage";
-import {
-  GrayLinkButton,
-  LoadingPrimaryButton,
-} from "@/components/ui/button";
+import { GrayLinkButton, LoadingPrimaryButton } from "@/components/ui/button";
 import { messageType, ONE_TIME } from "@/_helper/constants";
 import {
   setIsChecked,
@@ -529,52 +526,50 @@ const CheckoutForm = () => {
               >
                 CONTINUE SHIPPING
               </LoadingPrimaryButton>
-              {addressMessage?.message ? (
-                <ErrorMessage message={addressMessage?.message} />
-              ) : null}
-
-              {invalidAddressDetail?.unconfirmedComponentTypes?.length > 0 ||
-                (invalidAddressDetail?.missingComponentTypes?.length > 0 && (
-                  <div className="flex flex-col md:flex-row gap-4 mt-4">
-                    {invalidAddressDetail?.unconfirmedComponentTypes?.length >
-                      0 && (
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-red-600 mb-2">
-                          Unconfirmed:
-                        </h4>
-                        <ul className="list-inside text-red-500 text-sm">
-                          {invalidAddressDetail?.unconfirmedComponentTypes?.map(
-                            (componentType, index) => (
-                              <li key={index}>
-                                {componentType?.replace(/_/g, " ")}
-                              </li>
-                            )
-                          )}
-                        </ul>
-                      </div>
-                    )}
-
-                    {invalidAddressDetail?.missingComponentTypes?.length >
-                      0 && (
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-red-600 mb-2">
-                          Missing:
-                        </h4>
-                        <ul className="list-inside text-red-500 text-sm">
-                          {invalidAddressDetail?.missingComponentTypes?.map(
-                            (componentType, index) => (
-                              <li key={index}>{componentType}</li>
-                            )
-                          )}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                ))}
             </div>
             <GrayLinkButton href="/cart" variant="grayHover" className="mt-4">
               Back To Cart
             </GrayLinkButton>
+            {addressMessage?.message ? (
+              <ErrorMessage message={addressMessage?.message} />
+            ) : null}
+            {invalidAddressDetail?.unconfirmedComponentTypes?.length > 0 ||
+              (invalidAddressDetail?.missingComponentTypes?.length > 0 && (
+                <div className="flex flex-col md:flex-row gap-4 mt-4">
+                  {invalidAddressDetail?.unconfirmedComponentTypes?.length >
+                    0 && (
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-red-600 mb-2">
+                        Unconfirmed:
+                      </h4>
+                      <ul className="list-inside text-red-500 text-sm">
+                        {invalidAddressDetail?.unconfirmedComponentTypes?.map(
+                          (componentType, index) => (
+                            <li key={index}>
+                              {componentType?.replace(/_/g, " ")}
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    </div>
+                  )}
+
+                  {invalidAddressDetail?.missingComponentTypes?.length > 0 && (
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-red-600 mb-2">
+                        Missing:
+                      </h4>
+                      <ul className="list-inside text-red-500 text-sm">
+                        {invalidAddressDetail?.missingComponentTypes?.map(
+                          (componentType, index) => (
+                            <li key={index}>{componentType}</li>
+                          )
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ))}
           </div>
         </div>
       </form>

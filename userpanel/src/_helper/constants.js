@@ -96,10 +96,6 @@ export const CARAT_RANGE_PRICES = [
   },
 ];
 
-export const METAL_PRICE_PER_GRAM = 75;
-export const SIDE_DIAMOND_PRICE_PER_CARAT = 150;
-export const PRICE_MULTIPLIER = 4;
-
 export const sortByList = [
   { value: "date_new_to_old", title: "New to Old" },
   { value: "date_old_to_new", title: "Old to New" },

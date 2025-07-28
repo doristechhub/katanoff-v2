@@ -366,17 +366,17 @@ const shippingForm = () => {
           >
             CONTINUE PAYMENT
           </LoadingPrimaryButton>
-          {isSubmitted && paymentIntentMessage?.message ? (
-            <ErrorMessage message={paymentIntentMessage?.message} />
-          ) : null}
-          {isSubmitted && paypalPaymentMessage?.message ? (
-            <ErrorMessage message={paypalPaymentMessage?.message} />
-          ) : null}
         </div>
 
         <GrayLinkButton href="/checkout" variant="grayHover" className="mt-4">
           Back To Checkout
         </GrayLinkButton>
+        {isSubmitted && paymentIntentMessage?.message ? (
+          <ErrorMessage message={paymentIntentMessage?.message} />
+        ) : null}
+        {isSubmitted && paypalPaymentMessage?.message ? (
+          <ErrorMessage message={paypalPaymentMessage?.message} />
+        ) : null}
       </div>
     </div>
   );

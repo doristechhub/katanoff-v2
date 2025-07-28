@@ -9,6 +9,7 @@ const returns = require("./returns");
 const contact = require("./contact");
 const paypal = require("./paypal");
 const discounts = require("./discounts");
+const customizeProductSettings = require("./customizeProductsSettings");
 
 module.exports = {
   orderService: order,
@@ -22,4 +23,5 @@ module.exports = {
   contactService: contact,
   paypalService: paypal,
   discountService: discounts,
+  customizeProductService: customizeProductSettings,
 };

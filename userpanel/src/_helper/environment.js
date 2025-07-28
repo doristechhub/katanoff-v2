@@ -19,6 +19,8 @@ export const customJewelryUrl = process.env.NEXT_PUBLIC_CUSTOM_JEWELRY;
 export const subscribersUrl = process.env.NEXT_PUBLIC_SUBSCRIBERS;
 export const returnsUrl = process.env.NEXT_PUBLIC_RETURNS;
 export const discountsUrl = process.env.NEXT_PUBLIC_DISCOUNTS;
+export const customizedProductSettingsUrl =
+  process.env.NEXT_PUBLIC_CUSTOMIZE_PRODUCT_SETTINGS;
 
 export const storageUrl = process.env.NEXT_PUBLIC_STORAGE;
 

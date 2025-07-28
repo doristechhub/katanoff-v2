@@ -9,6 +9,8 @@ const initialState = {
   },
   diamondMessage: { message: "", type: "" },
   diamondLoading: false,
+  customizeProductSettings: {},
+  customizeProductSettingsLoading: false,
 };
 
 const selectDiamondSlice = createSlice({
@@ -30,6 +32,12 @@ const selectDiamondSlice = createSlice({
     setDiamondLoading: (state, action) => {
       state.diamondLoading = action.payload;
     },
+    setCustomizeProductSettings: (state, action) => {
+      state.customizeProductSettings = action.payload;
+    },
+    setCustomizeProductSettingsLoading: (state, action) => {
+      state.customizeProductSettingsLoading = action.payload;
+    },
   },
 });
 
@@ -38,6 +46,8 @@ export const {
   resetDiamondSelection,
   setDiamondMessage,
   setDiamondLoading,
+  setCustomizeProductSettings,
+  setCustomizeProductSettingsLoading,
 } = selectDiamondSlice.actions;
 
 export default selectDiamondSlice.reducer;
