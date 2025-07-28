@@ -246,7 +246,17 @@ const SettingsViewPage = () => {
   }, []);
 
   const handleAddItem = useCallback(
-    (field) => {
+    async (field) => {
+      if (!['diamondColors', 'diamondClarities', 'caratRanges'].includes(field)) {
+        return;
+      }
+
+      // Check if there are any validation errors in the specified field
+      if (formikCustomized.errors[field]) {
+        formikCustomized.handleSubmit();
+        console.log(`Cannot add new item to ${field}. Please fix existing errors.`);
+        return;
+      }
       // Prevent adding new item if there are validation errors for the field
       if (formikCustomized.errors[field]) return;
 
@@ -255,11 +265,12 @@ const SettingsViewPage = () => {
         newItem.minCarat = 0;
         newItem.maxCarat = 0;
       }
-      formikCustomized.setFieldValue(field, [...formikCustomized.values[field], newItem]);
+
+      const currentFieldValues = formikCustomized.values[field] || [];
+      formikCustomized.setFieldValue(field, [...currentFieldValues, newItem]);
     },
     [formikCustomized]
   );
-
   const handleRemoveItem = useCallback(
     (field, index) => {
       formikCustomized.setFieldValue(
@@ -271,41 +282,14 @@ const SettingsViewPage = () => {
   );
 
   const renderTable = (field, title, options, optionType) => {
-    if (!formikCustomized.values[field]) return null;
-
-    // Get all selected compatible options across all items for this field
-    const allSelectedOptions = formikCustomized.values[field]
-      .flatMap((item) => item.compatibleOptions)
-      .filter((opt, index, self) => self.indexOf(opt) === index); // Remove duplicates
-
-    const lastItem = formikCustomized.values[field][formikCustomized.values[field].length - 1];
-    let lastItemError = '';
-    if (lastItem) {
-      const isCaratRanges = field === 'caratRanges';
-      const hasUnfilledOptions = !isCaratRanges && lastItem.compatibleOptions.length === 0;
-      const hasUnfilledCarat =
-        isCaratRanges && (lastItem.minCarat === '' || lastItem.maxCarat === '');
-      const hasInvalidCarat = isCaratRanges && lastItem.maxCarat <= lastItem.minCarat;
-      const hasUnfilledPrice = lastItem.pricePerCarat === '' || lastItem.pricePerCarat < 0;
-
-      if (hasUnfilledOptions) {
-        lastItemError = `Please select at least one compatible option for the last ${title.toLowerCase()} row.`;
-      } else if (hasUnfilledCarat) {
-        lastItemError = `Please fill in both min and max carat for the last ${title.toLowerCase()} row.`;
-      } else if (hasInvalidCarat) {
-        lastItemError = `Max carat must be greater than min carat for the last ${title.toLowerCase()} row.`;
-      } else if (hasUnfilledPrice) {
-        lastItemError = `Please enter a valid price per carat for the last ${title.toLowerCase()} row.`;
-      }
-    }
-
-    return (
-      <Box sx={{ mb: 3 }}>
-        <Stack sx={{ mb: 2 }} direction="row" alignItems="center" justifyContent="space-between">
-          <Typography variant="subtitle1" sx={{ mb: 1 }}>
-            {title}
-          </Typography>
-          <span>
+    // Check if the field has no data
+    if (!formikCustomized.values[field] || formikCustomized.values[field].length === 0) {
+      return (
+        <Box sx={{ mb: 3 }}>
+          <Stack sx={{ mb: 2 }} direction="row" alignItems="center" justifyContent="space-between">
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              {title}
+            </Typography>
             <Button
               sx={{
                 width: 'fit-content',
@@ -317,12 +301,8 @@ const SettingsViewPage = () => {
                   boxShadow: 'none !important',
                   backgroundColor: `${primary?.lighter} !important`,
                 },
-                ':disabled': {
-                  opacity: 0.7,
-                },
               }}
               onClick={() => handleAddItem(field)}
-              disabled={!!formikCustomized.errors[field]}
               startIcon={<Iconify icon="lucide:circle-plus" />}
             >
               Add{' '}
@@ -332,16 +312,57 @@ const SettingsViewPage = () => {
                   ? 'Color'
                   : 'Clarity'}
             </Button>
-          </span>
+          </Stack>
+          <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: 2 }}>
+            No {title.toLowerCase()} data available
+          </Typography>
+        </Box>
+      );
+    }
+
+    // Existing renderTable logic for when data exists
+    const allSelectedOptions = formikCustomized.values[field]
+      .flatMap((item) => item.compatibleOptions)
+      .filter((opt, index, self) => self.indexOf(opt) === index);
+
+    return (
+      <Box sx={{ mb: 3 }}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Typography variant="subtitle1" sx={{ mb: 1 }}>
+            {title}
+          </Typography>
+          <Button
+            sx={{
+              width: 'fit-content',
+              border: `none !important`,
+              color: `${primary?.main} !important`,
+              backgroundColor: `transparent !important`,
+              ':hover': {
+                border: `none !important`,
+                boxShadow: 'none !important',
+                backgroundColor: `${primary?.lighter} !important`,
+              },
+              ':disabled': {
+                opacity: 0.7,
+              },
+            }}
+            onClick={() => handleAddItem(field)}
+            startIcon={<Iconify icon="lucide:circle-plus" />}
+          >
+            Add{' '}
+            {title === 'Carat Ranges'
+              ? 'Carat Range'
+              : title === 'Diamond Colors'
+                ? 'Color'
+                : 'Clarity'}
+          </Button>
         </Stack>
-        <Stack textAlign={'right'}>
-          {lastItemError ? (
-            <Typography color="error" variant="caption">
-              {lastItemError}
-            </Typography>
-          ) : null}
-        </Stack>
-        <Table>
+        {formikCustomized.touched[field] && formikCustomized.errors[field] && (
+          <Typography color="error" variant="caption" sx={{ mb: 2 }}>
+            Please fix errors in {title.toLowerCase()} before adding a new item.
+          </Typography>
+        )}
+        <Table sx={{ mt: 1 }}>
           <TableHead>
             <TableRow>
               {optionType === 'caratRanges' ? <TableCell> Min Carat</TableCell> : null}
