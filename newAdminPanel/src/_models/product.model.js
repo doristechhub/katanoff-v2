@@ -89,8 +89,8 @@ export const productModel = {
     ref: 'categories',
     required: true,
   },
-  subCategoryId: {
-    type: String,
+  subCategoryIds: {
+    type: Array,
     ref: 'subCategories',
     // required: true,
   },

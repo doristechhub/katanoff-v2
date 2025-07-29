@@ -29,8 +29,16 @@ const getAllActiveProducts = () => {
       const menuData = await homeService.getAllMenuData();
 
       const activeProductData = tempActiveProductData?.map((product) => {
+        // Normalize subCategoryId or subCategoryIds to subCategoryIds array
+        const subCategoryIds = product.subCategoryIds
+          ? product.subCategoryIds
+          : product.subCategoryId
+            ? [product.subCategoryId]
+            : [];
+
         return {
           ...product,
+          subCategoryIds, // Ensure consistent subCategoryIds array
           collectionNames: product?.collectionIds?.map(
             (id) =>
               collectionData.find((collection) => collection?.id === id)?.title
@@ -42,38 +50,31 @@ const getAllActiveProducts = () => {
 
           diamondFilters: product.isDiamondFilter
             ? {
-                ...product?.diamondFilters,
-                diamondShapes: product?.diamondFilters.diamondShapeIds?.map(
-                  (shapeId) => {
-                    const foundedShape = diamondShapeList?.find(
-                      (shape) => shape?.id === shapeId
-                    );
-                    return {
-                      title: foundedShape?.title,
-                      image: foundedShape?.image,
-                      id: foundedShape?.id,
-                    };
-                  }
-                ),
-              }
+              ...product?.diamondFilters,
+              diamondShapes: product?.diamondFilters.diamondShapeIds?.map(
+                (shapeId) => {
+                  const foundedShape = diamondShapeList?.find(
+                    (shape) => shape?.id === shapeId
+                  );
+                  return {
+                    title: foundedShape?.title,
+                    image: foundedShape?.image,
+                    id: foundedShape?.id,
+                  };
+                }
+              ),
+            }
             : product?.diamondFilters,
           categoryName: menuData.categories.find(
             (category) => category.id === product.categoryId
           )?.title,
-          // subCategoryName: menuData.subCategories.find(
-          //   (subCategory) => subCategory.id === product.subCategoryId
-          // )?.title,
-          // productTypeNames: product.productTypeIds.map(
-          //   (id) =>
-          //     menuData.productTypes.find(
-          //       (productType) => productType?.id === id
-          //     )?.title
-          // ),
-          ...(product.subCategoryId && {
-            subCategoryName: menuData.subCategories.find(
-              (subCategory) => subCategory.id === product.subCategoryId
-            )?.title,
-          }),
+          subCategoryNames: subCategoryIds.length
+            ? subCategoryIds
+              .map((id) =>
+                menuData?.subCategories?.find((subCategory) => subCategory?.id === id)?.title
+              )
+              ?.filter(Boolean)
+            : [],
           ...(product.productTypeIds?.length > 0 && {
             productTypeNames: product.productTypeIds.map(
               (id) =>
@@ -115,31 +116,31 @@ const getActiveProductsByIds = (productIds) => {
         .map((product) => {
           const diamondShapes = product.isDiamondFilter
             ? product?.diamondFilters?.diamondShapeIds?.map((shapeId) => {
-                const foundedShape = diamondShapeList?.find(
-                  (shape) => shape?.id === shapeId
-                );
-                if (!foundedShape) {
-                  return {
-                    title: "Unknown Shape",
-                    image: null,
-                    id: shapeId,
-                  };
-                }
+              const foundedShape = diamondShapeList?.find(
+                (shape) => shape?.id === shapeId
+              );
+              if (!foundedShape) {
                 return {
-                  title: foundedShape?.title,
-                  image: foundedShape?.image,
-                  id: foundedShape?.id,
+                  title: "Unknown Shape",
+                  image: null,
+                  id: shapeId,
                 };
-              }) || []
+              }
+              return {
+                title: foundedShape?.title,
+                image: foundedShape?.image,
+                id: foundedShape?.id,
+              };
+            }) || []
             : [];
 
           return {
             ...product,
             diamondFilters: product.isDiamondFilter
               ? {
-                  ...product?.diamondFilters,
-                  diamondShapes,
-                }
+                ...product?.diamondFilters,
+                diamondShapes,
+              }
               : product?.diamondFilters || {},
           };
         });
@@ -243,8 +244,9 @@ const getCollectionsTypeWiseProduct = (
         // Filter by subcategory name
         let subCategoryFilter = allActiveProductsData.filter(
           (item) =>
-            item?.subCategoryName?.toLowerCase() ===
-            collectionTitle?.toLowerCase()
+            item?.subCategoryNames?.some(
+              (name) => name?.toLowerCase() === collectionTitle?.toLowerCase()
+            )
         );
 
         // If parentMainCategory is provided, further filter by category
@@ -271,8 +273,9 @@ const getCollectionsTypeWiseProduct = (
         if (parentCategory) {
           productTypeFilter = productTypeFilter.filter(
             (item) =>
-              item?.subCategoryName?.toLowerCase() ===
-              parentCategory?.toLowerCase()
+              item?.subCategoryNames?.some(
+                (name) => name?.toLowerCase() === parentCategory?.toLowerCase()
+              )
           );
         }
 
@@ -332,7 +335,7 @@ const getCollectionsTypeWiseProduct = (
             settingStyleNamesWithImg: product?.settingStyleNamesWithImg,
             // Add category and subcategory info for debugging/reference
             categoryName: product.categoryName,
-            subCategoryName: product.subCategoryName,
+            subCategoryNames: product.subCategoryNames,
             productTypeNames: product.productTypeNames,
           };
         });
@@ -497,7 +500,13 @@ const getProcessProducts = async (singleProductData) => {
 
     let convertedProductData = singleProductData;
 
-    // Map collection titles
+    // Normalize subCategoryId or subCategoryIds to subCategoryIds array
+    const subCategoryIds = convertedProductData.subCategoryIds
+      ? convertedProductData.subCategoryIds
+      : convertedProductData.subCategoryId
+        ? [convertedProductData.subCategoryId]
+        : [];
+
     convertedProductData.collectionNames =
       convertedProductData?.collectionIds?.map(
         (id) =>
@@ -515,25 +524,14 @@ const getProcessProducts = async (singleProductData) => {
       (category) => category.id === convertedProductData.categoryId
     )?.title;
 
-    // Map subcategory name
-    if (convertedProductData?.subCategoryId) {
-      convertedProductData.subCategoryName = menuData.subCategories.find(
-        (subCategory) => subCategory.id === convertedProductData.subCategoryId
-      )?.title;
-    }
+    convertedProductData.subCategoryNames = subCategoryIds.length
+      ? subCategoryIds
+        .map((id) =>
+          menuData.subCategories.find((subCategory) => subCategory.id === id)?.title
+        )
+        .filter(Boolean)
+      : [];
 
-    // convertedProductData.subCategoryName = menuData.subCategories.find(
-    //   (subCategory) => subCategory.id === convertedProductData.subCategoryId
-    // )?.title;
-
-    // convertedProductData.productTypeNames =
-    //   convertedProductData?.productTypeIds?.map(
-    //     (id) =>
-    //       menuData?.productTypes?.find((productType) => productType?.id === id)
-    //         ?.title
-    //   );
-
-    // Map product type names
     if (convertedProductData?.productTypeIds?.length) {
       convertedProductData.productTypeNames =
         convertedProductData.productTypeIds
@@ -563,10 +561,10 @@ const getProcessProducts = async (singleProductData) => {
             );
             return foundShape
               ? {
-                  title: foundShape?.title,
-                  image: foundShape?.image,
-                  id: foundShape?.id,
-                }
+                title: foundShape?.title,
+                image: foundShape?.image,
+                id: foundShape?.id,
+              }
               : null;
           })
           .filter(Boolean),
@@ -618,8 +616,17 @@ const getReletedProducts = (productName) => {
         if (productData) {
           const allActiveProductsData = await getAllActiveProducts();
 
+          // Normalize productData subCategoryIds
+          const productSubCategoryIds = productData.subCategoryIds
+            ? productData.subCategoryIds
+            : productData.subCategoryId
+              ? [productData.subCategoryId]
+              : [];
+
           const relatedProducts = allActiveProductsData?.filter(
-            (x) => x?.categoryId === productData?.categoryId
+            (x) =>
+              x?.categoryId === productData?.categoryId &&
+              x?.subCategoryIds?.some((id) => productSubCategoryIds.includes(id))
           );
 
           const reletedProductsWithoutCurrentProduct = relatedProducts?.filter(
@@ -788,15 +795,15 @@ const getFilteredDiamondProducts = (params) => {
           // Filter by product type
           const isProductTypeValid = selectedProductTypes?.length
             ? selectedProductTypes.some((type) =>
-                product?.productTypeNames.includes(type?.value)
-              )
+              product?.productTypeNames.includes(type?.value)
+            )
             : true;
 
           // Filter by collection
           const isCollectionValid = selectedCollections?.length
             ? selectedCollections.some((collection) =>
-                product?.collectionNames?.includes(collection?.value)
-              )
+              product?.collectionNames?.includes(collection?.value)
+            )
             : true;
 
           // Filter by setting style
@@ -805,32 +812,32 @@ const getFilteredDiamondProducts = (params) => {
           );
           const isSettingStyleValid = selectedSettingStyles?.length
             ? selectedSettingStyles.some((style) =>
-                settingStyleNames?.includes(style?.value)
-              )
+              settingStyleNames?.includes(style?.value)
+            )
             : true;
 
           // Filter by variations
           const isVariationValid = selectedVariations?.length
             ? selectedVariations.every((selectedVariation) => {
-                const productVariation = product?.variations?.find(
-                  (v) =>
-                    v?.variationName?.toLowerCase() ===
-                    selectedVariation?.title?.toLowerCase()
-                );
+              const productVariation = product?.variations?.find(
+                (v) =>
+                  v?.variationName?.toLowerCase() ===
+                  selectedVariation?.title?.toLowerCase()
+              );
 
-                if (!productVariation) return false;
+              if (!productVariation) return false;
 
-                // Check if any selected value matches the product's variation types
-                return selectedVariation.selectedValues.length
-                  ? selectedVariation.selectedValues.some((selectedValue) =>
-                      productVariation.variationTypes.some(
-                        (variationType) =>
-                          variationType?.variationTypeName?.toLowerCase() ===
-                          selectedValue?.value?.toLowerCase()
-                      )
-                    )
-                  : true;
-              })
+              // Check if any selected value matches the product's variation types
+              return selectedVariation.selectedValues.length
+                ? selectedVariation.selectedValues.some((selectedValue) =>
+                  productVariation.variationTypes.some(
+                    (variationType) =>
+                      variationType?.variationTypeName?.toLowerCase() ===
+                      selectedValue?.value?.toLowerCase()
+                  )
+                )
+                : true;
+            })
             : true;
 
           // Filter by price range
@@ -839,10 +846,10 @@ const getFilteredDiamondProducts = (params) => {
           );
           const isPriceValid = priceRangeValues?.length
             ? productPrices.some(
-                (price) =>
-                  price >= (priceRangeValues[0] || 0) &&
-                  price <= (priceRangeValues[1] || Infinity)
-              )
+              (price) =>
+                price >= (priceRangeValues[0] || 0) &&
+                price <= (priceRangeValues[1] || Infinity)
+            )
             : true;
 
           return (
@@ -1087,18 +1094,19 @@ const searchProducts = (params) => {
 
         const fieldsToSearch = [
           product.categoryName,
-          product.subCategoryName,
           product.sku,
           product.saltSKU,
           product.productName,
           formattedName,
         ];
 
-        // Add other fields (productTypeNames, variations, collectionNames)
-        if (
-          product.productTypeNames &&
-          Array.isArray(product.productTypeNames)
-        ) {
+        if (product.subCategoryNames && Array.isArray(product.subCategoryNames)) {
+          product.subCategoryNames.forEach((subCategoryName) => {
+            fieldsToSearch.push(subCategoryName);
+          });
+        }
+
+        if (product.productTypeNames && Array.isArray(product.productTypeNames)) {
           product.productTypeNames.forEach((productTypeName) => {
             fieldsToSearch.push(productTypeName);
           });
@@ -1119,12 +1127,9 @@ const searchProducts = (params) => {
           });
         }
 
-        // Check if any field contains the normalized search term (case-insensitive)
-        const matchesSearch = fieldsToSearch.some((field) =>
+        return fieldsToSearch.some((field) =>
           field ? field.toLowerCase().includes(normalizedSearchValue) : false
         );
-
-        return matchesSearch;
       });
 
       const updatedSearchResults = searchResults.map((product) => {

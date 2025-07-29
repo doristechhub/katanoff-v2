@@ -251,9 +251,12 @@ const SettingsViewPage = () => {
         return;
       }
 
+      formikCustomized.setSubmitting(true);
+
       // Check if there are any validation errors in the specified field
       if (formikCustomized.errors[field]) {
         formikCustomized.handleSubmit();
+        // For example, using a toast or alert (you can integrate a library like react-toastify)
         console.log(`Cannot add new item to ${field}. Please fix existing errors.`);
         return;
       }
@@ -301,8 +304,12 @@ const SettingsViewPage = () => {
                   boxShadow: 'none !important',
                   backgroundColor: `${primary?.lighter} !important`,
                 },
+                ':disabled': {
+                  opacity: 0.7,
+                },
               }}
               onClick={() => handleAddItem(field)}
+              disabled={!!formikCustomized.errors[field]}
               startIcon={<Iconify icon="lucide:circle-plus" />}
             >
               Add{' '}
@@ -327,7 +334,7 @@ const SettingsViewPage = () => {
 
     return (
       <Box sx={{ mb: 3 }}>
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Stack sx={{ mb: 2 }} direction="row" alignItems="center" justifyContent="space-between">
           <Typography variant="subtitle1" sx={{ mb: 1 }}>
             {title}
           </Typography>
@@ -347,6 +354,7 @@ const SettingsViewPage = () => {
               },
             }}
             onClick={() => handleAddItem(field)}
+            disabled={!!formikCustomized.errors[field]}
             startIcon={<Iconify icon="lucide:circle-plus" />}
           >
             Add{' '}
@@ -357,12 +365,7 @@ const SettingsViewPage = () => {
                 : 'Clarity'}
           </Button>
         </Stack>
-        {formikCustomized.touched[field] && formikCustomized.errors[field] && (
-          <Typography color="error" variant="caption" sx={{ mb: 2 }}>
-            Please fix errors in {title.toLowerCase()} before adding a new item.
-          </Typography>
-        )}
-        <Table sx={{ mt: 1 }}>
+        <Table>
           <TableHead>
             <TableRow>
               {optionType === 'caratRanges' ? <TableCell> Min Carat</TableCell> : null}

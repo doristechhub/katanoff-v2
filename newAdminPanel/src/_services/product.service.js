@@ -149,7 +149,7 @@ const insertProduct = (params) => {
         collectionIds,
         settingStyleIds,
         categoryId,
-        subCategoryId,
+        subCategoryIds,
         productTypeIds,
         gender,
         netWeight,
@@ -188,7 +188,7 @@ const insertProduct = (params) => {
       collectionIds = Array.isArray(collectionIds) ? collectionIds : [];
       settingStyleIds = Array.isArray(settingStyleIds) ? settingStyleIds : [];
       categoryId = categoryId ? categoryId.trim() : null;
-      subCategoryId = subCategoryId ? subCategoryId.trim() : null;
+      subCategoryIds = Array.isArray(subCategoryIds) ? subCategoryIds : [];
       productTypeIds = Array.isArray(productTypeIds) ? productTypeIds : [];
       gender = gender ? gender.trim() : null;
 
@@ -296,6 +296,12 @@ const insertProduct = (params) => {
           const hasInvalidValues = settingStyleIds.some((id) => !id);
           if (hasInvalidValues) throw new Error('Invalid value found in settingStyleIds array');
         }
+
+        if (subCategoryIds?.length) {
+          const hasInvalidValues = subCategoryIds.some((id) => !id);
+          if (hasInvalidValues) throw new Error('Invalid value found in subCategoryIds array');
+        }
+
         if (productTypeIds?.length) {
           const hasInvalidValues = productTypeIds.some((id) => !id);
           if (hasInvalidValues) throw new Error('Invalid value found in productTypeIds array');
@@ -728,7 +734,7 @@ const insertProduct = (params) => {
                   collectionIds: collectionIds.map((id) => id?.trim()),
                   settingStyleIds: settingStyleIds.map((id) => id?.trim()),
                   categoryId,
-                  subCategoryId,
+                  subCategoryIds: subCategoryIds.map((id) => id?.trim()),
                   productTypeIds: productTypeIds.map((id) => id?.trim()),
                   gender,
                   netWeight,
@@ -1367,8 +1373,7 @@ const updateYellowGoldMedia = (params) => {
             if (!validFileType) {
               reject(
                 new Error(
-                  `Invalid file for ${name}! (Only ${
-                    type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
+                  `Invalid file for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
                   } files are allowed!)`
                 )
               );
@@ -1378,8 +1383,7 @@ const updateYellowGoldMedia = (params) => {
             if (!validFileSize) {
               reject(
                 new Error(
-                  `Invalid file size for ${name}! (Only ${
-                    type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
+                  `Invalid file size for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
                   } are allowed!)`
                 )
               );
@@ -1616,8 +1620,7 @@ const updateWhiteGoldMedia = (params) => {
             if (!validFileType) {
               reject(
                 new Error(
-                  `Invalid file for ${name}! (Only ${
-                    type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
+                  `Invalid file for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
                   } files are allowed!)`
                 )
               );
@@ -1627,8 +1630,7 @@ const updateWhiteGoldMedia = (params) => {
             if (!validFileSize) {
               reject(
                 new Error(
-                  `Invalid file size for ${name}! (Only ${
-                    type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
+                  `Invalid file size for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
                   } are allowed!)`
                 )
               );
@@ -1762,7 +1764,7 @@ const updateProduct = (params) => {
         collectionIds,
         settingStyleIds,
         categoryId,
-        subCategoryId,
+        subCategoryIds,
         productTypeIds,
         gender,
         netWeight,
@@ -1807,8 +1809,8 @@ const updateProduct = (params) => {
               : productData?.grossWeight;
           centerDiamondWeight =
             !isNaN(centerDiamondWeight) &&
-            centerDiamondWeight !== '' &&
-            centerDiamondWeight !== null
+              centerDiamondWeight !== '' &&
+              centerDiamondWeight !== null
               ? Math.round(parseFloat(centerDiamondWeight) * 100) / 100
               : 0;
           totalCaratWeight =
@@ -1830,6 +1832,9 @@ const updateProduct = (params) => {
           ].includes(priceCalculationMode)
             ? priceCalculationMode
             : productData.priceCalculationMode;
+          subCategoryIds = Array.isArray(subCategoryIds)
+            ? subCategoryIds.map(id => id?.trim())
+            : productData.subCategoryIds || [];
 
           // Validate inputs
           const pNameErrorMsg = validateProductName(productName);
@@ -1919,6 +1924,12 @@ const updateProduct = (params) => {
             const hasInvalidValues = settingStyleIds.some((id) => !id);
             if (hasInvalidValues) throw new Error('Invalid value found in settingStyleIds array');
           }
+
+          if (subCategoryIds?.length) {
+            const hasInvalidValues = subCategoryIds.some((id) => !id);
+            if (hasInvalidValues) throw new Error('Invalid value found in subCategoryIds array');
+          }
+
           if (productTypeIds?.length) {
             const hasInvalidValues = productTypeIds.some((id) => !id);
             if (hasInvalidValues) throw new Error('Invalid value found in productTypeIds array');
@@ -2241,7 +2252,7 @@ const updateProduct = (params) => {
           variComboWithQuantity = Array.isArray(variComboWithQuantity) ? variComboWithQuantity : [];
           let variComboWithQuantityArray =
             variComboWithQuantity.length &&
-            !isInValidVariComboWithQuantityArray(variComboWithQuantity)
+              !isInValidVariComboWithQuantityArray(variComboWithQuantity)
               ? getVariComboWithQuantityArray(variComboWithQuantity)
               : productData.variComboWithQuantity;
 
@@ -2295,7 +2306,7 @@ const updateProduct = (params) => {
               ? settingStyleIds?.map((id) => id?.trim())
               : productData.settingStyleIds,
             categoryId: categoryId ? categoryId.trim() : productData.categoryId,
-            subCategoryId: subCategoryId || '',
+            subCategoryIds,
             productTypeIds: Array.isArray(productTypeIds)
               ? productTypeIds?.map((id) => id?.trim())
               : productData.productTypeIds,

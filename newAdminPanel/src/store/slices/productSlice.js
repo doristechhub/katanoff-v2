@@ -48,7 +48,7 @@ export const productInitDetails = {
   collectionIds: [],
   settingStyleIds: [],
   categoryId: '',
-  subCategoryId: '',
+  subCategoryIds: [],
   productTypeIds: [],
   gender: '',
   netWeight: '',

@@ -117,7 +117,7 @@ const CombinationDialog = ({
       centerDiamondWeight: fields?.centerDiamondWeight,
       totalCaratWeight: fields?.totalCaratWeight,
       sideDiamondWeight: fields?.sideDiamondWeight,
-      subCategoryId: fields?.subCategoryId,
+      subCategoryIds: fields?.subCategoryIds,
       specifications: fields?.specifications,
       shortDescription: fields?.shortDescription,
       variComboWithQuantity: values?.variComboWithQuantity,
