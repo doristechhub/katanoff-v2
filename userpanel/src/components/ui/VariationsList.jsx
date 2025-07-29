@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef } from "react";
+import { memo, useCallback, useRef, useMemo } from "react";
 import { CustomImg } from "../dynamiComponents";
 import dropdownArrow from "@/assets/icons/dropdownArrow.svg";
 import { LENGTH, RING_SIZE } from "@/_helper";
@@ -22,6 +22,7 @@ const VariationsList = ({
   hoveredColor,
 }) => {
   const debouncedSetHoveredColor = useDebounce(setHoveredColor, 100);
+
   const isSelected = (variationId, variationTypeId) =>
     selectedVariations?.length &&
     selectedVariations?.some(
@@ -29,9 +30,27 @@ const VariationsList = ({
         v?.variationId === variationId && v?.variationTypeId === variationTypeId
     );
 
+  // Memoize sorted variations and their variationTypes
+  const sortedVariations = useMemo(() => {
+    return [...(variations || [])]
+      .map((variation) => ({
+        ...variation,
+        variationTypes: [...(variation?.variationTypes || [])].sort((a, b) => {
+          const posA = a?.position ?? 0;
+          const posB = b?.position ?? 0;
+          return posA - posB;
+        }),
+      }))
+      .sort((a, b) => {
+        const posA = a?.position ?? 0;
+        const posB = b?.position ?? 0;
+        return posA - posB;
+      });
+  }, [variations]);
+
   return (
     <div className="flex flex-col mt-4 lg:mt-6 gap-6">
-      {variations?.map((variation) => {
+      {sortedVariations?.map((variation) => {
         const selectedType = selectedVariations?.find(
           (v) => v?.variationId === variation?.variationId
         );
@@ -51,7 +70,7 @@ const VariationsList = ({
             {isSizeVariation || isLengthVariation ? (
               <div className="relative w-fit">
                 <select
-                  className={`appearance-none px-3 py-2 pr-6  border border-grayborder rounded-sm text-sm font-semibold bg-transparent cursor-pointer`}
+                  className={`appearance-none px-3 py-2 pr-6 border border-grayborder rounded-sm text-sm font-semibold bg-transparent cursor-pointer`}
                   value={selectedType?.variationTypeId || ""}
                   onChange={(e) => {
                     const selectedOption = variation.variationTypes.find(
@@ -91,7 +110,7 @@ const VariationsList = ({
                 </div>
               </div>
             ) : (
-              // 👉 Render buttons/color/image for other types
+              // Render buttons/color/image for other types
               <div className="flex flex-wrap gap-4 md:gap-6 items-start lg:items-center">
                 {variation?.variationTypes?.map((type) => {
                   const selected = isSelected(
@@ -110,8 +129,7 @@ const VariationsList = ({
                                 type.variationTypeName?.toLowerCase()
                                 ? "outline outline-grayborder"
                                 : "outline-none"
-                            }
-  `}
+                            }`}
                             style={{
                               backgroundColor: type?.variationTypeHexCode,
                               boxShadow:
@@ -130,18 +148,10 @@ const VariationsList = ({
                                 type?.variationTypeName
                               )
                             }
-                            // onMouseEnter={() => {
-                            //   setHoveredColor(type.variationTypeName);
-                            // }}
-                            // onMouseLeave={() => {
-                            //   if (setHoveredColor) setHoveredColor("");
-                            // }}
-                            onMouseEnter={() => {
-                              setHoveredColor(type.variationTypeName);
-                            }}
-                            onMouseLeave={() => {
-                              setHoveredColor("");
-                            }}
+                            onMouseEnter={() =>
+                              debouncedSetHoveredColor(type.variationTypeName)
+                            }
+                            onMouseLeave={() => debouncedSetHoveredColor("")}
                           />
                         </div>
                       ) : type?.type === "image" ? (

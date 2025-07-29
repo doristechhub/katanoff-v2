@@ -1,10 +1,5 @@
 import { uid } from "uid";
-import {
-  GOLD_COLOR,
-  GOLD_TYPES,
-  DIAMOND_SHAPE,
-  RING_SIZE,
-} from "./constants";
+import { GOLD_COLOR, GOLD_TYPES, DIAMOND_SHAPE, RING_SIZE } from "./constants";
 
 const generateUniqueId = () => {
   const uuid = uid();
@@ -38,6 +33,7 @@ const getVariationsArray = (variaionsOfArray, customizations) => {
     return {
       variationId: variItem?.variationId,
       variationName: findedCustomizationType?.title,
+      position: variItem?.position || 0,
       variationTypes: variItem?.variationTypes?.map((variTypeItem) => {
         const findedCustomizationSubType =
           customizations?.customizationSubType?.find(
@@ -45,6 +41,7 @@ const getVariationsArray = (variaionsOfArray, customizations) => {
           );
         let varitionTypeObj = {
           variationTypeId: variTypeItem?.variationTypeId,
+          position: variTypeItem?.position || 0,
           variationTypeName: findedCustomizationSubType?.title,
           type: findedCustomizationSubType?.type,
         };

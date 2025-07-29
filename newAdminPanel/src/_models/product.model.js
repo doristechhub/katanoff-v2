@@ -1,3 +1,5 @@
+import { ALLOW_MAX_CARAT_WEIGHT, ALLOW_MIN_CARAT_WEIGHT } from 'src/_helpers/constants';
+
 export const productModel = {
   id: {
     type: String,
@@ -90,10 +92,12 @@ export const productModel = {
   subCategoryId: {
     type: String,
     ref: 'subCategories',
+    // required: true,
   },
   productTypeIds: {
     type: Array,
     ref: 'productType',
+    // required: true,
   },
   gender: {
     type: String,
@@ -130,12 +134,20 @@ export const productModel = {
           type: String,
           required: true,
         },
+        position: {
+          type: number,
+          required: false,
+        },
         variationTypes: {
           type: [
             {
               variationTypeId: {
                 type: String,
                 required: true,
+              },
+              position: {
+                type: number,
+                required: false, // reset position variation type wise
               },
             },
           ],

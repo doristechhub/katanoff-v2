@@ -2,10 +2,11 @@ import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import { FieldArray, getIn } from 'formik';
 import React, { memo, useCallback, useState } from 'react';
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
-import { TextField } from '@mui/material';
+import { alpha, TextField, Divider } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import Grid from '@mui/material/Unstable_Grid2';
 import TableBody from '@mui/material/TableBody';
@@ -126,12 +127,15 @@ const Variations = memo(({ formik }) => {
       );
 
       if (!areAllFieldsFilled?.length) {
-        const newVariation = productInitDetails?.variations?.[0];
+        const newVariation = {
+          ...productInitDetails?.variations?.[0],
+          position: values?.variations?.length + 1, // Assign next position
+        };
         push(newVariation);
         // Generate combinations after adding variation
         updateCombinations([...values.variations, newVariation]);
       } else {
-        toast.error('please fill all variations value');
+        toast.error('Please fill all variations value');
       }
     },
     [customizationTypesList, values, productInitDetails, updateCombinations]
@@ -141,150 +145,234 @@ const Variations = memo(({ formik }) => {
     (index, remove) => {
       remove(index);
       // Generate combinations after removing variation
-      const newVariations = values.variations.filter((_, i) => i !== index);
+      const newVariations = values?.variations
+        ?.filter((_, i) => i !== index)
+        .map((vari, i) => ({
+          ...vari,
+          position: i + 1, // Reassign positions
+        }));
+      setFieldValue('variations', newVariations);
       updateCombinations(newVariations);
     },
-    [values?.variations, updateCombinations]
+    [values?.variations, setFieldValue, updateCombinations]
+  );
+
+  const handleDragEnd = useCallback(
+    (event) => {
+      const { destination, source } = event;
+      if (!destination) return;
+
+      const updatedVariations = [...values.variations];
+      const [movedVariation] = updatedVariations.splice(source.index, 1);
+      updatedVariations.splice(destination.index, 0, movedVariation);
+
+      // Update positions
+      const variationsWithPositions = updatedVariations.map((vari, i) => ({
+        ...vari,
+        position: i + 1,
+      }));
+
+      setFieldValue('variations', variationsWithPositions);
+      updateCombinations(variationsWithPositions);
+    },
+    [values?.variations, setFieldValue, updateCombinations]
   );
 
   return (
     <>
-      <FieldArray name="variations">
-        {({ remove, push }) => (
-          <>
-            {values?.variations?.length > 0 ? (
-              values?.variations?.map((_, index) => (
-                <Grid
-                  key={index}
-                  container
-                  spacing={2}
-                  sx={{
-                    marginTop: '0 !important',
-                  }}
-                >
-                  <Grid xs={12} sm={12} md={12}>
-                    <TextField
-                      select
-                      size="small"
-                      sx={{
-                        width: '100%',
-                      }}
-                      onBlur={handleBlur}
-                      label="Variation Name"
-                      name={`variations.${index}.variationId`}
-                      value={values?.variations[index].variationId}
-                      onChange={(event) => {
-                        variationChangeHandler(event.target.value, index);
-                      }}
-                      error={
-                        !!(
-                          getIn(errors, `variations.${index}.variationId`) &&
-                          getIn(touched, `variations.${index}.variationId`)
-                        )
-                      }
-                      helperText={
-                        getIn(errors, `variations.${index}.variationId`) &&
-                        getIn(touched, `variations.${index}.variationId`)
-                          ? getIn(errors, `variations.${index}.variationId`)
-                          : ''
-                      }
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="variations-droppable">
+          {(provider) => (
+            <div
+              ref={provider.innerRef}
+              {...provider.droppableProps}
+              style={{ position: 'relative', minHeight: '100px', overflow: 'visible' }}
+            >
+              <FieldArray name="variations">
+                {({ remove, push }) => (
+                  <>
+                    {values?.variations?.length > 0 ? (
+                      values?.variations?.map((variation, index) => (
+                        <Draggable
+                          key={`variation-${variation.variationId || index}`}
+                          draggableId={`variation-${variation.variationId || index}`}
+                          index={index}
+                        >
+                          {(dragProvider, snapshot) => (
+                            <Grid
+                              container
+                              spacing={2}
+                              sx={{
+                                marginTop: '0 !important',
+                                mt: 2,
+                                position: 'relative',
+                                ...(snapshot.isDragging && {
+                                  bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
+                                  '&:hover': {
+                                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.16),
+                                  },
+                                }),
+                              }}
+                              ref={dragProvider.innerRef}
+                              {...dragProvider.draggableProps}
+                            >
+                              <Grid xs={12} sm={12} md={12}>
+                                <Stack direction="row" alignItems="center" spacing={1}>
+                                  <div
+                                    {...dragProvider.dragHandleProps}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    onTouchStart={(e) => e.stopPropagation()}
+                                  >
+                                    <Iconify icon="ic:baseline-drag-indicator" />
+                                  </div>
+                                  <TextField
+                                    select
+                                    size="small"
+                                    sx={{ width: '100%' }}
+                                    onBlur={handleBlur}
+                                    label="Variation Name"
+                                    name={`variations.${index}.variationId`}
+                                    value={values?.variations[index].variationId}
+                                    onChange={(event) => {
+                                      variationChangeHandler(event.target.value, index);
+                                    }}
+                                    error={
+                                      !!(
+                                        getIn(errors, `variations.${index}.variationId`) &&
+                                        getIn(touched, `variations.${index}.variationId`)
+                                      )
+                                    }
+                                    helperText={
+                                      getIn(errors, `variations.${index}.variationId`) &&
+                                      getIn(touched, `variations.${index}.variationId`)
+                                        ? getIn(errors, `variations.${index}.variationId`)
+                                        : ''
+                                    }
+                                  >
+                                    {customizationTypesList?.length > 0 ? (
+                                      customizationTypesList?.map((item) => {
+                                        const isAlreadySelected = values?.variations?.some(
+                                          (vari) => vari.variationId === item.id
+                                        );
+                                        return (
+                                          <MenuItem
+                                            key={item?.id}
+                                            value={item?.id}
+                                            disabled={isAlreadySelected}
+                                          >
+                                            {item?.title}
+                                          </MenuItem>
+                                        );
+                                      })
+                                    ) : (
+                                      <MenuItem disabled>No Item</MenuItem>
+                                    )}
+                                  </TextField>
+                                </Stack>
+                              </Grid>
+                              <Grid xs={12} sm={12} md={12}>
+                                <Typography variant="body2" sx={{ display: 'none' }}>
+                                  Position: {variation.position || index + 1}
+                                </Typography>
+                              </Grid>
+                              <Grid xs={12} sm={12} md={12} sx={{ pl: 4 }}>
+                                <VariantionTypes
+                                  index={index}
+                                  formik={formik}
+                                  updateCombinations={updateCombinations}
+                                />
+                              </Grid>
+                              <Grid xs={12} sm={12} md={12}>
+                                <Stack
+                                  direction={'row'}
+                                  justifyContent={'end'}
+                                  alignItems={'center'}
+                                  gap={2}
+                                >
+                                  <Button
+                                    size="small"
+                                    onClick={() => removeVariationHandler(index, remove)}
+                                    disabled={values?.variations?.length === 1}
+                                    startIcon={
+                                      <Iconify
+                                        icon="solar:trash-bin-trash-bold"
+                                        sx={{ color: 'error.main' }}
+                                      />
+                                    }
+                                    sx={{
+                                      width: 'fit-content',
+                                      border: `none !important`,
+                                      color: `${error?.main} !important`,
+                                      backgroundColor: `transparent !important`,
+                                      ':disabled': {
+                                        opacity: 0.7,
+                                      },
+                                      ':hover': {
+                                        backgroundColor: `${error?.lighter} !important`,
+                                        border: `none !important`,
+                                        boxShadow: 'none !important',
+                                      },
+                                    }}
+                                  >
+                                    Remove
+                                  </Button>
+                                </Stack>
+                              </Grid>
+                              <Grid xs={12} sm={12} md={12}>
+                                <Divider sx={{ my: 2 }} />
+                              </Grid>
+                            </Grid>
+                          )}
+                        </Draggable>
+                      ))
+                    ) : (
+                      <Typography variant="caption" sx={{ color: 'error.main' }}>
+                        Variation is required
+                      </Typography>
+                    )}
+                    {provider.placeholder}
+                    <Stack
+                      sx={{ my: 1 }}
+                      direction={'row'}
+                      justifyContent={'space-between'}
+                      alignItems={'center'}
                     >
-                      {customizationTypesList?.length > 0 ? (
-                        customizationTypesList?.map((item) => {
-                          // Check if the item is not already selected in another variation
-                          const isAlreadySelected = values?.variations?.some(
-                            (vari) => vari.variationId === item.id
-                          );
-                          // Render the item only if it's not already selected
-                          return (
-                            <MenuItem key={item?.id} value={item?.id} disabled={isAlreadySelected}>
-                              {item?.title}
-                            </MenuItem>
-                          );
-                        })
-                      ) : (
-                        <MenuItem disabled>No Item</MenuItem>
-                      )}
-                    </TextField>
-                  </Grid>
-                  <VariantionTypes
-                    index={index}
-                    formik={formik}
-                    updateCombinations={updateCombinations}
-                  />
-                  <Grid xs={12} sm={12} md={12}>
-                    <Stack direction={'row'} justifyContent={'end'} alignItems={'center'} gap={2}>
                       <Button
-                        size="small"
-                        onClick={() => removeVariationHandler(index, remove)}
-                        disabled={values?.variations?.length === 1}
-                        startIcon={
-                          <Iconify icon="solar:trash-bin-trash-bold" sx={{ color: 'error.main' }} />
-                        }
                         sx={{
                           width: 'fit-content',
                           border: `none !important`,
-                          color: `${error?.main} !important`,
+                          color: `${primary?.main} !important`,
                           backgroundColor: `transparent !important`,
+                          ':hover': {
+                            border: `none !important`,
+                            boxShadow: 'none !important',
+                            backgroundColor: `${primary?.lighter} !important`,
+                          },
                           ':disabled': {
                             opacity: 0.7,
                           },
-                          ':hover': {
-                            backgroundColor: `${error?.lighter} !important`,
-                            border: `none !important`,
-                            boxShadow: 'none !important',
-                          },
                         }}
+                        onClick={() => addVariationsHandler(push)}
+                        startIcon={<Iconify icon="lucide:circle-plus" />}
+                        disabled={values?.variations?.length === customizationTypesList?.length}
                       >
-                        Remove
+                        Add Variation
+                      </Button>
+                      <Button
+                        variant="contained"
+                        onClick={() => setOpenPreviewDialog(true)}
+                        disabled={!values?.variations?.[0]?.variationTypes?.[0]?.variationTypeId}
+                      >
+                        Preview
                       </Button>
                     </Stack>
-                  </Grid>
-                </Grid>
-              ))
-            ) : (
-              <Typography variant="caption" sx={{ color: 'error.main' }}>
-                Variation is required
-              </Typography>
-            )}
-            <Stack
-              sx={{ my: 1 }}
-              direction={'row'}
-              justifyContent={'space-between'}
-              alignItems={'center'}
-            >
-              <Button
-                sx={{
-                  width: 'fit-content',
-                  border: `none !important`,
-                  color: `${primary?.main} !important`,
-                  backgroundColor: `transparent !important`,
-                  ':hover': {
-                    border: `none !important`,
-                    boxShadow: 'none !important',
-                    backgroundColor: `${primary?.lighter} !important`,
-                  },
-                  ':disabled': {
-                    opacity: 0.7,
-                  },
-                }}
-                onClick={() => addVariationsHandler(push)}
-                startIcon={<Iconify icon="lucide:circle-plus" />}
-                disabled={values?.variations?.length === customizationTypesList?.length}
-              >
-                Add Variation
-              </Button>
-              <Button
-                variant="contained"
-                onClick={() => setOpenPreviewDialog(true)}
-                disabled={!values?.variations?.[0]?.variationTypes?.[0]?.variationTypeId}
-              >
-                Preview
-              </Button>
-            </Stack>
-          </>
-        )}
-      </FieldArray>
+                  </>
+                )}
+              </FieldArray>
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
 
       {openPreviewDialog && (
         <Dialog

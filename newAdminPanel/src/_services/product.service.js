@@ -63,13 +63,15 @@ const isInValidVariationsArray = (arrayOfVariations) => {
   return !isValidVariId || !isValidVariTypes || !isValidVariTypesId;
 };
 
-const getVariationsArray = (variaionsOfArray) => {
-  return variaionsOfArray.map((variation) => {
+const getVariationsArray = (variationsOfArray) => {
+  return variationsOfArray.map((variation, index) => {
     return {
       variationId: variation.variationId,
-      variationTypes: variation.variationTypes.map((variationType) => {
+      position: variation?.position ? variation.position : index + 1,
+      variationTypes: variation.variationTypes.map((variationType, typeIndex) => {
         return {
           variationTypeId: variationType.variationTypeId,
+          position: variationType?.position ? variationType.position : typeIndex + 1,
         };
       }),
     };
@@ -1365,7 +1367,8 @@ const updateYellowGoldMedia = (params) => {
             if (!validFileType) {
               reject(
                 new Error(
-                  `Invalid file for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
+                  `Invalid file for ${name}! (Only ${
+                    type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
                   } files are allowed!)`
                 )
               );
@@ -1375,7 +1378,8 @@ const updateYellowGoldMedia = (params) => {
             if (!validFileSize) {
               reject(
                 new Error(
-                  `Invalid file size for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
+                  `Invalid file size for ${name}! (Only ${
+                    type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
                   } are allowed!)`
                 )
               );
@@ -1612,7 +1616,8 @@ const updateWhiteGoldMedia = (params) => {
             if (!validFileType) {
               reject(
                 new Error(
-                  `Invalid file for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
+                  `Invalid file for ${name}! (Only ${
+                    type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
                   } files are allowed!)`
                 )
               );
@@ -1622,7 +1627,8 @@ const updateWhiteGoldMedia = (params) => {
             if (!validFileSize) {
               reject(
                 new Error(
-                  `Invalid file size for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
+                  `Invalid file size for ${name}! (Only ${
+                    type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
                   } are allowed!)`
                 )
               );
@@ -1801,8 +1807,8 @@ const updateProduct = (params) => {
               : productData?.grossWeight;
           centerDiamondWeight =
             !isNaN(centerDiamondWeight) &&
-              centerDiamondWeight !== '' &&
-              centerDiamondWeight !== null
+            centerDiamondWeight !== '' &&
+            centerDiamondWeight !== null
               ? Math.round(parseFloat(centerDiamondWeight) * 100) / 100
               : 0;
           totalCaratWeight =
@@ -2235,7 +2241,7 @@ const updateProduct = (params) => {
           variComboWithQuantity = Array.isArray(variComboWithQuantity) ? variComboWithQuantity : [];
           let variComboWithQuantityArray =
             variComboWithQuantity.length &&
-              !isInValidVariComboWithQuantityArray(variComboWithQuantity)
+            !isInValidVariComboWithQuantityArray(variComboWithQuantity)
               ? getVariComboWithQuantityArray(variComboWithQuantity)
               : productData.variComboWithQuantity;
 
