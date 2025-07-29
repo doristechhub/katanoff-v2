@@ -113,7 +113,10 @@ export default function ProductsView() {
         filterByCategory === 'all' || String(item.categoryId) === String(filterByCategory);
 
       const matchesSubCategory =
-        filterBySubCategory === 'all' || String(item.subCategoryId) === String(filterBySubCategory);
+        filterBySubCategory === 'all' ||
+        String(item.subCategoryId) === String(filterBySubCategory) ||
+        (item.subCategoryIds &&
+          item.subCategoryIds.some((id) => String(id) === String(filterBySubCategory)));
 
       const matchesCollection =
         filterByCollection === 'all' ||

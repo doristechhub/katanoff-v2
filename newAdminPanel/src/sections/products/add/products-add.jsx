@@ -227,7 +227,7 @@ export default function AddProductPage() {
   const categoryChangeHandler = useCallback(
     (val, formik) => {
       formik.setFieldValue('categoryId', val);
-      formik.setFieldValue('subCategoryId', '');
+      formik.setFieldValue('subCategoryIds', []);
       formik.setFieldValue('productTypeIds', []);
       let list = menuList.subCategories?.filter((c) => c.categoryId === val);
       dispatch(setSubCategoriesList(list));
@@ -237,9 +237,14 @@ export default function AddProductPage() {
 
   const subCategoryChangeHandler = useCallback(
     (val, formik) => {
-      formik.setFieldValue('subCategoryId', val);
-      formik.setFieldValue('productTypeIds', []);
-      let list = menuList.productType?.filter((c) => c.subCategoryId === val);
+      formik.setFieldValue('subCategoryIds', Array.isArray(val) ? val : [val]); // Ensure array
+      // Filter out product types that belong to deselected subcategories
+      const updatedProductTypeIds = formik.values.productTypeIds.filter((typeId) => {
+        const productType = menuList.productType?.find((type) => type.id === typeId);
+        return productType && val.includes(productType.subCategoryId);
+      });
+      formik.setFieldValue('productTypeIds', updatedProductTypeIds); // Update product types
+      const list = menuList.productType?.filter((c) => val.includes(c.subCategoryId));
       dispatch(setProductTypesList(list));
     },
     [dispatch, menuList]
@@ -495,6 +500,11 @@ export default function AddProductPage() {
 
                 const loadData = useCallback(async () => {
                   const product = await dispatch(getSingleProduct(productId));
+                  const subCategoryIds = product.subCategoryIds
+                    ? product.subCategoryIds
+                    : product.subCategoryId
+                      ? [product.subCategoryId]
+                      : [];
                   if (product) {
                     formik.setFieldValue('productName', product?.productName);
                     formik.setFieldValue('sku', product?.sku);
@@ -504,6 +514,7 @@ export default function AddProductPage() {
                     formik.setFieldValue('description', product?.description);
                     formik.setFieldValue('specifications', product?.specifications || []);
                     formik.setFieldValue('active', product?.active);
+                    formik.setFieldValue('subCategoryIds', subCategoryIds);
                     formik.setFieldValue(
                       'priceCalculationMode',
                       product?.priceCalculationMode || PRICE_CALCULATION_MODES.AUTOMATIC
@@ -532,10 +543,15 @@ export default function AddProductPage() {
                 useEffect(() => {
                   if (Object.keys(selectedProduct).length && menuList) {
                     categoryChangeHandler(selectedProduct.categoryId, formik);
-                    subCategoryChangeHandler(selectedProduct.subCategoryId, formik);
-                    setFieldValue('productTypeIds', selectedProduct.productTypeIds);
+                    const subCategoryIds = selectedProduct.subCategoryIds
+                      ? selectedProduct.subCategoryIds
+                      : selectedProduct.subCategoryId
+                        ? [selectedProduct.subCategoryId]
+                        : [];
+                    subCategoryChangeHandler(subCategoryIds, formik);
+                    setFieldValue('productTypeIds', selectedProduct.productTypeIds || []);
                   }
-                }, [selectedProduct, menuList]);
+                }, [selectedProduct, menuList, categoryChangeHandler, subCategoryChangeHandler]);
 
                 useEffect(() => {
                   if (Object.keys(selectedProduct).length && customizationSubTypesList.length) {
@@ -828,36 +844,54 @@ export default function AddProductPage() {
                                 </TextField>
                               </Grid>
                               <Grid xs={12} sm={6} md={6}>
-                                <TextField
-                                  select
-                                  sx={{ width: '100%' }}
-                                  onBlur={handleBlur}
-                                  name="subCategoryId"
-                                  label="Sub category"
-                                  value={values?.subCategoryId || ''}
-                                  onChange={(e) =>
-                                    subCategoryChangeHandler(e.target.value, {
-                                      values,
-                                      setFieldValue,
-                                    })
-                                  }
-                                  error={!!(touched?.subCategoryId && errors?.subCategoryId)}
-                                  helperText={
-                                    touched?.subCategoryId && errors?.subCategoryId
-                                      ? errors?.subCategoryId
-                                      : ''
-                                  }
-                                >
-                                  {subCategoriesList?.length > 0 ? (
-                                    subCategoriesList.map((option) => (
-                                      <MenuItem key={option?.id} value={option?.id}>
-                                        {option?.title}
-                                      </MenuItem>
-                                    ))
-                                  ) : (
-                                    <MenuItem disabled>No Item</MenuItem>
-                                  )}
-                                </TextField>
+                                <FormControl sx={{ width: '100%' }}>
+                                  <InputLabel id="subCategoryIds">Subcategory</InputLabel>
+                                  <Select
+                                    sx={{ width: '100%' }}
+                                    multiple
+                                    MenuProps={MenuProps}
+                                    labelId="subCategoryIds"
+                                    name="subCategoryIds"
+                                    onBlur={handleBlur}
+                                    onChange={(e) =>
+                                      subCategoryChangeHandler(e.target.value, {
+                                        values,
+                                        setFieldValue,
+                                      })
+                                    }
+                                    value={
+                                      Array.isArray(values.subCategoryIds)
+                                        ? values.subCategoryIds
+                                        : []
+                                    }
+                                    input={<OutlinedInput label="Subcategory" />}
+                                    renderValue={(selected) => {
+                                      let updated = selected?.map((x) => {
+                                        const selectedItem = subCategoriesList?.find(
+                                          (option) => option.id === x
+                                        );
+                                        return selectedItem ? selectedItem?.title : x;
+                                      });
+                                      if (updated?.length > 1) return updated?.join(', ');
+                                      return updated;
+                                    }}
+                                  >
+                                    {subCategoriesList?.length > 0 ? (
+                                      subCategoriesList.map((option) => (
+                                        <MenuItem key={option?.id} value={option?.id}>
+                                          <ListItemText primary={option?.title} />
+                                        </MenuItem>
+                                      ))
+                                    ) : (
+                                      <MenuItem disabled>No Item</MenuItem>
+                                    )}
+                                  </Select>
+                                  {touched?.subCategoryIds && errors?.subCategoryIds ? (
+                                    <FormHelperText sx={{ color: 'error.main' }}>
+                                      {errors?.subCategoryIds}
+                                    </FormHelperText>
+                                  ) : null}
+                                </FormControl>
                               </Grid>
                               <Grid xs={12} sm={6} md={6}>
                                 <FormControl sx={{ width: '100%' }}>

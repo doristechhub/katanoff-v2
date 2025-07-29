@@ -33,7 +33,7 @@ const fieldKeys = [
   'description',
   'discount',
   'categoryId',
-  'subCategoryId',
+  'subCategoryIds',
   'productTypeIds',
   'gender',
   'collectionIds',
@@ -49,7 +49,7 @@ const fieldLabels = {
   discount: 'Discount Percentage',
   categoryId: 'Category',
   productTypeIds: 'Product Type',
-  subCategoryId: 'SubCategory',
+  subCategoryIds: 'Subcategories',
   gender: 'Gender',
   collectionIds: 'Collection',
   settingStyleIds: 'Setting Style',
@@ -68,12 +68,13 @@ const DuplicateProductDialog = ({ open, setOpen, loading }) => {
     fieldKeys.reduce(
       (acc, field) => ({
         ...acc,
-        [field]: selectedProduct[field] !== undefined,
+        [field]:
+          selectedProduct[field] !== undefined ||
+          (field === 'subCategoryIds' && selectedProduct.subCategoryId !== undefined),
       }),
       {}
     )
   );
-
   const handleCheckboxChange = useCallback(
     (event) => {
       const { name, checked } = event.target;
@@ -85,25 +86,26 @@ const DuplicateProductDialog = ({ open, setOpen, loading }) => {
           updatedFields['categoryId'] = checked;
 
           if (!checked) {
-            updatedFields['subCategoryId'] = false;
+            updatedFields['subCategoryIds'] = false; // Updated to subCategoryIds
             updatedFields['productTypeIds'] = false;
           }
         }
 
-        if (name === 'subCategoryId') {
+        if (name === 'subCategoryIds') {
+          // Updated to subCategoryIds
           if (selectedFields.categoryId) {
-            updatedFields['subCategoryId'] = checked;
+            updatedFields['subCategoryIds'] = checked;
 
             if (!checked) {
               updatedFields['productTypeIds'] = false;
             }
           } else {
-            updatedFields['subCategoryId'] = false;
+            updatedFields['subCategoryIds'] = false;
           }
         }
 
         if (name === 'productTypeIds') {
-          if (selectedFields.categoryId && selectedFields.subCategoryId) {
+          if (selectedFields.categoryId && selectedFields.subCategoryIds) {
             updatedFields['productTypeIds'] = checked;
           } else {
             updatedFields['productTypeIds'] = false;
@@ -127,13 +129,23 @@ const DuplicateProductDialog = ({ open, setOpen, loading }) => {
         saltSKU: val?.saltSKU,
         active: true,
       };
+
       fieldKeys.forEach((field) => {
         if (selectedFields[field]) {
-          payload[field] = selectedProduct[field];
+          if (field === 'subCategoryIds') {
+            // Handle both string (subCategoryId) and array (subCategoryIds)
+            if (selectedProduct.subCategoryIds) {
+              payload.subCategoryIds = selectedProduct.subCategoryIds; // Already an array
+            } else if (selectedProduct.subCategoryId) {
+              payload.subCategoryIds = [selectedProduct.subCategoryId]; // Convert string to array
+            }
+          } else {
+            payload[field] = selectedProduct[field];
+          }
         }
       });
 
-      // Include tempVariComboWithQuantity if variations is selected and it exists in selectedProduct
+      // Include tempVariComboWithQuantity if variations is selected
       if (selectedFields.variations && selectedProduct.variComboWithQuantity?.length) {
         payload.variComboWithQuantity = selectedProduct.variComboWithQuantity;
       }
@@ -143,7 +155,7 @@ const DuplicateProductDialog = ({ open, setOpen, loading }) => {
       navigate(`/product/add`);
       setOpen(false);
     },
-    [selectedFields, selectedProduct]
+    [selectedFields, selectedProduct, dispatch, navigate, setOpen]
   );
   const randomNumber = useMemo(() => helperFunctions.getRandomNumberLimitedDigits(), []);
 
@@ -220,7 +232,11 @@ const DuplicateProductDialog = ({ open, setOpen, loading }) => {
         </p>
 
         {fieldKeys
-          .filter((field) => selectedProduct[field] !== undefined) // Only show checkboxes for fields present in selectedProduct
+          .filter(
+            (field) =>
+              selectedProduct[field] !== undefined ||
+              (field === 'subCategoryIds' && selectedProduct.subCategoryId !== undefined)
+          )
           .map((field) => (
             <FormControlLabel
               key={field}
@@ -231,9 +247,9 @@ const DuplicateProductDialog = ({ open, setOpen, loading }) => {
                   checked={selectedFields[field]}
                   onChange={handleCheckboxChange}
                   disabled={
-                    (field === 'subCategoryId' && !selectedFields.categoryId) ||
+                    (field === 'subCategoryIds' && !selectedFields.categoryId) ||
                     (field === 'productTypeIds' &&
-                      !(selectedFields.categoryId && selectedFields.subCategoryId))
+                      !(selectedFields.categoryId && selectedFields.subCategoryIds))
                   }
                 />
               }
