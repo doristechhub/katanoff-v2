@@ -62,9 +62,11 @@ export const productInitDetails = {
     {
       subTypes: [],
       variationId: '',
+      position: 1,
       variationTypes: [
         {
           variationTypeId: '',
+          position: 1,
         },
       ],
     },

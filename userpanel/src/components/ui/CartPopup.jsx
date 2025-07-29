@@ -119,8 +119,10 @@ const CartPopup = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(fetchCart());
-  }, []);
+    if (!cartList.length) {
+      dispatch(fetchCart());
+    }
+  }, [cartList?.length, dispatch]);
 
   const removeFromCart = useCallback(
     async (cartItem) => {
