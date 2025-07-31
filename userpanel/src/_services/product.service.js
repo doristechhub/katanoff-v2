@@ -29,16 +29,10 @@ const getAllActiveProducts = () => {
       const menuData = await homeService.getAllMenuData();
 
       const activeProductData = tempActiveProductData?.map((product) => {
-        // Normalize subCategoryId or subCategoryIds to subCategoryIds array
-        const subCategoryIds = product.subCategoryIds
-          ? product.subCategoryIds
-          : product.subCategoryId
-            ? [product.subCategoryId]
-            : [];
+        const subCategoryIds = product?.subCategoryIds || [];
 
         return {
           ...product,
-          subCategoryIds, // Ensure consistent subCategoryIds array
           collectionNames: product?.collectionIds?.map(
             (id) =>
               collectionData.find((collection) => collection?.id === id)?.title
@@ -68,7 +62,7 @@ const getAllActiveProducts = () => {
           categoryName: menuData.categories.find(
             (category) => category.id === product.categoryId
           )?.title,
-          subCategoryNames: subCategoryIds.length
+          subCategoryNames: subCategoryIds?.length
             ? subCategoryIds
               .map((id) =>
                 menuData?.subCategories?.find((subCategory) => subCategory?.id === id)?.title
@@ -500,12 +494,8 @@ const getProcessProducts = async (singleProductData) => {
 
     let convertedProductData = singleProductData;
 
-    // Normalize subCategoryId or subCategoryIds to subCategoryIds array
-    const subCategoryIds = convertedProductData.subCategoryIds
-      ? convertedProductData.subCategoryIds
-      : convertedProductData.subCategoryId
-        ? [convertedProductData.subCategoryId]
-        : [];
+    // Normalize subCategoryIds array
+    const subCategoryIds = convertedProductData?.subCategoryIds || [];
 
     convertedProductData.collectionNames =
       convertedProductData?.collectionIds?.map(
@@ -617,11 +607,7 @@ const getReletedProducts = (productName) => {
           const allActiveProductsData = await getAllActiveProducts();
 
           // Normalize productData subCategoryIds
-          const productSubCategoryIds = productData.subCategoryIds
-            ? productData.subCategoryIds
-            : productData.subCategoryId
-              ? [productData.subCategoryId]
-              : [];
+          const productSubCategoryIds = productData?.subCategoryIds || [];
 
           const relatedProducts = allActiveProductsData?.filter(
             (x) =>

@@ -69,9 +69,15 @@ export const updateCustomizationSubType = (payload) => async (dispatch) => {
     dispatch(setCrudCustomizationSubTypeLoading(true));
     const res = await customizationSubTypeService.updateCustomizationSubType(payload);
 
-    if (res) {
-      toast.success('Customization subtype updated successfully');
+    if (res?.success) {
+      if (res.productsUpdated) {
+        toast.success('Customization subtype updated successfully');
+      } else {
+        toast.warning('Customization subtype updated, but product prices could not be updated');
+      }
       return true;
+    } else {
+      toast.error('Customization subtype update failed');
     }
   } catch (e) {
     toastError(e);

@@ -236,7 +236,7 @@ const updateCustomizationSubType = (params) => {
         (subType) =>
           subType.title?.toLowerCase() === title.toLowerCase() &&
           subType.customizationTypeId ===
-            (customizationTypeId || customizationSubTypeData.customizationTypeId) &&
+          (customizationTypeId || customizationSubTypeData.customizationTypeId) &&
           subType.id !== customizationSubTypeId
       );
 
@@ -328,61 +328,58 @@ const updateCustomizationSubType = (params) => {
         payload,
       };
 
-      try {
-        await fetchWrapperService._update(updatePattern);
+      await fetchWrapperService._update(updatePattern);
 
-        if (
-          Number(customizationSubTypeData?.price || 0) !== price ||
-          customizationSubTypeData?.unit !== unit
-        ) {
+      let productsUpdated = true;
+
+      if (
+        Number(customizationSubTypeData?.price || 0) !== price ||
+        customizationSubTypeData?.unit !== unit
+      ) {
+        try {
           const priceMultiplier = await settingsService.fetchPriceMultiplier();
-          const updatePromises = products
-            .filter((product) =>
-              product.variComboWithQuantity?.some((combo) =>
-                combo.combination?.some(
-                  (variation) => variation.variationTypeId === customizationSubTypeId
-                )
-              )
+          const affectedProducts = products.filter((product) =>
+            product.variComboWithQuantity?.some((combo) =>
+              combo.combination?.some((variation) => variation.variationTypeId === customizationSubTypeId)
             )
-            .map(async (product) => {
-              const updatedSubTypes = allSubTypes.map((subType) => {
-                if (subType.id === customizationSubTypeId) {
-                  return {
-                    ...subType,
-                    price,
-                    unit,
-                  };
-                }
-                return subType;
-              });
+          );
 
-              await productService.updateSingleProductPrice({
-                product,
-                priceMultiplier,
-                allSubTypes: updatedSubTypes,
-              });
-            });
+          const BATCH_SIZE = 10;
+          for (let i = 0; i < affectedProducts.length; i += BATCH_SIZE) {
+            const batch = affectedProducts.slice(i, i + BATCH_SIZE);
+            await Promise.all(
+              batch.map((product) =>
+                productService.updateSingleProductPrice({
+                  product,
+                  priceMultiplier,
+                  allSubTypes: allSubTypes.map((subType) =>
+                    subType.id === customizationSubTypeId ? { ...subType, price, unit } : subType
+                  ),
+                })
+              )
+            );
+          }
 
-          await Promise.all(updatePromises);
+        } catch (e) {
+          console.error('Batch update failed', e);
+          productsUpdated = false;
         }
-
-        // Whenever a new file is uploaded for a customization sub type, the old file will be deleted.
-        const oldImage =
-          deletedImage || (type !== 'image' && customizationSubTypeData?.image) || null;
-        if (oldImage) {
-          await deleteFile(customizationSubTypeUrl, oldImage);
-        }
-
-        resolve(true);
-      } catch (e) {
-        // whenever an error occurs for updating a customization sub type image the uploaded file is deleted
-        if (uploadedImage) {
-          await deleteFile(customizationSubTypeUrl, uploadedImage);
-        }
-        reject(new Error('An error occurred during update customizationSubType.'));
       }
+
+      // Whenever a new file is uploaded for a customization sub type, the old file will be deleted.
+      const oldImage =
+        deletedImage || (type !== 'image' && customizationSubTypeData?.image) || null;
+      if (oldImage) {
+        await deleteFile(customizationSubTypeUrl, oldImage);
+      }
+      resolve({ success: true, productsUpdated });
+
     } catch (e) {
-      reject(e);
+      // whenever an error occurs for updating a customization sub type image the uploaded file is deleted
+      if (uploadedImage) {
+        await deleteFile(customizationSubTypeUrl, uploadedImage);
+      }
+      reject(new Error('An error occurred during update customizationSubType.'));
     }
   });
 };

@@ -68,9 +68,7 @@ const DuplicateProductDialog = ({ open, setOpen, loading }) => {
     fieldKeys.reduce(
       (acc, field) => ({
         ...acc,
-        [field]:
-          selectedProduct[field] !== undefined ||
-          (field === 'subCategoryIds' && selectedProduct.subCategoryId !== undefined),
+        [field]: selectedProduct[field] !== undefined,
       }),
       {}
     )
@@ -132,16 +130,7 @@ const DuplicateProductDialog = ({ open, setOpen, loading }) => {
 
       fieldKeys.forEach((field) => {
         if (selectedFields[field]) {
-          if (field === 'subCategoryIds') {
-            // Handle both string (subCategoryId) and array (subCategoryIds)
-            if (selectedProduct.subCategoryIds) {
-              payload.subCategoryIds = selectedProduct.subCategoryIds; // Already an array
-            } else if (selectedProduct.subCategoryId) {
-              payload.subCategoryIds = [selectedProduct.subCategoryId]; // Convert string to array
-            }
-          } else {
-            payload[field] = selectedProduct[field];
-          }
+          payload[field] = selectedProduct[field];
         }
       });
 
@@ -232,11 +221,7 @@ const DuplicateProductDialog = ({ open, setOpen, loading }) => {
         </p>
 
         {fieldKeys
-          .filter(
-            (field) =>
-              selectedProduct[field] !== undefined ||
-              (field === 'subCategoryIds' && selectedProduct.subCategoryId !== undefined)
-          )
+          .filter((field) => selectedProduct[field] !== undefined)
           .map((field) => (
             <FormControlLabel
               key={field}

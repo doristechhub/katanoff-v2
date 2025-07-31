@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FieldArray, getIn, useFormik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,17 +13,9 @@ import Dialog from 'src/components/dialog';
 import { helperFunctions } from 'src/_helpers';
 import { createProduct, updateProduct } from 'src/actions';
 import { Button, LoadingButton } from 'src/components/button';
-
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-} from '@mui/material';
+import { TextField, TableCell, TableRow, Stack, Typography } from '@mui/material';
 import { PRICE_CALCULATION_MODES } from 'src/_helpers/constants';
+import InfiniteScrollTable from 'src/components/Infinite-scroll-table/InfiniteScrollTable';
 
 // ----------------------------------------------------------------------
 
@@ -38,10 +30,7 @@ const validationSchema = Yup.object({
           variationTypeName: Yup.string().required('Variation type name is required'),
         })
       ),
-      price: Yup.number()
-        .min(0, 'Price must be zero or positive')
-        // .integer('Price must be an integer')
-        .required('Price is required'),
+      price: Yup.number().min(0, 'Price must be zero or positive').required('Price is required'),
       quantity: Yup.number()
         .min(0, 'Quantity must be zero or positive')
         .integer('Quantity must be an integer')
@@ -60,10 +49,9 @@ const getColumnList = (arrayOfCombinations) => {
       }
     });
   });
-  // Sort by index to maintain order as in combination array
   return Array.from(columnMap.entries())
     .sort((a, b) => a[1] - b[1])
-    .map(([name]) => name);
+    .map(([name]) => ({ label: name, width: 'auto' }));
 };
 
 // ----------------------------------------------------------------------
@@ -76,19 +64,23 @@ const CombinationDialog = ({
   combinationsDetail,
   priceCalculationMode,
 }) => {
+  const [hasZeroPrice, setHasZeroPrice] = useState(false);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { combinations, crudProductLoading } = useSelector(({ product }) => product);
 
-  // Handler to select input value on click
-  const handleInputClick = (event) => {
-    event.target.select();
-  };
+  const handleInputClick = useCallback((event) => {
+    if (event?.target?.value) {
+      event.target.select();
+    }
+  }, []);
 
-  // Handler to disable mouse wheel value change
-  const handleWheel = (event) => {
-    event.target.blur();
-  };
+  const handleWheel = useCallback((event) => {
+    if (event?.target?.value) {
+      event.target.blur();
+    }
+  }, []);
 
   const onSubmit = async (values, { setStatus }) => {
     const payload = {
@@ -121,7 +113,7 @@ const CombinationDialog = ({
       specifications: fields?.specifications,
       shortDescription: fields?.shortDescription,
       variComboWithQuantity: values?.variComboWithQuantity,
-      active: fields?.active,
+      active: hasZeroPrice ? false : fields?.active,
       isDiamondFilter: fields?.isDiamondFilter,
       diamondFilters: fields?.diamondFilters,
       priceCalculationMode: fields?.priceCalculationMode,
@@ -164,8 +156,111 @@ const CombinationDialog = ({
     setFieldValue('variComboWithQuantity', finalCombinationDetail);
   }, [productId, setFieldValue]);
 
-  // Get column headers
-  const columns = getColumnList(values?.variComboWithQuantity);
+  useEffect(() => {
+    const zeroPrice = values?.variComboWithQuantity?.some((item) => item?.price <= 0) ?? true;
+    setHasZeroPrice((prev) => {
+      if (prev !== zeroPrice) {
+        return zeroPrice;
+      }
+      return prev;
+    });
+  }, [values?.variComboWithQuantity]);
+
+  const renderRow = useCallback(
+    (item, index) => {
+      const variationMap = new Map(
+        item.combination.map((combi) => [combi.variationName, combi.variationTypeName])
+      );
+      return (
+        <TableRow key={`combination-${index}`}>
+          {getColumnList(values.variComboWithQuantity).map((column, subIdx) => (
+            <TableCell key={`combiItem-${index}-${subIdx}`}>
+              {variationMap.get(column.label) || '-'}
+            </TableCell>
+          ))}
+          <TableCell style={{ width: '160px' }}>
+            <TextField
+              size="small"
+              type="number"
+              label="Price"
+              min={0}
+              onBlur={handleBlur}
+              onChange={(e) => {
+                const value = Math.max(0, parseFloat(e.target.value) || 0);
+                setFieldValue(`variComboWithQuantity.${index}.price`, value);
+              }}
+              onClick={handleInputClick}
+              onWheel={handleWheel}
+              name={`variComboWithQuantity.${index}.price`}
+              value={getIn(values, `variComboWithQuantity.${index}.price`) || 0}
+              error={
+                !!(
+                  getIn(errors, `variComboWithQuantity.${index}.price`) &&
+                  getIn(touched, `variComboWithQuantity.${index}.price`)
+                )
+              }
+              helperText={
+                getIn(touched, `variComboWithQuantity.${index}.price`) &&
+                getIn(errors, `variComboWithQuantity.${index}.price`)
+                  ? getIn(errors, `variComboWithQuantity.${index}.price`)
+                  : ''
+              }
+              disabled={priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC}
+            />
+          </TableCell>
+          <TableCell style={{ width: '160px' }}>
+            <TextField
+              size="small"
+              type="number"
+              label="Quantity"
+              min={0}
+              onBlur={handleBlur}
+              onChange={(e) => {
+                const value = Math.max(0, parseInt(e.target.value) || 0);
+                setFieldValue(`variComboWithQuantity.${index}.quantity`, value);
+              }}
+              onClick={handleInputClick}
+              onWheel={handleWheel}
+              id={`variComboWithQuantity.${index}.quantity`}
+              name={`variComboWithQuantity.${index}.quantity`}
+              value={getIn(values, `variComboWithQuantity.${index}.quantity`) || 0}
+              error={
+                !!(
+                  getIn(errors, `variComboWithQuantity.${index}.quantity`) &&
+                  getIn(touched, `variComboWithQuantity.${index}.quantity`)
+                )
+              }
+              helperText={
+                getIn(touched, `variComboWithQuantity.${index}.quantity`) &&
+                getIn(errors, `variComboWithQuantity.${index}.quantity`)
+                  ? getIn(errors, `variComboWithQuantity.${index}.quantity`)
+                  : ''
+              }
+            />
+          </TableCell>
+        </TableRow>
+      );
+    },
+    [
+      values,
+      errors,
+      touched,
+      handleBlur,
+      setFieldValue,
+      priceCalculationMode,
+      handleInputClick,
+      handleWheel,
+    ]
+  );
+
+  const columns = useMemo(
+    () => [
+      ...getColumnList(values.variComboWithQuantity),
+      { label: 'Price', width: '160px' },
+      { label: 'Quantity', width: '160px' },
+    ],
+    [values.variComboWithQuantity]
+  );
 
   return (
     <Dialog
@@ -177,129 +272,41 @@ const CombinationDialog = ({
     >
       <StyledDialogTitle>Product Combinations</StyledDialogTitle>
       <StyledDialogContent>
-        <TableContainer sx={{ overflow: 'unset' }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                {columns.map((column, index) => (
-                  <TableCell key={`column-${index}`}>{column}</TableCell>
-                ))}
-                <TableCell key="column-9998">Price</TableCell>
-                <TableCell key="column-9999">Quantity</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <FieldArray name="variComboWithQuantity">
-                {() => (
-                  <>
-                    {values?.variComboWithQuantity?.length > 0 ? (
-                      values.variComboWithQuantity.map((variCombiItem, index) => {
-                        // Create a map of variationName to variationTypeName for this row
-                        const variationMap = new Map(
-                          variCombiItem.combination.map((combi) => [
-                            combi.variationName,
-                            combi.variationTypeName,
-                          ])
-                        );
-                        return (
-                          <TableRow key={`combination-${index}`}>
-                            {columns.map((column, subIdx) => (
-                              <TableCell key={`combiItem-${index}-${subIdx}`}>
-                                {variationMap.get(column) || '-'}
-                              </TableCell>
-                            ))}
-                            <TableCell style={{ width: '160px' }}>
-                              <TextField
-                                size="small"
-                                type="number"
-                                label="Price"
-                                min={0}
-                                onBlur={handleBlur}
-                                onChange={(e) => {
-                                  const value = Math.max(0, parseInt(e.target.value) || 0);
-                                  setFieldValue(`variComboWithQuantity.${index}.price`, value);
-                                }}
-                                onClick={handleInputClick}
-                                onWheel={handleWheel}
-                                name={`variComboWithQuantity.${index}.price`}
-                                value={getIn(values, `variComboWithQuantity.${index}.price`) || 0}
-                                error={
-                                  !!(
-                                    getIn(errors, `variComboWithQuantity.${index}.price`) &&
-                                    getIn(touched, `variComboWithQuantity.${index}.price`)
-                                  )
-                                }
-                                helperText={
-                                  getIn(touched, `variComboWithQuantity.${index}.price`) &&
-                                  getIn(errors, `variComboWithQuantity.${index}.price`)
-                                    ? getIn(errors, `variComboWithQuantity.${index}.price`)
-                                    : ''
-                                }
-                                disabled={
-                                  priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC
-                                }
-                              />
-                            </TableCell>
-                            <TableCell style={{ width: '160px' }}>
-                              <TextField
-                                size="small"
-                                type="number"
-                                label="Quantity"
-                                min={0}
-                                onBlur={handleBlur}
-                                onChange={(e) => {
-                                  const value = Math.max(0, parseInt(e.target.value) || 0);
-                                  setFieldValue(`variComboWithQuantity.${index}.quantity`, value);
-                                }}
-                                onClick={handleInputClick}
-                                onWheel={handleWheel}
-                                id={`variComboWithQuantity.${index}.quantity`}
-                                name={`variComboWithQuantity.${index}.quantity`}
-                                value={
-                                  getIn(values, `variComboWithQuantity.${index}.quantity`) || 0
-                                }
-                                error={
-                                  !!(
-                                    getIn(errors, `variComboWithQuantity.${index}.quantity`) &&
-                                    getIn(touched, `variComboWithQuantity.${index}.quantity`)
-                                  )
-                                }
-                                helperText={
-                                  getIn(touched, `variComboWithQuantity.${index}.quantity`) &&
-                                  getIn(errors, `variComboWithQuantity.${index}.quantity`)
-                                    ? getIn(errors, `variComboWithQuantity.${index}.quantity`)
-                                    : ''
-                                }
-                              />
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })
-                    ) : (
-                      <TableRow sx={{ color: 'error.main', px: 2, fontSize: 'small' }}>
-                        <TableCell colSpan={columns.length + 2} style={{ width: '160px' }}>
-                          Combination Details is required
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </>
-                )}
-              </FieldArray>
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <FieldArray name="variComboWithQuantity">
+          {() => (
+            <InfiniteScrollTable
+              dataSource={values.variComboWithQuantity}
+              pageSize={10}
+              columns={columns}
+              renderRow={renderRow}
+              getRowKey={(item, index) => `combination-${item.id || index}`}
+              maxHeight={600}
+              scrollableTarget="combination-dialog-table"
+              showEndMessage={false}
+            />
+          )}
+        </FieldArray>
       </StyledDialogContent>
       <StyledDialogActions>
-        <Button
-          variant="outlined"
-          disabled={crudProductLoading}
-          onClick={() => onCloseDialog(false)}
-        >
-          Cancel
-        </Button>
-        <LoadingButton loading={crudProductLoading} onClick={handleSubmit} variant="contained">
-          Confirm
-        </LoadingButton>
+        <Stack direction="column" gap={1} width="100%" justifyContent="start">
+          {hasZeroPrice && (
+            <Typography variant="body2" color="error.main" sx={{ fontSize: '0.9rem' }}>
+              Activation is blocked due to one or more combinations having a zero price.
+            </Typography>
+          )}
+          <Stack direction="row" justifyContent="end" sx={{ width: '100%' }} gap={1}>
+            <Button
+              variant="outlined"
+              disabled={crudProductLoading}
+              onClick={() => onCloseDialog(false)}
+            >
+              Cancel
+            </Button>
+            <LoadingButton loading={crudProductLoading} onClick={handleSubmit} variant="contained">
+              Confirm
+            </LoadingButton>
+          </Stack>
+        </Stack>
       </StyledDialogActions>
     </Dialog>
   );

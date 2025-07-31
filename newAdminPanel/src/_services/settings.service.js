@@ -49,36 +49,41 @@ const upsertPriceMultiplier = (params) => {
       };
 
       if (exists) {
-        // Update existing price multiplier
-        await fetchWrapperService
-          ._update(config)
-          .then(async () => {
+        await fetchWrapperService._update(config);
+
+        (async () => {
+          try {
             const allSubTypes = await customizationSubTypeService.getAllSubTypes();
             const allProducts = await productService.getAllProductsWithPagging();
 
-            for (const product of allProducts) {
-              await productService.updateSingleProductPrice({
-                product,
-                priceMultiplier,
-                allSubTypes,
-              });
+            const BATCH_SIZE = 10;
+            for (let i = 0; i < allProducts.length; i += BATCH_SIZE) {
+              const batch = allProducts.slice(i, i + BATCH_SIZE);
+              await Promise.all(
+                batch.map(product =>
+                  productService.updateSingleProductPrice({
+                    product,
+                    priceMultiplier,
+                    allSubTypes,
+                  })
+                )
+              );
+              await new Promise(res => setTimeout(res, 100));
             }
-
-            resolve(priceMultiplier);
-          })
-          .catch(() => {
-            reject(new Error('An error occurred during price multiplier update.'));
-          });
+            resolve({ priceMultiplier, productsUpdated: true });
+          } catch (e) {
+            console.error('Batch update failed', e);
+            resolve({ priceMultiplier, productsUpdated: false });
+          }
+        })();
       } else {
-        // Create new price multiplier
-        await fetchWrapperService
-          .create({ url: priceMultiplierUrl, insertPattern: payload })
-          .then(() => {
-            resolve(priceMultiplier);
-          })
-          .catch(() => {
-            reject(new Error('An error occurred during price multiplier creation.'));
-          });
+        await fetchWrapperService.create({
+          url: priceMultiplierUrl,
+          insertPattern: payload,
+        });
+
+        // For create, we don’t run product price update
+        resolve({ priceMultiplier, productsUpdated: true });
       }
     } catch (e) {
       reject(e);
