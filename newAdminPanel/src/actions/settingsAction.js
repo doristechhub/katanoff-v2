@@ -22,8 +22,14 @@ export const upsertPriceMultiplier = (payload) => async (dispatch) => {
     const res = await settingsService.upsertPriceMultiplier(payload);
 
     if (res) {
-      dispatch(setPriceMultiplier(res));
-      toast.success(`Price Multiplier changed successfully`);
+      dispatch(setPriceMultiplier(res.priceMultiplier));
+
+      if (res.productsUpdated) {
+        toast.success('Price Multiplier changed successfully');
+      } else {
+        toast.warning('Price Multiplier changed, but product prices could not be updated');
+      }
+
       return true;
     }
     dispatch(setPriceMultiplier(1));

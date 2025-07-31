@@ -559,7 +559,7 @@ const SettingsViewPage = () => {
           Non-Customized Settings
         </Typography>
         {nonCustomizedError && (
-          <Alert severity="error" sx={{ mt: 2 }}>
+          <Alert severity="error" sx={{ mb: 2 }}>
             {nonCustomizedError}
           </Alert>
         )}

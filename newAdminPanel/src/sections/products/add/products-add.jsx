@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 import { Form, Formik } from 'formik';
 import { useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
@@ -77,6 +77,7 @@ import {
 import ClearIcon from '@mui/icons-material/Clear';
 import GroupBySection from './GroupBySection';
 import { fetchPriceMultiplier } from 'src/actions/settingsAction';
+import { debounce } from 'lodash';
 
 // ----------------------------------------------------------------------
 
@@ -166,6 +167,7 @@ export default function AddProductPage() {
   const [duplicateDialog, setDuplicateDialog] = useState(false);
   const [openCombinationDialog, setCombinantionDialog] = useState(false);
   const [statusConfirmationDialog, setStatusConfirmationDialog] = useState(false);
+  const [hasZeroPrice, setHasZeroPrice] = useState(false);
 
   const {
     menuList,
@@ -410,40 +412,67 @@ export default function AddProductPage() {
     }
   };
 
+  const debouncedCalculatePrices = useRef(
+    debounce(
+      ({
+        combinations,
+        customizationSubTypesList,
+        grossWeight,
+        totalCaratWeight,
+        priceMultiplier,
+        setFieldValue,
+      }) => {
+        const updatedCombinations = helperFunctions?.calculateAutomaticPrices({
+          combinations,
+          customizationSubTypesList,
+          grossWeight,
+          totalCaratWeight,
+          priceMultiplier,
+        });
+        setFieldValue('tempVariComboWithQuantity', updatedCombinations);
+      },
+      800
+    )
+  ).current;
+
   const handleGrossWeightChange = useCallback(
     (value, { values, setFieldValue }) => {
-      const newGrossWeight = value ? Math.round(parseFloat(value) * 100) / 100 : '';
+      const newGrossWeight =
+        value && !isNaN(parseFloat(value)) ? Math.round(parseFloat(value) * 100) / 100 : '';
       setFieldValue('grossWeight', newGrossWeight);
+
       if (values.priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC) {
-        const updatedCombinations = helperFunctions?.calculateAutomaticPrices({
+        debouncedCalculatePrices({
           combinations: values.tempVariComboWithQuantity,
           customizationSubTypesList,
           grossWeight: newGrossWeight,
           totalCaratWeight: values.totalCaratWeight,
           priceMultiplier,
+          setFieldValue,
         });
-        setFieldValue('tempVariComboWithQuantity', updatedCombinations);
       }
     },
-    [customizationSubTypesList, priceMultiplier]
+    [customizationSubTypesList, priceMultiplier, PRICE_CALCULATION_MODES]
   );
 
   const handleTotalCaratWeightChange = useCallback(
     (value, { values, setFieldValue }) => {
-      const newTotalCaratWeight = value ? Math.round(parseFloat(value) * 100) / 100 : '';
+      const newTotalCaratWeight =
+        value && !isNaN(parseFloat(value)) ? Math.round(parseFloat(value) * 100) / 100 : '';
       setFieldValue('totalCaratWeight', newTotalCaratWeight);
+
       if (values.priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC) {
-        const updatedCombinations = helperFunctions?.calculateAutomaticPrices({
+        debouncedCalculatePrices({
           combinations: values.tempVariComboWithQuantity,
           customizationSubTypesList,
           grossWeight: values?.grossWeight,
           totalCaratWeight: newTotalCaratWeight,
           priceMultiplier,
+          setFieldValue,
         });
-        setFieldValue('tempVariComboWithQuantity', updatedCombinations);
       }
     },
-    [customizationSubTypesList, priceMultiplier]
+    [customizationSubTypesList, priceMultiplier, PRICE_CALCULATION_MODES]
   );
 
   return (
@@ -500,11 +529,6 @@ export default function AddProductPage() {
 
                 const loadData = useCallback(async () => {
                   const product = await dispatch(getSingleProduct(productId));
-                  const subCategoryIds = product.subCategoryIds
-                    ? product.subCategoryIds
-                    : product.subCategoryId
-                      ? [product.subCategoryId]
-                      : [];
                   if (product) {
                     formik.setFieldValue('productName', product?.productName);
                     formik.setFieldValue('sku', product?.sku);
@@ -514,7 +538,7 @@ export default function AddProductPage() {
                     formik.setFieldValue('description', product?.description);
                     formik.setFieldValue('specifications', product?.specifications || []);
                     formik.setFieldValue('active', product?.active);
-                    formik.setFieldValue('subCategoryIds', subCategoryIds);
+                    formik.setFieldValue('subCategoryIds', product?.subCategoryIds || []);
                     formik.setFieldValue(
                       'priceCalculationMode',
                       product?.priceCalculationMode || PRICE_CALCULATION_MODES.AUTOMATIC
@@ -543,11 +567,7 @@ export default function AddProductPage() {
                 useEffect(() => {
                   if (Object.keys(selectedProduct).length && menuList) {
                     categoryChangeHandler(selectedProduct.categoryId, formik);
-                    const subCategoryIds = selectedProduct.subCategoryIds
-                      ? selectedProduct.subCategoryIds
-                      : selectedProduct.subCategoryId
-                        ? [selectedProduct.subCategoryId]
-                        : [];
+                    const subCategoryIds = selectedProduct.subCategoryIds || [];
                     subCategoryChangeHandler(subCategoryIds, formik);
                     setFieldValue('productTypeIds', selectedProduct.productTypeIds || []);
                   }
@@ -617,6 +637,19 @@ export default function AddProductPage() {
                     setFieldValue('settingStyleIds', selectedProduct.settingStyleIds);
                   }
                 }, [selectedProduct, settingStyleList]);
+
+                useEffect(() => {
+                  const zeroPrice =
+                    values?.tempVariComboWithQuantity?.some((item) => item.price <= 0) ?? true;
+
+                  setHasZeroPrice((prev) => {
+                    if (prev !== zeroPrice) {
+                      return zeroPrice;
+                    }
+                    return prev;
+                  });
+                }, [values?.tempVariComboWithQuantity]);
+
                 return (
                   <>
                     <Form onSubmit={handleSubmit}>
@@ -1336,9 +1369,16 @@ export default function AddProductPage() {
                           <Typography variant="body2">Add custom variations</Typography>
                         </Grid>
                         <Grid xs={12} sm={8} md={8}>
-                          <Card sx={{ p: 1.5, borderRadius: 2 }} spacing={2} component={Stack}>
+                          <Card
+                            sx={{
+                              p: 1.5,
+                              borderRadius: 2,
+                            }}
+                            spacing={2}
+                            component={Stack}
+                          >
                             <Variations formik={formik} />
-                            <GroupBySection formik={formik} />
+                            <GroupBySection formik={formik} groupTableHeight={400} />
                           </Card>
                         </Grid>
                       </Grid>
@@ -1391,9 +1431,10 @@ export default function AddProductPage() {
                                   <Switch
                                     name="active"
                                     sx={{ mx: 1 }}
-                                    checked={values?.active}
+                                    checked={hasZeroPrice ? false : values?.active}
                                     onBlur={handleBlur}
                                     onChange={() => setStatusConfirmationDialog(true)}
+                                    disabled={hasZeroPrice}
                                   />
                                 }
                                 label="Active"
@@ -1408,6 +1449,16 @@ export default function AddProductPage() {
                               {productId ? 'Update' : 'Save'} Changes
                             </LoadingButton>
                           </Stack>
+                          {hasZeroPrice && (
+                            <Typography
+                              variant="body2"
+                              color="error.main"
+                              sx={{ mt: 1, fontSize: '0.9rem' }}
+                            >
+                              Activation is blocked due to one or more combinations having a zero
+                              price.
+                            </Typography>
+                          )}
                         </Grid>
                       </Grid>
                     </Form>
