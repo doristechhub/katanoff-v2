@@ -13,6 +13,13 @@ const stringReplacedWithSpace = (string) => {
   return string?.split("_")?.join(" ");
 };
 
+export const formatPhoneNumber = (phone) => {
+  const digits = phone.replace(/\D/g, "");
+  const display = `+1 ${digits.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3")}`;
+  const link = `+1${digits}`;
+  return { display, link };
+};
+
 const debounce = (func, delay) => {
   let timeoutId;
   return (...args) => {
