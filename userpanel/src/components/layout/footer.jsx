@@ -12,6 +12,7 @@ import {
   companyEmail,
   companyPhoneNo,
   facebookUrl,
+  formatPhoneNumber,
   instagramUrl,
   pinterestUrl,
   tiktokUrl,
@@ -21,6 +22,7 @@ import logo from "@/assets/images/footer-logo.webp";
 import Link from "next/link";
 import SubscribeEmail from "../ui/SubscribeEmail";
 
+const { display, link } = formatPhoneNumber(companyPhoneNo);
 const footerLinks = [
   {
     title: "Support",
@@ -37,8 +39,8 @@ const footerLinks = [
     title: "Contact",
     navLinks: [
       {
-        title: companyPhoneNo,
-        href: `tel:${companyPhoneNo.replaceAll("-", "")}`,
+        title: display,
+        href: `tel:${link}`,
       },
       { title: "Email Us", href: `mailto:${companyEmail}` },
       { title: "Book an Appointment", href: "/book-appointment" },

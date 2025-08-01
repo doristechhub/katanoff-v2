@@ -1,3 +1,4 @@
+const { formatPhoneNumber } = require("../helpers/common");
 const {
   WEBSITE_URL,
   INSTAGRAM,
@@ -11,9 +12,10 @@ const {
 } = require("./companyInfo");
 const moment = require("moment");
 
+const { display, link } = formatPhoneNumber(COMPANY_MOBILE_NO);
 const headerTemplate = () => `
-  <div style="padding: 2vw 0; border-bottom: 1px solid #e2e2e2; text-align: center;">
-    <a href=${WEBSITE_URL}><img src=${LOGO} alt="Logo" style="width: 15vw; max-width: 200px; height: auto;"></a>
+  <div style="padding: 1vw; border-bottom: 1px solid #e2e2e2; text-align: center;">
+    <a href=${WEBSITE_URL}><img src=${LOGO} alt="Logo" style="width: 15vw; max-width: 170px; height: auto;"></a>
   </div>
 `;
 
@@ -151,7 +153,7 @@ const emailOtpVerification = ({ fullName, otp }) => {
         If you have any questions or need further assistance, feel free to reach out to us at 
         <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> 
         or call us at 
-        <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>. 
+        <a href="tel:${link}" style="color: #202a4e;">${display}</a>. 
       </p>
       <p>Thank you for your attention!</p>
       <p style="margin: 1vw 0;">Best Regards,<br />${COMPANY_NAME}</p>
@@ -186,7 +188,7 @@ const forgotPasswordOtpVerification = (username, otp) => {
         If you have any questions or need further assistance, feel free to reach out to us at 
         <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> 
         or call us at 
-        <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>. 
+        <a href="tel:${link}" style="color: #202a4e;">${display}</a>. 
       </p>
       <p>Thank you for your attention!</p>
       <p style="margin: 1vw 0;">Best Regards,<br />${COMPANY_NAME}</p>
@@ -231,7 +233,7 @@ const getMailTemplateForOrderStatus = (userName, orderNumber, trackingNumber, or
               <li>Payment Status: Confirmed</li>
             </ul>
           </div>
-          <p>Our team is reviewing your order, and we’ll keep you updated once it’s ready for the next steps. Should you have any questions or need further information, feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>.</p>
+          <p>Our team is reviewing your order, and we’ll keep you updated once it’s ready for the next steps. Should you have any questions or need further information, feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or <a href="tel:${link}" style="color: #202a4e;">${display}</a>.</p>
           <p>We appreciate your trust in ${COMPANY_NAME} and look forward to completing your order soon.</p>`
       : ""}
       ${orderStatus === "cancelled"
@@ -244,7 +246,7 @@ const getMailTemplateForOrderStatus = (userName, orderNumber, trackingNumber, or
               <li>Order Status: Cancelled</li>
             </ul>
           </div>
-          <p>A full refund will be processed to your original payment method within 24 hours. If you have any questions or concerns regarding this cancellation or refund, please feel free to contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>.</p>
+          <p>A full refund will be processed to your original payment method within 24 hours. If you have any questions or concerns regarding this cancellation or refund, please feel free to contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${link}" style="color: #202a4e;">${display}</a>.</p>
           <p>Thank you for being so understanding, and we hope to have the opportunity to serve you again in the future.</p>`
       : ""}
       ${orderStatus === "confirmed"
@@ -257,7 +259,7 @@ const getMailTemplateForOrderStatus = (userName, orderNumber, trackingNumber, or
               <li>Order Status: Confirmed and Processing</li>
             </ul>
           </div>
-          <p>We are now preparing your order and will notify you once it has been shipped. If you have any questions in the meantime, feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>.</p>
+          <p>We are now preparing your order and will notify you once it has been shipped. If you have any questions in the meantime, feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${link}" style="color: #202a4e;">${display}</a>.</p>
           <p>Thank you for choosing ${COMPANY_NAME}. We look forward to delivering your order soon!</p>`
       : ""}
       ${orderStatus === "shipped"
@@ -270,12 +272,12 @@ const getMailTemplateForOrderStatus = (userName, orderNumber, trackingNumber, or
 
           <p>If you have any questions or need assistance, please feel free to contact us at 
           <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at 
-          <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>.</p>
+          <a href="tel:${link}" style="color: #202a4e;">${display}</a>.</p>
           <p>Thank you for shopping with us, and we hope you enjoy your purchase!</p>`
       : ""}
       ${orderStatus === "delivered"
       ? `<p>We’re happy to let you know that your ${boldOrderNumber} has been successfully delivered.</p>
-          <p>We hope you enjoy your purchase. If you have any questions or concerns about your order, please feel free to contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>.</p>
+          <p>We hope you enjoy your purchase. If you have any questions or concerns about your order, please feel free to contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${link}" style="color: #202a4e;">${display}</a>.</p>
           <p>Thank you for shopping with ${COMPANY_NAME}! We look forward to serving you again soon!</p>`
       : ""}
       <p style="margin: 1vw 0;">Best Regards, <br />${COMPANY_NAME}</p>
@@ -313,13 +315,13 @@ const getMailTemplateForAppointmentStatus = (
               <li>Date & Time: ${dateTime}</li>
             </ul>
           </div>
-          <p>We look forward to seeing you then. If you have any questions or need to reschedule, please feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>.</p>
+          <p>We look forward to seeing you then. If you have any questions or need to reschedule, please feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${link}" style="color: #202a4e;">${display}</a>.</p>
           <p>Thank you for choosing ${COMPANY_NAME}!</p>`
       : ""}
       ${appointmentStatus === "rejected"
       ? `<p>Thank you for reaching out to us regarding your appointment request. We appreciate your interest in ${COMPANY_NAME}.</p>
           <p>Unfortunately, we must decline your appointment request for ${dateTime}${rejectReason ? `, ${rejectReason}` : ""}. We apologize for any inconvenience this may cause.</p>
-          <p>If you have any questions or need further clarification, please don’t hesitate to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>.</p>
+          <p>If you have any questions or need further clarification, please don’t hesitate to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${link}" style="color: #202a4e;">${display}</a>.</p>
           <p>Thank you for your understanding, and we hope to connect with you soon!</p>`
       : ""}
       <p style="margin: 1vw 0;">Best Regards,<br />${COMPANY_NAME}</p>
@@ -383,15 +385,15 @@ const getMailTemplateForReturnStatus = (
               : ""}
       ${shippingLabelSection}
       ${returnStatus === "approved"
-      ? `<p style="margin: 1vw 0;">If you have any questions or need assistance, don’t hesitate to reach out at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>.</p>`
+      ? `<p style="margin: 1vw 0;">If you have any questions or need assistance, don’t hesitate to reach out at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${link}" style="color: #202a4e;">${display}</a>.</p>`
       : returnStatus === "rejected"
-        ? `<p style="margin: 1vw 0;">If you have any questions or need further clarification, please don’t hesitate to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>. We're here to help!</p>`
+        ? `<p style="margin: 1vw 0;">If you have any questions or need further clarification, please don’t hesitate to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${link}" style="color: #202a4e;">${display}</a>. We're here to help!</p>`
         : returnStatus === "received"
-          ? `<p style="margin: 1vw 0;">Our team is now reviewing the item(s), and we will notify you once the return process is complete. If you have any questions in the meantime, feel free to contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>.</p>`
+          ? `<p style="margin: 1vw 0;">Our team is now reviewing the item(s), and we will notify you once the return process is complete. If you have any questions in the meantime, feel free to contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${link}" style="color: #202a4e;">${display}</a>.</p>`
           : returnStatus === "pending"
-            ? `<p style="margin: 1vw 0;">If you have any questions or need assistance in the meantime, feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>.</p>`
+            ? `<p style="margin: 1vw 0;">If you have any questions or need assistance in the meantime, feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${link}" style="color: #202a4e;">${display}</a>.</p>`
             : returnStatus === "cancelled"
-              ? `<p style="margin: 1vw 0;">If you have any questions or need further clarification, please feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>.</p>`
+              ? `<p style="margin: 1vw 0;">If you have any questions or need further clarification, please feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${link}" style="color: #202a4e;">${display}</a>.</p>`
               : ""}
       <p style="margin: 1vw 0;">Thank you for choosing <a href="${WEBSITE_URL}" style="color: #202a4e;" target="_blank">${COMPANY_NAME}</a>. Please Visit Again.</p>
       <p style="margin: 1vw 0;">Best Regards, <br />${COMPANY_NAME}</p>
@@ -449,10 +451,10 @@ const getMailTemplateForRefundStatus = (
   description += `
       <p style="margin: 1vw 0;">
         ${refundStatus === "refund_initialization_failed"
-      ? `We are actively working to resolve the issue and will keep you updated on the status. If you have any questions or need assistance, please feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>.`
+      ? `We are actively working to resolve the issue and will keep you updated on the status. If you have any questions or need assistance, please feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${link}" style="color: #202a4e;">${display}</a>.`
       : refundStatus === "failed_refund"
-        ? `Our team is investigating the issue, and we will notify you as soon as the refund can be successfully processed. If you have any questions or require further assistance, please feel free to contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>.`
-        : `If you have any questions or need further assistance, please feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>. We’re here to help!`}
+        ? `Our team is investigating the issue, and we will notify you as soon as the refund can be successfully processed. If you have any questions or require further assistance, please feel free to contact us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${link}" style="color: #202a4e;">${display}</a>.`
+        : `If you have any questions or need further assistance, please feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${link}" style="color: #202a4e;">${display}</a>. We’re here to help!`}
       </p>
       ${refundStatus === "refunded"
       ? "<p>Thank you for your patience, and we hope to serve you again in the future!</p>"
@@ -486,7 +488,7 @@ const contactUsEmail = ({ fullName }) => {
       </p>
       <p>
         For immediate assistance, you can also call us at 
-        <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a> 
+        <a href="tel:${link}" style="color: #202a4e;">${display}</a> 
         or email us directly at 
         <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a>.
       </p>
@@ -582,7 +584,7 @@ const discountEmail = ({ userName, discount, status, isSignUp = false }) => {
         <p>This promotion has ended. But stay tuned — we’ll be launching more exciting offers soon!</p>
       `}
 
-      <p>If you have any questions, feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${COMPANY_MOBILE_NO}" style="color: #202a4e;">${COMPANY_MOBILE_NO}</a>.</p>
+      <p>If you have any questions, feel free to reach out to us at <a href="mailto:${COMPANY_EMAIL}" style="color: #202a4e;">${COMPANY_EMAIL}</a> or call us at <a href="tel:${link}" style="color: #202a4e;">${display}</a>.</p>
       <p style="margin-top: 1.5vw;">Best regards,<br/><strong>${COMPANY_NAME}</strong></p>
     </div>
   `;

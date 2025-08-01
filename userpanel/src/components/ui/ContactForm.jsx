@@ -13,6 +13,7 @@ import {
   companyEmail,
   companyMapUrl,
   companyPhoneNo,
+  formatPhoneNumber,
   messageType,
 } from "@/_helper";
 import Alert from "./Alert";
@@ -46,6 +47,8 @@ const ContactForm = () => {
   );
   const { isHovered } = useSelector(({ common }) => common);
 
+  const { display } = formatPhoneNumber(companyPhoneNo);
+
   useAlertTimeout(contactMessage, () =>
     dispatch(setContactMessage({ message: "", type: "" }))
   );
@@ -64,7 +67,7 @@ const ContactForm = () => {
     }
   });
   const { values, errors, touched, handleChange, handleBlur, handleSubmit } =
-      useFormik({
+    useFormik({
       onSubmit,
       validationSchema,
       enableReinitialize: true,
@@ -77,15 +80,18 @@ const ContactForm = () => {
         <div className="max-w-3xl mx-auto">
           <div className="text-center text-baseblack mt-12 md:mt-12 lg:mt-12 2xl:mt-24">
             <p className="text-base sm:text-lg font-Figtree text-baseblack">
-              Our customer service agents are available every day 9:00am to 10:00pm ET.
+              Our customer service agents are available every day 9:00am to
+              10:00pm ET.
               <br />
               (Closed on U.S. Federal Holidays)
             </p>
           </div>
           <div className="flex flex-col md:flex-row justify-center items-center xl:gap-4 gap-2 text-baseblack font-normal py-12">
             <div className="px-2 py-4 flex-1 text-center md:text-left">
-              <h3 className="text-lg lg:text-xl 2xl:text-2xl font-castoro mb-2">Call:</h3>
-              <p>{companyPhoneNo}</p>
+              <h3 className="text-lg lg:text-xl 2xl:text-2xl font-castoro mb-2">
+                Call:
+              </h3>
+              <p>{display}</p>
             </div>
 
             <div className="hidden md:flex items-center md:px-5 xl:px-8">
@@ -93,7 +99,9 @@ const ContactForm = () => {
             </div>
 
             <div className="px-2 py-4 flex-1 text-center md:text-left">
-              <h3 className="text-lg lg:text-xl 2xl:text-2xl font-castoro mb-2">Email:</h3>
+              <h3 className="text-lg lg:text-xl 2xl:text-2xl font-castoro mb-2">
+                Email:
+              </h3>
               <p>{companyEmail}</p>
             </div>
 
@@ -102,7 +110,9 @@ const ContactForm = () => {
             </div>
 
             <div className="px-6 py-4 flex-1 text-center md:text-left">
-              <h3 className="text-lg lg:text-xl 2xl:text-2xl font-castoro mb-2">Address:</h3>
+              <h3 className="text-lg lg:text-xl 2xl:text-2xl font-castoro mb-2">
+                Address:
+              </h3>
               <p>{companyAddress}</p>
             </div>
           </div>
@@ -124,10 +134,11 @@ const ContactForm = () => {
                     name="firstName"
                     id="firstName"
                     placeholder="First name"
-                    className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${touched?.lastName && errors?.lastName
-                      ? "border-red-500 border"
-                      : ""
-                      }`}
+                    className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${
+                      touched?.lastName && errors?.lastName
+                        ? "border-red-500 border"
+                        : ""
+                    }`}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     value={values?.firstName}
@@ -149,10 +160,11 @@ const ContactForm = () => {
                     name="lastName"
                     id="lastName"
                     placeholder="Last name"
-                    className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${touched?.lastName && errors?.lastName
-                      ? "border-red-500 border"
-                      : ""
-                      }`}
+                    className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${
+                      touched?.lastName && errors?.lastName
+                        ? "border-red-500 border"
+                        : ""
+                    }`}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     value={values.lastName}
@@ -175,10 +187,11 @@ const ContactForm = () => {
                     name="email"
                     id="email"
                     placeholder="Your Email"
-                    className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${touched?.email && errors?.email
-                      ? "border-red-500 border"
-                      : ""
-                      }`}
+                    className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${
+                      touched?.email && errors?.email
+                        ? "border-red-500 border"
+                        : ""
+                    }`}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     value={values.email}
@@ -200,10 +213,11 @@ const ContactForm = () => {
                     name="mobile"
                     id="mobile"
                     placeholder="Phone number"
-                    className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${touched?.mobile && errors?.mobile
-                      ? "border-red-500 border"
-                      : ""
-                      }`}
+                    className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${
+                      touched?.mobile && errors?.mobile
+                        ? "border-red-500 border"
+                        : ""
+                    }`}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     value={values.mobile}
@@ -226,10 +240,11 @@ const ContactForm = () => {
                   id="requirement"
                   placeholder="Type your Message"
                   rows={4}
-                  className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${touched.requirement && errors.requirement
-                    ? "border-red-500 border"
-                    : ""
-                    }`}
+                  className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${
+                    touched.requirement && errors.requirement
+                      ? "border-red-500 border"
+                      : ""
+                  }`}
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.requirement}
@@ -254,7 +269,7 @@ const ContactForm = () => {
                 </LoadingPrimaryButton>
               </div>
               {contactMessage?.message &&
-                contactMessage?.type != messageType.SUCCESS ? (
+              contactMessage?.type != messageType.SUCCESS ? (
                 <ErrorMessage message={contactMessage?.message} />
               ) : null}
               {contactMessage?.type == messageType?.SUCCESS ? (
@@ -264,7 +279,6 @@ const ContactForm = () => {
                 />
               ) : null}
             </div>
-
           </form>
         </div>
       </div>
