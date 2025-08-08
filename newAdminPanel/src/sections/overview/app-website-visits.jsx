@@ -5,7 +5,7 @@ import { useCallback, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
-import { MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { Link, MenuItem, Stack, TextField, Typography } from '@mui/material';
 
 import Chart from 'src/components/chart';
 import Spinner from 'src/components/spinner';
@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getSalesComparisionData } from 'src/_services/reportAndAnalysis.service';
 import { setSelectedYearSalesComp } from 'src/store/slices/reportAndAnalysisSlice';
 import Iconify from 'src/components/iconify';
+import { grey } from 'src/theme/palette';
 
 // ----------------------------------------------------------------------
 
@@ -253,6 +254,9 @@ export default function AppWebsiteVisits({ title, subheader, chart, ...other }) 
                 <Box>
                   <b>Total Refund:</b> {fCurrency(totalRefundAmount)}
                 </Box>
+              </Stack>
+              <Stack direction={'row'} justifyContent={'center'} p={2} gap={1}>
+                <b>Net Sales:</b> {fCurrency(totalSalesAmount - totalRefundAmount)}
               </Stack>
             </>
           )}

@@ -10,6 +10,7 @@ const contact = require("./contact");
 const paypal = require("./paypal");
 const discounts = require("./discounts");
 const customizeProductSettings = require("./customizeProductsSettings");
+const diamondShape = require("./diamondShape");
 
 module.exports = {
   orderService: order,
@@ -24,4 +25,5 @@ module.exports = {
   paypalService: paypal,
   discountService: discounts,
   customizeProductService: customizeProductSettings,
+  diamondShapeService: diamondShape,
 };

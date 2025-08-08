@@ -4,6 +4,7 @@ const {
   rejectReturn,
   sendReturnStatusMailController,
   refundPaymentForReturn,
+  generateReturnInovice,
 } = require("../controllers/returns");
 const { adminAuth, jwtAuth } = require("../middleware");
 const { returnsPageId } = require("../utils/pagesList");
@@ -21,5 +22,7 @@ router.post(
   adminAuth(returnsPageId),
   refundPaymentForReturn
 );
+
+router.post("/generateReturnInovice", generateReturnInovice);
 
 module.exports = router;

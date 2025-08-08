@@ -29,6 +29,7 @@ const {
   getNonCustomizedProducts,
   DISCOUNT_TYPES,
   NEW_YORK,
+  NEW_YORK_CODE,
 } = require("../helpers/common");
 dotenv.config();
 
@@ -587,7 +588,11 @@ const createOrder = async ({ payload, res, userData }) => {
 
     // Recalculate totals
     const finalSubTotal = subTotal - orderDiscount;
-    const isNewYorkState = state.toLowerCase() === NEW_YORK.toLowerCase();
+    const isNewYorkState =
+      [NEW_YORK.toLowerCase(), NEW_YORK_CODE?.toLowerCase()].includes(
+        state.toLowerCase()
+      ) || stateCode?.toLowerCase() === NEW_YORK_CODE?.toLowerCase();
+    // const isNewYorkState = state.toLowerCase() === NEW_YORK.toLowerCase();
     const salesTaxPerc = isNewYorkState ? 8.875 : 0;
     const salesTax = +(finalSubTotal * (salesTaxPerc / 100)).toFixed(2);
     const total = +(finalSubTotal + shippingCharge + salesTax).toFixed(2);

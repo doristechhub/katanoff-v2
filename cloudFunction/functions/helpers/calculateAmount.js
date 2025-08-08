@@ -102,7 +102,7 @@ const calculateMetalPrice = ({ netWeight, customizeProductSettingsData }) => {
 
 // Calculate the side diamond price
 const calculateSideDiamondPrice = ({
-  sideDiamondWeight,
+  sideDiamondWeight = 0,
   customizeProductSettingsData,
 }) => {
   return (
@@ -158,7 +158,8 @@ const calculateCustomizedProductPrice = ({
     !productDetail ||
     !Number.isFinite(productDetail?.netWeight) ||
     productDetail?.netWeight <= 0 ||
-    !Number.isFinite(productDetail?.sideDiamondWeight) ||
+    (productDetail?.sideDiamondWeight &&
+      !Number.isFinite(productDetail?.sideDiamondWeight)) ||
     productDetail?.sideDiamondWeight < 0
   ) {
     throw new Error(

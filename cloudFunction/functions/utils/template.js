@@ -13,6 +13,7 @@ const {
 const moment = require("moment");
 
 const { display, link } = formatPhoneNumber(COMPANY_MOBILE_NO);
+const currentYear = new Date().getFullYear();
 const headerTemplate = () => `
   <div style="padding: 1vw; border-bottom: 1px solid #e2e2e2; text-align: center;">
     <a href=${WEBSITE_URL}><img src=${LOGO} alt="Logo" style="width: 15vw; max-width: 170px; height: auto;"></a>
@@ -21,28 +22,46 @@ const headerTemplate = () => `
 
 const footerTemplate = () => `
   <div style="text-align: center; border-top: 1px solid #e2e2e2; padding: 1vw 0;">
-    <p style="font-family: 'Roboto', sans-serif; color: #2b2b2b; font-size: clamp(14px, 2vw, 18px); margin: 0.5vw 0;">Follow Us</p>
-    <div style="margin: 0.3vw 0;">
-      <a href=${FACEBOOK_URL} style="margin: 0 0.5vw; display: inline-block;">
-        <img src=${FACEBOOK} alt="Facebook" style="width: clamp(18px, 2vw, 24px); height: clamp(18px, 2vw, 24px);" />
-      </a>
-      <a href=${INSTAGRAM_URL} style="margin: 0 0.5vw; display: inline-block;">
-        <img src=${INSTAGRAM} alt="Instagram" style="width: clamp(18px, 2vw, 24px); height: clamp(18px, 2vw, 24px);" />
-      </a>
-    </div>
     <div style="text-align: center; color: #a5a5a5; font-size: clamp(12px, 2vw, 16px);">
-  <p style="margin: 0; font-family: 'Roboto', sans-serif; font-weight: 400;">
-    © 2025 ${COMPANY_NAME}. All rights reserved.
-  </p>
-  <p style="margin: 0.5vw 0;">
-    Need help? <a href="mailto:${COMPANY_EMAIL}" style="font-family: 'Roboto', sans-serif; font-weight: 400; color: #a5a5a5; text-decoration: none;">
-      Contact us at ${COMPANY_EMAIL}
-    </a>
-  </p>
+    <p style="margin: 0; font-family: 'Roboto', sans-serif; font-weight: 400;">
+      © ${currentYear} ${COMPANY_NAME}. All rights reserved.
+    </p>
+    <p style="margin: 0.5vw 0;">
+      Need help? <a href="mailto:${COMPANY_EMAIL}" style="font-family: 'Roboto', sans-serif; font-weight: 400; color: #a5a5a5; text-decoration: none;">
+        Contact us at ${COMPANY_EMAIL}
+      </a>
+    </p>
 </div>
 
   </div>
 `;
+
+// FOOTER COMMENTED FOR SOCIAL MEDIA
+
+// const footerTemplate = () => `
+//   <div style="text-align: center; border-top: 1px solid #e2e2e2; padding: 1vw 0;">
+//     <p style="font-family: 'Roboto', sans-serif; color: #2b2b2b; font-size: clamp(14px, 2vw, 18px); margin: 0.5vw 0;">Follow Us</p>
+//     <div style="margin: 0.3vw 0;">
+//       <a href=${FACEBOOK_URL} style="margin: 0 0.5vw; display: inline-block;">
+//         <img src=${FACEBOOK} alt="Facebook" style="width: clamp(18px, 2vw, 24px); height: clamp(18px, 2vw, 24px);" />
+//       </a>
+//       <a href=${INSTAGRAM_URL} style="margin: 0 0.5vw; display: inline-block;">
+//         <img src=${INSTAGRAM} alt="Instagram" style="width: clamp(18px, 2vw, 24px); height: clamp(18px, 2vw, 24px);" />
+//       </a>
+//     </div>
+//     <div style="text-align: center; color: #a5a5a5; font-size: clamp(12px, 2vw, 16px);">
+//   <p style="margin: 0; font-family: 'Roboto', sans-serif; font-weight: 400;">
+//     © 2025 ${COMPANY_NAME}. All rights reserved.
+//   </p>
+//   <p style="margin: 0.5vw 0;">
+//     Need help? <a href="mailto:${COMPANY_EMAIL}" style="font-family: 'Roboto', sans-serif; font-weight: 400; color: #a5a5a5; text-decoration: none;">
+//       Contact us at ${COMPANY_EMAIL}
+//     </a>
+//   </p>
+// </div>
+
+//   </div>
+// `;
 
 const html = (body) => `
   <!DOCTYPE html>
@@ -116,7 +135,7 @@ const welcomeTemplate = (fullName) => `
       <tr>
         <td style="padding: 2vw 0; text-align: center;">
           <p style="color: #bbb; font-family: 'Roboto', sans-serif; font-size: clamp(12px, 2vw, 14px); margin: 0.5vw 0;">Happy Shopping,</p>
-          <p style="color: #bbb; font-family: 'Roboto', sans-serif; font-size: clamp(12px, 2vw, 14px); margin: 0.5vw 0;">© ${COMPANY_NAME} 2025</p>
+          <p style="color: #bbb; font-family: 'Roboto', sans-serif; font-size: clamp(12px, 2vw, 14px); margin: 0.5vw 0;">© ${COMPANY_NAME} ${currentYear}</p>
           <div style="padding: 1vw 0;">
             <a href="${FACEBOOK_URL}"><img src=${FACEBOOK} alt="facebook" style="width: clamp(24px, 3vw, 30px); height: clamp(24px, 3vw, 30px); margin: 0 1vw;"></a>
             <a href="${INSTAGRAM_URL}"><img src=${INSTAGRAM} alt="instagram" style="width: clamp(24px, 3vw, 30px); height: clamp(24px, 3vw, 30px); margin: 0 1vw;"></a>

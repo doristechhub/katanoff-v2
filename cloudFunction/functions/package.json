@@ -13,6 +13,7 @@
   },
   "main": "index.js",
   "dependencies": {
+    "@sparticuz/chromium": "^110.0.0",
     "axios": "^1.6.7",
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.4",
@@ -31,6 +32,8 @@
     "next": "^15.2.4",
     "nodemailer": "^6.9.7",
     "otp-generator": "^4.0.1",
+    "puppeteer": "^23.0.0",
+    "puppeteer-core": "^23.11.1",
     "simple-encryptor": "^4.0.0",
     "stripe": "^14.5.0",
     "uid": "^2.0.2"

@@ -14,6 +14,7 @@ const {
 const { sendMail } = require("../helpers/mail");
 const dotenv = require("dotenv");
 const { getCurrentDate } = require("../helpers/common");
+const { invoiceController } = require("./invoice");
 
 dotenv.config();
 
@@ -491,8 +492,13 @@ const sendRefundStatusEmail = (eventStatus, orderData) => {
   sendMail(orderData.shippingAddress.email, subject, description);
 };
 
+const generateReturnInovice = async (req, res) => {
+  return invoiceController(req, res, "return");
+};
+
 module.exports = {
   rejectReturn,
   sendReturnStatusMailController,
   refundPaymentForReturn,
+  generateReturnInovice,
 };
