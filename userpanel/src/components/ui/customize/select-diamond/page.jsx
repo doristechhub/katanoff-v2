@@ -287,7 +287,7 @@ export default function SelectDiamondPage() {
             <p>
               Design your own diamond ring with Katanoff and bring your dream
               piece to life. Choose your diamond, customize the setting, and
-              create a one-of-a-kind ring that reflects your style and story.
+              create a one of a kind ring that reflects your style and story.
             </p>
           </div>
         </>
@@ -299,13 +299,13 @@ export default function SelectDiamondPage() {
         <>
           <div className="flex flex-col gap-3">
             <p>
-              Transform your imagination into a one-of-a-kind necklace that
+              Transform your imagination into a one of a kind necklace that
               reflects your personal style and story. Whether you envision a
               minimalist gold pendant or a detailed diamond-studded design, our
               artisans bring your ideas to life with precision and care. With
               endless customization options, you're free to choose every detail
-              — from metal type to gemstone arrangement — and craft a piece
-              that’s truly yours.
+              from metal type to gemstone arrangement and craft a piece that’s
+              truly yours.
             </p>
           </div>
         </>

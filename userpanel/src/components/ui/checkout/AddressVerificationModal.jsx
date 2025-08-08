@@ -114,7 +114,11 @@ const AddressVerificationModal = () => {
       title="Address Verification"
       footer={
         <div className="flex gap-6">
-          <GrayButton title="CANCEL" onClick={checkoutModalClose}>
+          <GrayButton
+            className={"!rounded-none"}
+            title="CANCEL"
+            onClick={checkoutModalClose}
+          >
             Cancel
           </GrayButton>
           <div

@@ -1,10 +1,15 @@
 "use client";
-import { fetchOrderHistory } from "@/_actions/order.action";
+// import {
+//   downloadOrderInvoice,
+//   fetchOrderHistory,
+// } from "@/_actions/order.action";
 import { helperFunctions, messageType } from "@/_helper";
+import { fetchOrderHistory } from "@/_actions/order.action";
 import { ITEMS_PER_PAGE } from "@/_utils/common";
 import CommonBgHeading from "@/components/ui/CommonBgHeading";
 import Pagination from "@/components/ui/Pagination";
 import SkeletonLoader from "@/components/ui/skeletonLoader";
+import DownloadInvoice from "@/components/ui/order-history/downloadInvoice";
 import {
   setCurrentPage,
   setOrderMessage,
@@ -15,14 +20,14 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setOrderLoading } from "../../../store/slices/orderSlice";
-import DownloadInvoice from "@/components/ui/order-history/downloadInvoice";
 import { setShowModal } from "@/store/slices/commonSlice";
-import Alert from "@/components/ui/Alert";
+import FixedAlert from "@/components/ui/FixedAlert";
 import { useAlertTimeout } from "@/hooks/use-alert-timeout";
 import returnRequestSvg from "@/assets/icons/returnRequest.svg";
 import { CustomImg } from "@/components/dynamiComponents";
 import threeDots from "@/assets/icons/3dots.svg";
 import eye from "@/assets/icons/eye.svg";
+// import { BsDownload } from "react-icons/bs";
 
 // Import Floating UI
 import {
@@ -41,6 +46,7 @@ import {
 import CommonNotFound from "@/components/ui/CommonNotFound";
 import { RxCross2 } from "react-icons/rx";
 import CancelOrderModal from "@/components/ui/order-history/OrderCancelModel";
+import Spinner from "@/components/ui/spinner";
 
 export default function OrderHistoryPage() {
   // In your main file (above the return)
@@ -117,6 +123,14 @@ export default function OrderHistoryPage() {
   const dismiss = useDismiss(context);
   const role = useRole(context);
 
+  // const handleDownloadInvoice = async (orderNumber) => {
+  //   if (!orderNumber) return;
+  //   const response = await dispatch(downloadOrderInvoice(orderNumber));
+  //   if (response) {
+  //     setOpenId(null);
+  //   }
+  // };
+
   const { getReferenceProps, getFloatingProps } = useInteractions([
     click,
     dismiss,
@@ -164,7 +178,7 @@ export default function OrderHistoryPage() {
   return (
     <>
       {orderMessage?.type === messageType.SUCCESS && (
-        <Alert message={orderMessage.message} type={orderMessage.type} />
+        <FixedAlert message={orderMessage.message} type={orderMessage.type} />
       )}
       <div className="sm:pt-12 pt-2">
         <CommonBgHeading
@@ -253,7 +267,7 @@ export default function OrderHistoryPage() {
             ref={refs.setFloating}
             style={floatingStyles}
             {...getFloatingProps()}
-            className="z-50 py-2 w-48 bg-[#FAFAF8] filter drop-shadow-lg"
+            className="z-40 py-2 w-48 bg-[#FAFAF8] filter drop-shadow-lg"
           >
             <button
               className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4"
@@ -313,16 +327,35 @@ export default function OrderHistoryPage() {
                       </button>
                     )}
 
-                  {invoiceLoading && openId === selectedOrder ? (
-                    <div className="px-4 py-2">Loading invoice...</div>
+                  {invoiceLoading ? (
+                    <div className="flex  px-4 py-2 gap-2 text-basegray">
+                      <Spinner className="h-6" />
+                      Exporting...
+                    </div>
                   ) : (
-                    <div className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray">
-                      <DownloadInvoice
-                        orderId={openId}
-                        onSuccess={() => setOpenId(null)}
+                    <>
+                      <div className="w-full text-left hover:bg-gray-100 flex gap-4 text-base text-basegray">
+                        <DownloadInvoice
+                          orderId={openId}
+                          onSuccess={() => setOpenId(null)}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray"
+                        >
+                          Download
+                        </DownloadInvoice>
+                      </div>
+                      {/* <button
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray"
+                      onClick={() =>
+                        handleDownloadInvoice(currentOrder?.orderNumber)
+                      }
+                    >
+                      <BsDownload
+                        title="Download Invoice"
+                        className="text-xl text-basegray"
                       />
                       Download
-                    </div>
+                    </button> */}
+                    </>
                   )}
                 </>
               );

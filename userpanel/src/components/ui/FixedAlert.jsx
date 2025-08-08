@@ -9,7 +9,7 @@ import { SlClose } from "react-icons/sl";
 
 const severityStyles = {
   success: "bg-[#28a785]",
-  error: "bg-[#dc3545]",
+  error: "bg-[#D93838]",
   warning: "bg-[#ffc107]",
   info: "bg-[#17a2b8] ",
 };
@@ -21,10 +21,9 @@ const iconMap = {
   info: <BadgeInfo className="w-6 h-6" />,
 };
 
-const Alert = ({ type = "info", message, removeMessage }) => {
+const FixedAlert = ({ type = "info", message, removeMessage, className }) => {
   if (!message) return null;
-  const normalizedType = type.toLowerCase();
-  
+  type = type?.toLowerCase();
   return (
     <AnimatePresence>
       <motion.div
@@ -36,6 +35,10 @@ const Alert = ({ type = "info", message, removeMessage }) => {
         initial={{
           opacity: 0,
           scale: 0.8,
+          position: "fixed",
+          top: "0",
+          right: "0",
+          zIndex: "9999",
         }}
         animate={{
           opacity: 1,
@@ -43,18 +46,16 @@ const Alert = ({ type = "info", message, removeMessage }) => {
         }}
       >
         <div
-          className={`z-10 w-[100%] mx-auto flex items-center justify-between p-2.5 md:p-4 rounded-xl text-white ${severityStyles[normalizedType]}`}
+          className={`w-full  mx-auto flex items-center justify-center p-2.5 md:p-4 text-white ${className} ${severityStyles[type]}`}
         >
-          <div className="flex items-center">
-            <div className="mr-3 text-white">{iconMap[normalizedType]}</div>
-            <p>{message}</p>
-          </div>
+          <div className="mr-3 text-white">{iconMap[type]}</div>
+          <p className="text-sm md:text-base">{message}</p>
           {removeMessage ? (
             <div
-              className="p-1.5 xxs:p-2 hover:bg-white/10 cursor-pointer text-white transition-colors rounded-full"
+              className="p-1.5 xxs:p-2 hover:bg-white/10 text-white transition-colors"
               onClick={removeMessage}
             >
-              <SlClose color="#fffff" className="w-5 h-5" />
+              <SlClose color="#fffff" className="w-5 h-5 xxs:w-6 xxs:h-6" />
             </div>
           ) : (
             ""
@@ -65,4 +66,4 @@ const Alert = ({ type = "info", message, removeMessage }) => {
   );
 };
 
-export default Alert;
+export default FixedAlert;

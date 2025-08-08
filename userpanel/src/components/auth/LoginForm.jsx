@@ -15,7 +15,7 @@ import {
 import { SendOTPForEmailVerification } from "@/_actions/user.action";
 import { setIsHovered } from "@/store/slices/commonSlice";
 import { LoadingPrimaryButton } from "../ui/button";
-import Alert from "../ui/Alert";
+import FixedAlert from "../ui/FixedAlert";
 import { messageType } from "@/_helper/constants";
 import ErrorMessage from "../ui/ErrorMessage";
 
@@ -141,9 +141,12 @@ const LoginForm = () => {
       </p>
 
       {sendOtpMessage?.type !== messageType?.SUCCESS ? (
-        <Alert message={sendOtpMessage?.message} type={sendOtpMessage?.type} />
+        <FixedAlert
+          message={sendOtpMessage?.message}
+          type={sendOtpMessage?.type}
+        />
       ) : null}
-      {/* <Alert
+      {/* <FixedAlert
         message={userRegisterMessage?.message}
         type={userRegisterMessage?.type}
       /> */}

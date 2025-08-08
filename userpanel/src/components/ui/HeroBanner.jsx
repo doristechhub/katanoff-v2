@@ -2,6 +2,7 @@ import { CustomImg, ProgressiveImg } from "../dynamiComponents";
 import { PrimaryLinkButton } from "./button";
 import progressiveMobile from "@/assets/images/progressive-mobile.webp";
 import progressiveDesktop from "@/assets/images/progressive-desktop.webp";
+import { ENGAGEMENT_RINGS, helperFunctions } from "@/_helper";
 
 const HeroBanner = ({
   title,
@@ -51,14 +52,14 @@ const HeroBanner = ({
           </picture> */}
           <video
             muted
-            preload="none"
+            preload="auto"
             aria-label="Homepage Banner Video"
             playsInline
             autoPlay
             loop
             className="w-full h-auto object-cover"
           >
-            <source src={"/videos/home-page-video.mp4"} type="video/mp4" />
+            <source src="/videos/home-page-video.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </div>
@@ -70,8 +71,8 @@ const HeroBanner = ({
               title={titleAttr}
               alt={altAttr}
               placeholderSrc={progressiveMobile}
-              className="object-cover  w-full lg:hidden"
-              progressiveImgClassName="h-[738px] w-full"
+              className="object-cover w-full lg:hidden"
+              progressiveImgClassName="!object-none w-full"
             />
           ) : null}
           {imageSrcDesktop ? (
@@ -80,8 +81,8 @@ const HeroBanner = ({
               title={titleAttr}
               alt={altAttr}
               placeholderSrc={progressiveDesktop}
-              className="object-cover  w-full hidden lg:block"
-              progressiveImgClassName="h-[448px] w-full"
+              className="object-cover w-full hidden lg:block"
+              progressiveImgClassName="!object-none w-full"
             />
           ) : null}
         </>
@@ -145,12 +146,14 @@ const HeroBanner = ({
                 Diamonds that <br />
                 Deserve You.
               </h1>
-              <p className="mt-2 md:mt-2 text-sm">
+              {/* <p className="mt-2 md:mt-2 text-sm">
                 Free 1ct Diamond Pendant with Purchase<sup>*</sup>
-              </p>
+              </p> */}
               <div className="hidden md:flex mt-4 md:mt-4 flex-col md:flex-row items-center md:justify-center gap-2.5 md:gap-4">
                 <PrimaryLinkButton
-                  href="/customize/start-with-setting"
+                  href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                    ENGAGEMENT_RINGS
+                  )}`}
                   variant="transparentHover"
                 >
                   SHOP ENGAGEMENT
@@ -164,7 +167,9 @@ const HeroBanner = ({
               </div>
               <div className="md:hidden px-2 flex mt-4 md:mt-4 flex-wrap items-center justify-center gap-2.5 md:gap-4">
                 <PrimaryLinkButton
-                  href="/customize/start-with-setting"
+                  href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                    ENGAGEMENT_RINGS
+                  )}`}
                   variant="blackHover"
                 >
                   SHOP ENGAGEMENT

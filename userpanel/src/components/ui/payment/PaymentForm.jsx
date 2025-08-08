@@ -347,16 +347,16 @@ const PaymentForm = ({ orderId }) => {
           if (!currentUser) {
             localStorage.removeItem("cart");
           }
-          localStorage.removeItem("address");
-          localStorage.removeItem("selectedShippingMethod");
-          dispatch(setCartList([]));
+          // localStorage.removeItem("address");
+          // localStorage.removeItem("selectedShippingMethod");
+          // dispatch(setCartList([]));
         }
       } catch (error) {
         console.error("Error updating payment status:", error);
         throw error;
       }
     },
-    [cartList, dispatch, router, orderId]
+    [cartList, router, orderId]
   );
 
   const handleAddressChange = (event) => {

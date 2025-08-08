@@ -148,7 +148,7 @@ const validationSchema = Yup.object({
     return Yup.mixed().notRequired();
   }),
   sideDiamondWeight: Yup.lazy((value, { parent }) => {
-    if (parent.isDiamondFilter) {
+    if (value && parent.isDiamondFilter) {
       return Yup.number()
         .required('Side diamond weight is required')
         .positive('Side diamond weight must be positive');

@@ -188,3 +188,23 @@ export const deleteReturnRequest = (payload) => async (dispatch) => {
     dispatch(setDeleteReturnRequestLoader(false));
   }
 };
+
+export const downloadReturnInvoice = ({ returnId, orderNumber }) => {
+  return async (dispatch) => {
+    dispatch(setInvoiceLoading(true));
+    try {
+      const response = await returnService?.downloadReturnInvoice({
+        returnId,
+        orderNumber,
+      });
+      if (response?.success) {
+        return response;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    } finally {
+      dispatch(setInvoiceLoading(false));
+    }
+  };
+};

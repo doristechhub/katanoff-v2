@@ -335,7 +335,7 @@ const insertProduct = (params) => {
           return;
         }
 
-        if (sideDiamondWeight && sideDiamondWeight <= 0) {
+        if (sideDiamondWeight && sideDiamondWeight < 0) {
           reject(new Error('Invalid Side Diamond Weight: Must be a positive number'));
           return;
         }
@@ -357,13 +357,9 @@ const insertProduct = (params) => {
             return;
           }
 
-          if (!sideDiamondWeight || isNaN(sideDiamondWeight)) {
-            reject(new Error('Invalid Side Diamond Weight: Must be a valid number'));
-            return;
-          }
           // Ensure sideDiamondWeight has exactly 2 decimal places
           const sideDiamondWeightString = sideDiamondWeight.toFixed(2);
-          if (!/^\d+\.\d{2}$/.test(sideDiamondWeightString)) {
+          if (sideDiamondWeight && !/^\d+\.\d{2}$/.test(sideDiamondWeightString)) {
             reject(new Error('Side Diamond Weight must have exactly two decimal places'));
             return;
           }
@@ -1373,7 +1369,8 @@ const updateYellowGoldMedia = (params) => {
             if (!validFileType) {
               reject(
                 new Error(
-                  `Invalid file for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
+                  `Invalid file for ${name}! (Only ${
+                    type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
                   } files are allowed!)`
                 )
               );
@@ -1383,7 +1380,8 @@ const updateYellowGoldMedia = (params) => {
             if (!validFileSize) {
               reject(
                 new Error(
-                  `Invalid file size for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
+                  `Invalid file size for ${name}! (Only ${
+                    type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
                   } are allowed!)`
                 )
               );
@@ -1620,7 +1618,8 @@ const updateWhiteGoldMedia = (params) => {
             if (!validFileType) {
               reject(
                 new Error(
-                  `Invalid file for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
+                  `Invalid file for ${name}! (Only ${
+                    type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
                   } files are allowed!)`
                 )
               );
@@ -1630,7 +1629,8 @@ const updateWhiteGoldMedia = (params) => {
             if (!validFileSize) {
               reject(
                 new Error(
-                  `Invalid file size for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
+                  `Invalid file size for ${name}! (Only ${
+                    type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
                   } are allowed!)`
                 )
               );
@@ -1809,8 +1809,8 @@ const updateProduct = (params) => {
               : productData?.grossWeight;
           centerDiamondWeight =
             !isNaN(centerDiamondWeight) &&
-              centerDiamondWeight !== '' &&
-              centerDiamondWeight !== null
+            centerDiamondWeight !== '' &&
+            centerDiamondWeight !== null
               ? Math.round(parseFloat(centerDiamondWeight) * 100) / 100
               : 0;
           totalCaratWeight =
@@ -1820,7 +1820,7 @@ const updateProduct = (params) => {
           sideDiamondWeight =
             !isNaN(sideDiamondWeight) && sideDiamondWeight !== '' && sideDiamondWeight !== null
               ? Math.round(parseFloat(sideDiamondWeight) * 100) / 100
-              : productData.sideDiamondWeight || 0;
+              : 0;
           isDiamondFilter = isBoolean(isDiamondFilter)
             ? isDiamondFilter
             : productData.isDiamondFilter || false;
@@ -1833,7 +1833,7 @@ const updateProduct = (params) => {
             ? priceCalculationMode
             : productData.priceCalculationMode;
           subCategoryIds = Array.isArray(subCategoryIds)
-            ? subCategoryIds.map(id => id?.trim())
+            ? subCategoryIds.map((id) => id?.trim())
             : productData.subCategoryIds || [];
 
           // Validate inputs
@@ -1868,7 +1868,7 @@ const updateProduct = (params) => {
             return;
           }
 
-          if (sideDiamondWeight && sideDiamondWeight <= 0) {
+          if (sideDiamondWeight && sideDiamondWeight < 0) {
             reject(new Error('Invalid Side Diamond Weight: Must be a positive number'));
             return;
           }
@@ -1888,12 +1888,9 @@ const updateProduct = (params) => {
               reject(new Error('Net Weight must have exactly two decimal places'));
               return;
             }
-            if (!sideDiamondWeight || isNaN(sideDiamondWeight)) {
-              reject(new Error('Invalid Side Diamond Weight: Must be a valid number'));
-              return;
-            }
+
             const sideDiamondWeightString = sideDiamondWeight.toFixed(2);
-            if (!/^\d+\.\d{2}$/.test(sideDiamondWeightString)) {
+            if (sideDiamondWeight && !/^\d+\.\d{2}$/.test(sideDiamondWeightString)) {
               reject(new Error('Side Diamond Weight must have exactly two decimal places'));
               return;
             }
@@ -2252,7 +2249,7 @@ const updateProduct = (params) => {
           variComboWithQuantity = Array.isArray(variComboWithQuantity) ? variComboWithQuantity : [];
           let variComboWithQuantityArray =
             variComboWithQuantity.length &&
-              !isInValidVariComboWithQuantityArray(variComboWithQuantity)
+            !isInValidVariComboWithQuantityArray(variComboWithQuantity)
               ? getVariComboWithQuantityArray(variComboWithQuantity)
               : productData.variComboWithQuantity;
 

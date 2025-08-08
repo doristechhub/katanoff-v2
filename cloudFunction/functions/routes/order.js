@@ -9,6 +9,7 @@ const {
   cancelOrder,
   deleteOrder,
   refundPayment,
+  generateOrderInovice,
 } = require("../controllers/order");
 const {
   adminAuth,
@@ -48,5 +49,6 @@ router.post(
 router.delete("/:orderId", deleteOrder);
 
 router.post("/refundPayment", jwtAuth, adminAuth(ordersPageId), refundPayment);
+router.post("/generateOrderInovice", generateOrderInovice);
 
 module.exports = router;

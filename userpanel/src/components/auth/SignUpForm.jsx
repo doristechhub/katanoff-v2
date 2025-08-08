@@ -18,7 +18,7 @@ import {
 } from "@/_actions/user.action";
 import { setIsHovered } from "@/store/slices/commonSlice";
 import { LoadingPrimaryButton } from "../ui/button";
-import Alert from "../ui/Alert";
+import FixedAlert from "../ui/FixedAlert";
 import { messageType } from "@/_helper/constants";
 import openEye from "@/assets/icons/open-eye.svg";
 import closeEye from "@/assets/icons/close-eye.svg";
@@ -288,7 +288,7 @@ const SignUpForm = () => {
         </Link>
       </p>
       {userRegisterMessage?.type !== messageType?.SUCCESS ? (
-        <Alert
+        <FixedAlert
           message={userRegisterMessage?.message}
           type={userRegisterMessage?.type}
         />

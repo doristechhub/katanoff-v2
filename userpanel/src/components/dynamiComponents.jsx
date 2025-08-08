@@ -385,3 +385,7 @@ export const CartIconInCheckout = dynamic(
     ssr: false,
   }
 );
+
+export const EllipsisLoader = dynamic(() => import("./ui/EllipsisLoader.jsx"), {
+  ssr: false,
+});

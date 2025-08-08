@@ -15,10 +15,6 @@ const ProgressiveImg = ({
   const [imgSrc, setImgSrc] = useState(placeholderSrc || src);
 
   useEffect(() => {
-    if (src) {
-      setImgSrc(src);
-      return;
-    }
     setImgSrc(placeholderSrc);
     const img = new window.Image();
     img.src = src;

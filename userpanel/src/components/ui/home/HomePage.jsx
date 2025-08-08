@@ -18,7 +18,7 @@ import {
 
 import TextAboveImage from "@/components/ui/TextAboveImage";
 import { useDispatch, useSelector } from "react-redux";
-import Alert from "@/components/ui/Alert";
+import FixedAlert from "@/components/ui/FixedAlert";
 import { setLoginMessage } from "@/store/slices/userSlice";
 import { useAlertTimeout } from "@/hooks/use-alert-timeout";
 import HeroBanner from "../HeroBanner";
@@ -257,15 +257,15 @@ const Home = () => {
       <section className="container pt-10 lg:pt-12 2xl:pt-16">
         <AccordionDropdown items={faqData} />
       </section>
-      <Alert message={loginMessage?.message} type={loginMessage?.type} />
+      <FixedAlert message={loginMessage?.message} type={loginMessage?.type} />
       {appointmentMessage?.type === messageType?.SUCCESS && (
-        <Alert
+        <FixedAlert
           message={appointmentMessage?.message}
           type={appointmentMessage?.type}
         />
       )}
       {customJewelryMessage?.type === messageType?.SUCCESS && (
-        <Alert
+        <FixedAlert
           message={customJewelryMessage?.message}
           type={customJewelryMessage?.type}
         />

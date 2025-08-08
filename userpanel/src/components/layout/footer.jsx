@@ -10,9 +10,8 @@ import {
 import footerBGShape from "@/assets/images/footer-bg-shape.webp";
 import {
   companyEmail,
-  companyPhoneNo,
+  CURRENT_YEAR,
   facebookUrl,
-  formatPhoneNumber,
   instagramUrl,
   pinterestUrl,
   tiktokUrl,
@@ -22,7 +21,6 @@ import logo from "@/assets/images/footer-logo.webp";
 import Link from "next/link";
 import SubscribeEmail from "../ui/SubscribeEmail";
 
-const { display, link } = formatPhoneNumber(companyPhoneNo);
 const footerLinks = [
   {
     title: "Support",
@@ -39,8 +37,8 @@ const footerLinks = [
     title: "Contact",
     navLinks: [
       {
-        title: display,
-        href: `tel:${link}`,
+        title: "Call Us",
+        href: "/contact-us",
       },
       { title: "Email Us", href: `mailto:${companyEmail}` },
       { title: "Book an Appointment", href: "/book-appointment" },
@@ -122,11 +120,11 @@ export default function Footer() {
               Get on the Guest List
             </h3>
             <p className="w-[70%] md:w-full mt-1 2xl:text-lg">
-              Perks include $100 off your first order* Plus new product
-              launches, store openings, and more!
+              Perks include early access to new product launches, exclusive
+              invites to store openings, and more!
             </p>
             <SubscribeEmail />
-            <div className="flex gap-5 mt-5 lg:mt-8">
+            {/* <div className="flex gap-5 mt-5 lg:mt-8">
               {mediaLinks?.map((media, index) => {
                 return (
                   <Link
@@ -139,13 +137,13 @@ export default function Footer() {
                   </Link>
                 );
               })}
-            </div>
+            </div> */}
           </div>
         </div>
         <div className="lg:h-[30vh] 2xl:h-[35vh] md:flex md:justify-end md:items-end mt-10 md:mt-14 lg:mt-0">
           <div className="flex flex-col flex-wrap md:flex-row 2xl:justify-end gap-2 lg:gap-4 2xl:text-lg">
             <ul className="md:list-disc">
-              <li>© 2025 Katanoff.com</li>
+              <li>© {CURRENT_YEAR} Katanoff.com</li>
             </ul>
             <Link href={"/terms-and-conditions"}>Terms & Conditions</Link>
             <Link href={"/privacy-policy"}>Privacy Policy</Link>

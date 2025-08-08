@@ -7,9 +7,9 @@ export const convertImageToBase64 = async (imageUrl) => {
   try {
     const response = await fetch(imageUrl, { redirect: "follow" });
     if (!response.ok) {
-      throw new Error(
-        `Failed to fetch image (${response?.status}): ${response?.statusText}`
-      );
+      // throw new Error(
+      //   `Failed to fetch image (${response?.status}): ${response?.statusText}`
+      // );
     }
     const blob = await response.blob();
     return new Promise((resolve, reject) => {

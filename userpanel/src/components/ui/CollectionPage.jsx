@@ -69,7 +69,7 @@ export default function CollectionPage() {
     <>
       {/* Swiper Section */}
       {bannerLoading ? (
-        <SkeletonLoader height="h-[738px] lg:h-[448px]" />
+        <SkeletonLoader className="aspect-[1500/738] lg:aspect-[1920/448] w-full" />
       ) : (
         <HeroBanner
           imageSrcDesktop={banners?.desktop}

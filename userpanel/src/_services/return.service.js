@@ -1,4 +1,5 @@
 import { uid } from "uid";
+import axios from "axios";
 import {
   fetchWrapperService,
   GOLD_COLOR,
@@ -579,6 +580,43 @@ const processReturnProductItem = ({
   };
 };
 
+const downloadReturnInvoice = async ({ returnId, orderNumber }) => {
+  try {
+    returnId = sanitizeValue(returnId) ? returnId.trim() : null;
+    orderNumber = sanitizeValue(orderNumber) ? orderNumber.trim() : null;
+    if (returnId) {
+      const response = await axios.post(
+        "/returns/generateReturnInovice",
+        { returnId },
+        {
+          responseType: "blob",
+        }
+      );
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Return-${orderNumber}.pdf`; // Set filename
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      return { success: true, message: "Invoice downloaded successfully" };
+    }
+    return { success: false, message: "ReturnId not found" };
+  } catch (error) {
+    console.error("Error downloading Invoice:", error);
+    return {
+      success: false,
+      message:
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to download Invoice",
+    };
+  }
+};
+
 export const returnService = {
   insertReturnRequest,
   getUserReturnsList,
@@ -587,4 +625,5 @@ export const returnService = {
   getReturnsByOrderId,
   getReturnDetailByReturnId,
   trackReturnByOrderNumberAndEmail,
+  downloadReturnInvoice,
 };

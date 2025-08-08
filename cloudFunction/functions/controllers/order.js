@@ -5,9 +5,9 @@ const {
   stripeService,
   paypalService,
 } = require("../services/index");
+
 const sanitizeValue = require("../helpers/sanitizeParams");
 const message = require("../utils/messages");
-const { updateProductQty } = require("../services/product");
 const {
   getMailTemplateForOrderStatus,
   getMailTemplateForRefundStatus,
@@ -18,6 +18,7 @@ const {
   getCurrentDate,
   getNonCustomizedProducts,
 } = require("../helpers/common");
+const { invoiceController } = require("./invoice");
 
 /**
   This API is used for create order.
@@ -212,7 +213,7 @@ const deleteOrder = async (req, res) => {
             orderData.products
           );
 
-          await updateProductQty(nonCustomizedProducts);
+          await productService?.updateProductQty(nonCustomizedProducts);
           if (orderData?.paymentMethod === "stripe") {
             const paymentIntent = await stripeService.cancelPaymentIntent(
               orderData.stripePaymentIntentId
@@ -376,7 +377,7 @@ const cancelOrder = async (req, res) => {
         const nonCustomizedProducts = getNonCustomizedProducts(
           orderData.products
         );
-        await updateProductQty(nonCustomizedProducts);
+        await productService?.updateProductQty(nonCustomizedProducts);
 
         // Send cancellation email
         const { subject, description } = getMailTemplateForOrderStatus(
@@ -441,7 +442,7 @@ const cancelOrder = async (req, res) => {
             if (
               !refundsList?.length ||
               refundsList?.filter((x) => x?.status === "canceled")?.length ===
-              refundsList?.length
+                refundsList?.length
             ) {
               const orderUpdatePatternWithRefund = {
                 paymentStatus: "refund_initialization_failed",
@@ -528,7 +529,7 @@ const cancelOrder = async (req, res) => {
           status: 409,
           message: message.custom(
             `You cannot cancel order as the payment status is ${orderData.paymentStatus}` +
-            ` and order status is ${orderData.orderStatus}`
+              ` and order status is ${orderData.orderStatus}`
           ),
         });
       }
@@ -648,7 +649,8 @@ const refundPayment = async (req, res) => {
           return res.json({
             status: 429,
             message: message.custom(
-              `The requested refund amount exceeds your payment amount. The maximum refundable amount is $${paymentIntent.amount / 100
+              `The requested refund amount exceeds your payment amount. The maximum refundable amount is $${
+                paymentIntent.amount / 100
               }.`
             ),
           });
@@ -692,7 +694,7 @@ const refundPayment = async (req, res) => {
           if (
             !refundsList?.length ||
             refundsList?.filter((x) => x?.status === "canceled")?.length ===
-            refundsList?.length
+              refundsList?.length
           ) {
             updatePattern.paymentStatus = "refund_initialization_failed";
             updatePattern.stripeRefundFailureReason = e?.message;
@@ -731,7 +733,8 @@ const refundPayment = async (req, res) => {
           return res.json({
             status: 429,
             message: message.custom(
-              `The requested refund amount exceeds your payment amount. The maximum refundable amount is $${capturedAmount / 100
+              `The requested refund amount exceeds your payment amount. The maximum refundable amount is $${
+                capturedAmount / 100
               }.`
             ),
           });
@@ -812,6 +815,10 @@ const refundPayment = async (req, res) => {
   }
 };
 
+const generateOrderInovice = async (req, res) => {
+  return invoiceController(req, res, "order");
+};
+
 module.exports = {
   insertOrder,
   updatePaymentStatus,
@@ -821,4 +828,5 @@ module.exports = {
   getAllOrder,
   cancelOrder,
   refundPayment,
+  generateOrderInovice,
 };
