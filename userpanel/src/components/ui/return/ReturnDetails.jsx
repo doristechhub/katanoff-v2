@@ -10,6 +10,8 @@ import {
 import {
   ESTIMATE_AMOUNT_NOTE,
   helperFunctions,
+  LENGTH,
+  RING_SIZE,
   SALES_TAX_PERCENTAGE_VALUE,
 } from "@/_helper";
 import SkeletonLoader from "../skeletonLoader";
@@ -17,8 +19,10 @@ import DiamondDetailDrawer from "@/components/ui/customize/DiamondDetailDrawer";
 import CancelReturnRequest from "./CancelReturnRequest";
 import effect from "@/assets/icons/effect.png";
 import { setOpenDiamondDetailDrawer } from "@/store/slices/commonSlice";
-import DownloadInvoice from "../order-history/downloadInvoice";
 import Spinner from "../spinner";
+// import { downloadReturnInvoice } from "@/_actions/return.action";
+// import { BsDownload } from "react-icons/bs";
+import DownloadInvoice from "../order-history/downloadInvoice";
 
 const ReturnDetails = ({
   returnDetail,
@@ -102,6 +106,11 @@ const ReturnDetails = ({
     return () => contentElement.removeEventListener("wheel", handleWheel);
   }, []);
 
+  // const handleDownloadInvoice = ({ returnId, orderNumber }) => {
+  //   if (!returnId) return;
+  //   dispatch(downloadReturnInvoice({ returnId, orderNumber }));
+  // };
+
   // Render loading state
   if (returnLoader) {
     return (
@@ -129,12 +138,28 @@ const ReturnDetails = ({
           returnDetail?.returnPaymentStatus === "pending" && (
             <CancelReturnRequest returnId={returnDetail.id} />
           )}
-        {["approved", "received"]?.includes(returnDetail?.status) &&
+        {/* {["approved", "received"]?.includes(returnDetail?.status) &&
           (invoiceLoading ? (
             <Spinner className="h-6" />
           ) : (
-            <DownloadInvoice returnId={returnDetail.id} />
-          ))}
+            <button
+              className="text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray"
+              onClick={() =>
+                handleDownloadInvoice({
+                  returnId: returnDetail?.id,
+                  orderNumber: returnDetail?.orderNumber,
+                })
+              }
+            >
+              <BsDownload
+                title="Download Invoice"
+                className="text-xl text-basegray"
+              />
+            </button>
+          ))} */}
+        {["approved", "received"]?.includes(returnDetail?.status) && (
+          <DownloadInvoice returnId={returnDetail.id} />
+        )}
       </div>
 
       {/* Main Content */}
@@ -182,6 +207,24 @@ const ReturnDetails = ({
                             product?.variations
                           )}
                         </p>
+
+                        {[RING_SIZE, LENGTH].map((variationName) => {
+                          const { name, type, exists } =
+                            helperFunctions?.getVariationDisplay(
+                              product?.variations,
+                              variationName
+                            );
+                          return exists ? (
+                            <div
+                              key={variationName}
+                              className="flex items-center gap-2 pt-1 sm:pt-0"
+                            >
+                              <p className="text-sm items-center md:text-base font-medium text-baseblack">
+                                {name}: {type}
+                              </p>
+                            </div>
+                          ) : null;
+                        })}
 
                         {product?.diamondDetail && (
                           <div className="hidden xs:block">

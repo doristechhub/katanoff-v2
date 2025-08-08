@@ -12,8 +12,9 @@ export default function OrderDetailPage() {
   const params = useParams();
   const dispatch = useDispatch();
   const { orderId } = params;
-  const { orderDetail, orderDetailLoading, invoiceLoading, selectedOrder } =
-    useSelector(({ order }) => order);
+  const { orderDetail, orderDetailLoading, invoiceLoading } = useSelector(
+    ({ order }) => order
+  );
 
   useEffect(() => {
     dispatch(setShowModal(false));
@@ -33,7 +34,6 @@ export default function OrderDetailPage() {
             orderLoading={orderDetailLoading}
             orderDetail={orderDetail}
             invoiceLoading={invoiceLoading}
-            selectedOrder={selectedOrder}
             showInvoice={true}
           />
         </div>

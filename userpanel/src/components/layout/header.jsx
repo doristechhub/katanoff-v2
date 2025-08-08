@@ -132,10 +132,10 @@ export default function Header() {
         <CustomImg srcAttr={flagUs} className="rounded-full w-6" />
       </div>
       <header
-        className={` w-full z-50 transition-all duration-700 ease-in-out 
+        className={`w-full z-50 transition-all duration-700 ease-in-out 
     ${
       isHeaderVisible
-        ? // ? "fixed -top-2 animate-slideDown animate-duration-900 animate-ease-in-out clear-both"
+        ? // "fixed -top-2 animate-slideDown animate-duration-900 animate-ease-in-out clear-both"
           "fixed -top-0 lg:-top-20 animate-slideDown animate-duration-900 animate-ease-in-out clear-both"
         : ""
     }

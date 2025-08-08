@@ -233,6 +233,42 @@ const deleteOrder = async (orderId) => {
   }
 };
 
+const downloadOrderInvoice = async (orderNumber) => {
+  try {
+    orderNumber = sanitizeValue(orderNumber) ? orderNumber.trim() : null;
+    if (orderNumber) {
+      const response = await axios.post(
+        "/order/generateOrderInovice",
+        { orderNumber },
+        {
+          responseType: "blob",
+        }
+      );
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `order-${orderNumber}.pdf`; // Set filename
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      return {
+        success: true,
+        message: "Invoice downloaded successfully",
+      };
+    }
+    return { success: false, message: "Order number not found" };
+  } catch (error) {
+    console.error("Error downloading Invoice:", error);
+    return {
+      success: false,
+      message: error?.message || "Failed to download Invoice",
+    };
+  }
+};
+
 const verifyOrder = async (orderId) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -388,4 +424,5 @@ export const orderService = {
   trackOrderByOrderNumberAndEmail,
   verifyOrder,
   getAllOrdersWithoutLogin,
+  downloadOrderInvoice,
 };

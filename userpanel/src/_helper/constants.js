@@ -167,3 +167,5 @@ export const TWO_GRID = "two_grid";
 export const THREE_GRID = "three_grid";
 export const SLIDER_GRID = "slider_grid";
 export const COLLECTION_TYPES = [TWO_GRID, THREE_GRID, SLIDER_GRID];
+
+export const CURRENT_YEAR = new Date().getFullYear();

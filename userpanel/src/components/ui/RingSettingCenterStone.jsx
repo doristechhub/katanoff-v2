@@ -69,7 +69,7 @@ const RingSettingCenterStone = () => {
           <h2 className="text-3xl sm:text-4xl font-semibold font-castoro uppercase text-black w-[80%]">
             Design Your Ring
           </h2>
-          <p>Build Your Ring in 2 Step's</p>
+          <p>Build Your Ring in 3 Step's</p>
           <div className="flex justify-center">
             <PrimaryLinkButton
               variant="blackHover"

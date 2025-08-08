@@ -3,10 +3,11 @@ import { CustomImg, ProgressiveImg } from "@/components/dynamiComponents";
 import {
   CARD,
   helperFunctions,
+  LENGTH,
+  RING_SIZE,
   SALES_TAX_NOTE,
   SALES_TAX_PERCENTAGE_VALUE,
 } from "@/_helper";
-import DownloadInvoice from "@/components/ui/order-history/downloadInvoice";
 import CancelOrder from "@/components/ui/order-history/CancelOrder";
 import Spinner from "@/components/ui/spinner";
 import SkeletonLoader from "./skeletonLoader";
@@ -16,6 +17,10 @@ import { setOpenDiamondDetailDrawer } from "@/store/slices/commonSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useRef } from "react";
 import effect from "@/assets/icons/effect.png";
+// import { downloadOrderInvoice } from "@/_actions/order.action";
+// import { BsDownload } from "react-icons/bs";
+import DownloadInvoice from "@/components/ui/order-history/downloadInvoice";
+
 const shippingFields = [
   { label: "Name", key: "name" },
   { label: "Email", key: "email" },
@@ -31,7 +36,6 @@ const OrderDetails = ({
   orderLoading = false,
   orderDetail,
   invoiceLoading = false,
-  selectedOrder,
   showInvoice = false,
   showCancel = false,
 }) => {
@@ -156,6 +160,11 @@ const OrderDetails = ({
   }, []);
   const cartContentRef = useRef(null);
 
+  // const handleDownloadInvoice = (orderNumber) => {
+  //   if (!orderNumber) return;
+  //   dispatch(downloadOrderInvoice(orderNumber));
+  // };
+
   return orderLoading ? (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 container my-8">
       {/* Left Panel Skeleton */}
@@ -175,10 +184,21 @@ const OrderDetails = ({
       <div className="flex justify-end">
         <div className="flex gap-4 mb-2">
           {showInvoice &&
-            (invoiceLoading && orderDetail.id === selectedOrder ? (
+            (invoiceLoading ? (
               <Spinner className="h-6" />
             ) : (
-              <DownloadInvoice orderId={orderDetail.id} />
+              <>
+                {/* <button
+                className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray"
+                onClick={() => handleDownloadInvoice(orderDetail?.orderNumber)}
+              >
+                <BsDownload
+                  title="Download Invoice"
+                  className="text-xl text-basegray"
+                />
+              </button> */}
+                <DownloadInvoice orderId={orderDetail.id} />
+              </>
             ))}
 
           {showCancel &&
@@ -218,7 +238,6 @@ const OrderDetails = ({
                             caratWeight: product?.totalCaratWeight,
                             productName: product?.productName,
                           })}
-                          ;
                         </h3>
                         <h3 className="font-semibold">
                           ${helperFunctions.toFixedNumber(product?.unitAmount)}
@@ -232,6 +251,23 @@ const OrderDetails = ({
                           )}
                         </p>
                       </div>
+                      {[RING_SIZE, LENGTH].map((variationName) => {
+                        const { name, type, exists } =
+                          helperFunctions?.getVariationDisplay(
+                            product?.variations,
+                            variationName
+                          );
+                        return exists ? (
+                          <div
+                            key={variationName}
+                            className="flex items-center gap-2 pt-2 sm:pt-0"
+                          >
+                            <p className="text-sm items-center md:text-base font-medium text-baseblack">
+                              {name}: {type}
+                            </p>
+                          </div>
+                        ) : null;
+                      })}
 
                       {product.diamondDetail && (
                         <div className="hidden xs:block">

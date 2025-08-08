@@ -418,7 +418,7 @@ const CartPopup = () => {
 
                             <div>
                               <button
-                                className="font-medium px-3 text-xs  2xl:text-sm cursor-pointer flex items-center justify-center transition-all duration-200 hover:!font-bold"
+                                className="font-medium px-3 text-xs underline 2xl:text-sm cursor-pointer flex items-center justify-center transition-all duration-200 hover:!font-bold"
                                 onClick={() => removeFromCart(cartItem)}
                               >
                                 Remove

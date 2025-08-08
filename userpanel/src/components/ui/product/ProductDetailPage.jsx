@@ -242,13 +242,6 @@ const ProductDetailPage = ({ customizePage }) => {
   }, [productName, productId, customProductIdFromLocalStorage]);
 
   useEffect(() => {
-    const customProduct = helperFunctions?.getCustomProduct();
-    if (customProduct) {
-      dispatch(setCustomProductDetails(customProduct));
-    }
-  }, [dispatch]);
-
-  useEffect(() => {
     if (isCustomizePage) {
       const customProduct = helperFunctions?.getCustomProduct();
       if (customProduct) {
@@ -262,8 +255,10 @@ const ProductDetailPage = ({ customizePage }) => {
   }, [dispatch]);
 
   useEffect(() => {
-    loadRecentlyViewProduct();
-  }, [loadRecentlyViewProduct]);
+    if (!isCustomizePage) {
+      loadRecentlyViewProduct();
+    }
+  }, [isCustomizePage]);
 
   if (
     Array.isArray(productDetail?.variComboWithQuantity) &&
@@ -428,10 +423,13 @@ const ProductDetailPage = ({ customizePage }) => {
   }, [isInValidSelectedVariation, productDetail?.id, selectedVariations]);
 
   let customProductPrice = 0;
-  if (productDetail?.netWeight && productDetail?.sideDiamondWeight) {
+  if (productDetail?.netWeight) {
     const customProductDetail = {
       netWeight: Number(productDetail?.netWeight),
-      sideDiamondWeight: Number(productDetail?.sideDiamondWeight),
+      sideDiamondWeight:
+        productDetail?.sideDiamondWeight || 0
+          ? Number(productDetail?.sideDiamondWeight)
+          : 0,
     };
 
     const centerDiamondDetail = {
@@ -456,8 +454,21 @@ const ProductDetailPage = ({ customizePage }) => {
     .filter(Boolean)
     .join(" ");
 
+  const calculatedPrice = isCustomizePage
+    ? helperFunctions?.roundOffPrice(customProductPrice)
+    : selectedPrice
+    ? helperFunctions?.roundOffPrice(
+        selectedPrice * productQuantity * (1 - productDetail?.discount / 100)
+      )
+    : 0;
+
+  const displayProductName = helperFunctions?.formatProductNameWithCarat({
+    caratWeight: productDetail?.totalCaratWeight,
+    productName: productDetail?.productName,
+  });
+
   return (
-    <div className={` ${isCustomizePage ? "" : "pt-8 2xl:pt-12"}`}>
+    <div className={`${isCustomizePage ? "" : "pt-8 2xl:pt-12"}`}>
       {productLoading ? (
         <DetailPageSkeleton />
       ) : productDetail && Object.keys(productDetail).length > 0 ? (
@@ -472,12 +483,7 @@ const ProductDetailPage = ({ customizePage }) => {
             </div>
 
             <div className="flex flex-col pl-4 md:pl-0">
-              <h2 className="text-xl font-semibold">
-                {helperFunctions?.formatProductNameWithCarat({
-                  caratWeight: productDetail?.totalCaratWeight,
-                  productName: productDetail?.productName,
-                })}
-              </h2>
+              <h2 className="text-xl font-semibold">{displayProductName}</h2>
               {displayValues ? (
                 <h2 className="text-sm md:text-sm text-basegray font-semibold pt-1">
                   {displayValues}
@@ -487,20 +493,14 @@ const ProductDetailPage = ({ customizePage }) => {
               {isCustomizePage ? (
                 <div className="flex items-center gap-2 mb-4 lg:mb-4">
                   <span className="text-xl md:text-xl 3xl:text-2xl font-normal font-castoro">
-                    ${helperFunctions?.roundOffPrice(customProductPrice)}
+                    ${calculatedPrice}
                   </span>
                 </div>
               ) : (
                 <>
                   <div className="flex items-center gap-2 mt-2  mb-6 lg:mb-6">
                     <span className="text-xl md:text-xl 3xl:text-2xl font-normal font-castoro">
-                      {selectedPrice
-                        ? `$${helperFunctions?.roundOffPrice(
-                            selectedPrice *
-                              productQuantity *
-                              (1 - productDetail?.discount / 100)
-                          )}`
-                        : "$0"}
+                      ${calculatedPrice}
                     </span>
                     {productDetail?.discount && selectedPrice ? (
                       <span className="text-gray-500 line-through text-xl font-castoro">
@@ -689,7 +689,8 @@ const ProductDetailPage = ({ customizePage }) => {
             cartMessage={cartMessage}
             selectedVariations={selectedVariations}
             isActive={productDetail?.active}
-            selectedPrice={isCustomizePage ? customProductPrice : selectedPrice}
+            selectedPrice={calculatedPrice}
+            productName={displayProductName}
           />
         </>
       ) : (
@@ -717,11 +718,10 @@ const AddToBagBar = ({
   selectedVariations,
   isActive,
   selectedPrice,
+  productName,
 }) => {
-  console.log("selectedPrice", selectedPrice);
   const getButtonLabel = useCallback(
     ({ isActive, availableQty, selectedPrice, customizePage }) => {
-      console.log("selectedPrice inside", selectedPrice);
       if (customizePage) {
         if (selectedPrice <= 0) {
           return "PRODUCT UNAVAILABLE";
@@ -763,8 +763,19 @@ const AddToBagBar = ({
     <>
       <div className={`${baseClasses} ${visibility}`}>
         <div
-          className={`mx-auto py-4 px-4 grid xs:grid-cols-2  lg:grid-cols-3 justify-center items-center gap-4 container`}
+          className={`mx-auto py-4 px-4 grid grid-cols-2  lg:grid-cols-3 justify-center items-center gap-4 container`}
         >
+          <div className="xs:hidden">
+            <p
+              className="font-medium font-castoro text-base leading-tight line-clamp-1"
+              title={productName}
+            >
+              {productName}
+            </p>
+            <span className="text-base font-normal font-castoro block">
+              ${selectedPrice}
+            </span>
+          </div>
           <div className="hidden xs:block">
             <p className="font-medium font-castoro text-xl">
               Estimated Ship Date
@@ -795,14 +806,15 @@ const AddToBagBar = ({
             </div>
           </div>
 
-          <div className="ml-auto justify-center lg:justify-start w-fit">
+          <div className="md:ml-auto">
             <div
               onMouseEnter={() => onHoverChange(true)}
               onMouseLeave={() => onHoverChange(false)}
+              className="w-full"
             >
               {customizePage === "completeRing" && (
                 <LoadingPrimaryButton
-                  className="w-full uppercase"
+                  className="!min-w-full uppercase"
                   loading={cartLoading}
                   disabled={
                     cartLoading ||
@@ -810,6 +822,7 @@ const AddToBagBar = ({
                     !selectedPrice > 0
                   }
                   loaderType={isHovered ? "" : "white"}
+                  loadingClassName="w-24"
                   onClick={onAddToCart}
                 >
                   {/* ADD TO BAG */}
@@ -824,7 +837,7 @@ const AddToBagBar = ({
 
               {!customizePage && (
                 <LoadingPrimaryButton
-                  className="w-full uppercase"
+                  className="!min-w-full uppercase"
                   loading={cartLoading}
                   disabled={
                     cartLoading ||
@@ -835,6 +848,7 @@ const AddToBagBar = ({
                     !selectedPrice > 0
                   }
                   loaderType={isHovered ? "" : "white"}
+                  loadingClassName="w-24"
                   onClick={onAddToCart}
                 >
                   {/* {isActive && availableQty && availableQty > 0

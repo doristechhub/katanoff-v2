@@ -16,7 +16,7 @@ import {
   formatPhoneNumber,
   messageType,
 } from "@/_helper";
-import Alert from "./Alert";
+import FixedAlert from "./FixedAlert";
 import { useAlertTimeout } from "@/hooks/use-alert-timeout";
 import { setContactMessage } from "@/store/slices/contactSlice";
 
@@ -273,7 +273,7 @@ const ContactForm = () => {
                 <ErrorMessage message={contactMessage?.message} />
               ) : null}
               {contactMessage?.type == messageType?.SUCCESS ? (
-                <Alert
+                <FixedAlert
                   message={contactMessage?.message}
                   type={contactMessage?.type}
                 />

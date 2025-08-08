@@ -39,7 +39,7 @@ const accordianContent = [
       <>
         <div className="flex flex-col gap-3">
           <p>
-            Transform your imagination into a one-of-a-kind necklace that
+            Transform your imagination into a one of a kind necklace that
             reflects your personal style and story. Whether you envision a
             minimalist gold pendant or a detailed diamond-studded design, our
             artisans bring your ideas to life with precision and care. With

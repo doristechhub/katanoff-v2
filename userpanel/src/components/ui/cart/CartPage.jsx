@@ -208,7 +208,7 @@ const CartPage = () => {
   };
 
   return (
-    <div className="mx-auto pt-12 2xl:pt-16">
+    <div className="mx-auto pt-4 md:pt-8">
       {cartLoading ? (
         <CartSkeleton />
       ) : cartList?.length ? (
@@ -218,7 +218,7 @@ const CartPage = () => {
               My Bag
             </h1>
           </div>
-          <div className="flex flex-col lg:flex-row gap-6 container mx-auto pt-8 lg:pt-12">
+          <div className="flex flex-col lg:flex-row gap-6 container mx-auto pt-4 lg:pt-8">
             <div className="w-full lg:w-2/3">
               {cartList?.map((cartItem, index) => (
                 <div

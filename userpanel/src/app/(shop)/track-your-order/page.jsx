@@ -136,6 +136,7 @@ export default function TrackYourOrderPage() {
               <OrderDetails
                 orderLoading={orderDetailLoading}
                 orderDetail={orderDetail}
+                showInvoice={true}
               />
             ) : (
               <CommonNotFound message={"Order Not Found!"} />

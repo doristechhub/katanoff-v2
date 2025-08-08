@@ -299,26 +299,28 @@ const CheckoutForm = () => {
   return (
     <>
       <form>
-        <div className="flex flex-col gap-6 pt-4 md:pt-8 lg:pt-12">
+        <div className="flex flex-col gap-4 pt-4 md:pt-8 lg:pt-12">
           <section className="px-4">
             <div className="flex xs:flex-row flex-col justify-between">
               <h2 className="text-lg xs:text-xl 4xl:text-2xl text-baseblack font-medium pt-4 font-castoro">
                 Contact Information
               </h2>
 
-              <p className="xs:pt-4 pt-1 text-baseblack font-medium">
-                Already have an account? &nbsp;
-                <Link
-                  href="/auth/login"
-                  onClick={() => {
-                    localStorage.setItem("postLoginRedirect", "/checkout");
-                  }}
-                >
-                  <span className="underline font-semibold">Log in</span>
-                </Link>
-              </p>
+              {!currentUser && (
+                <p className="xs:pt-4 pt-1 text-baseblack font-medium">
+                  Already have an account? &nbsp;
+                  <Link
+                    href="/auth/login"
+                    onClick={() => {
+                      localStorage.setItem("postLoginRedirect", "/checkout");
+                    }}
+                  >
+                    <span className="underline font-semibold">Log in</span>
+                  </Link>
+                </p>
+              )}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6">
               <div>
                 <label className={labelClassName}>First Name</label>
                 <input
@@ -364,7 +366,7 @@ const CheckoutForm = () => {
                   <ErrorMessage message={errors?.mobile}></ErrorMessage>
                 )}
               </div>
-              <div className="md:col-span-2 pb-6">
+              <div className="md:col-span-2">
                 <label className={labelClassName}>Email Address</label>
                 <input
                   type="email"
@@ -390,7 +392,7 @@ const CheckoutForm = () => {
             <h2 className="text-lg lg:text-xl 4xl:text-2xl text-baseblack font-medium pt-4 font-castoro">
               Shipping Address
             </h2>
-            <div className="flex flex-col gap-6 pt-6">
+            <div className="flex flex-col gap-4 pt-6">
               <div>
                 <label className={labelClassName}> House No, Street Name</label>
                 <input

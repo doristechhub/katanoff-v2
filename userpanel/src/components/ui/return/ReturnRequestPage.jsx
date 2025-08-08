@@ -32,7 +32,7 @@ import { getProductsArray } from "@/_services";
 import ErrorMessage from "../ErrorMessage";
 import { LinkButton, LoadingPrimaryButton } from "../button";
 import CommonBgHeading from "../CommonBgHeading";
-import Alert from "../Alert";
+import FixedAlert from "../FixedAlert";
 import SkeletonLoader from "../skeletonLoader";
 import CommonNotFound from "../CommonNotFound";
 
@@ -509,7 +509,7 @@ const ReturnRequestPage = () => {
               </div>
             </form>
             {returnMessage?.type === messageType.SUCCESS ? (
-              <Alert
+              <FixedAlert
                 message={returnMessage.message}
                 type={returnMessage.type}
               />

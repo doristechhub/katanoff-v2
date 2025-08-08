@@ -12,8 +12,7 @@ import { setLoginMessage, setSendOtpMessage } from "@/store/slices/userSlice";
 import { SendOTPForEmailVerification, verifyOTP } from "@/_actions/user.action";
 import { setIsHovered } from "@/store/slices/commonSlice";
 import { LoadingPrimaryButton } from "../ui/button";
-import Alert from "../ui/Alert";
-import Spinner from "../ui/spinner";
+import FixedAlert from "../ui/FixedAlert";
 import { messageType } from "@/_helper/constants";
 import {
   fetchCart,
@@ -21,6 +20,7 @@ import {
 } from "@/_actions/cart.action";
 import ErrorMessage from "../ui/ErrorMessage";
 import { setAuthToken } from "@/interceptors/httpInterceptor";
+import { EllipsisLoader } from "../dynamiComponents";
 
 // ----------------------------------------------------------------------
 
@@ -267,19 +267,21 @@ const VerifyOTPForm = () => {
         </LoadingPrimaryButton>
       </div>
 
-      <div className="mt-3 lg:mt-4 text-sm sm:text-base 2xl:text-lg text-basegray text-center flex items-center gap-1">
-        Didn't Receive OTP?{" "}
-        {!sendOtpLoading ? (
-          <Link
-            href="#"
-            onClick={handleResendOTP}
-            className="underline text-primary hover:text-basegray transition-all duration-300 font-bold"
-          >
-            Resend OTP
-          </Link>
-        ) : (
-          <Spinner loaderType="pleaseWait" className={"h-8"} />
-        )}
+      <div className="mt-3 lg:mt-4 text-sm sm:text-base 2xl:text-lg text-basegray  flex items-center justify-center flex-wrap gap-1">
+        <p>Didn't Receive OTP? </p>
+        <div>
+          {!sendOtpLoading ? (
+            <Link
+              href="#"
+              onClick={handleResendOTP}
+              className="underline text-primary hover:text-basegray transition-all duration-300 font-bold"
+            >
+              Resend OTP
+            </Link>
+          ) : (
+            <EllipsisLoader />
+          )}
+        </div>
       </div>
       {/* Privacy Policy */}
       <p className="absolute bottom-14 md:bottom-20 lg:bottom-10 2xl:bottom-20 2xl:right-28 md:right-28 right-14 lg:right-14  ">
@@ -291,10 +293,13 @@ const VerifyOTPForm = () => {
         </Link>
       </p>
       {loginMessage?.type !== messageType?.SUCCESS ? (
-        <Alert message={loginMessage?.message} type={loginMessage?.type} />
+        <FixedAlert message={loginMessage?.message} type={loginMessage?.type} />
       ) : null}
 
-      <Alert message={sendOtpMessage?.message} type={sendOtpMessage?.type} />
+      <FixedAlert
+        message={sendOtpMessage?.message}
+        type={sendOtpMessage?.type}
+      />
     </div>
   );
 };

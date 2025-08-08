@@ -9,9 +9,12 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setShowModal } from "@/store/slices/commonSlice";
-import Alert from "@/components/ui/Alert";
+import FixedAlert from "@/components/ui/FixedAlert";
 import { useAlertTimeout } from "@/hooks/use-alert-timeout";
-import { fetchReturnsHistory } from "@/_actions/return.action";
+import {
+  // downloadReturnInvoice,
+  fetchReturnsHistory,
+} from "@/_actions/return.action";
 import {
   setCurrentPage,
   setReturnLoader,
@@ -39,6 +42,9 @@ import {
 import CommonNotFound from "../CommonNotFound";
 import { RxCross2 } from "react-icons/rx";
 import CancelReturnRequestModel from "./CancelReturnRequestModel";
+import DownloadInvoice from "../order-history/downloadInvoice";
+// import { BsDownload } from "react-icons/bs";
+import Spinner from "../spinner";
 
 export default function ReturnHistoryPage() {
   const [openId, setOpenId] = useState(null);
@@ -47,7 +53,7 @@ export default function ReturnHistoryPage() {
 
   const router = useRouter();
   const dispatch = useDispatch();
-  const { orderList } = useSelector(({ order }) => order);
+  const { orderList, invoiceLoading } = useSelector(({ order }) => order);
   const { returnMessage, returnsList, currentPage, returnLoader } = useSelector(
     ({ returns }) => returns
   );
@@ -124,6 +130,16 @@ export default function ReturnHistoryPage() {
     }
   };
 
+  // const handleDownloadInvoice = async ({ returnId, orderNumber }) => {
+  //   if (!returnId) return;
+  //   const response = await dispatch(
+  //     downloadReturnInvoice({ returnId, orderNumber })
+  //   );
+  //   if (response) {
+  //     setOpenId(null);
+  //   }
+  // };
+
   const renderTableHeading = () => {
     return (
       <thead className="text-xs lg:text-sm text-basegray uppercase bg-[#00000005] dark:text-gray-400">
@@ -150,7 +166,7 @@ export default function ReturnHistoryPage() {
   return (
     <div>
       {returnMessage?.type === messageType.SUCCESS && (
-        <Alert message={returnMessage.message} type={returnMessage.type} />
+        <FixedAlert message={returnMessage.message} type={returnMessage.type} />
       )}
 
       <div className="container my-8 relative overflow-x-auto pb-4">
@@ -268,6 +284,40 @@ export default function ReturnHistoryPage() {
                         Cancel
                       </button>
                     )}
+
+                  {["approved", "received"]?.includes(currentOrder?.status) &&
+                    (invoiceLoading ? (
+                      <div className="flex px-4 py-2 gap-4 text-basegray">
+                        <Spinner className="h-6" />
+                        Exporting...
+                      </div>
+                    ) : (
+                      <div className="w-full text-left  hover:bg-gray-100 flex gap-4 text-base text-basegray">
+                        <DownloadInvoice
+                          returnId={currentOrder?.id}
+                          onSuccess={() => setOpenId(null)}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray"
+                        >
+                          Download
+                        </DownloadInvoice>
+                      </div>
+
+                      // <button
+                      //   className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray"
+                      //   onClick={() =>
+                      //     handleDownloadInvoice({
+                      //       returnId: currentOrder?.id,
+                      //       orderNumber: currentOrder?.orderNumber,
+                      //     })
+                      //   }
+                      // >
+                      //   <BsDownload
+                      //     title="Download Invoice"
+                      //     className="text-xl text-basegray"
+                      //   />
+                      //   Download
+                      // </button>
+                    ))}
                 </>
               );
             })()}

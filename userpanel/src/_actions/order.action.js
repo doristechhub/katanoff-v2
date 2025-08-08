@@ -104,6 +104,23 @@ export const deleteOrder = (orderId) => {
   };
 };
 
+export const downloadOrderInvoice = (orderNumber) => {
+  return async (dispatch) => {
+    dispatch(setInvoiceLoading(true));
+    try {
+      const response = await orderService.downloadOrderInvoice(orderNumber);
+      if (response?.success) {
+        return response;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    } finally {
+      dispatch(setInvoiceLoading(false));
+    }
+  };
+};
+
 export const verifyOrder = (orderId) => {
   return async (dispatch) => {
     dispatch(setVerifyOrderLoader(true));

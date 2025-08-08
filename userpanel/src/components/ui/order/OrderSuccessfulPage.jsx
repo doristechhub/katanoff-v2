@@ -4,11 +4,23 @@ import { CustomImg } from "@/components/dynamiComponents";
 import { PrimaryLinkButton } from "../button";
 import { useParams } from "next/navigation";
 import { helperFunctions } from "../../../_helper/helperFunctions";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { setCartList } from "@/store/slices/cartSlice";
 
 const OrderSuccessfulPage = () => {
   const params = useParams();
   let { orderNumber } = params;
   const currentUser = helperFunctions.getCurrentUser();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    // clear values after payment success
+    localStorage.removeItem("address");
+    localStorage.removeItem("selectedShippingMethod");
+    dispatch(setCartList([]));
+  }, []);
+
   return (
     <div className="min-h-[70vh] lg:min-h-[60vh] flex items-center justify-center bg-offwhite px-4">
       <div className="p-8 max-w-xl xl:max-w-3xl w-full text-center py-8 xl:py-16">

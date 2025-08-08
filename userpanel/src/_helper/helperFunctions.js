@@ -1,5 +1,11 @@
 import { uid } from "uid";
-import { GOLD_COLOR, GOLD_TYPES, DIAMOND_SHAPE, RING_SIZE } from "./constants";
+import {
+  GOLD_COLOR,
+  GOLD_TYPES,
+  DIAMOND_SHAPE,
+  RING_SIZE,
+  LENGTH,
+} from "./constants";
 
 const generateUniqueId = () => {
   const uuid = uid();
@@ -15,7 +21,10 @@ const stringReplacedWithSpace = (string) => {
 
 export const formatPhoneNumber = (phone) => {
   const digits = phone.replace(/\D/g, "");
-  const display = `+1 ${digits.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3")}`;
+  const display = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(
+    6,
+    10
+  )}`;
   const link = `+1${digits}`;
   return { display, link };
 };
@@ -377,7 +386,7 @@ export const displayVariationsLabel = (variations) => {
   variations.forEach((item) => {
     const { variationName, variationTypeName } = item;
 
-    if (variationName === RING_SIZE) return;
+    if (variationName === RING_SIZE || variationName === LENGTH) return;
 
     if (desiredOrder.includes(variationName)) {
       variationMap[variationName] = variationTypeName;
@@ -476,7 +485,7 @@ const calculateMetalPrice = ({ netWeight, customizeProductSettingsData }) => {
 
 // Calculate the side diamond price
 const calculateSideDiamondPrice = ({
-  sideDiamondWeight,
+  sideDiamondWeight = 0,
   customizeProductSettingsData,
 }) => {
   return (
@@ -533,7 +542,8 @@ const calculateCustomizedProductPrice = ({
     !productDetail ||
     !Number.isFinite(productDetail?.netWeight) ||
     productDetail?.netWeight <= 0 ||
-    !Number.isFinite(productDetail?.sideDiamondWeight) ||
+    (productDetail?.sideDiamondWeight &&
+      !Number.isFinite(productDetail?.sideDiamondWeight)) ||
     productDetail?.sideDiamondWeight < 0
   ) {
     console.log(
@@ -558,7 +568,7 @@ const calculateCustomizedProductPrice = ({
 
   // Calculate side diamond price based on side diamond weight
   const sideDiamondPrice = calculateSideDiamondPrice({
-    sideDiamondWeight: productDetail.sideDiamondWeight,
+    sideDiamondWeight: productDetail?.sideDiamondWeight,
     customizeProductSettingsData: customizeProductSettingsData,
   });
 
