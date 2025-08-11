@@ -4,13 +4,16 @@ import {
   fetchCollectionsTypeWiseProduct,
 } from "@/_actions/product.actions";
 import { helperFunctions } from "@/_helper";
-import { ProductFilter, ProductGrid } from "@/components/dynamiComponents";
+import {
+  HeroBanner,
+  ProductFilter,
+  ProductGrid,
+} from "@/components/dynamiComponents";
 import { useParams, useSearchParams } from "next/navigation";
 import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import KeyFeatures from "@/components/ui/KeyFeatures";
 import SettingStyleCategorySwiper from "@/components/ui/settingStyleSwiper";
-import HeroBanner from "./HeroBanner";
 import SkeletonLoader from "./skeletonLoader";
 
 export default function CollectionPage() {

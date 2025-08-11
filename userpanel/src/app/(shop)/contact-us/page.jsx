@@ -1,7 +1,6 @@
-import HeroBanner from "@/components/ui/HeroBanner";
 import contactUsDesktop from "@/assets/images/contact-us/contact-us-desktop.webp";
 import contactUsMobile from "@/assets/images/contact-us/contact-us-mobile.webp";
-import { ContactForm } from "@/components/dynamiComponents";
+import { ContactForm, HeroBanner } from "@/components/dynamiComponents";
 
 export default function ContactPage() {
   return (

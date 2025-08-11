@@ -1,5 +1,4 @@
 import React from "react";
-import HeroBanner from "@/components/ui/HeroBanner";
 import bannerDesktop from "@/assets/images/education/banner-desktop.webp";
 import bannerMobile from "@/assets/images/education/banner-mobile.webp";
 import img from "@/assets/images/education/Image.webp";
@@ -10,6 +9,7 @@ import ImageWithTitle from "@/components/ui/ImageWithTitle";
 import CutSection from "@/components/ui/CutSection";
 import ClaritySection from "@/components/ui/ClaritySection";
 import DiamondColorChartSection from "@/components/ui/ColorSection";
+import { HeroBanner } from "@/components/dynamiComponents";
 
 const EducationPage = () => {
   return (

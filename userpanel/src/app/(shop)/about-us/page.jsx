@@ -1,4 +1,3 @@
-import HeroBanner from "@/components/ui/HeroBanner";
 import aboutUsDesktop from "@/assets/images/about-us/about-us-desktop.webp";
 import aboutUsMobile from "@/assets/images/about-us/about-us-mobile.webp";
 import about1 from "@/assets/images/about-us/about-1.webp";
@@ -10,7 +9,11 @@ import tranperencyImg from "@/assets/images/about-us/transperency.webp";
 import SustainImg from "@/assets/images/about-us/sustainability.webp";
 import Compassion from "@/assets/images/about-us/compassion.webp";
 import Inclusion from "@/assets/images/about-us/inclusion.webp";
-import { AnimatedSection, CustomImg } from "@/components/dynamiComponents";
+import {
+  AnimatedSection,
+  CustomImg,
+  HeroBanner,
+} from "@/components/dynamiComponents";
 import Link from "next/link";
 import { FLASH_DEALS, helperFunctions } from "@/_helper";
 
