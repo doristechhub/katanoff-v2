@@ -8,6 +8,7 @@ import {
   AccordionDropdown,
   CenterFocusSlider,
   GetToKnowUsSection,
+  HeroBanner,
   HomePagePopup,
   HomePagePopupWithLogin,
   JewelryAppointment,
@@ -21,7 +22,6 @@ import { useDispatch, useSelector } from "react-redux";
 import FixedAlert from "@/components/ui/FixedAlert";
 import { setLoginMessage } from "@/store/slices/userSlice";
 import { useAlertTimeout } from "@/hooks/use-alert-timeout";
-import HeroBanner from "../HeroBanner";
 import CategoryGallery from "./categoryGallery";
 import {
   helperFunctions,

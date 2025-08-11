@@ -643,11 +643,11 @@ const calculateNonCustomizedProductPrice = ({
 
   // Case: 1
   // Apply priceMultiplier, take floor, and adjust to end in 99
-  // const finalPrice = formatPriceTo99Ending(multipliedPrice);
+  const finalPrice = formatPriceTo99Ending(multipliedPrice);
 
   // Case: 2
   // Apply priceMultiplier, take floor, and adjust to end in 99
-  const finalPrice = formatPriceSmart99(multipliedPrice);
+  // const finalPrice = formatPriceSmart99(multipliedPrice);
 
   return finalPrice;
 };

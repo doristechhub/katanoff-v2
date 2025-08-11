@@ -1,6 +1,6 @@
 import CustomJewelryForm from "@/components/ui/CustomJewelryForm";
 import contactus from "@/assets/images/contact-us/contact.webp";
-import HeroBanner from "./HeroBanner";
+import { HeroBanner } from "../dynamiComponents";
 
 export default function CustomJewelry() {
   return (

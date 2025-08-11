@@ -1,6 +1,6 @@
-import HeroBanner from "@/components/ui/HeroBanner";
 import bookAppointmentDesktop from "@/assets/images/appointment/book-appointment-desktop.webp";
 import bookAppointmentMobile from "@/assets/images/appointment/book-appointment-mobile.webp";
+import { HeroBanner } from "@/components/dynamiComponents";
 import AppointmentPage from "@/components/ui/AppointmentPage";
 
 const AppointmentCustomJewelry = () => {
