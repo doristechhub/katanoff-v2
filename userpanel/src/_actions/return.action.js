@@ -37,18 +37,20 @@ export const fetchTrackReturnByOrderNumberAndEmail = (payload) => {
     dispatch(setReturnMessage({ message: "", type: "" }));
     dispatch(setReturnDetail(null));
     try {
-      const returnDetail = await returnService.trackReturnByOrderNumberAndEmail(
+      const returnsData = await returnService.trackReturnByOrderNumberAndEmail(
         payload
       );
-      if (returnDetail) {
-        dispatch(setReturnDetail(returnDetail));
-        return returnDetail;
-      }
+      if(returnsData?.length ) {
+      dispatch(setReturnsList(returnsData));
+      return returnsData;
+       }     
       return false;
-    } catch (e) {
+
+          } catch (e) {
       dispatch(
         setReturnMessage({ message: e?.message, type: messageType.ERROR })
       );
+      dispatch(setReturnsList([]));
       return false;
     } finally {
       dispatch(setReturnLoader(false));
@@ -90,9 +92,9 @@ export const fetchReturnInvoiceDetail = (returnId) => async (dispatch) => {
     }
     return false;
   } catch (error) {
-    return false;
-  } finally {
+    console.log('error', error)
     dispatch(setInvoiceLoading(false));
+    return false;
   }
 };
 

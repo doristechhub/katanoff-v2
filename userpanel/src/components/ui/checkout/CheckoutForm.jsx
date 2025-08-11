@@ -293,7 +293,7 @@ const CheckoutForm = () => {
   };
 
   const inputClassName =
-    "!bg-transparent !border !rounded-md !border-grayborder !font-medium md:!text-base placeholder:font-medium w-full  2xl:!p-2";
+    "bg-transparent !border !rounded-md !border-grayborder !font-medium md:!text-base placeholder:font-medium w-full  2xl:!p-2";
   const labelClassName =
     "block uppercase text-sm font-medium text-[#666666] mb-1";
   return (
@@ -372,7 +372,9 @@ const CheckoutForm = () => {
                   type="email"
                   placeholder="Your Email"
                   className={`custom-input ${inputClassName} ${
-                    !!currentUser?.email ? "!bg-[#f1f1f1] " : ""
+                    !!currentUser?.email
+                      ? "!bg-[#f1f1f1] cursor-not-allowed"
+                      : ""
                   }`}
                   name="email"
                   onChange={handleChange}
@@ -471,7 +473,7 @@ const CheckoutForm = () => {
                     value={values.stateCode || ""}
                     onChange={(e) => handleStateChange(e.target.value)}
                     onBlur={handleBlur}
-                    className={`custom-input ${inputClassName} ${
+                    className={`custom-input appearance-none ${inputClassName} ${
                       touched?.stateCode && errors?.stateCode
                         ? "border-rose-500"
                         : "border-gray-300"
@@ -521,7 +523,7 @@ const CheckoutForm = () => {
               onMouseLeave={() => dispatch(setIsHovered(false))}
             >
               <LoadingPrimaryButton
-                className="w-full uppercase hover:!text-primary"
+                className="w-full uppercase hover:!text-primary !border-primary"
                 loading={validateAddressLoader}
                 loaderType={isHovered ? "" : "white"}
                 onClick={handleSubmit}

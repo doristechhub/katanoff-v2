@@ -216,7 +216,7 @@ const forgotPasswordOtpVerification = (username, otp) => {
   return { subject, description: html(body) };
 };
 
-const getMailTemplateForOrderStatus = (userName, orderNumber, trackingNumber, orderStatus) => {
+const getMailTemplateForOrderStatus = ({ userName = "Sir/Madam", orderNumber, trackingNumber, orderStatus }) => {
   let subject = "";
   switch (orderStatus) {
     case "pending":

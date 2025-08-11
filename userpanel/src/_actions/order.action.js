@@ -159,9 +159,9 @@ export const fetchInvoiceOrderDetail = (orderId) => {
       }
       return false;
     } catch (e) {
-      return false;
-    } finally {
       dispatch(setInvoiceLoading(false));
+      console.log('error', e)
+      return false;
     }
   };
 };

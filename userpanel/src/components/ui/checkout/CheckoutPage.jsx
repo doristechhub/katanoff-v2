@@ -7,17 +7,26 @@ import {
   CartNotFound,
 } from "@/components/dynamiComponents";
 import CommonBgHeading from "@/components/ui/CommonBgHeading";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import SkeletonLoader from "@/components/ui/skeletonLoader";
 import KeyFeatures from "@/components/ui/KeyFeatures";
 import CheckoutBreadCrumbs from "./CheckoutBreadCrumbs";
+import FixedAlert from "../FixedAlert";
+import { useAlertTimeout } from "@/hooks/use-alert-timeout";
+import { setLoginMessage } from "@/store/slices/userSlice";
 
 const Checkout = () => {
+  const dispatch = useDispatch();
   const { cartLoading, cartList } = useSelector(({ cart }) => cart);
   const { showModal } = useSelector(({ common }) => common);
+  const { loginMessage } = useSelector(({ user }) => user);
+
+  useAlertTimeout(loginMessage, () =>
+    dispatch(setLoginMessage({ message: "", type: "" }))
+  );
 
   return (
-    <div className="mx-auto pt-6 md:pt-10 2xl:pt-12">
+    <div className="mx-auto md:pt-10 2xl:pt-12">
       {cartLoading ? (
         <CheckoutSkeleton />
       ) : (
@@ -55,6 +64,7 @@ const Checkout = () => {
           </section>
         </>
       )}
+      <FixedAlert message={loginMessage?.message} type={loginMessage?.type} />
     </div>
   );
 };

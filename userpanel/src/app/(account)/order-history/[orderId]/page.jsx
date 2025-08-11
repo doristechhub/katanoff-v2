@@ -12,7 +12,7 @@ export default function OrderDetailPage() {
   const params = useParams();
   const dispatch = useDispatch();
   const { orderId } = params;
-  const { orderDetail, orderDetailLoading, invoiceLoading } = useSelector(
+  const { orderDetail, orderDetailLoading } = useSelector(
     ({ order }) => order
   );
 
@@ -33,7 +33,6 @@ export default function OrderDetailPage() {
           <OrderDetails
             orderLoading={orderDetailLoading}
             orderDetail={orderDetail}
-            invoiceLoading={invoiceLoading}
             showInvoice={true}
           />
         </div>

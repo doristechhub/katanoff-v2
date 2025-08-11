@@ -54,7 +54,7 @@ export default function ReturnHistoryPage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { orderList, invoiceLoading } = useSelector(({ order }) => order);
-  const { returnMessage, returnsList, currentPage, returnLoader } = useSelector(
+  const { returnOrder, returnMessage, returnsList, currentPage, returnLoader } = useSelector(
     ({ returns }) => returns
   );
   useAlertTimeout(returnMessage, () =>
@@ -70,7 +70,7 @@ export default function ReturnHistoryPage() {
     currentPage * ITEMS_PER_PAGE,
     (currentPage + 1) * ITEMS_PER_PAGE
   );
-
+  
   const handlePageClick = ({ selected }) => {
     dispatch(setCurrentPage(selected));
   };
@@ -225,7 +225,7 @@ export default function ReturnHistoryPage() {
                       aria-haspopup="true"
                       title="More Actions"
                     >
-                      <CustomImg
+                      <CustomImg 
                         srcAttr={threeDots}
                         altAttr="More"
                         className="w-4 h-4"
@@ -265,6 +265,7 @@ export default function ReturnHistoryPage() {
               const currentOrder = paginatedOrder?.find(
                 (order) => order.id === openId
               );
+              
               return (
                 <>
                   {currentOrder?.status === "pending" &&
@@ -286,13 +287,13 @@ export default function ReturnHistoryPage() {
                     )}
 
                   {["approved", "received"]?.includes(currentOrder?.status) &&
-                    (invoiceLoading ? (
+                    (invoiceLoading && currentOrder?.id === returnOrder ? (
                       <div className="flex px-4 py-2 gap-4 text-basegray">
                         <Spinner className="h-6" />
                         Exporting...
                       </div>
                     ) : (
-                      <div className="w-full text-left  hover:bg-gray-100 flex gap-4 text-base text-basegray">
+                      <div className={`w-full text-left  hover:bg-gray-100 flex gap-4 text-base text-basegray ${invoiceLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100"}`}>
                         <DownloadInvoice
                           returnId={currentOrder?.id}
                           onSuccess={() => setOpenId(null)}

@@ -35,12 +35,14 @@ const shippingFields = [
 const OrderDetails = ({
   orderLoading = false,
   orderDetail,
-  invoiceLoading = false,
   showInvoice = false,
   showCancel = false,
+  isShadow = false,
 }) => {
   const { openDiamondDetailDrawer } = useSelector(({ common }) => common);
+  const { invoiceLoading } = useSelector(({ order }) => order);
   const dispatch = useDispatch();
+
   const orderMetaFields = [
     {
       label: "Order Date",
@@ -180,7 +182,10 @@ const OrderDetails = ({
       </div>
     </div>
   ) : (
-    <div className="px-6 shadow-lg pt-4">
+    <div
+      className={`px-6 pt-4 ${isShadow ? "shadow-[0_0_12px_rgba(0,0,0,0.12)]" : ""
+        }`}
+    >
       <div className="flex justify-end">
         <div className="flex gap-4 mb-2">
           {showInvoice &&
@@ -209,7 +214,7 @@ const OrderDetails = ({
         </div>
       </div>
 
-      <div className="relative flex flex-col lg:flex-row">
+      <div className="relative flex flex-col lg:flex-row py-6">
         <div className="flex flex-col gap-4 pr-6 w-full lg:w-1/2">
           <section
             className="px-4 flex-1 overflow-y-auto max-h-[55vh] custom-scrollbar relative pt-6"
@@ -351,22 +356,22 @@ const OrderDetails = ({
               },
               ...(orderDetail?.discount > 0
                 ? [
-                    {
-                      label: `Promo Discount (${orderDetail?.promoCode})`,
-                      value: `- ${helperFunctions?.formatCurrencyWithDollar(
-                        orderDetail?.discount
-                      )}`,
-                      strong: false,
-                    },
-                  ]
+                  {
+                    label: `Promo Discount (${orderDetail?.promoCode})`,
+                    value: `- ${helperFunctions?.formatCurrencyWithDollar(
+                      orderDetail?.discount
+                    )}`,
+                    strong: false,
+                  },
+                ]
                 : []),
               {
                 label: `Sales Tax (${SALES_TAX_PERCENTAGE_VALUE})`,
                 value:
                   orderDetail?.salesTax > 0
                     ? helperFunctions?.formatCurrencyWithDollar(
-                        orderDetail?.salesTax
-                      )
+                      orderDetail?.salesTax
+                    )
                     : "$0.00",
               },
               {
@@ -374,8 +379,8 @@ const OrderDetails = ({
                 value:
                   orderDetail?.shippingCharge > 0
                     ? `$${helperFunctions?.formatCurrencyWithDollar(
-                        orderDetail.shippingCharge
-                      )}`
+                      orderDetail.shippingCharge
+                    )}`
                     : "Free",
               },
               {
@@ -390,9 +395,8 @@ const OrderDetails = ({
                 className="flex justify-between"
               >
                 <h4
-                  className={`${
-                    item.label === "Total Amount" ? "font-bold" : "font-medium"
-                  }`}
+                  className={`${item.label === "Total Amount" ? "font-bold" : "font-medium"
+                    }`}
                 >
                   {item.label}
                 </h4>
@@ -403,7 +407,7 @@ const OrderDetails = ({
           </div>
         </div>
         <div className="flex justify-center items-center px-2 my-4 lg:my-0">
-          <div className="w-full h-px bg-grayborder lg:w-px lg:h-[80%]"></div>
+          <div className="w-full bg-grayborder lg:h-[100%]"></div>
         </div>
 
         <div className="flex flex-col gap-4 lg:pl-6 w-full lg:w-1/2">

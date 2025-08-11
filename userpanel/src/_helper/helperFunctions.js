@@ -349,7 +349,7 @@ const getVideoType = (videoUrl) => {
 
 const getCustomProduct = () => {
   const customProductJson = localStorage.getItem("customProduct");
-  const customProduct = JSON.parse(customProductJson);
+  const customProduct = customProductJson ? JSON.parse(customProductJson) : {};
   return customProduct;
 };
 

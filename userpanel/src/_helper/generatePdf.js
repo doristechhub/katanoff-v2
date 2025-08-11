@@ -307,4 +307,5 @@ export const generatePDF = async (orderData, sizePage = "1") => {
   doc.text(SALES_TAX_NOTE, 40, currentY, { maxWidth: pageWidth - 80 });
 
   doc.save(`${invoiceData?.orderNumber}.pdf`);
+   return true;
 };

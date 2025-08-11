@@ -27,16 +27,15 @@ import DownloadInvoice from "../order-history/downloadInvoice";
 const ReturnDetails = ({
   returnDetail,
   returnLoader = false,
-  isShadow = true,
-  invoiceLoading = false,
+  isShadow = false,
 }) => {
   const { openDiamondDetailDrawer } = useSelector((state) => state.common);
+  const { invoiceLoading } = useSelector(({ order }) => order);
   const dispatch = useDispatch();
   const cartContentRef = useRef(null);
 
   const formatCurrency = (value) =>
     helperFunctions.formatCurrencyWithDollar(value);
-
   // Order metadata fields configuration
   const orderMetaFields = [
     {
@@ -130,8 +129,12 @@ const ReturnDetails = ({
   if (!returnDetail || !Object.keys(returnDetail).length) {
     return <ProductNotFound message="Sorry, no order found." />;
   }
+
   return (
-    <div className={`md:px-2 lg:px-6 my-6 ${isShadow ? "shadow-lg" : ""}`}>
+    <div
+      className={`md:px-2 lg:px-6 my-6 ${isShadow ? "shadow-[0_0_12px_rgba(0,0,0,0.12)]" : ""
+        }`}
+    >
       {/* Action Buttons */}
       <div className="flex justify-end gap-2 mb-2">
         {returnDetail?.status === "pending" &&
@@ -157,13 +160,15 @@ const ReturnDetails = ({
               />
             </button>
           ))} */}
-        {["approved", "received"]?.includes(returnDetail?.status) && (
-          <DownloadInvoice returnId={returnDetail.id} />
-        )}
+        {["approved", "received"]?.includes(returnDetail?.status) &&
+          (invoiceLoading ? (
+            <Spinner className="h-6" />
+          ) : (
+            <DownloadInvoice returnId={returnDetail.id} />
+          ))}
       </div>
-
       {/* Main Content */}
-      <div className="flex flex-col lg:flex-row">
+      <div className="flex flex-col lg:flex-row py-6">
         {/* Left Panel: Products */}
         <div className="flex flex-col gap-4 lg:pr-6 w-full lg:w-1/2">
           <div
@@ -333,8 +338,8 @@ const ReturnDetails = ({
             </div>
             <hr className="w-full border-t border-gray-300 my-2 mx-auto" />
             {returnDetail?.returnRequestAmount &&
-            returnDetail?.refundAmount &&
-            Number(returnDetail?.returnRequestAmount) ===
+              returnDetail?.refundAmount &&
+              Number(returnDetail?.returnRequestAmount) ===
               Number(returnDetail?.refundAmount) ? (
               // Case: Full refund, show only Refunded Amount
               <div className="flex justify-between">
@@ -362,7 +367,7 @@ const ReturnDetails = ({
                         -
                         {formatCurrency(
                           Number(returnDetail?.returnRequestAmount) -
-                            Number(returnDetail?.refundAmount)
+                          Number(returnDetail?.refundAmount)
                         )}
                       </p>
                     </div>
@@ -386,7 +391,7 @@ const ReturnDetails = ({
 
         {/* Divider */}
         <div className="flex justify-center items-center px-2 my-4 lg:my-0">
-          <div className="w-full h-px bg-grayborder lg:w-px lg:h-[80%]"></div>
+          <div className="w-full bg-grayborder lg:h-[100%]"></div>
         </div>
 
         {/* Right Panel: Order Details */}

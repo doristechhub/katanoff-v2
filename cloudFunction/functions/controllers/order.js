@@ -107,13 +107,16 @@ const updatePaymentStatus = async (req, res) => {
           if (cartIds.length) {
             cartIds.map((cartId) => cartService.deleteOne({ cartId: cartId }));
           }
+          const mailPayload = {
+            userName: orderData?.shippingAddress?.name,
+            orderNumber: orderData?.orderNumber,
+            orderStatus: orderData?.orderStatus,
+          }
           // send mail for order status
           const { subject, description } = getMailTemplateForOrderStatus(
-            orderData.shippingAddress.name,
-            orderData.orderNumber,
-            orderData.orderStatus
+            mailPayload
           );
-          sendMail(orderData.shippingAddress.email, subject, description);
+          sendMail(orderData?.shippingAddress?.email, subject, description);
         }
         return res.json({
           status: 200,
@@ -156,12 +159,18 @@ const sendPendingOrderMail = async (req, res) => {
       const orderData = await orderService.findOne(findPattern);
       if (orderData) {
         if (orderData.paymentStatus === "pending") {
+
+          const mailPayload = {
+            userName: orderData?.shippingAddress?.name,
+            orderNumber: orderData?.orderNumber,
+            orderStatus: "pending",
+          }
+
           // send mail for order status
           const { subject, description } = getMailTemplateForOrderStatus(
-            orderData.shippingAddress.name,
-            orderData.orderNumber,
-            "pending"
+            mailPayload
           );
+
           sendMail(orderData.shippingAddress.email, subject, description);
           return res.json({
             status: 200,
@@ -302,12 +311,15 @@ const updateOrderStatus = async (req, res) => {
           updatePattern.deliveryDate = Date.now();
         }
         await orderService.findOneAndUpdate(findPattern, updatePattern);
+        const mailPayload = {
+          userName: orderData?.shippingAddress?.name,
+          orderNumber: orderData?.orderNumber,
+          trackingNumber: trackingNumber || orderData?.trackingNumber,
+          orderStatus,
+        }
         // send mail for order status
         const { subject, description } = getMailTemplateForOrderStatus(
-          orderData.shippingAddress.name,
-          orderData.orderNumber,
-          trackingNumber || orderData.trackingNumber,
-          orderStatus
+          mailPayload
         );
         sendMail(orderData.shippingAddress.email, subject, description);
         return res.json({
@@ -379,13 +391,16 @@ const cancelOrder = async (req, res) => {
         );
         await productService?.updateProductQty(nonCustomizedProducts);
 
+        const mailPayload = {
+          userName: orderData?.shippingAddress?.name,
+          orderNumber: orderData?.orderNumber,
+          orderStatus: "cancelled",
+        }
         // Send cancellation email
         const { subject, description } = getMailTemplateForOrderStatus(
-          orderData.shippingAddress.name,
-          orderData.orderNumber,
-          "cancelled"
+          mailPayload
         );
-        sendMail(orderData.shippingAddress.email, subject, description);
+        sendMail(orderData?.shippingAddress?.email, subject, description);
 
         // Handle refund based on payment method
         if (orderData.paymentMethod === "stripe") {
@@ -442,7 +457,7 @@ const cancelOrder = async (req, res) => {
             if (
               !refundsList?.length ||
               refundsList?.filter((x) => x?.status === "canceled")?.length ===
-                refundsList?.length
+              refundsList?.length
             ) {
               const orderUpdatePatternWithRefund = {
                 paymentStatus: "refund_initialization_failed",
@@ -529,7 +544,7 @@ const cancelOrder = async (req, res) => {
           status: 409,
           message: message.custom(
             `You cannot cancel order as the payment status is ${orderData.paymentStatus}` +
-              ` and order status is ${orderData.orderStatus}`
+            ` and order status is ${orderData.orderStatus}`
           ),
         });
       }
@@ -649,8 +664,7 @@ const refundPayment = async (req, res) => {
           return res.json({
             status: 429,
             message: message.custom(
-              `The requested refund amount exceeds your payment amount. The maximum refundable amount is $${
-                paymentIntent.amount / 100
+              `The requested refund amount exceeds your payment amount. The maximum refundable amount is $${paymentIntent.amount / 100
               }.`
             ),
           });
@@ -694,7 +708,7 @@ const refundPayment = async (req, res) => {
           if (
             !refundsList?.length ||
             refundsList?.filter((x) => x?.status === "canceled")?.length ===
-              refundsList?.length
+            refundsList?.length
           ) {
             updatePattern.paymentStatus = "refund_initialization_failed";
             updatePattern.stripeRefundFailureReason = e?.message;
@@ -733,8 +747,7 @@ const refundPayment = async (req, res) => {
           return res.json({
             status: 429,
             message: message.custom(
-              `The requested refund amount exceeds your payment amount. The maximum refundable amount is $${
-                capturedAmount / 100
+              `The requested refund amount exceeds your payment amount. The maximum refundable amount is $${capturedAmount / 100
               }.`
             ),
           });
