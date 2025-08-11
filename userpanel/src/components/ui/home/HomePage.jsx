@@ -257,7 +257,9 @@ const Home = () => {
       <section className="container pt-10 lg:pt-12 2xl:pt-16">
         <AccordionDropdown items={faqData} />
       </section>
-      <FixedAlert message={loginMessage?.message} type={loginMessage?.type} />
+      {loginMessage?.message && loginMessage?.type === messageType?.SUCCESS ? (
+        <FixedAlert message={loginMessage?.message} type={loginMessage?.type} />
+      ) : null}
       {appointmentMessage?.type === messageType?.SUCCESS && (
         <FixedAlert
           message={appointmentMessage?.message}

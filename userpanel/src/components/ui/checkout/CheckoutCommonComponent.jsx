@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   helperFunctions,
   LENGTH,
+  NEW_YORK_CODE,
   RING_SIZE,
   SALES_TAX_PERCENTAGE,
 } from "@/_helper";
@@ -42,7 +43,8 @@ const CheckoutCommonComponent = () => {
     const address = localStorage.getItem("address");
     const getParsedAddress = address ? JSON.parse(address) : null;
 
-    const newYorkState = getParsedAddress?.stateCode?.toLowerCase() === "ny";
+    const newYorkState =
+      getParsedAddress?.stateCode?.toUpperCase() === NEW_YORK_CODE;
 
     if (newYorkState !== isNewYorkState) {
       dispatch(setIsNewYorkState(newYorkState));
@@ -263,7 +265,7 @@ const CheckoutCommonComponent = () => {
         >
           <div className="flex justify-between w-full">
             <span>Order Summary</span>
-            <span className="px-1">${getSubTotal()}</span>
+            <span className="px-1">${getGrandTotal()}</span>
           </div>
           {isOpen ? (
             <HiChevronUp className="w-5 h-5" />

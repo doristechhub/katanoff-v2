@@ -2,7 +2,20 @@ import { CustomImg, ProgressiveImg } from "../dynamiComponents";
 import { PrimaryLinkButton } from "./button";
 import progressiveMobile from "@/assets/images/progressive-mobile.webp";
 import progressiveDesktop from "@/assets/images/progressive-desktop.webp";
-import { ENGAGEMENT_RINGS, helperFunctions } from "@/_helper";
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
+import Link from "next/link";
+
+const dropdownItems = [
+  {
+    title: "Design Your Own",
+    href: `/customize/select-diamond`,
+  },
+  {
+    title: "Pre Designed",
+    href: `/collections/collection/Engagement_Rings`,
+  },
+];
 
 const HeroBanner = ({
   title,
@@ -20,9 +33,10 @@ const HeroBanner = ({
   staticSrcDesktop,
   staticSrcMobile,
 }) => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   return (
     <section
-      className={`relative overflow-hidden ${
+      className={`relative md:overflow-hidden ${
         isHomePage ? "flex flex-col gap-6 md:gap-10" : "h-auto"
       }`}
     >
@@ -149,34 +163,82 @@ const HeroBanner = ({
               {/* <p className="mt-2 md:mt-2 text-sm">
                 Free 1ct Diamond Pendant with Purchase<sup>*</sup>
               </p> */}
-              <div className="hidden md:flex mt-4 md:mt-4 flex-col md:flex-row items-center md:justify-center gap-2.5 md:gap-4">
-                <PrimaryLinkButton
-                  href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-                    ENGAGEMENT_RINGS
-                  )}`}
-                  variant="transparentHover"
-                >
-                  SHOP ENGAGEMENT
-                </PrimaryLinkButton>
+              <div className="hidden md:flex mt-4 flex-col md:flex-row items-center md:justify-center gap-2.5 md:gap-4">
+                <div className="relative">
+                  <PrimaryLinkButton
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    variant="transparentHover"
+                    className="!rounded-none cursor-pointer !text-sm"
+                  >
+                    SHOP ENGAGEMENT
+                    <ChevronDown
+                      className={`w-5 h-5 transition-transform duration-200 ${
+                        isDropdownOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </PrimaryLinkButton>
+
+                  {/* Dropdown Menu */}
+                  {isDropdownOpen && (
+                    <div className="absolute top-full left-0 mt-0 w-full bg-white">
+                      <div>
+                        {dropdownItems.map((item, index) => (
+                          <Link
+                            key={`dropdown-item-${index}`}
+                            href={item.href}
+                            className="block px-4 py-3 text-sm text-baseblack font-semibold hover:bg-primary hover:text-white transition-colors duration-150"
+                            onClick={() => setIsDropdownOpen(false)}
+                          >
+                            {item.title}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <PrimaryLinkButton
                   href="/collections/categories/Jewelry"
                   variant="transparentHover"
+                  className={`!rounded-none !text-sm`}
                 >
                   SHOP ALL JEWELRY
                 </PrimaryLinkButton>
               </div>
-              <div className="md:hidden px-2 flex mt-4 md:mt-4 flex-wrap items-center justify-center gap-2.5 md:gap-4">
-                <PrimaryLinkButton
-                  href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-                    ENGAGEMENT_RINGS
-                  )}`}
-                  variant="blackHover"
-                >
-                  SHOP ENGAGEMENT
-                </PrimaryLinkButton>
+              <div className="md:hidden px-2 flex mt-4 flex-col items-center justify-center gap-2.5 md:gap-4">
+                <div className="relative">
+                  <PrimaryLinkButton
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    variant="blackHover"
+                    className="!rounded-none cursor-pointer !text-sm"
+                  >
+                    SHOP ENGAGEMENT
+                    <ChevronDown
+                      className={`w-5 h-5 transition-transform duration-200 ${
+                        isDropdownOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </PrimaryLinkButton>
+
+                  {/* Dropdown Menu */}
+                  {isDropdownOpen && (
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0 w-full bg-white shadow-md">
+                      {dropdownItems.map((item, index) => (
+                        <Link
+                          key={`dropdown-item-${index}`}
+                          href={item.href}
+                          className="block px-4 py-3 text-sm text-baseblack font-semibold hover:bg-primary hover:text-white transition-colors duration-150"
+                          onClick={() => setIsDropdownOpen(false)}
+                        >
+                          {item.title}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <PrimaryLinkButton
                   href="/collections/categories/Jewelry"
                   variant="blackHover"
+                  className={`!rounded-none !text-sm !w-full`}
                 >
                   SHOP ALL JEWELRY
                 </PrimaryLinkButton>

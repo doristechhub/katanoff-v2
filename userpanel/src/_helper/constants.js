@@ -169,3 +169,5 @@ export const SLIDER_GRID = "slider_grid";
 export const COLLECTION_TYPES = [TWO_GRID, THREE_GRID, SLIDER_GRID];
 
 export const CURRENT_YEAR = new Date().getFullYear();
+
+export const NEW_YORK_CODE = "NY";

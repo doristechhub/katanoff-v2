@@ -145,10 +145,7 @@ export default function ProductCard({
         onMouseLeave={handleImageMouseLeave}
         onClick={() => {
           if (isDiamondSettingPage) {
-            const existingCustomProduct = localStorage.getItem("customProduct");
-            const customProduct = existingCustomProduct
-              ? JSON.parse(existingCustomProduct)
-              : {};
+            const customProduct = helperFunctions?.getCustomProduct();
             localStorage.setItem(
               "customProduct",
               JSON.stringify({ ...customProduct, productId })

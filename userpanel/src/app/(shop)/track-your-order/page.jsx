@@ -137,6 +137,7 @@ export default function TrackYourOrderPage() {
                 orderLoading={orderDetailLoading}
                 orderDetail={orderDetail}
                 showInvoice={true}
+                isShadow={true}
               />
             ) : (
               <CommonNotFound message={"Order Not Found!"} />

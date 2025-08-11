@@ -566,23 +566,32 @@ const calculateAutomaticPrices = ({
 };
 
 /**
- * Calculates the total price of a non-customized product based on gross weight, total carat weight, and variations.
+ * Calculates the final selling price of a non-customized product based on weight, carat weight, and variation pricing.
  *
- * @param {Object} params - Input parameters for price calculation.
- * @param {number} params.grossWeight - Product gross weight in grams (must be positive).
- * @param {number} params.totalCaratWeight - Total carat weight of product (must be non-negative).
- * @param {Array<Object>} params.variations - Array of variation objects with price and unit properties.
- * @param {number} [params.priceMultiplier=1] - Multiplier for additional charges (e.g., labor, design).
- * @returns {number} Final product price, rounded to 2 decimal places, or 0 if inputs are invalid.
+ * @param {Object} params - Calculation parameters.
+ * @param {number} params.grossWeight - Gross product weight in grams (must be > 0).
+ * @param {number} params.totalCaratWeight - Total gemstone/diamond carat weight (must be ≥ 0).
+ * @param {Array<Object>} params.variations - Variation list, each with:
+ *        @param {number} price - Price per unit.
+ *        @param {string} unit  - Unit type (`UNIT_TYPES.CARAT` or `UNIT_TYPES.GRAM`).
+ * @param {number} [params.priceMultiplier=1] - Additional multiplier for labor, design, or margins.
+ *
+ * @returns {number} Final price, adjusted for markup and formatted ending, or `0` if inputs are invalid.
  *
  * @description
- * - Computes variation price based on unit type:
- *   - 'carat': price per carat * totalCaratWeight.
- *   - 'gram': price per gram * grossWeight.
- * - Adds 50% markup to the sum of variation prices.
- * - Applies priceMultiplier to the total base price.
- * - Returns 0 and logs error for invalid inputs.
+ * Steps:
+ *  1. **Validate inputs** — Rejects if weights are invalid or variations list is empty.
+ *  2. **Compute variation cost**:
+ *     - `CARAT`: price × totalCaratWeight
+ *     - `GRAM` : price × grossWeight
+ *  3. **Apply markup** — Adds a fixed 50% markup to the total.
+ *  4. **Apply multiplier** — Multiplies by `priceMultiplier`.
+ *  5. **Format price** — Uses `formatPriceSmart99` to set price ending:
+ *       - Last two digits ≤ 50 → round down to nearest hundred - 1
+ *       - Last two digits > 50 → round up to nearest hundred + 99
+ *  6. **Return** — Price after adjustments, or `0` if invalid.
  */
+
 const calculateNonCustomizedProductPrice = ({
   grossWeight,
   totalCaratWeight,
@@ -623,9 +632,45 @@ const calculateNonCustomizedProductPrice = ({
   // Apply 50% markup to the total price
   const fiftyPercentMarkup = totalPrice / 2;
   const totalBasePrice = totalPrice + fiftyPercentMarkup;
+  const multipliedPrice = totalBasePrice * priceMultiplier;
+  if (multipliedPrice <= 0) {
+    console.log('Invalid: multipliedPrice must be positive.');
+    return 0;
+  }
 
   // Apply PRICE_MULTIPLIER and round to 2 decimal places
-  const finalPrice = Number((totalBasePrice * priceMultiplier).toFixed(2));
+  // const finalPrice = Number(multipliedPrice.toFixed(2));
+
+  // Case: 1
+  // Apply priceMultiplier, take floor, and adjust to end in 99
+  // const finalPrice = formatPriceTo99Ending(multipliedPrice);
+
+  // Case: 2
+  // Apply priceMultiplier, take floor, and adjust to end in 99
+  const finalPrice = formatPriceSmart99(multipliedPrice);
+
+  return finalPrice;
+};
+
+const formatPriceTo99Ending = (multipliedPrice = 1) => {
+  let finalPrice = Math.floor(multipliedPrice);
+  const lastTwoDigits = finalPrice % 100;
+  if (lastTwoDigits === 0) {
+    finalPrice = finalPrice - 1;
+  } else if (lastTwoDigits !== 99) {
+    finalPrice = finalPrice - lastTwoDigits + 99;
+  }
+  return finalPrice;
+};
+
+const formatPriceSmart99 = (multipliedPrice = 1) => {
+  let finalPrice = Math.floor(multipliedPrice);
+  const lastTwoDigits = finalPrice % 100;
+  if (lastTwoDigits <= 50) {
+    finalPrice = Math.floor(finalPrice / 100) * 100 - 1;
+  } else {
+    finalPrice = Math.floor(finalPrice / 100) * 100 + 99;
+  }
 
   return finalPrice;
 };

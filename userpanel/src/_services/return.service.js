@@ -402,13 +402,13 @@ const getReturnDetailByReturnId = (returnId) => {
         return;
       }
 
-      const currentUser = helperFunctions.getCurrentUser();
-      if (currentUser?.id !== returnDetail?.userId) {
-        reject(
-          new Error("Unauthorized: User does not own this return request")
-        );
-        return;
-      }
+      // const currentUser = helperFunctions.getCurrentUser();
+      // if (currentUser?.id !== returnDetail?.userId) {
+      //   reject(
+      //     new Error("Unauthorized: User does not own this return request")
+      //   );
+      //   return;
+      // }
       if (returnDetail?.orderId) {
         const orderDetail = await fetchWrapperService?.findOne(ordersUrl, {
           id: returnDetail?.orderId,

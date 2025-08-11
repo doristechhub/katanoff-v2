@@ -57,12 +57,10 @@ export default function CompleteRingPage() {
               label: "Change",
               route: "/customize/select-setting",
               onClick: () => {
-                const data = JSON.parse(
-                  localStorage.getItem("customProduct") || "{}"
-                );
-                delete data.productId;
-                delete data.selectedVariations;
-                localStorage.setItem("customProduct", JSON.stringify(data));
+                const customProductData = helperFunctions?.getCustomProduct() || {};
+                delete customProductData?.productId;
+                delete customProductData?.selectedVariations;
+                localStorage.setItem("customProduct", JSON.stringify(customProductData));
               },
             },
           ],

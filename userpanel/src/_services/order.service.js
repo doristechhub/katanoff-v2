@@ -86,10 +86,10 @@ const getOrderDetailByOrderId = (orderId) => {
 
         if (orderDetail) {
           const currentUser = helperFunctions.getCurrentUser();
-          if (currentUser?.id !== orderDetail?.userId) {
-            reject(new Error("unAuthorized"));
-            return;
-          }
+          // if (currentUser?.id !== orderDetail?.userId) {
+          //   reject(new Error("unAuthorized"));
+          //   return;
+          // }
           const productFindPattern = {
             url: productsUrl,
             key: "active",

@@ -96,11 +96,9 @@ export default function SelectDiamondPage() {
               label: "Change",
               route: "/customize/select-setting",
               onClick: () => {
-                const data = JSON.parse(
-                  localStorage.getItem("customProduct") || "{}"
-                );
-                delete data.productId;
-                localStorage.setItem("customProduct", JSON.stringify(data));
+                const customProductData = helperFunctions?.getCustomProduct() || {};
+                delete customProductData?.productId;
+                localStorage.setItem("customProduct", JSON.stringify(customProductData));
               },
             },
           ],
@@ -139,8 +137,7 @@ export default function SelectDiamondPage() {
   //     }))
   //   ) || [];
 
-  const initialCustomProduct =
-    JSON.parse(localStorage.getItem("customProduct")) || {};
+  const initialCustomProduct = helperFunctions?.getCustomProduct() || {};
   const initialShape = initialCustomProduct?.diamondDetails?.shape || null;
   const initialClarity = initialCustomProduct?.diamondDetails?.clarity || null;
   const initialColor = initialCustomProduct?.diamondDetails?.color?.value
@@ -239,8 +236,7 @@ export default function SelectDiamondPage() {
       }
       dispatch(setDiamondMessage(null));
 
-      const customProduct =
-        JSON.parse(localStorage.getItem("customProduct")) || {};
+      const customProduct = helperFunctions?.getCustomProduct() || {};
 
       const updatedCustomProduct = {
         ...customProduct,
@@ -359,11 +355,10 @@ export default function SelectDiamondPage() {
                         key={`diamond-shape-${index}`}
                       >
                         <div
-                          className={`group flex flex-col justify-between items-center w-[70px] h-[76px] py-2 px-2 rounded-md cursor-pointer border  ${
-                            diamondSelection.shape?.id === item.id
+                          className={`group flex flex-col justify-between items-center w-[70px] h-[76px] py-2 px-2 rounded-md cursor-pointer border  ${diamondSelection.shape?.id === item.id
                               ? "border-[1.5px] border-baseblack bg-opacity-10"
                               : "border-transparent hover:border-primary"
-                          } transition-all duration-300`}
+                            } transition-all duration-300`}
                           onClick={() => {
                             dispatch(setDiamondSelection({ shape: item }));
                             if (diamondMessage?.type === messageType.ERROR) {
@@ -378,11 +373,10 @@ export default function SelectDiamondPage() {
                           />
                           {/* Reserve space for label, even when not selected */}
                           <span
-                            className={`text-xs uppercase transition-all duration-300 ${
-                              diamondSelection.shape?.id === item?.id
+                            className={`text-xs uppercase transition-all duration-300 ${diamondSelection.shape?.id === item?.id
                                 ? "text-baseblack font-semibold"
                                 : "text-transparent group-hover:text-baseblack"
-                            }`}
+                              }`}
                           >
                             {item?.title}
                           </span>
@@ -409,11 +403,10 @@ export default function SelectDiamondPage() {
                       <div
                         key={`carat-option-${index}`}
                         className={`w-[50px] flex justify-center items-center px-2 py-1.5 cursor-pointer transition-all duration-100
-                            rounded-[3px] border ${
-                              isSelected
-                                ? "text-baseblack border-baseblack"
-                                : "border-transparent hover:border-baseblack"
-                            }`}
+                            rounded-[3px] border ${isSelected
+                            ? "text-baseblack border-baseblack"
+                            : "border-transparent hover:border-baseblack"
+                          }`}
                         onClick={() => {
                           dispatch(setDiamondSelection({ caratWeight: value }));
                           if (diamondMessage?.type === messageType.ERROR) {
@@ -452,11 +445,10 @@ export default function SelectDiamondPage() {
                         <div
                           key={`diamond-clarity-${index}`}
                           title={item?.title}
-                          className={`hover:border !w-[60px] flex justify-center items-center px-2 py-1 2xl:py-1.5 cursor-pointer transition-all duration-100 ${
-                            diamondSelection.clarity?.value === item.value
+                          className={`hover:border !w-[60px] flex justify-center items-center px-2 py-1 2xl:py-1.5 cursor-pointer transition-all duration-100 ${diamondSelection.clarity?.value === item.value
                               ? "text-baseblack  border-baseblack rounded-[3px] border"
                               : "border-approxgray text-baseblack hover:border-baseblack hover:rounded-[3px]"
-                          }`}
+                            }`}
                           onClick={() => {
                             dispatch(setDiamondSelection({ clarity: item }));
                             if (diamondMessage?.type === messageType.ERROR) {
@@ -494,11 +486,10 @@ export default function SelectDiamondPage() {
                         <div
                           key={`diamond-color-${index}`}
                           title={item?.title}
-                          className={`hover:border !w-10 px-2 flex justify-center items-center py-1 2xl:py-1.5 cursor-pointer transition-all duration-100 ${
-                            diamondSelection.color?.value === item.value
+                          className={`hover:border !w-10 px-2 flex justify-center items-center py-1 2xl:py-1.5 cursor-pointer transition-all duration-100 ${diamondSelection.color?.value === item.value
                               ? "text-baseblack  border-baseblack rounded-[3px] border"
                               : "border-approxgray text-baseblack  hover:border-baseblack hover:rounded-[3px]"
-                          }`}
+                            }`}
                           onClick={() => {
                             dispatch(setDiamondSelection({ color: item }));
                             if (diamondMessage?.type === messageType.ERROR) {

@@ -124,33 +124,99 @@ const ProductDetailPage = ({ customizePage }) => {
       );
       if (response) {
         dispatch(addUpdateRecentlyViewedProducts({ productName }));
-        const initialSelections = response?.variations?.map((variation) => {
-          if (
-            variation?.variationName?.toLowerCase() ===
-              GOLD_COLOR.toLowerCase() &&
-            goldColor
-          ) {
-            const matchedType = variation.variationTypes.find(
-              (vt) =>
-                vt.variationTypeName?.toLowerCase() === goldColor.toLowerCase()
+
+        const variations = response?.variations || [];
+        const variCombos = response?.variComboWithQuantity || [];
+
+        let goldColorSelection = null;
+        let ringSizeSelection = null;
+
+        // 1️⃣ Get Gold Color selection
+        const goldVariation = variations.find(
+          (v) => v?.variationName?.toLowerCase() === GOLD_COLOR.toLowerCase()
+        );
+        if (goldVariation) {
+          const matchedType = goldVariation.variationTypes.find(
+            (vt) => goldColor && vt.variationTypeName?.toLowerCase() === goldColor.toLowerCase()
+          ) || goldVariation.variationTypes[0];
+
+          if (matchedType) {
+            goldColorSelection = {
+              variationId: goldVariation?.variationId,
+              variationTypeId: matchedType.variationTypeId,
+              variationName: goldVariation?.variationName,
+              variationTypeName: matchedType.variationTypeName,
+            };
+          }
+        }
+
+        // 2️⃣ Get Ring Size "6.00" if exists
+        const ringVariation = variations.find(
+          (v) => v?.variationName?.toLowerCase() === RING_SIZE.toLowerCase()
+        );
+        if (ringVariation) {
+
+          const matchedRingType = ringVariation.variationTypes.find(
+            (vt) => vt.variationTypeName === "6.00"
+          ) || ringVariation.variationTypes[0];
+
+          if (matchedRingType) {
+            ringSizeSelection = {
+              variationId: ringVariation?.variationId,
+              variationTypeId: matchedRingType.variationTypeId,
+              variationName: ringVariation?.variationName,
+              variationTypeName: matchedRingType.variationTypeName,
+            };
+          }
+        }
+
+        let initialSelections = [];
+
+        if (goldColorSelection && variCombos.length) {
+          const requiredTypeIds = [goldColorSelection.variationTypeId];
+          if (ringSizeSelection && ringSizeSelection.variationTypeName === "6.00") {
+            requiredTypeIds.push(ringSizeSelection.variationTypeId);
+          }
+
+          const matchingCombos = variCombos.filter((combo) =>
+            requiredTypeIds.every((reqId) =>
+              combo?.combination?.some((c) => c.variationTypeId === reqId)
+            )
+          );
+
+          if (matchingCombos.length) {
+            const minPriceCombo = matchingCombos.reduce((min, current) =>
+              current.price < min.price ? current : min
             );
 
-            if (matchedType) {
+            initialSelections = minPriceCombo.combination.map((comboItem) => {
+              const variation = variations.find(
+                (v) => v.variationId === comboItem.variationId
+              );
+              const variationType = variation?.variationTypes?.find(
+                (vt) => vt.variationTypeId === comboItem.variationTypeId
+              );
+
               return {
                 variationId: variation?.variationId,
-                variationTypeId: matchedType.variationTypeId,
+                variationTypeId: variationType?.variationTypeId,
                 variationName: variation?.variationName,
-                variationTypeName: matchedType.variationTypeName,
+                variationTypeName: variationType?.variationTypeName,
               };
-            }
+            });
           }
-          return {
+        }
+
+        // 4️⃣ Fallback to defaults if no combo found
+        if (!initialSelections.length) {
+          initialSelections = variations.map((variation) => ({
             variationId: variation?.variationId,
             variationTypeId: variation?.variationTypes[0]?.variationTypeId,
             variationName: variation?.variationName,
             variationTypeName: variation?.variationTypes[0]?.variationTypeName,
-          };
-        });
+          }));
+        }
+
         dispatch(setSelectedVariations(initialSelections));
       }
     } else if (productId || customProductIdFromLocalStorage) {
@@ -180,7 +246,7 @@ const ProductDetailPage = ({ customizePage }) => {
             // Handle Gold Color variation with goldColor from search params
             if (
               variation?.variationName?.toLowerCase() ===
-                GOLD_COLOR.toLowerCase() &&
+              GOLD_COLOR.toLowerCase() &&
               goldColor
             ) {
               const matchedType = variation.variationTypes.find(
@@ -392,12 +458,12 @@ const ProductDetailPage = ({ customizePage }) => {
         })),
       };
 
-      const existingData = localStorage.getItem("customProduct");
+      const existingCustomProductData = helperFunctions?.getCustomProduct();
 
       let updatedPayload;
 
-      if (existingData) {
-        const parsed = JSON.parse(existingData);
+      if (existingCustomProductData) {
+        const parsed = JSON.parse(existingCustomProductData);
         updatedPayload = {
           ...parsed,
           ...newPayload,
@@ -457,10 +523,10 @@ const ProductDetailPage = ({ customizePage }) => {
   const calculatedPrice = isCustomizePage
     ? helperFunctions?.roundOffPrice(customProductPrice)
     : selectedPrice
-    ? helperFunctions?.roundOffPrice(
+      ? helperFunctions?.roundOffPrice(
         selectedPrice * productQuantity * (1 - productDetail?.discount / 100)
       )
-    : 0;
+      : 0;
 
   const displayProductName = helperFunctions?.formatProductNameWithCarat({
     caratWeight: productDetail?.totalCaratWeight,
@@ -574,6 +640,10 @@ const ProductDetailPage = ({ customizePage }) => {
                 handleSelect={handleSelect}
                 setHoveredColor={setHoveredColor}
                 hoveredColor={hoveredColor}
+              // isCustomizePage={isCustomizePage}
+              // {...(isCustomizePage && {
+              //   customizeProductSettingsData: customizeProductSettings,
+              // })}
               />
 
               {customizePage === "completeRing" &&
@@ -745,9 +815,8 @@ const AddToBagBar = ({
     []
   );
 
-  const baseClasses = `w-full bg-white shadow-md transition-opacity duration-300 z-40 ${
-    position === "bottom" ? "fixed bottom-0 left-0" : "relative mt-4 lg:mt-12"
-  }`;
+  const baseClasses = `w-full bg-white shadow-md transition-opacity duration-300 z-40 ${position === "bottom" ? "fixed bottom-0 left-0" : "relative mt-4 lg:mt-12"
+    }`;
   const estimatedDate = useMemo(() => {
     const date = new Date();
     date.setDate(date.getDate() + 15);
@@ -783,11 +852,11 @@ const AddToBagBar = ({
 
             <p className="text-base pt-1">
               {(isActive && availableQty && availableQty > 0) ||
-              customizePage === "completeRing"
+                customizePage === "completeRing"
                 ? "Made-to-Order"
                 : isActive || !selectedPrice > 0
-                ? "Out of Stock"
-                : "Inactive"}{" "}
+                  ? "Out of Stock"
+                  : "Inactive"}{" "}
               | {estimatedDate}
             </p>
           </div>
@@ -867,8 +936,8 @@ const AddToBagBar = ({
               <ErrorMessage message={"Please select variants"} />
             ) : null}
             {isSubmitted &&
-            cartMessage?.message &&
-            !(cartMessage?.message === "Product already exists in cart") ? (
+              cartMessage?.message &&
+              !(cartMessage?.message === "Product already exists in cart") ? (
               <ErrorMessage message={cartMessage?.message} />
             ) : null}
           </div>
@@ -951,11 +1020,10 @@ const ProductDetailTabs = ({ selectedVariations = [] }) => {
       label: "Product Detail",
       content: (
         <div
-          className={`grid xs:grid-cols-2 ${
-            productDetail?.specifications?.length > 0
-              ? "lg:grid-cols-3 lg:gap-12"
-              : "lg:grid-cols-2 lg:gap-60"
-          } gap-10 mt-4`}
+          className={`grid xs:grid-cols-2 ${productDetail?.specifications?.length > 0
+            ? "lg:grid-cols-3 lg:gap-12"
+            : "lg:grid-cols-2 lg:gap-60"
+            } gap-10 mt-4`}
         >
           <div className="text-sm lg:text-[15px] font-medium">
             <p className="text-base lg:text-lg inline-block font-semibold text-baseblack pb-2 3xl:pb-4">
@@ -1027,8 +1095,8 @@ const ProductDetailTabs = ({ selectedVariations = [] }) => {
                 SETTING_STYLE,
                 productDetail?.settingStyleNamesWithImg?.length > 0
                   ? productDetail?.settingStyleNamesWithImg
-                      .map((s) => s.title)
-                      .join(", ")
+                    .map((s) => s.title)
+                    .join(", ")
                   : ""
               )}
           </div>

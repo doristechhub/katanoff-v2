@@ -358,4 +358,5 @@ export const generateReturnPDF = async (returnData, sizePage = "1") => {
   doc.text(ESTIMATE_AMOUNT_NOTE, 40, currentY, { maxWidth: pageWidth - 80 });
 
   doc.save(`${invoiceData?.orderNumber}.pdf`);
+  return true;
 };

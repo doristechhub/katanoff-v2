@@ -102,8 +102,8 @@ export default function CheckYourReturnPage() {
   const dispatch = useDispatch();
   const { isHovered } = useSelector(({ common }) => common);
   const {
-    returnDetail,
     returnDetailLoading,
+    returnsList,
     trackReturnLoading,
     returnMessage,
   } = useSelector(({ returns }) => returns);
@@ -134,21 +134,14 @@ export default function CheckYourReturnPage() {
   });
 
   const { handleSubmit, getFieldProps, touched, errors } = formik;
-
-  const sortedReturnDetail = Array.isArray(returnDetail)
-    ? [...returnDetail].sort(
-        (a, b) => (b.createdDate || 0) - (a.createdDate || 0)
-      )
-    : [];
-
   useEffect(() => {
-    if (sortedReturnDetail?.length > 0 && formSubmitted && !hasUserToggled) {
-      const firstId = sortedReturnDetail[0].id;
+    if (returnsList?.length > 0 && formSubmitted && !hasUserToggled) {
+      const firstId = returnsList[0].id;
       setExpandedId(firstId);
-    } else if (!sortedReturnDetail?.length) {
+    } else if (!returnsList?.length) {
       setExpandedId(null);
     }
-  }, [sortedReturnDetail, formSubmitted, hasUserToggled]);
+  }, [returnsList, formSubmitted, hasUserToggled]);
 
   useEffect(() => {
     if (formSubmitted && returnDetailsRef?.current) {
@@ -244,11 +237,10 @@ export default function CheckYourReturnPage() {
             <>
               {trackReturnLoading ? (
                 <p className="text-center text-gray-600">Loading...</p>
-              ) : Array.isArray(sortedReturnDetail) &&
-                sortedReturnDetail?.length > 0 ? (
+              ) : returnsList?.length > 0 ? (
                 <div>
                   <h2 className="text-lg font-semibold mb-4">Return Details</h2>
-                  {sortedReturnDetail?.map((returnItem) => (
+                  {returnsList?.map((returnItem) => (
                     <ReturnAccordion
                       key={returnItem?.id}
                       returnItem={returnItem}

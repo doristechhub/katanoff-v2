@@ -295,7 +295,7 @@ export default function OrderHistoryPage() {
                         onClick={() => {
                           dispatch(setShowModal(true));
                           dispatch(setSelectedOrder(openId));
-                          setOpenId(null); // Close dropdown
+                          setOpenId(null);
                         }}
                       >
                         <RxCross2
@@ -327,14 +327,14 @@ export default function OrderHistoryPage() {
                       </button>
                     )}
 
-                  {invoiceLoading ? (
+                  {invoiceLoading && openId === selectedOrder ? (
                     <div className="flex  px-4 py-2 gap-2 text-basegray">
                       <Spinner className="h-6" />
                       Exporting...
                     </div>
                   ) : (
                     <>
-                      <div className="w-full text-left hover:bg-gray-100 flex gap-4 text-base text-basegray">
+                      <div className={`w-full text-left hover:bg-gray-100 flex gap-4 text-base text-basegray   ${invoiceLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100"}`}>
                         <DownloadInvoice
                           orderId={openId}
                           onSuccess={() => setOpenId(null)}
