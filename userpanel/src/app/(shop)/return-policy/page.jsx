@@ -1,151 +1,172 @@
 import { AccordionTabs } from "@/components/dynamiComponents";
 import CommonBgHeading from "@/components/ui/CommonBgHeading";
-import { companyEmail } from "@/_helper";
+import { companyEmail, companyPhoneNo, formatPhoneNumber } from "@/_helper";
+import Link from "next/link";
 
+const { display, link } = formatPhoneNumber(companyPhoneNo);
 const ReturnPolicyContent = [
   {
-    label: "Free 30-Day Returns & Exchanges",
+    label: "Return Shipping",
     content: (
       <div className="flex flex-col gap-3">
-        <p>
-          At <b>Katanoff</b>, we believe that buying jewelry should be a joyful
-          and worry-free experience. We understand that sometimes an item may
-          not be exactly what you envisioned—and that’s okay. That’s why we
-          offer <b>free returns and exchanges within 30 days</b> from the date
-          of delivery. If you're not fully satisfied with your purchase, we're
-          here to help you make it right. We want you to feel confident and
-          comfortable with every order you place with us. Whether you’re
-          returning a gift, exchanging a ring for a better fit, or simply had a
-          change of heart, our return process is designed to be smooth, secure,
-          and completely hassle-free.
-        </p>
+        <ul className="ps-5 list-disc">
+          <li>
+            All return shipping costs are the <b>customer’s responsibility</b>.
+          </li>
+          <li>
+            We do <b>not</b> provide prepaid shipping labels.
+          </li>
+          <li>
+            We recommend using a <b>reliable, trackable, and insured</b>{" "}
+            shipping method to ensure your item reaches us safely.
+          </li>
+        </ul>
       </div>
     ),
   },
   {
-    label: "What Items Are Eligible for Return or Exchange?",
+    label: "Return Eligibility",
     content: (
       <div className="flex flex-col gap-3">
         <p>
-          Most jewelry purchased from Katanoff is eligible for a{" "}
-          <b>free return or exchange within 30 days</b> of the delivery date. To
-          qualify, the item must meet the following conditions:
+          To be considered for a return, the following conditions must be met:
         </p>
         <ul className="ps-5 list-disc">
           <li>
-            The jewelry must be in <b>new, unworn condition</b>, free from any
-            signs of wear, damage, or alteration
+            The item must be <b>unused, unworn,</b> and in the{" "}
+            <b> original condition</b> in which it was delivered.
           </li>
           <li>
-            All <b>original packaging</b>, including the jewelry box,
-            certificates (such as diamond grading reports), and any paperwork,
-            must be returned with the item
-          </li>
-          <li>
-            The return must be initiated within <b>30 days</b> of receiving your
-            order
-          </li>
-          <li>
-            The return shipment must be <b>postmarked within 7 days</b> after
-            the return label is issued
+            All <b>original packaging, certificates, and documentation</b> must
+            accompany the return.
           </li>
         </ul>
-        <p>
-          We provide <b>free prepaid return shipping labels</b> for all approved
-          returns within the United States, so you don’t have to worry about
-          shipping costs or hidden fees.
-        </p>
       </div>
     ),
   },
   {
-    label: "What Items Are Not Eligible for Return?",
+    label: "How to Return ?",
     content: (
-      <div className="flex flex-col gap-3">
-        <p>
-          While we do our best to offer flexible return options, there are
-          certain items that are <b>not eligible for return or exchange</b> due
-          to their custom nature or final sale status. These include:
-        </p>
-        <ul className="ps-5 list-disc">
-          <li>
-            <b>Custom-designed or engraved jewelry</b>, including pieces that
-            have been made to your specific size, stone, or metal preferences
-          </li>
-          <li>
-            Any item that has been <b>resized, modified, or altered</b> after
-            delivery
-          </li>
-          <li>
-            <b>Final sale</b> or clearance items, which are noted as
-            non-returnable at the time of purchase
-          </li>
-          <li>
-            Jewelry that shows any{" "}
-            <b>visible signs of wear, misuse, or damage</b>
-          </li>
-        </ul>
-        <p>
-          If you're unsure whether your item qualifies for a return or exchange,
-          please don’t hesitate to reach out to us before starting the process.
-          Our team is happy to review your order and guide you accordingly.
-        </p>
-      </div>
-    ),
-  },
-  {
-    label: "How to Initiate a Return or Exchange",
-    content: (
-      <div className="flex flex-col gap-3">
-        <p>
-          Returning or exchanging a piece of jewelry at Katanoff is simple and
-          secure. Here’s how the process works:
-        </p>
-        <div className="ps-5 list-decimal flex flex-col gap-3">
-          <li>
-            <b>Contact Our Support Team</b>
-            <br />
-            <p className="ps-5">
-              Email us at {companyEmail} within 30 days of delivery to let us
-              know you'd like to return or exchange your item. Be sure to
-              include your order number and reason for the return or exchange in
-              your message.
-            </p>
-          </li>
-          <li>
-            <b>Receive Your Free Prepaid Return Label</b>
-            <br />
-            <p className="ps-5">
-              Once your return is approved, we’ll send you a prepaid shipping
-              label via email. Please print the label and pack your item
-              securely using its original packaging, including all documents and
-              certificates.
-            </p>
-          </li>
-          <li>
-            <b>Ship the Item Back to Us</b>
-            <br />
-            <p className="ps-5">
-              Drop off your package at any approved shipping carrier location.
-              We recommend keeping your drop-off receipt and tracking number for
-              your records.
-            </p>
-          </li>
-          <li>
-            <b>Inspection & Refund/Exchange</b>
-            <br />
-            <p className="ps-5">
-              Once your item arrives, our quality control team will inspect it
-              to ensure it meets our return standards. If everything checks out,
-              we’ll issue your refund to the original payment method or process
-              your exchange within 7–10 business days.
-            </p>
-          </li>
+      <div className="flex flex-col gap-4">
+        <div>
+          <p className="text-xl font-medium">
+            If you have an account on our website:
+          </p>
+          <ul className="ps-8 list-decimal mt-3">
+            <li>
+              <b>Log In</b> – Sign in to your account and locate the order you
+              wish to return.
+            </li>
+            <li>
+              <b>Request a Return</b> – Submit your return request through your
+              account. Once approved, you may proceed with shipping the item
+              back to us.
+            </li>
+          </ul>
         </div>
+        <div>
+          {" "}
+          <p className="text-xl font-medium">
+            If you have an account on our website:
+          </p>
+          <ul className="ps-8 list-decimal mt-3">
+            <li>
+              <b>Contact Us</b> – Email us at{" "}
+              <Link
+                href={`mailto:${companyEmail}`}
+                className="text-primary font-medium underline"
+              >
+                {companyEmail}
+              </Link>
+              .com or call us at{" "}
+              <Link
+                href={`tel:${link}`}
+                className="text-primary font-medium underline"
+              >
+                {display}
+              </Link>{" "}
+              with your order number and reason for return.
+            </li>
+            <li>
+              Once approved, you may proceed with shipping the item back to us.
+            </li>
+          </ul>
+        </div>
+      </div>
+    ),
+  },
+  {
+    label: "Preparing Your Return",
+    content: (
+      <ul className="ps-5 list-decimal">
+        <li>
+          Include all original packaging, your return packing slip (if
+          available), and any diamond certificates.
+        </li>
+        <li>
+          Place the jewelry item(s) securely inside the original jewelry box.
+        </li>
+        <li>
+          Place the jewelry box inside a sturdy shipping box. You may reuse the
+          original shipping box from your order or use a similar protective box.
+        </li>
+        <li>
+          Ensure the package is securely sealed to prevent any movement or
+          damage during transit.
+        </li>
+        <li>
+          For security purposes, please do not write words like “jewelry” or
+          “diamonds” anywhere on the package.
+        </li>
+        <li>
+          Customers are responsible for arranging shipping via a trackable and
+          insured method and for retaining proof of shipment.
+        </li>
+      </ul>
+    ),
+  },
+  {
+    label: "Refund Process",
+    content: (
+      <ul className="ps-5 list-disc">
+        <li>
+          Refunds are issued only after the returned item passes inspection and
+          is approved by our quality assurance team.
+        </li>
+        <li>
+          If any wear, alteration, or damage is found, we will contact you via
+          phone or email with a detailed report and the deduction amount, and
+          proceed only after your confirmation.
+        </li>
+        <li>
+          Refunds are processed to the <b>original payment method</b> within{" "}
+          <b> 7 business days</b> of approval.
+        </li>
+        <li>
+          Shipping charges (if applicable) are <b>non-refundable</b>.
+        </li>
+      </ul>
+    ),
+  },
+  {
+    label: "Non-Returnable Items",
+    content: (
+      <div className="flex flex-col gap-3">
         <p>
-          Please note that depending on your bank or credit card provider, the
-          refund may take a few additional days to reflect in your account.
+          The following items are not eligible for return under any
+          circumstances:
         </p>
+        <ul className="ps-5 list-disc">
+          <li>
+            <b>Custom-made or personalized jewelry</b> – including pieces
+            designed to your specifications, engraved items, or items altered in
+            size or style at your request.
+          </li>
+          <li>
+            <b>Special order items</b> – pieces sourced or created specifically
+            for your order that are not part of our regular stock.
+          </li>
+        </ul>
       </div>
     ),
   },
@@ -162,12 +183,51 @@ const ReturnPolicy = () => {
         />
       </div>
       <div className="container mt-4 sm:mt-10">
+        <p className="mb-4 text-base lg:text-lg">
+          We want you to be completely satisfied with your purchase. If, for any
+          reason, you are not, you may return your item within{" "}
+          <b>15 days of delivery</b> for a refund, subject to the terms outlined
+          below.
+        </p>
         <AccordionTabs
           tabs={ReturnPolicyContent}
-          defaultOpenLabel="Free 30-Day Returns & Exchanges"
           forceResetKey="return policy"
           contentCustomClass="md:text-lg !ps-5"
         />
+
+        <div className="py-8">
+          <h3 className="text-xl  font-castoro font-semibold text-primary">
+            Important Note
+          </h3>
+          <p className="py-2.5 text-base lg:text-lg">
+            While return shipping and packaging are the customer’s
+            responsibility, our team is always available to guide you and answer
+            any questions to ensure your return process is smooth and
+            transparent.
+          </p>
+
+          <div className="flex flex-col gap-1">
+            <p>
+              📧 Email:{" "}
+              <Link
+                href={`mailto:${companyEmail}`}
+                className="text-primary font-medium underline"
+              >
+                {companyEmail}
+              </Link>
+            </p>
+            <p>
+              {" "}
+              📞 Phone:{" "}
+              <Link
+                href={`tel:${link}`}
+                className="text-primary font-medium underline"
+              >
+                {display}
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
