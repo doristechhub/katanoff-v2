@@ -133,12 +133,12 @@ const CheckoutCommonComponent = () => {
               <p className="text-lg lg:text-xl font-bold"> Order Summary</p>
             </div>
             <section
-              className=" px-2 xs:px-6 flex-1 overflow-y-auto max-h-[65vh] custom-scrollbar relative"
+              className="flex-1 overflow-y-auto max-h-[65vh] custom-scrollbar relative"
               ref={cartContentRef}
             >
               {cartList?.map((cartItem) => (
                 <div
-                  className="py-6  border-b border-grayborder last:border-b-0"
+                  className="py-6  border-b border-grayborder last:border-b-0  px-2 xs:px-6"
                   key={cartItem?.id}
                 >
                   <div className="flex flex-col md:flex-row justify-between gap-4">
@@ -236,15 +236,13 @@ const CheckoutCommonComponent = () => {
                   </div>
                 </div>
               ))}
-              {cartList?.length > 3 && (
-                <div className="sticky bottom-0 w-full h-24 pointer-events-none">
-                  <CustomImg
-                    src={effect}
-                    alt="Effect"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
+              <div
+                className="pointer-events-none sticky bottom-0 left-0 w-full h-16"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(250, 250, 248, 0) 0%, #FAFAF8 76.83%)",
+                }}
+              />
             </section>
 
             <CheckoutCommonSummary
@@ -276,11 +274,11 @@ const CheckoutCommonComponent = () => {
 
         {isOpen && (
           <div className="shadow-inner border border-t-0 border-gray-200">
-            <section className="px-4 xs:px-6 max-h-[50vh] overflow-y-auto">
+            <section className="max-h-[50vh] overflow-y-auto">
               {cartList?.map((cartItem) => (
                 <div
                   key={`cart-item-${cartItem?.id}`}
-                  className="py-6 border-b border-grayborder last:border-b-0"
+                  className="px-4 xs:px-6 py-6 border-b border-grayborder last:border-b-0"
                 >
                   <div className="flex flex-row  gap-4">
                     <div className="relative  w-28 h-28">
@@ -383,15 +381,13 @@ const CheckoutCommonComponent = () => {
                   </div>
                 </div>
               ))}
-              {cartList?.length > 3 && (
-                <div className="sticky bottom-0 w-full h-24 pointer-events-none">
-                  <CustomImg
-                    src={effect}
-                    alt="Effect"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
+              <div
+                className="pointer-events-none sticky bottom-0 left-0 w-full h-16"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(250, 250, 248, 0) 0%, #FAFAF8 76.83%)",
+                }}
+              />
             </section>
             <CheckoutCommonSummary
               getSubTotal={getSubTotal}

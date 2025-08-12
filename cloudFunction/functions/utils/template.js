@@ -390,7 +390,9 @@ const getMailTemplateForReturnStatus = (
     <div style="padding: 1vw 0; color: #2b2b2b; font-family: 'Roboto', sans-serif; font-weight: 400; font-size: clamp(14px, 2vw, 18px);">
       <p style="margin-bottom: 1vw;">Dear ${userName},</p>
       ${returnStatus === "approved"
-      ? `<p>We’re happy to inform you that your return request for ${boldOrderNumber} has been accepted!</p>`
+      ? `<p>We’re happy to inform you that your return request for ${boldOrderNumber} has been accepted!</p>
+      <p>Kindly note that all charges and responsibilities for returning the product will be yours. Once we receive the product in its original condition, as per our return guidelines, we will process your refund to the original payment source.</p>
+      <p>We request you to ship the item at your earliest convenience so we can complete the refund process as quickly as possible.</p>`
       : returnStatus === "rejected"
         ? `<p>Thank you for contacting us regarding your return request for ${boldOrderNumber}. We appreciate your understanding as we carefully review all return inquiries.</p>
             <p>Unfortunately, we are unable to process your return at this time. We understand this may be disappointing, and we truly apologize for any inconvenience this may cause.</p>

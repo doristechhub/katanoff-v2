@@ -66,6 +66,7 @@ import DuplicateProductDialog from './duplicate-product-dialog';
 import {
   ALLOW_MAX_CARAT_WEIGHT,
   ALLOW_MIN_CARAT_WEIGHT,
+  DIMENSION_UNITS,
   GENDER_LIST,
   GOLD_COLOR,
   GOLD_COLOR_SUB_TYPES_LIST,
@@ -1142,6 +1143,122 @@ export default function AddProductPage() {
                                   sx={{ width: '100%' }}
                                   inputProps={{ min: 0 }}
                                 />
+                              </Grid>
+                            </Grid>
+                          </Card>
+                        </Grid>
+                      </Grid>
+                      <Grid container spacing={3}>
+                        <Grid xs={12} sm={4} md={4}>
+                          <Typography variant="h6">Dimensions</Typography>
+                          <Typography variant="body2">
+                            Input dimensions for accurate product sizing.
+                          </Typography>
+                        </Grid>
+                        <Grid xs={12} sm={8} md={8}>
+                          <Card component={Stack} spacing={2} sx={{ p: 1.5, borderRadius: 2 }}>
+                            <Grid container spacing={2}>
+                              <Grid xs={12} sm={6} md={6} container spacing={1}>
+                                <Grid xs={8} sm={8} md={8}>
+                                  <TextField
+                                    type="number"
+                                    name="Length"
+                                    label="Length"
+                                    onBlur={handleBlur}
+                                    onChange={(event) => {
+                                      const value = event?.target?.value;
+                                      const roundedValue = value
+                                        ? Math.round(parseFloat(value) * 100) / 100
+                                        : '';
+                                      setFieldValue('Length', roundedValue);
+                                    }}
+                                    onClick={handleInputClick}
+                                    onWheel={handleWheel}
+                                    value={values?.Length || ''}
+                                    error={!!(touched?.Length && errors?.Length)}
+                                    helperText={
+                                      touched?.Length && errors?.Length ? errors?.Length : ''
+                                    }
+                                    sx={{ width: '100%' }}
+                                    inputProps={{ min: 0 }}
+                                  />
+                                </Grid>
+                                <Grid xs={4} sm={4} md={4}>
+                                  <TextField
+                                    select
+                                    name="lengthUnit"
+                                    label="Length Unit"
+                                    onBlur={handleBlur}
+                                    onChange={(event) =>
+                                      setFieldValue('lengthUnit', event.target.value)
+                                    }
+                                    value={values?.lengthUnit || 'mm'}
+                                    error={!!(touched?.lengthUnit && errors?.lengthUnit)}
+                                    helperText={
+                                      touched?.lengthUnit && errors?.lengthUnit
+                                        ? errors?.lengthUnit
+                                        : ''
+                                    }
+                                    sx={{ width: '100%' }}
+                                  >
+                                    {DIMENSION_UNITS.map((option) => (
+                                      <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                      </MenuItem>
+                                    ))}
+                                  </TextField>
+                                </Grid>
+                              </Grid>
+                              <Grid xs={12} sm={6} md={6} container spacing={1}>
+                                <Grid xs={8} sm={8} md={8}>
+                                  <TextField
+                                    type="number"
+                                    name="width"
+                                    label="Width (mm)"
+                                    onBlur={handleBlur}
+                                    onChange={(event) => {
+                                      const value = event?.target?.value;
+                                      const roundedValue = value
+                                        ? Math.round(parseFloat(value) * 100) / 100
+                                        : '';
+                                      setFieldValue('width', roundedValue);
+                                    }}
+                                    onClick={handleInputClick}
+                                    onWheel={handleWheel}
+                                    value={values.width || ''}
+                                    error={!!(touched?.width && errors?.width)}
+                                    helperText={
+                                      touched?.width && errors?.width ? errors?.width : ''
+                                    }
+                                    sx={{ width: '100%' }}
+                                    inputProps={{ min: 0 }}
+                                  />
+                                </Grid>
+                                <Grid xs={4} sm={4} md={4}>
+                                  <TextField
+                                    select
+                                    name="widthUnit"
+                                    label="Width Unit"
+                                    onBlur={handleBlur}
+                                    onChange={(event) =>
+                                      setFieldValue('widthUnit', event.target.value)
+                                    }
+                                    value={values?.widthUnit || 'mm'}
+                                    error={!!(touched?.widthUnit && errors?.widthUnit)}
+                                    helperText={
+                                      touched?.widthUnit && errors?.widthUnit
+                                        ? errors?.widthUnit
+                                        : ''
+                                    }
+                                    sx={{ width: '100%' }}
+                                  >
+                                    {DIMENSION_UNITS.map((option) => (
+                                      <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                      </MenuItem>
+                                    ))}
+                                  </TextField>
+                                </Grid>
                               </Grid>
                             </Grid>
                           </Card>

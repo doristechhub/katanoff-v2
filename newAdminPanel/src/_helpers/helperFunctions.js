@@ -586,9 +586,10 @@ const calculateAutomaticPrices = ({
  *     - `GRAM` : price × grossWeight
  *  3. **Apply markup** — Adds a fixed 50% markup to the total.
  *  4. **Apply multiplier** — Multiplies by `priceMultiplier`.
- *  5. **Format price** — Uses `formatPriceSmart99` to set price ending:
- *       - Last two digits ≤ 50 → round down to nearest hundred - 1
- *       - Last two digits > 50 → round up to nearest hundred + 99
+ *  5. **Format price** — Takes a price, floors it to remove decimals, and adjusts to end in 99:
+ *       - If the last two digits are 00, subtracts 1 (e.g., 1200 → 1199).
+ *       - If the last two digits are not 99, replaces them with 99 (e.g., 1234 → 1299).
+ *       - If already 99, no change.
  *  6. **Return** — Price after adjustments, or `0` if invalid.
  */
 

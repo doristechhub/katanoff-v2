@@ -26,7 +26,7 @@ import { setSelectedApproveReturn, setSelectedRefundReturn } from 'src/store/sli
 
 import RejectReturnDialog from './../returns/returns-reject-dialog';
 import RefundReturnsDialog from '../returns/returns-refund-dialog';
-import ApproveOrUpdateReturnDialog from './../returns/returns-approve-update-dialog';
+import ApproveReturnDialog from './../returns/returns-approve-dialog';
 import ProgressiveImg from 'src/components/progressive-img';
 
 // ----------------------------------------------------------------------
@@ -148,7 +148,7 @@ const ReturnDetail = () => {
                       Reject
                     </Button>
                   ) : null}
-                  {selectedReturn?.status === 'approved' &&
+                  {/* {selectedReturn?.status === 'approved' &&
                   selectedReturn?.returnPaymentStatus === 'pending' ? (
                     <Button
                       color="info"
@@ -160,7 +160,7 @@ const ReturnDetail = () => {
                     >
                       Update
                     </Button>
-                  ) : null}
+                  ) : null} */}
                   {selectedReturn?.status === 'approved' &&
                   selectedReturn?.returnPaymentStatus === 'pending' ? (
                     <Button
@@ -671,7 +671,7 @@ const ReturnDetail = () => {
 
               {/* Approve or Update Return Status */}
               {openReturnDialog ? (
-                <ApproveOrUpdateReturnDialog
+                <ApproveReturnDialog
                   loadData={loadData}
                   selectedReturnId={returnId}
                   openReturnDialog={openReturnDialog}

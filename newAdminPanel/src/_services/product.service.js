@@ -55,6 +55,13 @@ export const validateShortDescription = (description) => {
   return null;
 };
 
+export const validateDimensionUnit = (dimensionUnit) => {
+  if (dimensionUnit && !['in', 'mm'].includes(dimensionUnit)) {
+    return 'Dimension unit must be either "in" (inches) or "mm" (millimeters).';
+  }
+  return null;
+};
+
 const isInValidVariationsArray = (arrayOfVariations) => {
   const isValidVariId = helperFunctions.isValidKeyName(arrayOfVariations, 'variationId');
   const isValidVariTypes = helperFunctions.isValidKeyName(arrayOfVariations, 'variationTypes');
@@ -157,6 +164,10 @@ const insertProduct = (params) => {
         centerDiamondWeight,
         totalCaratWeight,
         sideDiamondWeight,
+        Length,
+        width,
+        lengthUnit,
+        widthUnit,
         shortDescription,
         description,
         variations,
@@ -215,6 +226,17 @@ const insertProduct = (params) => {
         !isNaN(sideDiamondWeight) && sideDiamondWeight !== '' && sideDiamondWeight !== null
           ? Math.round(parseFloat(sideDiamondWeight) * 100) / 100
           : 0;
+
+      Length =
+        !isNaN(Length) && Length !== '' && Length !== null
+          ? Math.round(parseFloat(Length) * 100) / 100
+          : null;
+      width =
+        !isNaN(width) && width !== '' && width !== null
+          ? Math.round(parseFloat(width) * 100) / 100
+          : null;
+      lengthUnit = lengthUnit ? lengthUnit.trim() : 'mm';
+      widthUnit = widthUnit ? widthUnit.trim() : 'mm';
 
       shortDescription = shortDescription ? shortDescription.trim() : null;
       description = description ? description.trim() : null;
@@ -340,6 +362,27 @@ const insertProduct = (params) => {
           return;
         }
 
+        const lengthUnitErrorMsg = validateDimensionUnit(lengthUnit);
+        if (lengthUnitErrorMsg) {
+          reject(new Error(lengthUnitErrorMsg));
+          return;
+        }
+
+        const widthUnitErrorMsg = validateDimensionUnit(widthUnit);
+        if (widthUnitErrorMsg) {
+          reject(new Error(widthUnitErrorMsg));
+          return;
+        }
+
+        if (Length && Length <= 0) {
+          reject(new Error('Invalid Length: Must be a positive number'));
+          return;
+        }
+        if (width && width <= 0) {
+          reject(new Error('Invalid Width: Must be a positive number'));
+          return;
+        }
+
         if (isDiamondFilter) {
           const diamondFilterErrorMsg = validateDiamondFilters(diamondFilters);
           if (diamondFilterErrorMsg) {
@@ -363,6 +406,17 @@ const insertProduct = (params) => {
             reject(new Error('Side Diamond Weight must have exactly two decimal places'));
             return;
           }
+        }
+
+        const lengthString = Length ? Length?.toFixed(2) : null;
+        if (Length && !/^\d+\.\d{2}$/.test(lengthString)) {
+          reject(new Error('Length must have exactly two decimal places'));
+          return;
+        }
+        const widthString = width ? width?.toFixed(2) : null;
+        if (width && !/^\d+\.\d{2}$/.test(widthString)) {
+          reject(new Error('Width must have exactly two decimal places'));
+          return;
         }
 
         const filterParams = {
@@ -738,6 +792,10 @@ const insertProduct = (params) => {
                   totalCaratWeight,
                   centerDiamondWeight,
                   sideDiamondWeight,
+                  Length,
+                  width,
+                  lengthUnit,
+                  widthUnit,
                   shortDescription,
                   description,
                   variations: variationsArray,
@@ -1772,6 +1830,10 @@ const updateProduct = (params) => {
         centerDiamondWeight,
         totalCaratWeight,
         sideDiamondWeight,
+        Length,
+        width,
+        lengthUnit,
+        widthUnit,
         shortDescription,
         description,
         variations,
@@ -1821,6 +1883,16 @@ const updateProduct = (params) => {
             !isNaN(sideDiamondWeight) && sideDiamondWeight !== '' && sideDiamondWeight !== null
               ? Math.round(parseFloat(sideDiamondWeight) * 100) / 100
               : 0;
+          Length =
+            !isNaN(Length) && Length !== '' && Length !== null
+              ? Math.round(parseFloat(Length) * 100) / 100
+              : null;
+          width =
+            !isNaN(width) && width !== '' && width !== null
+              ? Math.round(parseFloat(width) * 100) / 100
+              : null;
+          lengthUnit = lengthUnit ? lengthUnit.trim() : productData?.lengthUnit || 'mm';
+          widthUnit = widthUnit ? widthUnit.trim() : productData?.widthUnit || 'mm';
           isDiamondFilter = isBoolean(isDiamondFilter)
             ? isDiamondFilter
             : productData.isDiamondFilter || false;
@@ -1870,6 +1942,38 @@ const updateProduct = (params) => {
 
           if (sideDiamondWeight && sideDiamondWeight < 0) {
             reject(new Error('Invalid Side Diamond Weight: Must be a positive number'));
+            return;
+          }
+
+          const lengthUnitErrorMsg = validateDimensionUnit(lengthUnit);
+          if (lengthUnitErrorMsg) {
+            reject(new Error(lengthUnitErrorMsg));
+            return;
+          }
+
+          const widthUnitErrorMsg = validateDimensionUnit(widthUnit);
+          if (widthUnitErrorMsg) {
+            reject(new Error(widthUnitErrorMsg));
+            return;
+          }
+
+          if (Length && Length <= 0) {
+            reject(new Error('Invalid Length: Must be a positive number'));
+            return;
+          }
+          if (width && width <= 0) {
+            reject(new Error('Invalid Width: Must be a positive number'));
+            return;
+          }
+
+          const lengthString = Length ? Length?.toFixed(2) : null;
+          if (Length && !/^\d+\.\d{2}$/.test(lengthString)) {
+            reject(new Error('Length must have exactly two decimal places'));
+            return;
+          }
+          const widthString = width ? width?.toFixed(2) : null;
+          if (width && !/^\d+\.\d{2}$/.test(widthString)) {
+            reject(new Error('Width must have exactly two decimal places'));
             return;
           }
 
@@ -2313,6 +2417,10 @@ const updateProduct = (params) => {
             totalCaratWeight,
             centerDiamondWeight,
             sideDiamondWeight,
+            Length,
+            width,
+            lengthUnit,
+            widthUnit,
             shortDescription: shortDescription
               ? shortDescription.trim()
               : productData?.shortDescription || '',

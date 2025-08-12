@@ -5,6 +5,8 @@ import {
   DIAMOND_SHAPE,
   RING_SIZE,
   LENGTH,
+  SIX,
+  SIX_WITH_DECIMAL,
 } from "./constants";
 
 const generateUniqueId = () => {
@@ -18,6 +20,8 @@ const stringReplacedWithUnderScore = (string) => {
 const stringReplacedWithSpace = (string) => {
   return string?.split("_")?.join(" ");
 };
+
+const isEqualCheck = (a, b) => a?.toLowerCase() === b?.toLowerCase();
 
 export const formatPhoneNumber = (phone) => {
   const digits = phone.replace(/\D/g, "");
@@ -495,28 +499,40 @@ const calculateSideDiamondPrice = ({
 };
 
 /**
- * Calculates the total price of a customized product based on center diamond details and product specifications.
+ * Calculates the total price of a customized product based on center diamond and product details.
  *
- * Pricing formula:
- *   totalBasePrice = centerDiamondPrice + metalPrice + sideDiamondPrice + (centerDiamondPrice + metalPrice + sideDiamondPrice) / 2
- *   finalPrice = totalBasePrice * PRICE_MULTIPLIER
+ * **Pricing Formula**:
+ * - `totalBasePrice = centerDiamondPrice + metalPrice + sideDiamondPrice + 50% markup`
+ * - `finalPrice = totalBasePrice * priceMultiplier`
  *
- * - centerDiamondPrice is determined by carat weight, clarity, and color from ALLOWED_DIA_COLORS, ALLOWED_DIA_CLARITIES, and CARAT_RANGE_PRICES.
- * - metalPrice includes metal cost (netWeight * METAL_PRICE_PER_GRAM).
- * - sideDiamondPrice includes side diamond cost (sideDiamondWeight * SIDE_DIAMOND_PRICE_PER_CARAT).
- * - A 50% markup is added to the sum of centerDiamondPrice, metalPrice, and sideDiamondPrice.
- * - PRICE_MULTIPLIER accounts for additional charges (e.g., labor, design complexity).
+ * **Components**:
+ * - `centerDiamondPrice`: Based on carat weight, clarity, and color, derived from `ALLOWED_DIA_COLORS`, `ALLOWED_DIA_CLARITIES`, and `CARAT_RANGE_PRICES`.
+ * - `metalPrice`: Calculated as `netWeight * METAL_PRICE_PER_GRAM`.
+ * - `sideDiamondPrice`: Calculated as `sideDiamondWeight * SIDE_DIAMOND_PRICE_PER_CARAT`.
+ * - **Markup**: Adds 50% to the sum of `centerDiamondPrice`, `metalPrice`, and `sideDiamondPrice`.
+ * - **Price Multiplier**: Applies `customProductPriceMultiplier` (default: 1) for additional costs (e.g., labor, design).
+ * - **Final Adjustment**: Uses `formatPriceTo99Ending` to floor the price and adjust to end in `99` for retail pricing.
  *
- * @param {Object} params - The input parameters for the calculation.
- * @param {Object} params.centerDiamondDetail - Details of the center diamond.
- * @param {number} params.centerDiamondDetail.caratWeight - Carat weight of the center diamond.
- * @param {string} params.centerDiamondDetail.clarity - Clarity of the center diamond (e.g., "VVS1").
- * @param {string} params.centerDiamondDetail.color - Color grade of the center diamond (e.g., "D").
- * @param {Object} params.productDetail - Details of the product.
- * @param {number} params.productDetail.netWeight - Net weight of the product in grams.
- * @param {number} params.productDetail.sideDiamondWeight - Total carat weight of side diamonds.
- * @returns {number} The final customized product price, rounded to 2 decimal places.
- * @throws {Error} If inputs are invalid or missing required properties.
+ * @param {Object} params - Input parameters.
+ * @param {Object} params.centerDiamondDetail - Center diamond details.
+ * @param {number} params.centerDiamondDetail.caratWeight - Carat weight of the center diamond (must be > 0).
+ * @param {string} params.centerDiamondDetail.clarity - Clarity grade (e.g., "VVS1").
+ * @param {string} params.centerDiamondDetail.color - Color grade (e.g., "D").
+ * @param {Object} params.productDetail - Product specifications.
+ * @param {number} params.productDetail.netWeight - Net weight in grams (must be > 0).
+ * @param {number} [params.productDetail.sideDiamondWeight=0] - Total carat weight of side diamonds (must be ≥ 0).
+ * @param {Object} [params.customizeProductSettingsData={}] - Settings including price multiplier and rates.
+ * @returns {number} The final price, adjusted to end in `99`, or `0` if inputs are invalid.
+ *
+ * @example
+ * const params = {
+ *   centerDiamondDetail: { caratWeight: 1.5, clarity: "VVS1", color: "D" },
+ *   productDetail: { netWeight: 5, sideDiamondWeight: 0.2 },
+ *   customizeProductSettingsData: { customProductPriceMultiplier: 1.2 }
+ * };
+ * calculateCustomizedProductPrice(params); // Returns price ending in 99 (e.g., 2599)
+ *
+ * @throws {Error} Logs and returns `0` if inputs are invalid (e.g., missing or non-positive weights, missing clarity/color).
  */
 const calculateCustomizedProductPrice = ({
   centerDiamondDetail = {},
@@ -582,8 +598,46 @@ const calculateCustomizedProductPrice = ({
 
   const multiplier =
     customizeProductSettingsData?.customProductPriceMultiplier || 1;
+  const multipliedPrice = totalBasePrice * multiplier;
+  if (multipliedPrice <= 0) {
+    console.log("Invalid: multipliedPrice must be positive.");
+    return 0;
+  }
 
-  const finalPrice = Number((totalBasePrice * multiplier).toFixed(2));
+  // Apply PRICE_MULTIPLIER and round to 2 decimal places
+  // const finalPrice = Number(multipliedPrice.toFixed(2));
+
+  // Case: 1
+  // Apply priceMultiplier, take floor, and adjust to end in 99
+  const finalPrice = formatPriceTo99Ending(multipliedPrice);
+
+  // Case: 2
+  // Apply priceMultiplier, take floor, and adjust to end in 99
+  // const finalPrice = formatPriceSmart99(multipliedPrice);
+
+  return finalPrice;
+};
+
+const formatPriceTo99Ending = (multipliedPrice = 1) => {
+  let finalPrice = Math.floor(multipliedPrice);
+  const lastTwoDigits = finalPrice % 100;
+  if (lastTwoDigits === 0) {
+    finalPrice = finalPrice - 1;
+  } else if (lastTwoDigits !== 99) {
+    finalPrice = finalPrice - lastTwoDigits + 99;
+  }
+  return finalPrice;
+};
+
+const formatPriceSmart99 = (multipliedPrice = 1) => {
+  let finalPrice = Math.floor(multipliedPrice);
+  const lastTwoDigits = finalPrice % 100;
+  if (lastTwoDigits <= 50) {
+    finalPrice = Math.floor(finalPrice / 100) * 100 - 1;
+  } else {
+    finalPrice = Math.floor(finalPrice / 100) * 100 + 99;
+  }
+
   return finalPrice;
 };
 
@@ -640,6 +694,7 @@ const formatCurrency = (amount) => {
     maximumFractionDigits: 2,
   });
 };
+
 const formatCurrencyWithDollar = (amount) => {
   const num = Number(amount);
   if (isNaN(num)) return "$0.00";
@@ -741,6 +796,132 @@ export const roundOffPrice = (price) => {
   return decimal >= 0.5 ? Math.ceil(price) : Math.floor(price);
 };
 
+const getVariationByName = (variations, variationName) =>
+  variations.find((v) => isEqualCheck(v?.variationName, variationName));
+
+const getVariationTypeByName = (variationTypes, typeName) =>
+  variationTypes.find((vt) => isEqualCheck(vt?.variationTypeName, typeName));
+
+const getDefaultVariationsForNonCustomizedProducts = (
+  productData,
+  preferredGoldColor
+) => {
+  if (!productData) return [];
+
+  const variations = productData?.variations || [];
+  const variationCombos = productData?.variComboWithQuantity || [];
+
+  let selectedGoldColor = null;
+  let selectedRingSize = null;
+
+  const goldColorVariation = getVariationByName(variations, GOLD_COLOR);
+  if (goldColorVariation?.variationTypes?.length) {
+    const matchingGoldType =
+      getVariationTypeByName(
+        goldColorVariation.variationTypes,
+        preferredGoldColor
+      ) || goldColorVariation.variationTypes[0];
+
+    if (matchingGoldType) {
+      selectedGoldColor = {
+        variationId: goldColorVariation.variationId,
+        variationTypeId: matchingGoldType.variationTypeId,
+        variationName: goldColorVariation.variationName,
+        variationTypeName: matchingGoldType.variationTypeName,
+      };
+    }
+  }
+
+  const ringSizeVariation = getVariationByName(variations, RING_SIZE);
+  if (ringSizeVariation?.variationTypes?.length) {
+    const matchingRingType =
+      ringSizeVariation.variationTypes.find((vt) => {
+        const value = vt?.variationTypeName?.toLowerCase();
+        return value === SIX || value === SIX_WITH_DECIMAL;
+      }) || ringSizeVariation.variationTypes[0];
+
+    if (matchingRingType) {
+      selectedRingSize = {
+        variationId: ringSizeVariation.variationId,
+        variationTypeId: matchingRingType.variationTypeId,
+        variationName: ringSizeVariation.variationName,
+        variationTypeName: matchingRingType.variationTypeName,
+      };
+    }
+  }
+
+  let initialSelections = [];
+
+  if ((selectedGoldColor || selectedRingSize) && variationCombos.length) {
+    const requiredTypeIds = [];
+
+    if (selectedGoldColor) {
+      requiredTypeIds.push(selectedGoldColor.variationTypeId);
+    }
+    if (
+      selectedRingSize &&
+      [SIX, SIX_WITH_DECIMAL].includes(selectedRingSize.variationTypeName)
+    ) {
+      requiredTypeIds.push(selectedRingSize.variationTypeId);
+    }
+
+    const validCombos = variationCombos.filter((combo) =>
+      requiredTypeIds.every((reqId) =>
+        combo?.combination?.some((c) => c.variationTypeId === reqId)
+      )
+    );
+
+    if (validCombos.length) {
+      const cheapestCombo = validCombos.reduce((min, curr) =>
+        curr.price < min.price ? curr : min
+      );
+
+      initialSelections = cheapestCombo.combination.map((comboItem) => {
+        const variation = variations.find(
+          (v) => v.variationId === comboItem.variationId
+        );
+        const variationType = variation?.variationTypes?.find(
+          (vt) => vt.variationTypeId === comboItem.variationTypeId
+        );
+
+        return {
+          variationId: variation?.variationId,
+          variationTypeId: variationType?.variationTypeId,
+          variationName: variation?.variationName,
+          variationTypeName: variationType?.variationTypeName,
+        };
+      });
+    }
+  }
+
+  if (!initialSelections.length) {
+    initialSelections = variations.map((variation) => ({
+      variationId: variation?.variationId,
+      variationTypeId: variation?.variationTypes?.[0]?.variationTypeId,
+      variationName: variation?.variationName,
+      variationTypeName: variation?.variationTypes?.[0]?.variationTypeName,
+    }));
+  }
+
+  return initialSelections;
+};
+
+const formatDimension = ({ value, unit, variationValue }) => {
+  if (variationValue) {
+    return `${variationValue} inch`;
+  }
+
+  if (!value) return "";
+
+  const normalizedUnit = unit?.toLowerCase();
+
+  if (normalizedUnit?.includes("in")) {
+    return `${value} inch`;
+  }
+
+  return `${value} ${unit || "mm"}`;
+};
+
 export const helperFunctions = {
   debounce,
   generateUniqueId,
@@ -788,4 +969,6 @@ export const helperFunctions = {
   formatDiscountForItem,
   formatProductNameWithCarat,
   roundOffPrice,
+  getDefaultVariationsForNonCustomizedProducts,
+  formatDimension,
 };

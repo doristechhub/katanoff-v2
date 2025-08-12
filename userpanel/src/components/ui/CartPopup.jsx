@@ -259,13 +259,13 @@ const CartPopup = () => {
             <CartPopupSkeleton />
           ) : cartList?.length ? (
             <>
-              <div className="flex flex-col h-full min-h-0 px-4">
+              <div className="flex flex-col h-full min-h-0 ">
                 <div
                   ref={contentRef}
-                  className="flex-1 overflow-y-auto px-2 pt-6 relative"
+                  className="flex-1 overflow-y-auto pt-6 relative custom-scrollbar"
                 >
                   {cartList?.map((cartItem) => (
-                    <div className="pb-6 xl:pb-8" key={cartItem?.id}>
+                    <div className="pb-6 px-6 xl:pb-8" key={cartItem?.id}>
                       <div className="flex justify-between gap-4">
                         <div className="flex-shrink-0 w-32 h-32 md:w-24 md:h-24 ">
                           <ProgressiveImg
@@ -458,18 +458,16 @@ const CartPopup = () => {
                       </div>
                     </div>
                   ))}
-                  {cartList?.length > 3 && (
-                    <div className="sticky bottom-0 w-full h-24 pointer-events-none">
-                      <CustomImg
-                        src={effect}
-                        alt="Effect"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
+                  <div
+                    className="pointer-events-none sticky bottom-0 left-0 w-full h-16"
+                    style={{
+                      background:
+                        "linear-gradient(180deg, rgba(250, 250, 248, 0) 0%, #FAFAF8 76.83%)",
+                    }}
+                  />
                 </div>
 
-                <div className="shrink-0 px-2 xs:px-6 bg-offwhite border-t-2 border-black_opacity_10 pb-4 pt-2">
+                <div className="shrink-0 bg-offwhite border-t border-[#00000033] !mx-6 pb-4 pt-2">
                   <p className="text-sm sm:text-base text-baseblack flex justify-between font-semibold pt-2">
                     Sub Total:{" "}
                     <span>

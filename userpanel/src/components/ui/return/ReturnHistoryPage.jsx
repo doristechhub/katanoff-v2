@@ -70,7 +70,7 @@ export default function ReturnHistoryPage() {
     currentPage * ITEMS_PER_PAGE,
     (currentPage + 1) * ITEMS_PER_PAGE
   );
-  
+
   const handlePageClick = ({ selected }) => {
     dispatch(setCurrentPage(selected));
   };
@@ -225,7 +225,7 @@ export default function ReturnHistoryPage() {
                       aria-haspopup="true"
                       title="More Actions"
                     >
-                      <CustomImg 
+                      <CustomImg
                         srcAttr={threeDots}
                         altAttr="More"
                         className="w-4 h-4"
@@ -265,7 +265,7 @@ export default function ReturnHistoryPage() {
               const currentOrder = paginatedOrder?.find(
                 (order) => order.id === openId
               );
-              
+
               return (
                 <>
                   {currentOrder?.status === "pending" &&
