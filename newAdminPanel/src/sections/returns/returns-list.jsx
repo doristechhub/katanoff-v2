@@ -52,7 +52,7 @@ import { rejectReturn, getReturnList, recievedReturn } from 'src/actions/returnA
 
 import RejectReturnDialog from './returns-reject-dialog';
 import RefundReturnsDialog from './returns-refund-dialog';
-import ApproveOrUpdateReturnDialog from './returns-approve-update-dialog';
+import ApproveReturnDialog from './returns-approve-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -351,7 +351,7 @@ const ReturnList = () => {
           </MenuItem>
         ) : null}
 
-        {item?.status === 'approved' && item?.returnPaymentStatus === 'pending' ? (
+        {/* {item?.status === 'approved' && item?.returnPaymentStatus === 'pending' ? (
           <MenuItem
             sx={{ color: 'info.main' }}
             aria-label="Update Shipping label"
@@ -376,7 +376,7 @@ const ReturnList = () => {
               </>
             )}
           </MenuItem>
-        ) : null}
+        ) : null} */}
 
         {item?.status === 'approved' && item?.returnPaymentStatus === 'pending' ? (
           <MenuItem
@@ -687,7 +687,7 @@ const ReturnList = () => {
 
       {/* Approve Return Request */}
       {openReturnDialog && (
-        <ApproveOrUpdateReturnDialog
+        <ApproveReturnDialog
           setOpen={setOpen}
           loadData={loadData}
           openReturnDialog={openReturnDialog}

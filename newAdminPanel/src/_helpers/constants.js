@@ -228,3 +228,8 @@ export const ALLOWED_DIA_CLARITIES = [
     value: 'VS2',
   },
 ];
+
+export const DIMENSION_UNITS = [
+  { value: 'mm', label: 'mm' },
+  { value: 'in', label: 'in' },
+];

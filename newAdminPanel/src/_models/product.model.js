@@ -120,6 +120,18 @@ export const productModel = {
   sideDiamondWeight: {
     type: Number, // in carat
   },
+  Length: {
+    type: Number,
+  },
+  width: {
+    type: Number,
+  },
+  lengthUnit: {
+    type: String, // in mm or inch
+  },
+  widthUnit: {
+    type: String, // in mm or inch
+  },
   shortDescription: {
     type: String,
   },

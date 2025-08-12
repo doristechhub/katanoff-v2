@@ -33,6 +33,7 @@ export const METAL_COLOR = "Metal Color";
 
 export const RING_SIZE = "Ring Size";
 export const LENGTH = "Length";
+export const WIDTH = "Width";
 export const DIAMOND_SHAPE = "Diamond Shape";
 export const DIAMOND_QUALITY = "Diamond Quality";
 export const SETTING_STYLE = "Setting Style";
@@ -43,6 +44,8 @@ export const WEDDING = "Wedding";
 export const WEDDING_RINGS = "Wedding Rings";
 export const ENGAGEMENT_RINGS = "Engagement Rings";
 export const Start_WITH_SETTING = "Start With Setting";
+export const SIX='6'
+export const SIX_WITH_DECIMAL='6.00'
 
 export const ALLOWED_DIA_COLORS = [
   {

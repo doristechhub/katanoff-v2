@@ -1,4 +1,4 @@
-"use client"; 
+"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
@@ -22,7 +22,11 @@ const DropdownMenu = ({
 }) => (
   <div className="relative">
     <PrimaryLinkButton
-      onClick={toggle}
+      onClick={(e) => {
+        e.preventDefault();
+        toggle();
+      }}
+      href="#"
       variant={variant}
       className={`!rounded-none cursor-pointer !text-sm ${
         fullWidth ? "!w-full" : ""

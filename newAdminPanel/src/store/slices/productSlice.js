@@ -56,6 +56,10 @@ export const productInitDetails = {
   totalCaratWeight: '',
   centerDiamondWeight: '',
   sideDiamondWeight: '',
+  Length: '',
+  width: '',
+  lengthUnit: 'mm',
+  widthUnit: 'mm',
   shortDescription: '',
   description: '',
   variations: [
