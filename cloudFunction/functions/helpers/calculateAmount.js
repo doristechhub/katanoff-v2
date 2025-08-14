@@ -119,23 +119,23 @@ const calculateSideDiamondPrice = ({
  * - `finalPrice = totalBasePrice * priceMultiplier`
  *
  * **Components**:
- * - `centerDiamondPrice`: Based on carat weight, clarity, and color, derived from `ALLOWED_DIA_COLORS`, `ALLOWED_DIA_CLARITIES`, and `CARAT_RANGE_PRICES`.
+ * - `centerDiamondPrice`: Determined by carat weight, clarity, and color, using predefined ranges in `ALLOWED_DIA_COLORS`, `ALLOWED_DIA_CLARITIES`, and `CARAT_RANGE_PRICES`.
  * - `metalPrice`: Calculated as `netWeight * METAL_PRICE_PER_GRAM`.
  * - `sideDiamondPrice`: Calculated as `sideDiamondWeight * SIDE_DIAMOND_PRICE_PER_CARAT`.
  * - **Markup**: Adds 50% to the sum of `centerDiamondPrice`, `metalPrice`, and `sideDiamondPrice`.
- * - **Price Multiplier**: Applies `customProductPriceMultiplier` (default: 1) for additional costs (e.g., labor, design).
- * - **Final Adjustment**: Uses `formatPriceTo99Ending` to floor the price and adjust to end in `99` for retail pricing.
+ * - **Price Multiplier**: Applies `customProductPriceMultiplier` (default: 1) to account for additional costs (e.g., labor, design).
+ * - **Final Adjustment**: Uses `formatPriceTo9Ending` to floor the price and adjust it to end in `9` for retail pricing.
  *
- * @param {Object} params - Input parameters.
- * @param {Object} params.centerDiamondDetail - Center diamond details.
+ * @param {Object} params - Input parameters for price calculation.
+ * @param {Object} params.centerDiamondDetail - Details of the center diamond.
  * @param {number} params.centerDiamondDetail.caratWeight - Carat weight of the center diamond (must be > 0).
- * @param {string} params.centerDiamondDetail.clarity - Clarity grade (e.g., "VVS1").
- * @param {string} params.centerDiamondDetail.color - Color grade (e.g., "D").
+ * @param {string} params.centerDiamondDetail.clarity - Clarity grade of the center diamond (e.g., "VVS1").
+ * @param {string} params.centerDiamondDetail.color - Color grade of the center diamond (e.g., "D").
  * @param {Object} params.productDetail - Product specifications.
- * @param {number} params.productDetail.netWeight - Net weight in grams (must be > 0).
+ * @param {number} params.productDetail.netWeight - Net weight of the product in grams (must be > 0).
  * @param {number} [params.productDetail.sideDiamondWeight=0] - Total carat weight of side diamonds (must be ≥ 0).
- * @param {Object} [params.customizeProductSettingsData={}] - Settings including price multiplier and rates.
- * @returns {number} The final price, adjusted to end in `99`, or `0` if inputs are invalid.
+ * @param {Object} [params.customizeProductSettingsData={}] - Configuration settings, including price multiplier and rates.
+ * @returns {number} The final price, adjusted to end in `9`, or `0` if inputs are invalid.
  *
  * @example
  * const params = {
@@ -143,9 +143,9 @@ const calculateSideDiamondPrice = ({
  *   productDetail: { netWeight: 5, sideDiamondWeight: 0.2 },
  *   customizeProductSettingsData: { customProductPriceMultiplier: 1.2 }
  * };
- * calculateCustomizedProductPrice(params); // Returns price ending in 99 (e.g., 2599)
+ * calculateCustomizedProductPrice(params); // Returns price ending in 9 (e.g., 2599)
  *
- * @throws {Error} Logs and returns `0` if inputs are invalid (e.g., missing or non-positive weights, missing clarity/color).
+ * @throws {Error} Throws an error and returns `0` if inputs are invalid (e.g., missing or non-positive weights, missing clarity/color).
  */
 const calculateCustomizedProductPrice = ({
   centerDiamondDetail = {},
@@ -220,11 +220,15 @@ const calculateCustomizedProductPrice = ({
 
   // Case: 1
   // Apply priceMultiplier, take floor, and adjust to end in 99
-  const finalPrice = formatPriceTo99Ending(multipliedPrice);
+  // const finalPrice = formatPriceTo99Ending(multipliedPrice);
 
   // Case: 2
   // Apply priceMultiplier, take floor, and adjust to end in 99
   // const finalPrice = formatPriceSmart99(multipliedPrice);
+
+  // Case: 3
+  // Apply priceMultiplier, take floor, and adjust to end in 9
+  const finalPrice = formatPriceTo9Ending(multipliedPrice);
 
   return finalPrice;
 };
@@ -249,6 +253,17 @@ const formatPriceSmart99 = (multipliedPrice = 1) => {
     finalPrice = Math.floor(finalPrice / 100) * 100 + 99;
   }
 
+  return finalPrice;
+};
+
+const formatPriceTo9Ending = (multipliedPrice = 1) => {
+  let finalPrice = Math.floor(multipliedPrice);
+  const lastDigit = finalPrice % 10;
+  if (lastDigit === 0) {
+    finalPrice = finalPrice - 1;
+  } else if (lastDigit !== 9) {
+    finalPrice = finalPrice - lastDigit + 9;
+  }
   return finalPrice;
 };
 

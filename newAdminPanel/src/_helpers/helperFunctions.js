@@ -576,7 +576,7 @@ const calculateAutomaticPrices = ({
  *        @param {string} unit  - Unit type (`UNIT_TYPES.CARAT` or `UNIT_TYPES.GRAM`).
  * @param {number} [params.priceMultiplier=1] - Additional multiplier for labor, design, or margins.
  *
- * @returns {number} Final price, adjusted for markup and formatted ending, or `0` if inputs are invalid.
+ * @returns {number} Final price, adjusted for markup and ending in 9, or `0` if inputs are invalid.
  *
  * @description
  * Steps:
@@ -586,10 +586,10 @@ const calculateAutomaticPrices = ({
  *     - `GRAM` : price × grossWeight
  *  3. **Apply markup** — Adds a fixed 50% markup to the total.
  *  4. **Apply multiplier** — Multiplies by `priceMultiplier`.
- *  5. **Format price** — Takes a price, floors it to remove decimals, and adjusts to end in 99:
- *       - If the last two digits are 00, subtracts 1 (e.g., 1200 → 1199).
- *       - If the last two digits are not 99, replaces them with 99 (e.g., 1234 → 1299).
- *       - If already 99, no change.
+ *  5. **Format price** — Takes a price, floors it, and adjusts to end in 9:
+ *       - If the last digit is 0, subtracts 1 (e.g., 1200 → 1199).
+ *       - If the last digit is not 9, replaces it with 9 (e.g., 1234 → 1239).
+ *       - If already 9, no change.
  *  6. **Return** — Price after adjustments, or `0` if invalid.
  */
 
@@ -644,11 +644,15 @@ const calculateNonCustomizedProductPrice = ({
 
   // Case: 1
   // Apply priceMultiplier, take floor, and adjust to end in 99
-  const finalPrice = formatPriceTo99Ending(multipliedPrice);
+  // const finalPrice = formatPriceTo99Ending(multipliedPrice);
 
   // Case: 2
   // Apply priceMultiplier, take floor, and adjust to end in 99
   // const finalPrice = formatPriceSmart99(multipliedPrice);
+
+  // Case: 3
+  // Apply priceMultiplier, take floor, and adjust to end in 9
+  const finalPrice = formatPriceTo9Ending(multipliedPrice);
 
   return finalPrice;
 };
@@ -673,6 +677,17 @@ const formatPriceSmart99 = (multipliedPrice = 1) => {
     finalPrice = Math.floor(finalPrice / 100) * 100 + 99;
   }
 
+  return finalPrice;
+};
+
+const formatPriceTo9Ending = (multipliedPrice = 1) => {
+  let finalPrice = Math.floor(multipliedPrice);
+  const lastDigit = finalPrice % 10;
+  if (lastDigit === 0) {
+    finalPrice = finalPrice - 1;
+  } else if (lastDigit !== 9) {
+    finalPrice = finalPrice - lastDigit + 9;
+  }
   return finalPrice;
 };
 

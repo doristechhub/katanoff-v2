@@ -15,7 +15,6 @@ import { HiChevronUp, HiChevronDown } from "react-icons/hi";
 import { setOpenDiamondDetailDrawer } from "@/store/slices/commonSlice";
 import DiamondDetailDrawer from "../customize/DiamondDetailDrawer";
 import { paymentOptions } from "@/_utils/paymentOptions";
-import effect from "@/assets/icons/effect.png";
 import CheckoutCommonSummary from "./CheckoutCommonSummary";
 import { usePathname } from "next/navigation";
 const salesTaxPerc = SALES_TAX_PERCENTAGE;
@@ -382,7 +381,7 @@ const CheckoutCommonComponent = () => {
                 </div>
               ))}
               <div
-                className="pointer-events-none sticky bottom-0 left-0 w-full h-16"
+                className="pointer-events-none sticky -bottom-1 left-0 w-full h-16"
                 style={{
                   background:
                     "linear-gradient(180deg, rgba(250, 250, 248, 0) 0%, #FAFAF8 76.83%)",

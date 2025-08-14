@@ -2,11 +2,7 @@
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
-import {
-  CustomImg,
-  ProductNotFound,
-  ProgressiveImg,
-} from "@/components/dynamiComponents";
+import { ProductNotFound, ProgressiveImg } from "@/components/dynamiComponents";
 import {
   ESTIMATE_AMOUNT_NOTE,
   helperFunctions,
@@ -17,7 +13,6 @@ import {
 import SkeletonLoader from "../skeletonLoader";
 import DiamondDetailDrawer from "@/components/ui/customize/DiamondDetailDrawer";
 import CancelReturnRequest from "./CancelReturnRequest";
-import effect from "@/assets/icons/effect.png";
 import { setOpenDiamondDetailDrawer } from "@/store/slices/commonSlice";
 import Spinner from "../spinner";
 // import { downloadReturnInvoice } from "@/_actions/return.action";
@@ -132,8 +127,9 @@ const ReturnDetails = ({
 
   return (
     <div
-      className={`md:px-2 lg:px-6 my-6 ${isShadow ? "shadow-[0_0_12px_rgba(0,0,0,0.12)]" : ""
-        }`}
+      className={`md:px-2 lg:px-6 my-6 ${
+        isShadow ? "shadow-[0_0_12px_rgba(0,0,0,0.12)]" : ""
+      }`}
     >
       {/* Action Buttons */}
       <div className="flex justify-end gap-2 mb-2">
@@ -172,11 +168,11 @@ const ReturnDetails = ({
         {/* Left Panel: Products */}
         <div className="flex flex-col gap-4 lg:pr-6 w-full lg:w-1/2">
           <div
-            className="px-4 flex-1 overflow-y-auto max-h-[55vh] custom-scrollbar pt-6"
+            className="flex-1 overflow-y-auto max-h-[55vh] custom-scrollbar pt-6"
             ref={cartContentRef}
           >
             {returnDetail?.products?.map((product, index) => (
-              <div key={index} className="pt-6">
+              <div key={index} className="px-4 pt-6">
                 <div className="flex gap-4">
                   {/* Product Image */}
                   <div className="relative">
@@ -297,15 +293,13 @@ const ReturnDetails = ({
                 </div>
               </div>
             ))}
-            {returnDetail?.products?.length > 3 && (
-              <div className="sticky bottom-0 w-full h-24 pointer-events-none">
-                <CustomImg
-                  src={effect}
-                  alt="Effect"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            )}
+            <div
+              className="pointer-events-none sticky -bottom-1 left-0 w-full h-16"
+              style={{
+                background:
+                  "linear-gradient(180deg, rgba(250, 250, 248, 0) 0%, #FAFAF8 76.83%)",
+              }}
+            />
           </div>
 
           {/* Summary Section */}
@@ -338,8 +332,8 @@ const ReturnDetails = ({
             </div>
             <hr className="w-full border-t border-gray-300 my-2 mx-auto" />
             {returnDetail?.returnRequestAmount &&
-              returnDetail?.refundAmount &&
-              Number(returnDetail?.returnRequestAmount) ===
+            returnDetail?.refundAmount &&
+            Number(returnDetail?.returnRequestAmount) ===
               Number(returnDetail?.refundAmount) ? (
               // Case: Full refund, show only Refunded Amount
               <div className="flex justify-between">
@@ -367,7 +361,7 @@ const ReturnDetails = ({
                         -
                         {formatCurrency(
                           Number(returnDetail?.returnRequestAmount) -
-                          Number(returnDetail?.refundAmount)
+                            Number(returnDetail?.refundAmount)
                         )}
                       </p>
                     </div>

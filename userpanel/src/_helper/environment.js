@@ -57,6 +57,7 @@ export const databaseUrls = {
 };
 
 // COMPANY_INFO
+export const WebsiteUrl = process.env.NEXT_PUBLIC_WEBSITE_URL;
 export const companyEmail = process.env.NEXT_PUBLIC_COMPANY_EMAIL;
 export const companyPhoneNo = process.env.NEXT_PUBLIC_COMPANY_PHONE_NO;
 export const companyAddress = process.env.NEXT_PUBLIC_COMPANY_ADDRESS;
