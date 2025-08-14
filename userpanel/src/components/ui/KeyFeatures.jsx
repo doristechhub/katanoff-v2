@@ -15,7 +15,7 @@ const features = [
     icon: thirtyDaysReturn,
     altAttr: "",
     titleAttr: "",
-    title: "30 Days Free Returns",
+    title: "15 Days Free Returns",
   },
   {
     icon: elegantPacking,

@@ -1,5 +1,5 @@
 "use client";
-import { CustomImg, ProgressiveImg } from "@/components/dynamiComponents";
+import { ProgressiveImg } from "@/components/dynamiComponents";
 import {
   CARD,
   helperFunctions,
@@ -16,7 +16,6 @@ import DiamondDetailDrawer from "@/components/ui/customize/DiamondDetailDrawer";
 import { setOpenDiamondDetailDrawer } from "@/store/slices/commonSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useRef } from "react";
-import effect from "@/assets/icons/effect.png";
 // import { downloadOrderInvoice } from "@/_actions/order.action";
 // import { BsDownload } from "react-icons/bs";
 import DownloadInvoice from "@/components/ui/order-history/downloadInvoice";
@@ -183,8 +182,9 @@ const OrderDetails = ({
     </div>
   ) : (
     <div
-      className={`px-6 pt-4 ${isShadow ? "shadow-[0_0_12px_rgba(0,0,0,0.12)]" : ""
-        }`}
+      className={`px-6 pt-4 ${
+        isShadow ? "shadow-[0_0_12px_rgba(0,0,0,0.12)]" : ""
+      }`}
     >
       <div className="flex justify-end">
         <div className="flex gap-4 mb-2">
@@ -217,12 +217,12 @@ const OrderDetails = ({
       <div className="relative flex flex-col lg:flex-row py-6">
         <div className="flex flex-col gap-4 pr-6 w-full lg:w-1/2">
           <section
-            className="px-4 flex-1 overflow-y-auto max-h-[55vh] custom-scrollbar relative pt-6"
+            className="flex-1 overflow-y-auto max-h-[55vh] custom-scrollbar relative pt-6"
             ref={cartContentRef}
           >
             {orderDetail?.products?.map((product, index) => {
               return (
-                <div key={index} className="pt-6">
+                <div key={index} className="pt-6 px-4">
                   <div className="flex gap-4">
                     <div className="relative">
                       <div className="absolute -top-2 -left-2 bg-baseblack text-white text-xs xs:text-sm lg:text-base font-semibold rounded-full px-2  z-10">
@@ -334,15 +334,13 @@ const OrderDetails = ({
                 </div>
               );
             })}
-            {orderDetail?.products?.length > 3 && (
-              <div className="sticky bottom-0 w-full h-24 pointer-events-none">
-                <CustomImg
-                  src={effect}
-                  alt="Effect"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            )}
+            <div
+              className="pointer-events-none sticky -bottom-1 left-0 w-full h-16"
+              style={{
+                background:
+                  "linear-gradient(180deg, rgba(250, 250, 248, 0) 0%, #FAFAF8 76.83%)",
+              }}
+            />
           </section>
 
           {/* Billing Section */}
@@ -356,22 +354,22 @@ const OrderDetails = ({
               },
               ...(orderDetail?.discount > 0
                 ? [
-                  {
-                    label: `Promo Discount (${orderDetail?.promoCode})`,
-                    value: `- ${helperFunctions?.formatCurrencyWithDollar(
-                      orderDetail?.discount
-                    )}`,
-                    strong: false,
-                  },
-                ]
+                    {
+                      label: `Promo Discount (${orderDetail?.promoCode})`,
+                      value: `- ${helperFunctions?.formatCurrencyWithDollar(
+                        orderDetail?.discount
+                      )}`,
+                      strong: false,
+                    },
+                  ]
                 : []),
               {
                 label: `Sales Tax (${SALES_TAX_PERCENTAGE_VALUE})`,
                 value:
                   orderDetail?.salesTax > 0
                     ? helperFunctions?.formatCurrencyWithDollar(
-                      orderDetail?.salesTax
-                    )
+                        orderDetail?.salesTax
+                      )
                     : "$0.00",
               },
               {
@@ -379,8 +377,8 @@ const OrderDetails = ({
                 value:
                   orderDetail?.shippingCharge > 0
                     ? `$${helperFunctions?.formatCurrencyWithDollar(
-                      orderDetail.shippingCharge
-                    )}`
+                        orderDetail.shippingCharge
+                      )}`
                     : "Free",
               },
               {
@@ -395,8 +393,9 @@ const OrderDetails = ({
                 className="flex justify-between"
               >
                 <h4
-                  className={`${item.label === "Total Amount" ? "font-bold" : "font-medium"
-                    }`}
+                  className={`${
+                    item.label === "Total Amount" ? "font-bold" : "font-medium"
+                  }`}
                 >
                   {item.label}
                 </h4>

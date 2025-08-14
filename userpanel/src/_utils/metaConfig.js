@@ -1,13 +1,14 @@
+import { WebsiteUrl } from "@/_helper";
 import { generateCurrentTimeAndDate } from "./common";
-import { WebsiteUrl } from "./environments";
 const DEFAULT_META = {
-  title: "Buy & Sell Gold, Jewelry, Coins & Watches in Youngstown, OH",
+  title: "Katanoff | Online Jewelry Store for Fine & Custom Jewelry",
   description:
-    "Buy or sell gold, estate jewelry, rare coins, lab-grown diamonds, and luxury watches in Youngstown, OH. Get top cash for scrap gold, coins, and engagement rings today!",
+    "Katanoff is a trusted online jewelry store offering fine jewelry, gold jewelry, diamond rings, and custom designs. Shop engagement rings, necklaces, bracelets, and more with secure online shopping.",
   keywords:
-    "buy gold Youngstown OH, gold buyer Youngstown OH, sell scrap gold Youngstown OH, silver buyer Youngstown OH, buy estate jewelry Youngstown OH, estate jewelry buyer Youngstown OH, coin dealer Youngstown OH, rare coin buyer Youngstown OH, best engagement ring Youngstown OH, buy lab-grown diamond Youngstown OH, buy luxury watches Youngstown OH, buy Rolex watches Youngstown OH",
+    "Katanoff, online jewelry store, buy jewelry online, fine jewelry, diamond jewelry, gold jewelry, engagement rings, custom jewelry, wedding rings, necklaces, earrings, bracelets, jewelry shop",
   url: WebsiteUrl,
   openGraphImage: "/opengraph-image.png",
+  siteName: "Katanoff",
 };
 
 export const generateMetadata = (customMeta = {}) => {
@@ -48,7 +49,7 @@ export const generateMetadata = (customMeta = {}) => {
       images: [meta?.openGraphImage],
     },
     other: {
-      "apple-mobile-web-app-title": "Treasure trove",
+      "apple-mobile-web-app-title": "Katanoff",
       "article:modified_time": generateCurrentTimeAndDate(),
       profile: "https://gmpg.org/xfn/11",
       generator:

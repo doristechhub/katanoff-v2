@@ -2,7 +2,6 @@
 import { useEffect, useCallback, useRef, useState } from "react";
 import { HiOutlineShoppingBag } from "react-icons/hi2";
 import dropdownArrow from "@/assets/icons/dropdownArrow.svg";
-import effect from "@/assets/icons/effect.png";
 import {
   fetchCart,
   handleSelectCartItem,

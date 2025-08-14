@@ -500,7 +500,7 @@ const ReturnRequestPage = () => {
                     loading={returnReqLoader}
                     disabled={returnReqLoader}
                     loaderType={isHovered ? "" : "white"}
-                    className="uppercase !h-12 xl:!h-16"
+                    className="uppercase !h-12 lg:!h-[2.8rem] 2xl:!h-[3.5rem] xl:!py-6"
                     onClick={handleSubmit}
                   >
                     Request
