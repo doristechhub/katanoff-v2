@@ -72,3 +72,8 @@ export const pinterestUrl = process.env.NEXT_PUBLIC_PINTEREST_URL;
 export const paypalApiUrl = process.env.NEXT_PUBLIC_PAYPAL_API_URL;
 export const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 export const paypalAppSecret = process.env.NEXT_PUBLIC_PAYPAL_APP_SECRET;
+
+// SEO
+export const googleAnalyticsId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
+export const googleSiteVerificationId =
+  process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION_ID;
