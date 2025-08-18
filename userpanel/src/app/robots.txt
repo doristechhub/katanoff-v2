@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://www.katanoff.com
+
+# Sitemaps
+Sitemap: https://www.katanoff.com/sitemap.xml

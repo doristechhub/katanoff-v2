@@ -1,20 +1,19 @@
-// import { generateMetadata } from "@/_utils/metaConfig";
-// import { WebsiteUrl } from "@/utils/environments";
+import { generateMetadata } from "@/_utils/metaConfig";
+import { WebsiteUrl } from "@/_helper";
 
-// const META_TITLE =
-//     "Timeless Jewelry, Unique Craftsmanship, and Unmatched Elegance";
-// const META_DESCRIPTION =
-//     "Our passion for fine jewelry inspires us to create timeless designs with exceptional craftsmanship, offering clients elegance, value, and a memorable experience.";
-// const META_KEYWORDS =
-//     "fine jewelry, estate jewelry, timeless designs, unique craftsmanship, luxury watches, rare coins, diamonds, premium jewelry, elegant accessories, handcrafted jewelry";
-// const CANONICAL_URL = `${websiteUrl}/about-us`;
+const META_TITLE = "About Katanoff | Fine Jewelry & Unique Craftsmanship";
+const META_DESCRIPTION =
+  "At Katanoff, we create timeless jewelry with exceptional craftsmanship and elegant designs. Our passion for fine jewelry inspires every collection, offering clients lasting beauty and value.";
+const META_KEYWORDS =
+  "Katanoff, fine jewelry, handcrafted jewelry, timeless jewelry, unique craftsmanship, diamond jewelry, gold jewelry, custom jewelry, elegant accessories";
+const CANONICAL_URL = `${WebsiteUrl}/about-us`;
 
-// export const metadata = generateMetadata({
-//     title: META_TITLE,
-//     description: META_DESCRIPTION,
-//     keywords: META_KEYWORDS,
-//     url: CANONICAL_URL,
-// });
+export const metadata = generateMetadata({
+  title: META_TITLE,
+  description: META_DESCRIPTION,
+  keywords: META_KEYWORDS,
+  url: CANONICAL_URL,
+});
 export default function AboutLayout({ children }) {
-    return <div>{children}</div>;
+  return <div>{children}</div>;
 }
