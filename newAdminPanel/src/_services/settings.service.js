@@ -52,6 +52,7 @@ const upsertPriceMultiplier = (params) => {
         await fetchWrapperService._update(config);
 
         (async () => {
+          let failedProducts = [];
           try {
             const allSubTypes = await customizationSubTypeService.getAllSubTypes();
             const allProducts = await productService.getAllProductsWithPagging();
@@ -60,20 +61,24 @@ const upsertPriceMultiplier = (params) => {
             for (let i = 0; i < allProducts.length; i += BATCH_SIZE) {
               const batch = allProducts.slice(i, i + BATCH_SIZE);
               await Promise.all(
-                batch.map(product =>
-                  productService.updateSingleProductPrice({
-                    product,
-                    priceMultiplier,
-                    allSubTypes,
-                  })
-                )
+                batch.map(async (product) => {
+                  try {
+                    await productService.updateSingleProductPrice({
+                      product,
+                      priceMultiplier,
+                      allSubTypes,
+                    });
+                  } catch (e) {
+                    console.error(`Failed to update product ${product?.sku}: ${e?.message}`);
+                    failedProducts.push(product?.sku);
+                  }
+                })
               );
-              await new Promise(res => setTimeout(res, 100));
             }
-            resolve({ priceMultiplier, productsUpdated: true });
+            resolve({ priceMultiplier, failedProducts });
           } catch (e) {
             console.error('Batch update failed', e);
-            resolve({ priceMultiplier, productsUpdated: false });
+            resolve({ priceMultiplier, failedProducts });
           }
         })();
       } else {
@@ -83,7 +88,7 @@ const upsertPriceMultiplier = (params) => {
         });
 
         // For create, we don’t run product price update
-        resolve({ priceMultiplier, productsUpdated: true });
+        resolve({ priceMultiplier, failedProducts: [] });
       }
     } catch (e) {
       reject(e);

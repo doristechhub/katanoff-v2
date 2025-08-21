@@ -14,6 +14,7 @@ import Cookies from "js-cookie";
 import { fetchCart } from "@/_actions/cart.action";
 import { useRouter } from "next/navigation";
 import { helperFunctions } from "@/_helper";
+import { setIsMenuOpen } from "@/store/slices/commonSlice";
 
 export default function NavigationHeader() {
   const dispatch = useDispatch();
@@ -150,6 +151,7 @@ export default function NavigationHeader() {
                       href={link.href}
                       className="text-baseblack px-[10px] hover:text-primary"
                       onClick={() => {
+                        dispatch(setIsMenuOpen(false));
                         setIsHeaderVisible(false);
                       }}
                     >

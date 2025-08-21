@@ -24,6 +24,7 @@ const initialState = {
   customizationSubTypeLoading: false,
   crudCustomizationTypeLoading: false,
   crudCustomizationSubTypeLoading: false,
+  failedProductUpdates: [],
   selectedCustomizationType: initCustomizationType,
   selectedCustomizationSubType: initCustomizationSubType,
 };
@@ -53,6 +54,9 @@ const customizationSlice = createSlice({
     setCrudCustomizationSubTypeLoading: (state, action) => {
       state.crudCustomizationSubTypeLoading = action.payload;
     },
+    setFailedProductUpdates: (state, action) => {
+      state.failedProductUpdates = action.payload;
+    },
     setSelectedCustomizationType: (state, action) => {
       state.selectedCustomizationType = action.payload;
     },
@@ -73,5 +77,6 @@ export const {
   setSelectedCustomizationSubType,
   setCrudCustomizationTypeLoading,
   setCrudCustomizationSubTypeLoading,
+  setFailedProductUpdates,
 } = customizationSlice.actions;
 export default customizationSlice.reducer;

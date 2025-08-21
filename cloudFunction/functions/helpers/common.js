@@ -254,6 +254,105 @@ const processProducts = async (products) => {
   );
 };
 
+const addNamesToVariationsArray = (variations, customizations) =>
+  variations.map((v) => {
+    const variationName = customizations?.customizationType?.find(
+      (x) => x?.id === v?.variationId
+    )?.title;
+    const variationTypeName = customizations?.customizationSubType?.find(
+      (x) => x?.id === v?.variationTypeId
+    )?.title;
+    return {
+      ...v,
+      ...(variationName && { variationName }),
+      ...(variationTypeName && { variationTypeName }),
+    };
+  });
+
+const hasDuplicateVariations = (variations) => {
+  const uniqueVariationKeys = new Set();
+
+  return variations.some((variation) => {
+    const variationKey = `${variation.variationId}-${variation.variationTypeId}`;
+    if (uniqueVariationKeys.has(variationKey)) {
+      return true;
+    }
+    uniqueVariationKeys.add(variationKey);
+    return false;
+  });
+};
+
+const isValidVariationsArray = ({
+  product,
+  selectedVariations,
+  diamondDetail,
+  customizations,
+}) => {
+  if (!product || !Array.isArray(selectedVariations)) return false;
+
+  const productVariationIds = (product?.variations || []).map(
+    (v) => v.variationId
+  );
+  const productVariationTypeIds = (product?.variations || []).flatMap(
+    (v) => v.variationTypes?.map((t) => t.variationTypeId) || []
+  );
+
+  // Check if all selected variations exist in product
+  const allVariationsExist = selectedVariations.every(
+    (v) =>
+      productVariationIds.includes(v.variationId) &&
+      productVariationTypeIds.includes(v.variationTypeId)
+  );
+
+  if (!allVariationsExist) {
+    return false;
+  }
+
+  // Check whether duplicate varitons exits in product
+  if (hasDuplicateVariations(selectedVariations)) {
+    return false;
+  }
+
+  const enrichedSelected = addNamesToVariationsArray(
+    selectedVariations,
+    customizations
+  );
+
+  if (diamondDetail) {
+    const hasGoldColor = enrichedSelected.some(
+      (v) => v.variationName === GOLD_COLOR
+    );
+    const hasGoldType = enrichedSelected.some(
+      (v) => v.variationName === GOLD_TYPES
+    );
+    const hasRingOrLength = enrichedSelected.some((v) =>
+      [RING_SIZE, LENGTH].includes(v.variationName)
+    );
+    return hasGoldColor && hasGoldType && hasRingOrLength;
+  }
+
+  const requiredVariationIds = new Set(productVariationIds);
+  const selectedVariationIds = new Set(
+    selectedVariations.map((v) => v.variationId)
+  );
+
+  if (
+    requiredVariationIds.size !== selectedVariationIds.size ||
+    ![...requiredVariationIds].every((id) => selectedVariationIds.has(id))
+  ) {
+    return false;
+  }
+
+  return selectedVariations.every((selVar) => {
+    const variation = product.variations.find(
+      (v) => v.variationId === selVar.variationId
+    );
+    return variation?.variationTypes?.some(
+      (t) => t.variationTypeId === selVar.variationTypeId
+    );
+  });
+};
+
 const MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT = 5;
 const NEW_YORK = "New York";
 const NEW_YORK_CODE = "NY";
@@ -329,4 +428,6 @@ module.exports = {
   generateProductTable,
   processProducts,
   INVOICE_CONFIG,
+  addNamesToVariationsArray,
+  isValidVariationsArray,
 };

@@ -12,6 +12,7 @@ import SkeletonLoader from "../ui/skeletonLoader";
 import ProductNotFound from "./productNotFound";
 import { ITEMS_PER_PAGE } from "@/_utils/common";
 import { HeaderLinkButton } from "../ui/button";
+import { GOLD_COLOR } from "@/_helper";
 
 const ProductGrid = memo(
   ({
@@ -48,7 +49,7 @@ const ProductGrid = memo(
     useEffect(() => {
       dispatch(setVisibleItemCount(ITEMS_PER_PAGE));
     }, [
-      selectedSortByValue,
+      // selectedSortByValue,
       selectedFilterVariations,
       selectedSettingStyles,
       selectedPrices,
@@ -115,6 +116,9 @@ const ProductGrid = memo(
                         product,
                       })}
                       productId={product?.id}
+                      selectedFilterGoldColor={
+                        selectedFilterVariations?.[GOLD_COLOR] ?? []
+                      }
                     />
                   ))
                 : null}

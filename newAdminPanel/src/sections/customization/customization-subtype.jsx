@@ -2,6 +2,7 @@ import * as Yup from 'yup';
 import { Form, Formik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
   Box,
@@ -24,6 +25,7 @@ import {
   TablePagination,
   FormControlLabel,
   Alert,
+  Dialog,
 } from '@mui/material';
 
 import {
@@ -43,7 +45,6 @@ import {
   setPage,
   setSelectedCustomizationSubType,
 } from 'src/store/slices/customizationSlice';
-import Dialog from 'src/components/dialog';
 import Iconify from 'src/components/iconify';
 import Spinner from 'src/components/spinner';
 import Scrollbar from 'src/components/scrollbar';
@@ -89,14 +90,22 @@ const NON_EDITABLE_DELETABLE_SUBTYPE = [
   ...GOLD_TYPE_SUB_TYPES_LIST.map((subType) => subType.title),
   ...GOLD_COLOR_SUB_TYPES_LIST.map((subType) => subType.title),
 ];
+
 const CustomizationSubType = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [open, setOpen] = useState(null);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchedValue, setSearchedValue] = useState('');
   const [selectedCustomizationType, setSelectedCustomizationType] = useState('all');
   const [selectedCustomizationSubTypeId, setSelectedCustomizationSubTypeId] = useState();
   const [openCustomizationSubTypeDialog, setOpenCustomizationSubTypeDialog] = useState(false);
+  // State for navigation confirmation dialog
+  const [openNavigationConfirmDialog, setOpenNavigationConfirmDialog] = useState(false);
+  const [nextLocation, setNextLocation] = useState(null);
+  const [isBackNavigation, setIsBackNavigation] = useState(false);
 
   const {
     page,
@@ -106,7 +115,75 @@ const CustomizationSubType = () => {
     customizationSubTypeLoading,
     selectedCustomizationSubType,
     crudCustomizationSubTypeLoading,
+    failedProductUpdates,
   } = useSelector(({ customization }) => customization);
+
+  // Auto-close dialog when loading completes
+  useEffect(() => {
+    if (!crudCustomizationSubTypeLoading && openNavigationConfirmDialog) {
+      setOpenNavigationConfirmDialog(false);
+      setIsBackNavigation(false);
+      setNextLocation(null);
+    }
+  }, [crudCustomizationSubTypeLoading, openNavigationConfirmDialog]);
+
+  // Prevent refresh/close while updating
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (crudCustomizationSubTypeLoading) {
+        e.preventDefault();
+        e.returnValue =
+          'Product price updates are in progress. Leaving the page may interrupt the process. Are you sure?';
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [crudCustomizationSubTypeLoading]);
+
+  // Custom navigation blocker
+  useEffect(() => {
+    if (!crudCustomizationSubTypeLoading) return;
+
+    const handlePopState = (e) => {
+      if (crudCustomizationSubTypeLoading) {
+        e.preventDefault();
+        setOpenNavigationConfirmDialog(true);
+        setIsBackNavigation(true); // Indicate back navigation attempt
+        // Push back to current location to prevent immediate navigation
+        window.history.pushState(null, null, location.pathname);
+      }
+    };
+
+    window.history.pushState(null, null, location.pathname);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [crudCustomizationSubTypeLoading, location.pathname]);
+
+  const handleCancelNavigation = () => {
+    setOpenNavigationConfirmDialog(false);
+    setIsBackNavigation(false);
+    setNextLocation(null);
+  };
+
+  // const handleConfirmNavigation = () => {
+  //   setOpenNavigationConfirmDialog(false);
+  //   setIsBackNavigation(false);
+  //   setNextLocation(null);
+  //   if (isBackNavigation) {
+  //     if (window.history.length > 1) {
+  //       navigate(-1); // Navigate to previous page in history
+  //     } else {
+  //       navigate('/dashboard'); // Fallback route if no history
+  //     }
+  //   } else if (nextLocation) {
+  //     navigate(nextLocation); // Navigate to specified route
+  //   }
+  // };
 
   const selectedItem = useMemo(() => {
     return customizationSubTypeList?.find((item) => item.id == selectedCustomizationSubTypeId);
@@ -136,35 +213,39 @@ const CustomizationSubType = () => {
     return () => dispatch(setPage(0));
   }, []);
 
-  const onSubmit = useCallback(async (val, { resetForm }) => {
-    const payload = {
-      type: val?.type,
-      title: val?.title,
-      customizationTypeId: val?.customizationTypeId,
-      unit: val?.unit === 'other' ? '' : val?.unit,
-      price: val?.unit === 'other' ? null : val?.price,
-    };
-    if (isImageType(val?.type) && val?.imageFile?.length) payload.imageFile = val?.imageFile[0];
-    if (isColorType(val?.type)) payload.hexCode = val?.hexCode;
+  const onSubmit = useCallback(
+    async (val, { resetForm }) => {
+      const payload = {
+        type: val?.type,
+        title: val?.title,
+        customizationTypeId: val?.customizationTypeId,
+        unit: val?.unit === 'other' ? '' : val?.unit,
+        price: val?.unit === 'other' ? null : val?.price,
+      };
+      if (isImageType(val?.type) && val?.imageFile?.length) payload.imageFile = val?.imageFile[0];
+      if (isColorType(val?.type)) payload.hexCode = val?.hexCode;
 
-    let res;
-    let cPage = 0;
-    if (val?.id) {
-      payload.customizationSubTypeId = val?.id;
-      payload.deletedImage = val?.deleteUploadedImage?.[0]?.image;
-      cPage = page;
-      res = await dispatch(updateCustomizationSubType(payload));
-    } else {
-      res = await dispatch(createCustomizationSubType(payload));
-    }
-    if (res) {
-      dispatch(setPage(cPage));
-      dispatch(getCustomizationSubTypeList());
-      setOpenCustomizationSubTypeDialog(false);
-      resetForm();
-      setOpen(null);
-    }
-  }, []);
+      let res;
+      let cPage = 0;
+      if (val?.id) {
+        payload.customizationSubTypeId = val?.id;
+        payload.deletedImage = val?.deleteUploadedImage?.[0]?.image;
+        payload.failedProductUpdates = failedProductUpdates || [];
+        cPage = page;
+        res = await dispatch(updateCustomizationSubType(payload));
+      } else {
+        res = await dispatch(createCustomizationSubType(payload));
+      }
+      if (res) {
+        dispatch(setPage(cPage));
+        dispatch(getCustomizationSubTypeList());
+        setOpenCustomizationSubTypeDialog(false);
+        resetForm();
+        setOpen(null);
+      }
+    },
+    [failedProductUpdates]
+  );
 
   const handleCustomizationTypeSelection = useCallback((item) => {
     const value = item ? item.trim() : '';
@@ -492,14 +573,21 @@ const CustomizationSubType = () => {
               <Form onSubmit={handleSubmit}>
                 <Dialog
                   open={openCustomizationSubTypeDialog}
-                  handleClose={() => closeCustomizationSubTypePopup(resetForm)}
-                  handleOpen={() => setOpenCustomizationSubTypeDialog(true)}
+                  onClose={(e, reason) => {
+                    if (reason !== 'backdropClick') closeCustomizationSubTypePopup(resetForm);
+                  }}
                 >
                   <StyledDialogTitle>
                     {selectedCustomizationSubType?.id ? 'Update' : 'Add New'} CustomizationSubType
                   </StyledDialogTitle>
 
                   <StyledDialogContent>
+                    {failedProductUpdates?.length > 0 && (
+                      <Alert severity="warning" sx={{ mb: 2 }}>
+                        Customization sub type was changed, but The following products failed to
+                        update prices: {failedProductUpdates.join(', ')}
+                      </Alert>
+                    )}
                     <FormControl
                       sx={{
                         gap: 2,
@@ -605,8 +693,16 @@ const CustomizationSubType = () => {
                         sx={{ display: 'flex', flexDirection: 'row' }}
                       >
                         <FormControlLabel value="other" control={<Radio />} label="Other" />
-                        <FormControlLabel value={UNIT_TYPES.CARAT} control={<Radio />} label="Carat" />
-                        <FormControlLabel value={UNIT_TYPES.GRAM} control={<Radio />} label="Gram" />
+                        <FormControlLabel
+                          value={UNIT_TYPES.CARAT}
+                          control={<Radio />}
+                          label="Carat"
+                        />
+                        <FormControlLabel
+                          value={UNIT_TYPES.GRAM}
+                          control={<Radio />}
+                          label="Gram"
+                        />
                       </RadioGroup>
                       {touched?.unit && errors?.unit ? (
                         <Typography variant="caption" color="error">
@@ -679,6 +775,31 @@ const CustomizationSubType = () => {
           }}
         </Formik>
       ) : null}
+
+      <Dialog
+        open={openNavigationConfirmDialog}
+        onClose={handleCancelNavigation}
+        aria-labelledby="navigation-confirm-dialog-title"
+        aria-describedby="navigation-confirm-dialog-description"
+        sx={{ zIndex: (theme) => theme.zIndex.modal + 2 }}
+      >
+        <StyledDialogTitle id="navigation-confirm-dialog-title">
+          Confirm Navigation
+        </StyledDialogTitle>
+        <StyledDialogContent>
+          <Typography id="navigation-confirm-dialog-description">
+            Product price updates are in progress. Navigating away may interrupt the process.
+          </Typography>
+        </StyledDialogContent>
+        <StyledDialogActions>
+          <Button variant="contained" onClick={handleCancelNavigation}>
+            Cancel
+          </Button>
+          {/* <Button variant="contained" onClick={handleConfirmNavigation}>
+            Leave
+          </Button> */}
+        </StyledDialogActions>
+      </Dialog>
     </>
   );
 };

@@ -38,8 +38,10 @@ import {
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import { setCartMessage } from "@/store/slices/cartSlice";
 import {
+  allowedVariationListForThreeSteps,
   DIAMOND_QUALITY,
   DIAMOND_SHAPE,
+  DIAMOND_WEIGHT,
   GOLD_COLOR,
   GOLD_TYPES,
   LENGTH,
@@ -60,6 +62,7 @@ import shippingIcon from "@/assets/icons/shippingDetail.svg";
 import warrantyIcon from "@/assets/icons/warranty.svg";
 import Link from "next/link";
 import { fetchCustomizeProductSettings } from "@/_actions/customize.action";
+import CommonNotFound from "../CommonNotFound";
 export const minProductQuantity = 1;
 export const maxProductQuantity = 5;
 
@@ -89,7 +92,6 @@ const ProductDetailPage = ({ customizePage }) => {
   const searchParams = useSearchParams();
   const dispatch = useDispatch();
   const router = useRouter();
-
   const [hoveredColor, setHoveredColor] = useState("");
 
   const {
@@ -112,11 +114,19 @@ const ProductDetailPage = ({ customizePage }) => {
   const goldColor = helperFunctions?.stringReplacedWithSpace(
     searchParams.get("goldColor")
   );
+
   let { productName, productId } = params;
   let availableQty = 0;
 
   productName = helperFunctions?.stringReplacedWithSpace(productName);
   let customProductIdFromLocalStorage = customProductDetails?.productId;
+
+  const findValidSelection = (name) => {
+    const selectedVar = selectedVariations?.find(v => v?.variationName === name);
+    const productVariations = productDetail?.variations?.find(v => v?.variationName === name);
+    if (!selectedVar || !productVariations) return false;
+    return productVariations?.variationTypes?.some(t => t?.variationTypeId === selectedVar?.variationTypeId);
+  };
 
   const loadData = useCallback(async () => {
     dispatch(setProductMessage({ message: "", type: "" }));
@@ -141,50 +151,12 @@ const ProductDetailPage = ({ customizePage }) => {
             productName: response?.productName || "",
           })
         );
-
-        let initialSelections = [];
-        if (customProductDetails?.selectedVariations?.length > 0) {
-          initialSelections = customProductDetails?.selectedVariations?.map(
-            (variation) => ({
-              variationId: variation?.variationId,
-              variationTypeId: variation?.variationTypeId,
-              variationName: variation?.variationName,
-              variationTypeName: variation?.variationTypeName,
-            })
-          );
-        } else {
-          initialSelections = response?.variations?.map((variation) => {
-            // Handle Gold Color variation with goldColor from search params
-            if (
-              variation?.variationName?.toLowerCase() ===
-              GOLD_COLOR.toLowerCase() &&
-              goldColor
-            ) {
-              const matchedType = variation.variationTypes.find(
-                (vt) =>
-                  vt.variationTypeName?.toLowerCase() ===
-                  goldColor.toLowerCase()
-              );
-              if (matchedType) {
-                return {
-                  variationId: variation?.variationId,
-                  variationTypeId: matchedType.variationTypeId,
-                  variationName: variation?.variationName,
-                  variationTypeName: matchedType.variationTypeName,
-                };
-              }
-            }
-
-            // Default to first variation type
-            return {
-              variationId: variation?.variationId,
-              variationTypeId: variation?.variationTypes[0]?.variationTypeId,
-              variationName: variation?.variationName,
-              variationTypeName:
-                variation?.variationTypes[0]?.variationTypeName,
-            };
-          });
-        }
+        const initialSelections = helperFunctions.getDefaultVariationsForCustomizedProducts(
+          {
+            productData: response,
+            preferredGoldColor: goldColor
+          }
+        );
 
         dispatch(setSelectedVariations(initialSelections));
       }
@@ -250,47 +222,21 @@ const ProductDetailPage = ({ customizePage }) => {
   }
 
   const handleSelect = useCallback(
-    (variationId, variationTypeId, variationName, variationTypeName) => {
+    ({ variationId, variationTypeId, variationName, variationTypeName }) => {
       dispatch(setCartMessage({ message: "", type: "" }));
-      const updated = [
+      const updatedVariations = [
         ...selectedVariations?.filter(
           (item) => item.variationId !== variationId
         ),
         { variationId, variationTypeId, variationName, variationTypeName },
       ];
-      dispatch(
-        setSelectedVariations({
-          ...updated,
-          [variationName]: variationTypeName,
-        })
-      );
-      dispatch(setSelectedVariations(updated));
+      dispatch(setSelectedVariations(updatedVariations));
       if (variationName?.toLowerCase() === GOLD_COLOR) {
         helperFunctions?.updateGoldColorInUrl(variationTypeName);
       }
     },
     [dispatch, selectedVariations]
   );
-
-
-  // const handleSelect = useCallback(
-  //   (variationId, variationTypeId, variationName, variationTypeName) => {
-  //     console.log('variationId, variationTypeId, variationName, variationTypeName', variationId, variationTypeId, variationName, variationTypeName)
-  //     dispatch(setCartMessage({ message: "", type: "" }));
-  //     const updated = [
-  //       ...selectedVariations?.filter(
-  //         (item) => item.variationId !== variationId
-  //       ),
-  //       { variationId, variationTypeId, variationName, variationTypeName },
-  //     ];
-  //     dispatch(setSelectedVariations(updated));
-  //     if (variationName?.toLowerCase() === GOLD_COLOR) {
-  //       helperFunctions?.updateGoldColorInUrl(variationTypeName);
-  //     }
-  //     console.log('selectedVariations', selectedVariations)
-  //   },
-  //   [dispatch, selectedVariations]
-  // );
 
   const selectedPrice = useMemo(() => {
     if (
@@ -311,25 +257,33 @@ const ProductDetailPage = ({ customizePage }) => {
   }, [productDetail?.variComboWithQuantity, selectedVariations]);
 
   const isInValidSelectedVariation = useMemo(() => {
-    if (productDetail?.variations?.length !== selectedVariations?.length) {
+    if (!isCustomizePage) {
+      return productDetail?.variations?.length !== selectedVariations?.length;
+    }
+
+    if (!productDetail?.variations || !Array.isArray(selectedVariations)) {
       return true;
     }
-    return false;
-  }, [productDetail?.variations?.length, selectedVariations?.length]);
+
+    const hasGoldType = findValidSelection(GOLD_TYPES);
+    const hasGoldColor = findValidSelection(GOLD_COLOR);
+    const hasRingOrLen = findValidSelection(RING_SIZE) || findValidSelection(LENGTH);
+    return !(hasGoldType && hasGoldColor && hasRingOrLen);
+  }, [productDetail?.variations?.length, selectedVariations?.length, isCustomizePage]);
+
 
   const hasDiamondDetails = !!customProductDetails?.diamondDetails;
   let diamondDetail;
 
   if (customProductDetails?.diamondDetails) {
-    const caratWeight = customProductDetails?.diamondDetails?.caratWeight;
-    const clarity = customProductDetails?.diamondDetails?.clarity?.value;
-    const color = customProductDetails?.diamondDetails?.color?.value;
+
+    const { shape, caratWeight, clarity, color } = customProductDetails?.diamondDetails || {};
 
     diamondDetail = {
-      shapeId: customProductDetails?.diamondDetails?.shape?.id,
+      shapeId: shape?.id,
       caratWeight,
-      clarity,
-      color,
+      clarity: clarity?.value,
+      color: color?.value,
     };
   }
 
@@ -347,10 +301,18 @@ const ProductDetailPage = ({ customizePage }) => {
 
     if (isStandardProductInvalid || isCustomProductInvalid) return;
 
+    let filteredVariations = selectedVariations;
+
+    if (isCustomizePage) {
+      filteredVariations = selectedVariations?.filter((selectedVari) =>
+        allowedVariationListForThreeSteps?.includes(selectedVari?.variationName)
+      );
+    }
+
     let payload = {
       productId: productDetail?.id,
       quantity: productQuantity,
-      variations: selectedVariations?.map((selectedVari) => ({
+      variations: filteredVariations?.map((selectedVari) => ({
         variationId: selectedVari?.variationId,
         variationTypeId: selectedVari?.variationTypeId,
       })),
@@ -359,12 +321,13 @@ const ProductDetailPage = ({ customizePage }) => {
       payload.diamondDetail = diamondDetail;
     }
     const response = await dispatch(insertProductIntoCart(payload));
-
     if (response) {
       router.push("/cart");
-      localStorage.removeItem("customProduct");
       dispatch(setCustomProductDetails(null));
       dispatch(setIsSubmitted(false));
+      if (isCustomizePage) {
+        localStorage.removeItem("customProduct");
+      }
     }
   }, [
     productQuantity,
@@ -460,7 +423,7 @@ const ProductDetailPage = ({ customizePage }) => {
       : 0;
 
   const displayProductName = helperFunctions?.formatProductNameWithCarat({
-    caratWeight: productDetail?.totalCaratWeight,
+    caratWeight: isCustomizePage ? customProductDetails?.diamondDetails?.caratWeight : productDetail?.totalCaratWeight,
     productName: productDetail?.productName,
   });
 
@@ -468,7 +431,9 @@ const ProductDetailPage = ({ customizePage }) => {
     <div className={`${isCustomizePage ? "" : "pt-8 2xl:pt-12"}`}>
       {productLoading ? (
         <DetailPageSkeleton />
-      ) : productDetail && Object.keys(productDetail).length > 0 ? (
+      ) : isCustomizePage && productDetail && productDetail?.isDiamondFilter === false ? (<>
+        <CommonNotFound message="Sorry, Customization for this products is currently unavilable" btnText="Design With Diamond" href="/customize/select-diamond" btnClassName="!w-fit" />
+      </>) : productDetail && Object.keys(productDetail).length > 0 ? (
         <>
           <div className="container grid grid-cols-1 md:grid-cols-2 gap-6 xs:gap-8">
             <div className="flex h-fit w-full">
@@ -566,15 +531,12 @@ const ProductDetailPage = ({ customizePage }) => {
               )}
 
               <VariationsList
-                variations={productDetail?.variations}
+                productDetail={productDetail}
                 selectedVariations={selectedVariations}
                 handleSelect={handleSelect}
                 setHoveredColor={setHoveredColor}
                 hoveredColor={hoveredColor}
-              // isCustomizePage={isCustomizePage}
-              // {...(isCustomizePage && {
-              //   customizeProductSettingsData: customizeProductSettings,
-              // })}
+                isCustomizePage={isCustomizePage}
               />
 
               {customizePage === "completeRing" &&
@@ -658,7 +620,7 @@ const ProductDetailPage = ({ customizePage }) => {
           </div>
 
           <div className="container pt-10 lg:pt-12 2xl:pt-16 md:p-6">
-            <ProductDetailTabs selectedVariations={selectedVariations} />
+            <ProductDetailTabs selectedVariations={selectedVariations} isCustomizePage={isCustomizePage} />
           </div>
           <section className="pt-10 lg:pt-12 xl:pt-16 container">
             <KeyFeatures />
@@ -819,7 +781,7 @@ const AddToBagBar = ({
                   disabled={
                     cartLoading ||
                     isInValidSelectedVariation ||
-                    !selectedPrice > 0
+                    !selectedPrice || selectedPrice <= 0
                   }
                   loaderType={isHovered ? "" : "white"}
                   loadingClassName="w-24"
@@ -845,7 +807,7 @@ const AddToBagBar = ({
                     availableQty < 0 ||
                     isInValidSelectedVariation ||
                     !isActive ||
-                    !selectedPrice > 0
+                    !selectedPrice || selectedPrice <= 0
                   }
                   loaderType={isHovered ? "" : "white"}
                   loadingClassName="w-24"
@@ -911,7 +873,7 @@ const StickyAddToBag = (props) => {
   );
 };
 
-const ProductDetailTabs = ({ selectedVariations = [] }) => {
+const ProductDetailTabs = ({ selectedVariations = [], isCustomizePage }) => {
   const { productDetail } = useSelector(({ product }) => product);
 
   const labelClass =
@@ -1027,12 +989,29 @@ const ProductDetailTabs = ({ selectedVariations = [] }) => {
                 DIAMOND_QUALITY
               )
             )}
-            {renderInfoRow(
-              "Total Carat Weight",
-              productDetail?.totalCaratWeight
-                ? `${productDetail?.totalCaratWeight} ctw`
+            {isCustomizePage && renderInfoRow(
+              "Side Diamond Weight",
+              productDetail?.sideDiamondWeight
+                ? `${productDetail?.sideDiamondWeight} ctw`
                 : ""
             )}
+            {(() => {
+              if (!isCustomizePage) return null;
+              const centerWeightValue = helperFunctions?.getVariationValue(selectedVariations, DIAMOND_WEIGHT);
+              return renderInfoRow(
+                "Center Diamond Weight",
+                centerWeightValue
+                  ? `${centerWeightValue} ctw`
+                  : ""
+              )
+            })()}
+            {!isCustomizePage &&
+              renderInfoRow(
+                "Total Carat Weight",
+                productDetail?.totalCaratWeight
+                  ? `${productDetail?.totalCaratWeight} ctw`
+                  : ""
+              )}
 
             {productDetail?.settingStyleNamesWithImg?.length > 0 &&
               renderInfoRow(

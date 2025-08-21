@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  ALLOWED_DIA_CLARITIES,
-  ALLOWED_DIA_COLORS,
   messageType,
 } from "@/_helper/constants";
 import { AccordionTabs, ProgressiveImg } from "@/components/dynamiComponents";
@@ -20,6 +18,7 @@ import { setSelectedDiamondInfoModel } from "@/store/slices/commonSlice";
 
 import StepsGrid from "../StepsGrid";
 import {
+  fetchCustomizeProductSettings,
   // fetchCustomizeProductSettings,
   fetchUniqueShapesAndCaratBounds,
 } from "@/_actions/customize.action";
@@ -47,7 +46,7 @@ export default function SelectDiamondPage() {
     diamondSelection,
     diamondMessage,
     diamondLoading,
-    // customizeProductSettings,
+    customizeProductSettings,
   } = useSelector(({ selectedDiamond }) => selectedDiamond);
   const dispatch = useDispatch();
   const caratWeightRange = uniqueDiamondShapesAndCaratBounds?.caratBounds;
@@ -59,97 +58,94 @@ export default function SelectDiamondPage() {
   const currentStep = 1;
 
   const steps = useMemo(() => {
-    if (!pId) {
-      return [
-        {
-          id: 1,
-          label: "Choose a",
-          labelDetail: "Diamond",
-        },
-        {
-          id: 2,
-          label: "Choose a",
-          labelDetail: "Setting",
-          disabled: true,
-        },
+    // if (!pId) {
+    return [
+      {
+        id: 1,
+        label: "Choose a",
+        labelDetail: "Diamond",
+      },
+      {
+        id: 2,
+        label: "Choose a",
+        labelDetail: "Setting",
+        disabled: true,
+      },
 
-        {
-          id: 3,
-          label: "Completed",
-          labelDetail: "Ring",
-          disabled: true,
-        },
-      ];
-    } else if (isDiamondSelected && pId) {
-      return [
-        {
-          id: 1,
-          label: "Choose a",
-          labelDetail: "Diamond",
-        },
-        {
-          id: 2,
-          label: "Choose a",
-          labelDetail: "Setting",
-          subOption: [
-            {
-              label: "Change",
-              route: "/customize/select-setting",
-              onClick: () => {
-                const customProductData = helperFunctions?.getCustomProduct() || {};
-                delete customProductData?.productId;
-                localStorage.setItem("customProduct", JSON.stringify(customProductData));
-              },
-            },
-          ],
-        },
+      {
+        id: 3,
+        label: "Completed",
+        labelDetail: "Ring",
+        disabled: true,
+      },
+    ];
+    // }
+    // else if (isDiamondSelected && pId) {
+    //   return [
+    //     {
+    //       id: 1,
+    //       label: "Choose a",
+    //       labelDetail: "Diamond",
+    //     },
+    //     {
+    //       id: 2,
+    //       label: "Choose a",
+    //       labelDetail: "Setting",
+    //       subOption: [
+    //         {
+    //           label: "Change",
+    //           route: "/customize/select-setting",
+    //           onClick: () => {
+    //             const customProductData = helperFunctions?.getCustomProduct() || {};
+    //             delete customProductData?.productId;
+    //             localStorage.setItem("customProduct", JSON.stringify(customProductData));
+    //           },
+    //         },
+    //       ],
+    //     },
 
-        {
-          id: 3,
-          label: "Completed",
-          labelDetail: "Ring",
-          subOption: [
-            {
-              label: "View",
-              route: "/customize/complete-ring",
-            },
-          ],
-        },
-      ];
-    }
+    //     {
+    //       id: 3,
+    //       label: "Completed",
+    //       labelDetail: "Ring",
+    //       subOption: [
+    //         {
+    //           label: "View",
+    //           route: "/customize/complete-ring",
+    //         },
+    //       ],
+    //     },
+    //   ];
+    // }
   }, [customProductDetails]);
 
-  // const clarityOptions =
-  //   customizeProductSettings?.diamondClarities?.flatMap((clarity) =>
-  //     clarity.compatibleOptions.map((option) => ({
-  //       value: option,
-  //       title: option,
-  //       pricePerCarat: clarity.pricePerCarat,
-  //     }))
-  //   ) || [];
 
-  // const colorOptions =
-  //   customizeProductSettings?.diamondColors?.flatMap((color) =>
-  //     color.compatibleOptions.map((option) => ({
-  //       value: option,
-  //       title: option,
-  //       pricePerCarat: color.pricePerCarat,
-  //     }))
-  //   ) || [];
+  const allowedClarityOptions = useMemo(() => {
+    const validValues =
+      customizeProductSettings?.diamondClarities?.flatMap((c) => c.compatibleOptions) || [];
 
-  const initialCustomProduct = helperFunctions?.getCustomProduct() || {};
-  const initialShape = initialCustomProduct?.diamondDetails?.shape || null;
-  const initialClarity = initialCustomProduct?.diamondDetails?.clarity || null;
-  const initialColor = initialCustomProduct?.diamondDetails?.color?.value
-    ? initialCustomProduct?.diamondDetails?.color
-    : null;
+    return validValues.map((val) => ({
+      title: val,
+      value: val,
+    }));
+  }, [customizeProductSettings]);
 
-  const initialCaratWeight =
-    initialCustomProduct?.diamondDetails?.caratWeight || null;
+
+  const allowedColorOptions = useMemo(() => {
+    const validValues =
+      customizeProductSettings?.diamondColors?.flatMap((c) => c.compatibleOptions) || [];
+
+    return validValues.map((val) => ({
+      title: val,
+      value: val,
+    }));
+  }, [customizeProductSettings]);
+
   const loadData = useCallback(async () => {
     try {
+      localStorage.removeItem("customProduct");
       dispatch(setDiamondLoading(true));
-      // await dispatch(fetchCustomizeProductSettings());
+      await dispatch(fetchCustomizeProductSettings());
       await dispatch(fetchUniqueShapesAndCaratBounds());
       dispatch(setDiamondLoading(false));
     } catch (error) {
@@ -191,18 +187,16 @@ export default function SelectDiamondPage() {
         ) || null;
       const defaultShape = allShapes[0];
       // const defaultShape = uniqueDiamondShapesAndCaratBounds.distinctShapes[0];
-      const finalShape = urlShape || initialShape || defaultShape;
-      // const defaultClarity = clarityOptions[0] || null;
-      // const defaultColor = colorOptions[0] || null;
-      const defaultClarity = ALLOWED_DIA_CLARITIES[0] || null;
-      const defaultColor = ALLOWED_DIA_COLORS[0] || null;
+      const finalShape = urlShape || defaultShape;
+      const defaultClarity = allowedClarityOptions[0] || null;
+      const defaultColor = allowedColorOptions[0] || null;
       const defaultCaratWeight =
         uniqueDiamondShapesAndCaratBounds?.caratBounds?.[0] || 0;
       const updatedSelection = {
         shape: finalShape,
-        clarity: initialClarity || defaultClarity,
-        color: initialColor || defaultColor,
-        caratWeight: initialCaratWeight || defaultCaratWeight,
+        clarity: defaultClarity,
+        color: defaultColor,
+        caratWeight: defaultCaratWeight,
       };
       dispatch(setDiamondSelection(updatedSelection));
     }
@@ -211,10 +205,6 @@ export default function SelectDiamondPage() {
     uniqueDiamondShapesAndCaratBounds,
     diamondSelection,
     dispatch,
-    initialShape,
-    initialClarity,
-    initialColor,
-    initialCaratWeight,
     shapeFromUrl,
   ]);
 
@@ -264,15 +254,12 @@ export default function SelectDiamondPage() {
       );
     }
   };
-  const generateCaratOptions = (min, max, step = 0.5) => {
-    const options = [];
-    for (let i = min; i <= max; i += step) {
-      options.push(parseFloat(i.toFixed(2)));
-    }
-    return options;
-  };
 
-  const caratOptions = generateCaratOptions(minCarat, maxCarat);
+  const caratOptions = useMemo(
+    () => helperFunctions?.generateCaratValues({ minCarat, maxCarat, step: 0.5 }),
+    [minCarat, maxCarat]
+  );
+
 
   const accordianContent = [
     {
@@ -356,8 +343,8 @@ export default function SelectDiamondPage() {
                       >
                         <div
                           className={`group flex flex-col justify-between items-center w-[70px] h-[76px] py-2 px-2 rounded-md cursor-pointer border  ${diamondSelection.shape?.id === item.id
-                              ? "border-[1.5px] border-baseblack bg-opacity-10"
-                              : "border-transparent hover:border-primary"
+                            ? "border-[1.5px] border-baseblack bg-opacity-10"
+                            : "border-transparent hover:border-primary"
                             } transition-all duration-300`}
                           onClick={() => {
                             dispatch(setDiamondSelection({ shape: item }));
@@ -374,8 +361,8 @@ export default function SelectDiamondPage() {
                           {/* Reserve space for label, even when not selected */}
                           <span
                             className={`text-xs uppercase transition-all duration-300 ${diamondSelection.shape?.id === item?.id
-                                ? "text-baseblack font-semibold"
-                                : "text-transparent group-hover:text-baseblack"
+                              ? "text-baseblack font-semibold"
+                              : "text-transparent group-hover:text-baseblack"
                               }`}
                           >
                             {item?.title}
@@ -441,13 +428,13 @@ export default function SelectDiamondPage() {
                       </button>
                     </div>
                     <div className="flex gap-2 2xl:gap-1">
-                      {ALLOWED_DIA_CLARITIES.map((item, index) => (
+                      {allowedClarityOptions.map((item, index) => (
                         <div
                           key={`diamond-clarity-${index}`}
                           title={item?.title}
                           className={`hover:border !w-[60px] flex justify-center items-center px-2 py-1 2xl:py-1.5 cursor-pointer transition-all duration-100 ${diamondSelection.clarity?.value === item.value
-                              ? "text-baseblack  border-baseblack rounded-[3px] border"
-                              : "border-approxgray text-baseblack hover:border-baseblack hover:rounded-[3px]"
+                            ? "text-baseblack  border-baseblack rounded-[3px] border"
+                            : "border-approxgray text-baseblack hover:border-baseblack hover:rounded-[3px]"
                             }`}
                           onClick={() => {
                             dispatch(setDiamondSelection({ clarity: item }));
@@ -482,13 +469,13 @@ export default function SelectDiamondPage() {
                       </button>
                     </div>
                     <div className="flex  gap-2 2xl:gap-1">
-                      {ALLOWED_DIA_COLORS?.map((item, index) => (
+                      {allowedColorOptions?.map((item, index) => (
                         <div
                           key={`diamond-color-${index}`}
                           title={item?.title}
                           className={`hover:border !w-10 px-2 flex justify-center items-center py-1 2xl:py-1.5 cursor-pointer transition-all duration-100 ${diamondSelection.color?.value === item.value
-                              ? "text-baseblack  border-baseblack rounded-[3px] border"
-                              : "border-approxgray text-baseblack  hover:border-baseblack hover:rounded-[3px]"
+                            ? "text-baseblack  border-baseblack rounded-[3px] border"
+                            : "border-approxgray text-baseblack  hover:border-baseblack hover:rounded-[3px]"
                             }`}
                           onClick={() => {
                             dispatch(setDiamondSelection({ color: item }));

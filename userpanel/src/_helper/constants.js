@@ -44,60 +44,18 @@ export const WEDDING = "Wedding";
 export const WEDDING_RINGS = "Wedding Rings";
 export const ENGAGEMENT_RINGS = "Engagement Rings";
 export const Start_WITH_SETTING = "Start With Setting";
-export const SIX='6'
-export const SIX_WITH_DECIMAL='6.00'
+export const SIX = '6'
+export const SIX_WITH_DECIMAL = '6.00'
 
-export const ALLOWED_DIA_COLORS = [
-  {
-    title: "D - Colorless",
-    value: "D",
-    pricePerCarat: 50,
-  },
-  {
-    title: "E - Colorless",
-    value: "E",
-    pricePerCarat: 25,
-  },
-  {
-    title: "F - Colorless",
-    value: "F",
-    pricePerCarat: 0,
-  },
-];
+export const DIAMOND_WEIGHT = "Diamond Weight"
+export const DIAMOND_CLARITY = "Diamond Clarity"
+export const DIAMOND_COLOR = "Diamond Color"
+export const DIAMOND_SHAPE_KEY = "diamondShape"
+export const DIAMOND_WEIGHT_KEY = "diamondWeight"
+export const DIAMOND_CLARITY_KEY = "diamondClarity"
+export const DIAMOND_COLOR_KEY = "diamondColor"
 
-export const ALLOWED_DIA_CLARITIES = [
-  {
-    title: "Very, Very Slightly Included (VVS1)",
-    value: "VVS1",
-    pricePerCarat: 50,
-  },
-  {
-    title: "Very, Very Slightly Included (VVS2)",
-    value: "VVS2",
-    pricePerCarat: 25,
-  },
-  {
-    title: "Very Slightly Included (VS1)",
-    value: "VS1",
-    pricePerCarat: 15,
-  },
-  {
-    title: "Very Slightly Included (VS2)",
-    value: "VS2",
-    pricePerCarat: 0,
-  },
-];
-
-export const CARAT_RANGE_PRICES = [
-  {
-    carats: [1.5, 2, 2.5, 3, 3.5, 4],
-    pricePerCarat: 175,
-  },
-  {
-    carats: [4.5, 5, 5.5, 6, 6.5, 7],
-    pricePerCarat: 195,
-  },
-];
+export const allowedVariationListForThreeSteps = [GOLD_COLOR, RING_SIZE, GOLD_TYPES, LENGTH];
 
 export const sortByList = [
   { value: "date_new_to_old", title: "New to Old" },

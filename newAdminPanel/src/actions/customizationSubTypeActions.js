@@ -5,6 +5,7 @@ import {
   setCustomizationSubTypeList,
   setCustomizationSubTypeLoading,
   setCrudCustomizationSubTypeLoading,
+  setFailedProductUpdates,
 } from 'src/store/slices/customizationSlice';
 import { helperFunctions } from 'src/_helpers';
 import { customizationSubTypeService } from 'src/_services';
@@ -70,10 +71,14 @@ export const updateCustomizationSubType = (payload) => async (dispatch) => {
     const res = await customizationSubTypeService.updateCustomizationSubType(payload);
 
     if (res?.success) {
-      if (res.productsUpdated) {
-        toast.success('Customization subtype updated successfully');
+      dispatch(setFailedProductUpdates(res?.failedProducts || []));
+      if (res?.failedProducts?.length > 0) {
+        toast.warning(
+          `Customization subtype updated, but some product prices could not be updated`
+        );
+        return false;
       } else {
-        toast.warning('Customization subtype updated, but product prices could not be updated');
+        toast.success('Customization subtype updated successfully');
       }
       return true;
     } else {

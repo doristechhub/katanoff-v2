@@ -9,8 +9,28 @@ module.exports = {
   generateIndexSitemap: false,
   outDir: "./src/app",
 
-  // Assign different priorities for different paths
+  // Exclude all non-page routes (icons, manifests, images, api, etc.)
+  exclude: [
+    "/opengraph-image*",
+    "/icon*",
+    "/manifest*",
+    "/robots.txt",
+    "/sitemap.xml",
+    "/api/*",
+  ],
+
   transform: async (config, path) => {
+    // Skip any non-page routes explicitly
+    if (
+      path.includes(".png") ||
+      path.includes(".jpg") ||
+      path.includes(".svg") ||
+      path.startsWith("/api") ||
+      path.startsWith("/_next")
+    ) {
+      return null; // <- will not include in sitemap
+    }
+
     let priority = 0.8;
 
     if (path === "/") {

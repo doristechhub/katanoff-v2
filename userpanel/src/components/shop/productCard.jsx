@@ -19,6 +19,7 @@ export default function ProductCard({
   hoveredYellowGoldImage,
   hoveredRoseGoldImage,
   productId,
+  selectedFilterGoldColor = [],
 }) {
   // State for selected and hovered gold color
   const [selectedGoldColor, setSelectedGoldColor] = useState(null);
@@ -57,12 +58,24 @@ export default function ProductCard({
     ]
   );
 
-  // Set the first gold color as default on mount
   useEffect(() => {
-    if (goldColorVariations?.length > 0 && !selectedGoldColor) {
+    if (goldColorVariations?.length > 0) {
+      if (selectedFilterGoldColor.length > 0) {
+        // pick the last added filter color
+        const lastSelected =
+          selectedFilterGoldColor[selectedFilterGoldColor.length - 1];
+        const match = goldColorVariations.find(
+          (x) => x.variationTypeName === lastSelected
+        );
+        if (match) {
+          setSelectedGoldColor(match.variationTypeName);
+          return;
+        }
+      }
+      // fallback if no filter
       setSelectedGoldColor(goldColorVariations[0].variationTypeName);
     }
-  }, [goldColorVariations, selectedGoldColor]);
+  }, [goldColorVariations, selectedFilterGoldColor]);
 
   const computedProductLink = useMemo(
     () =>
