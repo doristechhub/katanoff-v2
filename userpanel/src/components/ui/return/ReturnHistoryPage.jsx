@@ -1,5 +1,4 @@
 "use client";
-import { fetchOrderHistory } from "@/_actions/order.action";
 import { messageType } from "@/_helper";
 import { ITEMS_PER_PAGE } from "@/_utils/common";
 import Pagination from "@/components/ui/Pagination";
@@ -53,20 +52,18 @@ export default function ReturnHistoryPage() {
 
   const router = useRouter();
   const dispatch = useDispatch();
-  const { orderList, invoiceLoading } = useSelector(({ order }) => order);
-  const { returnOrder, returnMessage, returnsList, currentPage, returnLoader } = useSelector(
-    ({ returns }) => returns
-  );
+  const { invoiceLoading } = useSelector(({ order }) => order);
+  const { returnOrder, returnMessage, returnsList, currentPage, returnLoader } =
+    useSelector(({ returns }) => returns);
   useAlertTimeout(returnMessage, () =>
     dispatch(setReturnMessage({ message: "", type: "" }))
   );
   const loadData = useCallback(() => {
     dispatch(fetchReturnsHistory());
-    dispatch(fetchOrderHistory());
   }, [dispatch]);
 
-  const pageCount = Math.ceil(orderList.length / ITEMS_PER_PAGE);
-  const paginatedOrder = returnsList.slice(
+  const pageCount = Math.ceil(returnsList.length / ITEMS_PER_PAGE);
+  const paginatedReturnsList = returnsList.slice(
     currentPage * ITEMS_PER_PAGE,
     (currentPage + 1) * ITEMS_PER_PAGE
   );
@@ -120,12 +117,12 @@ export default function ReturnHistoryPage() {
     role,
   ]);
 
-  const handleActionClick = (orderId, event) => {
+  const handleActionClick = (returnOrderId, event) => {
     event.stopPropagation();
-    if (openId === orderId) {
+    if (openId === returnOrderId) {
       setOpenId(null);
     } else {
-      setOpenId(orderId);
+      setOpenId(returnOrderId);
       refs.setReference(event.currentTarget);
     }
   };
@@ -142,7 +139,7 @@ export default function ReturnHistoryPage() {
 
   const renderTableHeading = () => {
     return (
-      <thead className="text-xs lg:text-sm text-basegray uppercase bg-[#00000005] dark:text-gray-400">
+      <thead className="text-xs lg:text-sm text-basegray capitalize bg-[#0000000D] dark:text-gray-400">
         <tr>
           <th scope="col" className="px-6 py-3.5 whitespace-nowrap">
             Request Date
@@ -169,10 +166,10 @@ export default function ReturnHistoryPage() {
         <FixedAlert message={returnMessage.message} type={returnMessage.type} />
       )}
 
-      <div className="container my-8 relative overflow-x-auto pb-4">
+      <div className="container mt-10">
         {returnLoader ? (
           <div className={`w-full h-[300px] animate-pulse`}>
-            <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 shadow-lg">
+            <table className="w-full text-sm text-left rtl:text-right shadow-[0px_0px_12px_0px_#0000001A]">
               {renderTableHeading()}
 
               <tbody>
@@ -194,48 +191,58 @@ export default function ReturnHistoryPage() {
               </tbody>
             </table>
           </div>
-        ) : paginatedOrder?.length > 0 ? (
-          <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400  shadow-lg">
-            {renderTableHeading()}
-            <tbody>
-              {paginatedOrder.map((order, index) => (
-                <tr
-                  key={`order-${index}`}
-                  className="bg-white border-b border-gray-200 text-baseblack"
-                >
-                  <th
-                    scope="row"
-                    className="px-6 py-4 font-medium whitespace-nowrap"
+        ) : paginatedReturnsList?.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400  shadow-lg">
+              {renderTableHeading()}
+              <tbody>
+                {paginatedReturnsList.map((returnOrderItem, index) => (
+                  <tr
+                    key={`returnOrderItem-${index}`}
+                    className="bg-white border-b border-gray-200 text-baseblack font-medium"
                   >
-                    {order.createdDate
-                      ? moment(order.createdDate).format("DD-MM-YYYY")
-                      : null}
-                  </th>
-                  <td className="px-6 py-4">{order.orderNumber}</td>
-                  <td className="px-6 py-4 capitalize">
-                    {order?.returnPaymentStatus}
-                  </td>
-                  <td className="px-6 py-4 capitalize">{order?.status}</td>
-
-                  <td className="px-3 py-4">
-                    <button
-                      {...getReferenceProps()}
-                      onClick={(e) => handleActionClick(order.id, e)}
-                      className="p-2 rounded"
-                      aria-haspopup="true"
-                      title="More Actions"
+                    <th
+                      scope="row"
+                      className="px-6 py-2.5 font-medium whitespace-nowrap"
                     >
-                      <CustomImg
-                        srcAttr={threeDots}
-                        altAttr="More"
-                        className="w-4 h-4"
-                      />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      {returnOrderItem.createdDate
+                        ? moment(returnOrderItem.createdDate).format(
+                            "DD-MM-YYYY"
+                          )
+                        : null}
+                    </th>
+                    <td className="px-6 py-2.5">
+                      {returnOrderItem.orderNumber}
+                    </td>
+                    <td className="px-6 py-2.5 capitalize">
+                      {returnOrderItem?.returnPaymentStatus}
+                    </td>
+                    <td className="px-6 py-2.5 capitalize">
+                      {returnOrderItem?.status}
+                    </td>
+
+                    <td className="px-3 py-2.5">
+                      <button
+                        {...getReferenceProps()}
+                        onClick={(e) =>
+                          handleActionClick(returnOrderItem.id, e)
+                        }
+                        className="p-2 rounded"
+                        aria-haspopup="true"
+                        title="More Actions"
+                      >
+                        <CustomImg
+                          srcAttr={threeDots}
+                          altAttr="More"
+                          className="w-6 h-6"
+                        />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
           <CommonNotFound
             message="Sorry, No Return Found"
@@ -246,9 +253,12 @@ export default function ReturnHistoryPage() {
         {openId !== null && (
           <div
             ref={refs.setFloating}
-            style={floatingStyles}
+            style={{
+              ...floatingStyles,
+              boxShadow: "0px 0px 12px 0px #0000001A",
+            }}
             {...getFloatingProps()}
-            className="z-50 w-48 bg-[#FAFAF8] filter drop-shadow-lg"
+            className="z-40 min-w-44 w-fit bg-[#FAFAF8]"
           >
             <button
               className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4"
@@ -262,16 +272,16 @@ export default function ReturnHistoryPage() {
             </button>
 
             {(() => {
-              const currentOrder = paginatedOrder?.find(
-                (order) => order.id === openId
+              const currentrReturnOrder = paginatedReturnsList?.find(
+                (returnOrder) => returnOrder.id === openId
               );
 
               return (
                 <>
-                  {currentOrder?.status === "pending" &&
-                    currentOrder?.returnPaymentStatus === "pending" && (
+                  {currentrReturnOrder?.status === "pending" &&
+                    currentrReturnOrder?.returnPaymentStatus === "pending" && (
                       <button
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray"
+                        className="w-full text-left px-4 py-2 text-[#DC3545] hover:bg-gray-100 flex gap-4 text-base items-center"
                         onClick={() => {
                           dispatch(setShowModal(true));
                           dispatch(setReturnOrder(openId));
@@ -280,22 +290,31 @@ export default function ReturnHistoryPage() {
                       >
                         <RxCross2
                           title="Cancel Order"
-                          className={`text-xl !text-[#DC3545]`}
+                          className={`text-xl text-[#DC3545]`}
                         />
                         Cancel
                       </button>
                     )}
 
-                  {["approved", "received"]?.includes(currentOrder?.status) &&
-                    (invoiceLoading && currentOrder?.id === returnOrder ? (
+                  {["approved", "received"]?.includes(
+                    currentrReturnOrder?.status
+                  ) &&
+                    (invoiceLoading &&
+                    currentrReturnOrder?.id === returnOrder ? (
                       <div className="flex px-4 py-2 gap-4 text-basegray">
                         <Spinner className="h-6" />
                         Exporting...
                       </div>
                     ) : (
-                      <div className={`w-full text-left  hover:bg-gray-100 flex gap-4 text-base text-basegray ${invoiceLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100"}`}>
+                      <div
+                        className={`w-full text-left  hover:bg-gray-100 flex gap-4 text-base text-basegray ${
+                          invoiceLoading
+                            ? "opacity-50 cursor-not-allowed"
+                            : "hover:bg-gray-100"
+                        }`}
+                      >
                         <DownloadInvoice
-                          returnId={currentOrder?.id}
+                          returnId={currentrReturnOrder?.id}
                           onSuccess={() => setOpenId(null)}
                           className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray"
                         >
@@ -307,8 +326,8 @@ export default function ReturnHistoryPage() {
                       //   className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray"
                       //   onClick={() =>
                       //     handleDownloadInvoice({
-                      //       returnId: currentOrder?.id,
-                      //       orderNumber: currentOrder?.orderNumber,
+                      //       returnId: currentrReturnOrder?.id,
+                      //       orderNumber: currentrReturnOrder?.orderNumber,
                       //     })
                       //   }
                       // >

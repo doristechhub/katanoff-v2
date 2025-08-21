@@ -5,7 +5,7 @@ import { LoadingPrimaryButton } from "@/components/ui/button";
 import CommonBgHeading from "@/components/ui/CommonBgHeading";
 import CommonNotFound from "@/components/ui/CommonNotFound";
 import ErrorMessage from "@/components/ui/ErrorMessage";
-import OrderDetails from "@/components/ui/OrderDetail";
+import OrderDetails from "@/components/ui/order-history/OrderDetail";
 import { setIsHovered } from "@/store/slices/commonSlice";
 import { useFormik } from "formik";
 import { useEffect, useRef, useState } from "react";
@@ -137,7 +137,6 @@ export default function TrackYourOrderPage() {
                 orderLoading={orderDetailLoading}
                 orderDetail={orderDetail}
                 showInvoice={true}
-                isShadow={true}
               />
             ) : (
               <CommonNotFound message={"Order Not Found!"} />

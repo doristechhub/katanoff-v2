@@ -83,8 +83,8 @@ const CartPopup = () => {
         type === "increase"
           ? cartItem.quantity + 1
           : type === "decrease"
-          ? cartItem.quantity - 1
-          : cartItem.quantity;
+            ? cartItem.quantity - 1
+            : cartItem.quantity;
       const payload = {
         type: type,
         quantity: quantity,
@@ -237,9 +237,8 @@ const CartPopup = () => {
       )}
 
       <div
-        className={`fixed top-0 right-0 w-full md:w-[450px] bg-offwhite xl:w-[480px] 3xl:w-[500px] shadow-xl z-50 transform transition-transform duration-300 ${
-          isCartOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed top-0 right-0 w-full md:w-[450px] bg-offwhite xl:w-[480px] 3xl:w-[500px] shadow-xl z-50 transform transition-transform duration-300 ${isCartOpen ? "translate-x-0" : "translate-x-full"
+          }`}
         style={{ height: viewportHeight }}
       >
         <div className="flex flex-col h-full">
@@ -283,8 +282,8 @@ const CartPopup = () => {
                                   cartItem?.diamondDetail
                                     ? "/customize/complete-ring"
                                     : `/products/${cartItem?.productName
-                                        ?.split(" ")
-                                        ?.join("_")}`
+                                      ?.split(" ")
+                                      ?.join("_")}`
                                 }
                                 onClick={() => {
                                   helperFunctions?.setCustomProductInLocalStorage(
@@ -295,7 +294,7 @@ const CartPopup = () => {
                                 className="text-xs  2xl:text-base font-semibold text-baseblack"
                               >
                                 {helperFunctions?.formatProductNameWithCarat({
-                                  caratWeight: cartItem?.totalCaratWeight,
+                                  caratWeight: cartItem?.diamondDetail ? cartItem?.diamondDetail?.caratWeight : cartItem?.totalCaratWeight,
                                   productName: cartItem?.productName,
                                 })}
                               </Link>
@@ -354,13 +353,12 @@ const CartPopup = () => {
                               <div className="relative inline-block w-fit">
                                 <select
                                   className={`appearance-none px-3 py-1 pr-10 border border-grayborder rounded-sm text-xs  2xl:text-sm font-semibold bg-transparent  cursor-pointer
-                                 ${
-                                   (cartItem.quantity < minQuantity ||
-                                     cartItem.quantity > maxQuantity ||
-                                     cartItem.quantity >
-                                       cartItem.productQuantity) &&
-                                   "opacity-50 cursor-not-allowed"
-                                 }
+                                 ${(cartItem.quantity < minQuantity ||
+                                      cartItem.quantity > maxQuantity ||
+                                      cartItem.quantity >
+                                      cartItem.productQuantity) &&
+                                    "opacity-50 cursor-not-allowed"
+                                    }
                                  `}
                                   value={cartItem.quantity}
                                   onChange={(e) =>
@@ -423,7 +421,7 @@ const CartPopup = () => {
                                 Remove
                               </button>
                               {selectedCartItem.id === cartItem.id &&
-                              removeCartErrorMessage ? (
+                                removeCartErrorMessage ? (
                                 <ErrorMessage
                                   message={removeCartErrorMessage}
                                 />
@@ -502,11 +500,10 @@ const CartPopup = () => {
                     <input
                       type="checkbox"
                       id="terms"
-                      className={`mt-2 cursor-pointer accent-black rounded-sm ring-1 ring-transparent ${
-                        isSubmitted && !isChecked
-                          ? " !ring-red-500 appearance-none p-1.5"
-                          : ""
-                      }`}
+                      className={`mt-2 cursor-pointer accent-black rounded-sm ring-1 ring-transparent ${isSubmitted && !isChecked
+                        ? " !ring-red-500 appearance-none p-1.5"
+                        : ""
+                        }`}
                       checked={isChecked}
                       onChange={(e) => dispatch(setIsChecked(e.target.checked))}
                     />

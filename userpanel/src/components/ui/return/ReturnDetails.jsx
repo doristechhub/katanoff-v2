@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
 import { ProductNotFound, ProgressiveImg } from "@/components/dynamiComponents";
@@ -22,17 +22,19 @@ import DownloadInvoice from "../order-history/downloadInvoice";
 const ReturnDetails = ({
   returnDetail,
   returnLoader = false,
-  isShadow = false,
+  showShadow = true,
+  showCancel = false,
 }) => {
   const { openDiamondDetailDrawer } = useSelector((state) => state.common);
   const { invoiceLoading } = useSelector(({ order }) => order);
   const dispatch = useDispatch();
   const cartContentRef = useRef(null);
+  const [showGradient, setShowGradient] = useState(false);
 
   const formatCurrency = (value) =>
     helperFunctions.formatCurrencyWithDollar(value);
-  // Order metadata fields configuration
-  const orderMetaFields = [
+  // Return Order metadata fields configuration
+  const returnOrderMetaFields = [
     {
       label: "Return Request Date",
       value: moment(returnDetail?.createdDate).format("DD-MM-YYYY"),
@@ -100,6 +102,28 @@ const ReturnDetails = ({
     return () => contentElement.removeEventListener("wheel", handleWheel);
   }, []);
 
+  useEffect(() => {
+    const el = cartContentRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      const isScrollable = el.scrollHeight > el.clientHeight;
+      const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 5; // small tolerance
+      setShowGradient(isScrollable && !atBottom);
+    };
+
+    // run once on mount
+    handleScroll();
+
+    el.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleScroll); // handle resize case too
+
+    return () => {
+      el.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, [returnDetail]);
+
   // const handleDownloadInvoice = ({ returnId, orderNumber }) => {
   //   if (!returnId) return;
   //   dispatch(downloadReturnInvoice({ returnId, orderNumber }));
@@ -108,7 +132,7 @@ const ReturnDetails = ({
   // Render loading state
   if (returnLoader) {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 container my-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 container py-5 shadow-[0px_0px_12px_0px_#0000001A] rounded-md">
         <div className="flex flex-col gap-4">
           <SkeletonLoader height="h-[400px]" />
           <SkeletonLoader height="h-[200px]" />
@@ -122,21 +146,23 @@ const ReturnDetails = ({
 
   // Render not found state
   if (!returnDetail || !Object.keys(returnDetail).length) {
-    return <ProductNotFound message="Sorry, no order found." />;
+    return <ProductNotFound message="Sorry, no return order found." />;
   }
 
   return (
     <div
-      className={`md:px-2 lg:px-6 my-6 ${
-        isShadow ? "shadow-[0_0_12px_rgba(0,0,0,0.12)]" : ""
-      }`}
+      className={`p-4 lg:p-8 2xl:p-10 ${
+        showShadow ? "shadow-[0px_0px_10px_0px_#0000001A]" : ""
+      } rounded-md`}
     >
       {/* Action Buttons */}
-      <div className="flex justify-end gap-2 mb-2">
-        {returnDetail?.status === "pending" &&
-          returnDetail?.returnPaymentStatus === "pending" && (
-            <CancelReturnRequest returnId={returnDetail.id} />
-          )}
+      <div className="flex justify-end gap-4">
+        {showCancel
+          ? returnDetail?.status === "pending" &&
+            returnDetail?.returnPaymentStatus === "pending" && (
+              <CancelReturnRequest returnId={returnDetail.id} />
+            )
+          : null}
         {/* {["approved", "received"]?.includes(returnDetail?.status) &&
           (invoiceLoading ? (
             <Spinner className="h-6" />
@@ -156,154 +182,169 @@ const ReturnDetails = ({
               />
             </button>
           ))} */}
-        {["approved", "received"]?.includes(returnDetail?.status) &&
-          (invoiceLoading ? (
-            <Spinner className="h-6" />
-          ) : (
-            <DownloadInvoice returnId={returnDetail.id} />
-          ))}
+        <div className="w-[24px]">
+          {["approved", "received"]?.includes(returnDetail?.status) &&
+            (invoiceLoading ? (
+              <Spinner className="h-[24px] w-7" />
+            ) : (
+              <DownloadInvoice returnId={returnDetail.id} />
+            ))}
+        </div>
       </div>
       {/* Main Content */}
-      <div className="flex flex-col lg:flex-row py-6">
+      <div className="flex flex-col lg:flex-row pt-2 lg:pt-3 lg:divide-x divide-[#00000033]">
         {/* Left Panel: Products */}
-        <div className="flex flex-col gap-4 lg:pr-6 w-full lg:w-1/2">
+        <div className="flex flex-col gap-6 md:px-4 lg:pr-12 2xl:pr-14 w-full lg:w-1/2">
           <div
-            className="flex-1 overflow-y-auto max-h-[55vh] custom-scrollbar pt-6"
+            className="overflow-y-auto max-h-[55vh] custom-scrollbar"
             ref={cartContentRef}
           >
-            {returnDetail?.products?.map((product, index) => (
-              <div key={index} className="px-4 pt-6">
-                <div className="flex gap-4">
-                  {/* Product Image */}
-                  <div className="relative">
-                    <div className="absolute -top-2 -left-2 bg-baseblack text-white text-xs xs:text-sm lg:text-base font-semibold rounded-full px-2 z-10">
-                      {product?.returnQuantity}
-                    </div>
-                    <ProgressiveImg
-                      src={product.productImage}
-                      alt={product.productName}
-                      title={product.productName}
-                      className="w-60 md:w-44 border border-alabaster"
-                    />
-                  </div>
-
-                  {/* Product Details */}
-                  <div className="w-full">
-                    <div className="flex flex-col xs:flex-row xs:justify-between text-sm md:text-base gap-1 xs:gap-0">
-                      <h3 className="font-medium">
-                        {helperFunctions?.formatProductNameWithCarat({
-                          caratWeight: product?.totalCaratWeight,
-                          productName: product?.productName,
-                        })}
-                      </h3>
-                      <h3 className="font-semibold">
-                        {formatCurrency(product?.unitAmount)}
-                      </h3>
+            <div className="flex flex-col gap-5">
+              {returnDetail?.products?.map((product, index) => (
+                <div
+                  key={index}
+                  className={`pt-2.5 pl-2.5 ${showGradient ? "pr-2.5" : ""}`}
+                >
+                  <div className="flex gap-4">
+                    {/* Product Image */}
+                    <div className="relative">
+                      <div className="absolute -top-2 -left-2 bg-baseblack text-white text-xs xs:text-sm lg:text-base font-semibold rounded-full min-h-[22px] min-w-[22px] flex justify-center items-center  z-10">
+                        <span>{product?.returnQuantity}</span>
+                      </div>
+                      <ProgressiveImg
+                        src={product.productImage}
+                        alt={product.productName}
+                        title={product.productName}
+                        className="w-60 md:w-44 border border-alabaster"
+                      />
                     </div>
 
-                    <div className="flex flex-col sm:flex-row sm:justify-between">
-                      <div className="flex flex-col">
-                        <p className="text-baseblack font-medium text-sm md:text-base my-1 sm:my-1.5">
-                          {helperFunctions?.displayVariationsLabel(
-                            product?.variations
-                          )}
-                        </p>
-
-                        {[RING_SIZE, LENGTH].map((variationName) => {
-                          const { name, type, exists } =
-                            helperFunctions?.getVariationDisplay(
-                              product?.variations,
-                              variationName
-                            );
-                          return exists ? (
-                            <div
-                              key={variationName}
-                              className="flex items-center gap-2 pt-1 sm:pt-0"
-                            >
-                              <p className="text-sm items-center md:text-base font-medium text-baseblack">
-                                {name}: {type}
-                              </p>
-                            </div>
-                          ) : null;
-                        })}
-
-                        {product?.diamondDetail && (
-                          <div className="hidden xs:block">
-                            <DiamondDetailDrawer
-                              key={product.productId}
-                              cartItem={{
-                                ...product,
-                                id: product.productId,
-                                quantity: product.returnQuantity,
-                              }}
-                              openDiamondDetailDrawer={openDiamondDetailDrawer}
-                              dispatch={dispatch}
-                              setOpenDiamondDetailDrawer={
-                                setOpenDiamondDetailDrawer
-                              }
-                              isOrderPage={true}
-                            />
-                          </div>
-                        )}
-                        <h3 className="font-medium text-sm md:text-base pt-1">
-                          $
-                          {helperFunctions.toFixedNumber(product?.productPrice)}{" "}
-                          x {product?.returnQuantity}
+                    {/* Product Details */}
+                    <div className="w-full">
+                      <div className="flex flex-col xs:flex-row xs:justify-between text-sm md:text-base gap-1 xs:gap-0">
+                        <h3 className="font-medium">
+                          {helperFunctions?.formatProductNameWithCarat({
+                            caratWeight: product?.diamondDetail
+                              ? product?.diamondDetail?.caratWeight
+                              : product?.totalCaratWeight,
+                            productName: product?.productName,
+                          })}
+                        </h3>
+                        <h3 className="font-semibold">
+                          {formatCurrency(product?.unitAmount)}
                         </h3>
                       </div>
 
-                      {/* Discount and Tax */}
-                      <div className="flex flex-col sm:items-end min-w-40">
-                        {returnDetail.discount > 0 && (
-                          <h3 className="font-medium text-sm md:text-base pt-1 text-lightblack">
-                            Discount:{" "}
-                            <span>
-                              -
-                              {helperFunctions?.formatDiscountForItem({
-                                productPrice: product?.productPrice,
-                                cartQuantity: product?.returnQuantity,
-                                subTotal: returnDetail?.subTotal,
-                                discountAmount: returnDetail?.discount,
-                              })}
-                            </span>
-                          </h3>
-                        )}
-                      </div>
-                    </div>
+                      <div className="flex flex-col sm:flex-row sm:justify-between">
+                        <div className="flex flex-col">
+                          <p className="text-baseblack font-medium text-sm md:text-base my-1 sm:my-1.5">
+                            {helperFunctions?.displayVariationsLabel(
+                              product?.variations
+                            )}
+                          </p>
 
-                    {product?.diamondDetail && (
-                      <div className="xs:hidden">
-                        <DiamondDetailDrawer
-                          key={product.productId}
-                          cartItem={{
-                            ...product,
-                            id: product.productId,
-                            quantity: product.returnQuantity,
-                          }}
-                          openDiamondDetailDrawer={openDiamondDetailDrawer}
-                          dispatch={dispatch}
-                          setOpenDiamondDetailDrawer={
-                            setOpenDiamondDetailDrawer
-                          }
-                          isOrderPage={true}
-                        />
+                          {[RING_SIZE, LENGTH].map((variationName) => {
+                            const { name, type, exists } =
+                              helperFunctions?.getVariationDisplay(
+                                product?.variations,
+                                variationName
+                              );
+                            return exists ? (
+                              <div
+                                key={variationName}
+                                className="flex items-center gap-2 pt-1 sm:pt-0"
+                              >
+                                <p className="text-sm items-center md:text-base font-medium text-baseblack">
+                                  {name}: {type}
+                                </p>
+                              </div>
+                            ) : null;
+                          })}
+
+                          {product?.diamondDetail && (
+                            <div className="hidden xs:block">
+                              <DiamondDetailDrawer
+                                key={product.productId}
+                                cartItem={{
+                                  ...product,
+                                  id: product.productId,
+                                  quantity: product.returnQuantity,
+                                }}
+                                openDiamondDetailDrawer={
+                                  openDiamondDetailDrawer
+                                }
+                                dispatch={dispatch}
+                                setOpenDiamondDetailDrawer={
+                                  setOpenDiamondDetailDrawer
+                                }
+                                isOrderPage={true}
+                              />
+                            </div>
+                          )}
+                          <h3 className="font-medium text-sm md:text-base pt-1">
+                            $
+                            {helperFunctions.toFixedNumber(
+                              product?.productPrice
+                            )}{" "}
+                            x {product?.returnQuantity}
+                          </h3>
+                        </div>
+
+                        {/* Discount and Tax */}
+                        <div className="flex flex-col sm:items-end min-w-40">
+                          {returnDetail.discount > 0 && (
+                            <h3 className="font-medium text-sm md:text-base pt-1 text-lightblack">
+                              Discount:{" "}
+                              <span>
+                                -
+                                {helperFunctions?.formatDiscountForItem({
+                                  productPrice: product?.productPrice,
+                                  cartQuantity: product?.returnQuantity,
+                                  subTotal: returnDetail?.subTotal,
+                                  discountAmount: returnDetail?.discount,
+                                })}
+                              </span>
+                            </h3>
+                          )}
+                        </div>
                       </div>
-                    )}
+
+                      {product?.diamondDetail && (
+                        <div className="xs:hidden">
+                          <DiamondDetailDrawer
+                            key={product.productId}
+                            cartItem={{
+                              ...product,
+                              id: product.productId,
+                              quantity: product.returnQuantity,
+                            }}
+                            openDiamondDetailDrawer={openDiamondDetailDrawer}
+                            dispatch={dispatch}
+                            setOpenDiamondDetailDrawer={
+                              setOpenDiamondDetailDrawer
+                            }
+                            isOrderPage={true}
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-            <div
-              className="pointer-events-none sticky -bottom-1 left-0 w-full h-16"
-              style={{
-                background:
-                  "linear-gradient(180deg, rgba(250, 250, 248, 0) 0%, #FAFAF8 76.83%)",
-              }}
-            />
+              ))}
+            </div>
+            {showGradient && (
+              <div
+                className="pointer-events-none sticky -bottom-1 left-0 w-full h-16"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(250, 250, 248, 0) 0%, #FAFAF8 76.83%)",
+                }}
+              />
+            )}
           </div>
 
           {/* Summary Section */}
-          <div className="p-4 lg:p-6 flex flex-col gap-2 text-sm md:text-base font-semibold">
+          <div className="flex flex-col gap-2 text-sm md:text-base font-semibold">
             <div className="flex justify-between">
               <h4 className="font-medium">Sub Total</h4>
               <p className="font-semibold">
@@ -383,16 +424,11 @@ const ReturnDetails = ({
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="flex justify-center items-center px-2 my-4 lg:my-0">
-          <div className="w-full bg-grayborder lg:h-[100%]"></div>
-        </div>
-
         {/* Right Panel: Order Details */}
-        <div className="flex flex-col gap-4 lg:pl-6 w-full lg:w-1/2">
-          <div className="p-4 lg:p-6">
+        <div className="flex flex-col gap-6 md:px-4 lg:pl-12 2xl:pl-14 pt-2.5 w-full lg:w-1/2">
+          <div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 text-sm md:text-base">
-              {orderMetaFields.map(({ label, value, isOptional }) => {
+              {returnOrderMetaFields.map(({ label, value, isOptional }) => {
                 const isEmpty =
                   value === undefined ||
                   value === null ||

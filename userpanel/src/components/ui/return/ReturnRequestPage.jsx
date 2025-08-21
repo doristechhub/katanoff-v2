@@ -224,11 +224,10 @@ const ReturnRequestPage = () => {
     [orderDetail, updateDetail]
   );
 
-  const bgHeadingText = ` ${
-    selectedProducts?.length
-      ? `${selectedProducts?.length} Products Selected`
-      : ""
-  } `;
+  const bgHeadingText = ` ${selectedProducts?.length
+    ? `${selectedProducts?.length} Products Selected`
+    : ""
+    } `;
 
   return (
     <>
@@ -249,11 +248,10 @@ const ReturnRequestPage = () => {
           <div className="max-w-5xl justify-center flex flex-col mx-auto container">
             {orderDetail?.products?.map((cartItem, index) => (
               <div
-                className={`py-6 md:py-8 pr-2 xs:pr-6 ${
-                  index !== orderDetail?.products?.length - 1
-                    ? "border-b border-grayborder"
-                    : ""
-                }`}
+                className={`py-6 md:py-8 pr-2 xs:pr-6 ${index !== orderDetail?.products?.length - 1
+                  ? "border-b border-grayborder"
+                  : ""
+                  }`}
                 key={`returnRequest-${index}`}
               >
                 <div className="flex gap-2 md:gap-4">
@@ -280,7 +278,7 @@ const ReturnRequestPage = () => {
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
                       <h2 className="md:text-base lg:text-lg font-semibold">
                         {helperFunctions?.formatProductNameWithCarat({
-                          caratWeight: cartItem?.totalCaratWeight,
+                          caratWeight: cartItem?.diamondDetail ? cartItem?.diamondDetail?.caratWeight : cartItem?.totalCaratWeight,
                           productName: cartItem?.productName,
                         })}
                       </h2>
@@ -308,18 +306,18 @@ const ReturnRequestPage = () => {
                         {cartItem?.variations?.some(
                           (v) => v.variationName === RING_SIZE
                         ) && (
-                          <div className="flex items-center gap-2 pt-2 sm:pt-0">
-                            <p className="text-sm items-center md:text-base font-medium text-baseblack">
-                              {cartItem?.variations?.find(
-                                (v) => v.variationName === RING_SIZE
-                              )?.variationName || "N/A"}
-                              :{" "}
-                              {cartItem?.variations?.find(
-                                (v) => v.variationName === RING_SIZE
-                              )?.variationTypeName || "N/A"}
-                            </p>
-                          </div>
-                        )}
+                            <div className="flex items-center gap-2 pt-2 sm:pt-0">
+                              <p className="text-sm items-center md:text-base font-medium text-baseblack">
+                                {cartItem?.variations?.find(
+                                  (v) => v.variationName === RING_SIZE
+                                )?.variationName || "N/A"}
+                                :{" "}
+                                {cartItem?.variations?.find(
+                                  (v) => v.variationName === RING_SIZE
+                                )?.variationTypeName || "N/A"}
+                              </p>
+                            </div>
+                          )}
 
                         <DiamondDetailDrawer
                           cartItem={cartItem}
@@ -412,8 +410,8 @@ const ReturnRequestPage = () => {
                   <span>
                     {returnRequestTotalSummary?.subTotal
                       ? helperFunctions?.formatCurrencyWithDollar(
-                          returnRequestTotalSummary?.subTotal
-                        )
+                        returnRequestTotalSummary?.subTotal
+                      )
                       : "$0.00"}
                   </span>
                 </div>
@@ -423,8 +421,8 @@ const ReturnRequestPage = () => {
                   <span>
                     {returnRequestTotalSummary?.discount
                       ? ` - ${helperFunctions?.formatCurrencyWithDollar(
-                          returnRequestTotalSummary?.discount
-                        )}`
+                        returnRequestTotalSummary?.discount
+                      )}`
                       : "$0.00"}
                   </span>
                 </div>
@@ -434,8 +432,8 @@ const ReturnRequestPage = () => {
                   <span>
                     {returnRequestTotalSummary?.salesTax
                       ? helperFunctions?.formatCurrencyWithDollar(
-                          returnRequestTotalSummary?.salesTax
-                        )
+                        returnRequestTotalSummary?.salesTax
+                      )
                       : "$0.00"}
                   </span>
                 </div>
@@ -449,8 +447,8 @@ const ReturnRequestPage = () => {
                   <span>
                     {selectedProducts?.length
                       ? helperFunctions?.formatCurrencyWithDollar(
-                          returnRequestTotalSummary?.returnRequestAmount
-                        )
+                        returnRequestTotalSummary?.returnRequestAmount
+                      )
                       : "$0.00"}
                   </span>
                 </div>

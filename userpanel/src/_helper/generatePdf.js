@@ -43,9 +43,8 @@ export const generatePDF = async (orderData, sizePage = "1") => {
 
   const doc = new jsPDF(sizePage, "pt", "a4");
   const date = new Date();
-  const formattedDate = `Date: ${
-    date.getMonth() + 1
-  } / ${date.getDate()} / ${date.getFullYear()}`;
+  const formattedDate = `Date: ${date.getMonth() + 1
+    } / ${date.getDate()} / ${date.getFullYear()}`;
   const pageWidth = doc.internal.pageSize.getWidth();
   const imageSize = 40;
   const minCellHeight = 45;
@@ -163,16 +162,16 @@ export const generatePDF = async (orderData, sizePage = "1") => {
     const isDiamond = Boolean(x?.diamondDetail);
 
     const nameLine = helperFunctions?.formatProductNameWithCarat({
-      caratWeight: x?.totalCaratWeight,
+      caratWeight: x?.diamondDetail ? x?.diamondDetail?.caratWeight : x?.totalCaratWeight,
       productName: x?.productName,
     });
 
     const diamondDetail = isDiamond
       ? `\n\nDiamond Details:\n` +
-        `- Carat: ${x?.diamondDetail?.caratWeight}\n` +
-        `- Clarity: ${x?.diamondDetail?.clarity}\n` +
-        `- Color: ${x?.diamondDetail?.color}\n` +
-        `- Shape: ${x?.diamondDetail?.shapeName}`
+      `- Carat: ${x?.diamondDetail?.caratWeight}\n` +
+      `- Clarity: ${x?.diamondDetail?.clarity}\n` +
+      `- Color: ${x?.diamondDetail?.color}\n` +
+      `- Shape: ${x?.diamondDetail?.shapeName}`
       : "";
 
     const unitPrice = x.productPrice;
@@ -255,14 +254,12 @@ export const generatePDF = async (orderData, sizePage = "1") => {
   }
 
   doc.text(
-    `Sales Tax ${
-      invoiceData?.salesTaxPercentage
-        ? `(${invoiceData?.salesTaxPercentage}%)`
-        : ""
-    }: ${
-      invoiceData?.salesTax && Number(invoiceData?.salesTax) !== 0
-        ? `${helperFunctions?.formatCurrencyWithDollar(invoiceData?.salesTax)}`
-        : "$0.00"
+    `Sales Tax ${invoiceData?.salesTaxPercentage
+      ? `(${invoiceData?.salesTaxPercentage}%)`
+      : ""
+    }: ${invoiceData?.salesTax && Number(invoiceData?.salesTax) !== 0
+      ? `${helperFunctions?.formatCurrencyWithDollar(invoiceData?.salesTax)}`
+      : "$0.00"
     }`,
     bottomRightX,
     currentY,
@@ -272,10 +269,9 @@ export const generatePDF = async (orderData, sizePage = "1") => {
 
   // Shipping Charge
   doc.text(
-    `Shipping Fees: ${
-      Number(invoiceData?.shippingCharge) > 0
-        ? helperFunctions?.formatCurrencyWithDollar(invoiceData?.shippingCharge)
-        : "Free"
+    `Shipping Fees: ${Number(invoiceData?.shippingCharge) > 0
+      ? helperFunctions?.formatCurrencyWithDollar(invoiceData?.shippingCharge)
+      : "Free"
     }`,
     bottomRightX,
     currentY,
@@ -307,5 +303,5 @@ export const generatePDF = async (orderData, sizePage = "1") => {
   doc.text(SALES_TAX_NOTE, 40, currentY, { maxWidth: pageWidth - 80 });
 
   doc.save(`${invoiceData?.orderNumber}.pdf`);
-   return true;
+  return true;
 };

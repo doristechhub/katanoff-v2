@@ -1,6 +1,16 @@
 import { toast } from 'react-toastify';
 import { settingsService } from 'src/_services';
-import { setPriceMultiplier, setCustomizedLoading, setNonCustomizedError, setCustomizedError, setCustomizedSettings, customizedSettingsInit, setNonCustomizedLoading } from 'src/store/slices/settingsSlice';
+import {
+  setPriceMultiplier,
+  setCustomizedLoading,
+  setNonCustomizedError,
+  setCustomizedError,
+  setCustomizedSettings,
+  customizedSettingsInit,
+  setNonCustomizedLoading,
+  setFailedProductUpdates,
+  setAddUpdateNonCustomizedLoading,
+} from 'src/store/slices/settingsSlice';
 
 export const fetchPriceMultiplier = () => async (dispatch) => {
   try {
@@ -18,16 +28,18 @@ export const fetchPriceMultiplier = () => async (dispatch) => {
 
 export const upsertPriceMultiplier = (payload) => async (dispatch) => {
   try {
-    dispatch(setNonCustomizedLoading(true));
+    dispatch(setFailedProductUpdates([]));
+    dispatch(setAddUpdateNonCustomizedLoading(true));
     const res = await settingsService.upsertPriceMultiplier(payload);
 
     if (res) {
       dispatch(setPriceMultiplier(res.priceMultiplier));
+      dispatch(setFailedProductUpdates(res.failedProducts || []));
 
-      if (res.productsUpdated) {
-        toast.success('Price Multiplier changed successfully');
+      if (res.failedProducts?.length > 0) {
+        toast.warning(`Price Multiplier changed, but some product prices could not be updated`);
       } else {
-        toast.warning('Price Multiplier changed, but product prices could not be updated');
+        toast.success('Price Multiplier changed successfully');
       }
 
       return true;
@@ -38,7 +50,7 @@ export const upsertPriceMultiplier = (payload) => async (dispatch) => {
     dispatch(setNonCustomizedError(e.message));
     return false;
   } finally {
-    dispatch(setNonCustomizedLoading(false));
+    dispatch(setAddUpdateNonCustomizedLoading(false));
   }
 };
 

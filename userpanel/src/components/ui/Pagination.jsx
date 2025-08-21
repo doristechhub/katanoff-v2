@@ -8,9 +8,7 @@ export default function Pagination({
   className,
 }) {
   return (
-    <div
-      className={`pt-10 md:pt-14 lg:pt-20 2xl:pt-20 flex justify-center ${className}`}
-    >
+    <div className={`pt-10 md:pt-14 flex justify-center ${className}`}>
       <ReactPaginate
         previousLabel={<FaAngleLeft className="text-xl text-primary" />}
         nextLabel={<FaAngleRight className="text-xl text-primary" />}

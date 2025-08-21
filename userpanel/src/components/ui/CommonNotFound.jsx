@@ -7,6 +7,9 @@ export default function CommonNotFound({
   subMessage = "You can Try Our Different Product...",
   notFoundImg,
   showButton = true,
+  href = "/",
+  btnText = "Back To Shop",
+  btnClassName = ""
 }) {
   return (
     <section className="h-[60vh] lg:h-[70vh] gap-8 lg:gap-10 flex flex-col justify-center items-center text-center">
@@ -26,8 +29,8 @@ export default function CommonNotFound({
         ) : null}
         {showButton ? (
           <div className="flex justify-center mt-4">
-            <PrimaryLinkButton href="/" className="w-[70%] text-sm 2xl:text-xl">
-              BACK TO SHOP
+            <PrimaryLinkButton href={href} className={`w-[70%] text-sm 2xl:text-xl ${btnClassName}`}>
+              {btnText}
             </PrimaryLinkButton>
           </div>
         ) : null}

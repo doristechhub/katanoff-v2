@@ -2,10 +2,11 @@ import { fetchInvoiceOrderDetail } from "@/_actions/order.action";
 import { fetchReturnInvoiceDetail } from "@/_actions/return.action";
 import { generatePDF } from "@/_helper";
 import { generateReturnPDF } from "@/_helper/generateReturnPdf";
+import { CustomImg } from "@/components/dynamiComponents";
+import downloadIcon from "@/assets/icons/download.svg";
 import { setInvoiceLoading, setSelectedOrder } from "@/store/slices/orderSlice";
 import { setReturnOrder } from "@/store/slices/returnSlice";
 import React, { useCallback } from "react";
-import { BsDownload } from "react-icons/bs";
 import { useDispatch } from "react-redux";
 
 export default function DownloadInvoice({
@@ -48,11 +49,12 @@ export default function DownloadInvoice({
         className={`cursor-pointer ${className}`}
         onClick={downloadInvoiceHandler}
       >
-        <BsDownload
+        <CustomImg
+          srcAttr={downloadIcon}
           title={
             returnId ? "Download Return Invoice" : "Download Order Invoice"
           }
-          className="cursor-pointer text-xl text-basegray"
+          className="cursor-pointer w-[24px]"
         />
         {children}
       </div>
@@ -60,9 +62,10 @@ export default function DownloadInvoice({
   }
 
   return (
-    <BsDownload
+    <CustomImg
+      srcAttr={downloadIcon}
       title={returnId ? "Download Return Invoice" : "Download Order Invoice"}
-      className="cursor-pointer text-xl text-basegray"
+      className="cursor-pointer w-[24px]"
       onClick={downloadInvoiceHandler}
     />
   );

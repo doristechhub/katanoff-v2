@@ -154,7 +154,7 @@ export const cancelReturnRequest = (payload) => async (dispatch) => {
     const response = await returnService.cancelReturnRequest(payload);
     if (response) {
       // toasterService.success("Your return request has been cancelled");
-      const message = "Your return request has been Cancelled";
+      const message = "Your return request has been cancelled";
 
       dispatch(setReturnMessage({ message, type: messageType.SUCCESS }));
       return true;

@@ -20,9 +20,7 @@ export const ProgressiveImg = dynamic(() => import("./ui/progressive-img"), {
   ssr: false,
 });
 
-export const CustomImg = dynamic(() => import("./ui/custom-img"), {
-  ssr: false,
-});
+export const CustomImg = dynamic(() => import("./ui/custom-img"));
 
 export const Lenis = dynamic(() => import("./layout/lenis"), { ssr: false });
 export const StoreProvider = dynamic(() => import("@/store/provider"), {
@@ -222,13 +220,6 @@ export const SelectDiamondPage = dynamic(
 
 export const StartWithSettingPage = dynamic(
   () => import("./ui/customize/select-setting/page.jsx"),
-  {
-    ssr: false,
-  }
-);
-
-export const OrderSummary = dynamic(
-  () => import("./ui/order-history/OrderSummary.jsx"),
   {
     ssr: false,
   }

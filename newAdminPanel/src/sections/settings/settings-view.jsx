@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button, LoadingButton } from '../../components/button';
 import {
   Box,
@@ -21,6 +22,13 @@ import {
   OutlinedInput,
   MenuItem,
   ListItemText,
+  CircularProgress,
+  Backdrop,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
@@ -197,19 +205,74 @@ const validationSchemaCustomized = Yup.object().shape({
 
 const SettingsViewPage = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
+
+  // State for navigation confirmation dialog
+  const [openNavigationConfirmDialog, setOpenNavigationConfirmDialog] = useState(false);
+  const [nextLocation, setNextLocation] = useState(null);
+  const [isBackNavigation, setIsBackNavigation] = useState(false);
+
   const {
     priceMultiplier,
     customizedSettings,
     nonCustomizedLoading,
+    addUpdateNonCustomizedLoading,
     customizedLoading,
     nonCustomizedError,
     customizedError,
+    failedProductUpdates,
   } = useSelector(({ settings }) => settings);
 
   useEffect(() => {
     dispatch(fetchPriceMultiplier());
     dispatch(fetchCustomizedSettings());
   }, [dispatch]);
+
+  // Auto-close dialog when loading completes
+  useEffect(() => {
+    if (!addUpdateNonCustomizedLoading && openNavigationConfirmDialog) {
+      setOpenNavigationConfirmDialog(false);
+      setIsBackNavigation(false);
+      setNextLocation(null);
+    }
+  }, [addUpdateNonCustomizedLoading, openNavigationConfirmDialog]);
+
+  // Prevent refresh/close while updating
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (addUpdateNonCustomizedLoading) {
+        e.preventDefault();
+        e.returnValue =
+          'Product price updates are in progress. Leaving the page may interrupt the process. Are you sure?';
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [addUpdateNonCustomizedLoading]);
+
+  // Custom navigation blocker
+  useEffect(() => {
+    if (!addUpdateNonCustomizedLoading) return;
+
+    const handlePopState = (e) => {
+      if (addUpdateNonCustomizedLoading) {
+        e.preventDefault();
+        setOpenNavigationConfirmDialog(true);
+        setIsBackNavigation(true); // Indicate back navigation attempt
+        // Push back to current location to prevent immediate navigation
+        window.history.pushState(null, null, location.pathname);
+      }
+    };
+
+    window.history.pushState(null, null, location.pathname);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [addUpdateNonCustomizedLoading, location.pathname]);
 
   // Formik for Non-Customized Settings
   const formikNonCustomized = useFormik({
@@ -251,12 +314,11 @@ const SettingsViewPage = () => {
         return;
       }
 
-      formikCustomized.setSubmitting(true);
+      // formikCustomized.setSubmitting(true);
 
       // Check if there are any validation errors in the specified field
       if (formikCustomized.errors[field]) {
         formikCustomized.handleSubmit();
-        // For example, using a toast or alert (you can integrate a library like react-toastify)
         console.log(`Cannot add new item to ${field}. Please fix existing errors.`);
         return;
       }
@@ -274,6 +336,7 @@ const SettingsViewPage = () => {
     },
     [formikCustomized]
   );
+
   const handleRemoveItem = useCallback(
     (field, index) => {
       formikCustomized.setFieldValue(
@@ -283,6 +346,27 @@ const SettingsViewPage = () => {
     },
     [formikCustomized]
   );
+
+  const handleCancelNavigation = () => {
+    setOpenNavigationConfirmDialog(false);
+    setIsBackNavigation(false);
+    setNextLocation(null);
+  };
+
+  // const handleConfirmNavigation = () => {
+  //   setOpenNavigationConfirmDialog(false);
+  //   setIsBackNavigation(false);
+  //   setNextLocation(null);
+  //   if (isBackNavigation) {
+  //     if (window.history.length > 1) {
+  //       navigate(-1); // Navigate to previous page in history
+  //     } else {
+  //       navigate('/dashboard'); // Fallback route if no history
+  //     }
+  //   } else if (nextLocation) {
+  //     navigate(nextLocation); // Navigate to specified route
+  //   }
+  // };
 
   const renderTable = (field, title, options, optionType) => {
     // Check if the field has no data
@@ -549,163 +633,224 @@ const SettingsViewPage = () => {
   };
 
   return (
-    <Container sx={{ py: 4 }}>
-      <Typography variant="h4" sx={{ mb: 4 }}>
-        Settings
-      </Typography>
-      {/* Non-Customized Settings Form */}
-      <Box component="form" onSubmit={formikNonCustomized.handleSubmit} sx={{ mb: 4 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Non-Customized Settings
+    <>
+      <Container sx={{ py: 4 }}>
+        <Typography variant="h4" sx={{ mb: 4 }}>
+          Settings
         </Typography>
-        {nonCustomizedError && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {nonCustomizedError}
+        {/* Non-Customized Settings Form */}
+        <Box component="form" onSubmit={formikNonCustomized.handleSubmit} sx={{ mb: 4 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Non-Customized Settings
+          </Typography>
+          {nonCustomizedError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {nonCustomizedError}
+            </Alert>
+          )}
+          {failedProductUpdates?.length > 0 && (
+            <Alert severity="warning" sx={{ mb: 2 }}>
+              Price multiplier was changed, but The following products failed to update prices:{' '}
+              {failedProductUpdates.join(', ')}
+            </Alert>
+          )}
+          <Stack direction="row" spacing={4} alignItems="center" sx={{ mb: 3 }}>
+            <TextField
+              type="number"
+              name="priceMultiplier"
+              label="Price Multiplier"
+              onBlur={formikNonCustomized.handleBlur}
+              onChange={(e) => handlePositivePriceChange(e, 'priceMultiplier', formikNonCustomized)}
+              onClick={handleInputClick}
+              onWheel={handleWheel}
+              value={formikNonCustomized.values.priceMultiplier}
+              error={
+                !!formikNonCustomized.touched.priceMultiplier &&
+                !!formikNonCustomized.errors.priceMultiplier
+              }
+              helperText={
+                formikNonCustomized.touched.priceMultiplier &&
+                formikNonCustomized.errors.priceMultiplier
+              }
+              sx={{ maxWidth: 200 }}
+            />
+            <LoadingButton
+              type="submit"
+              size="medium"
+              variant="contained"
+              loading={nonCustomizedLoading || addUpdateNonCustomizedLoading}
+              disabled={
+                nonCustomizedLoading ||
+                addUpdateNonCustomizedLoading ||
+                formikNonCustomized.isSubmitting
+              }
+            >
+              Save
+            </LoadingButton>
+          </Stack>
+          <Alert sx={{ mt: 2 }} severity="info">
+            The value you set here will automatically be multiplied with the base price of all
+            pre-designed products whose price calculate with automatic mode.
           </Alert>
-        )}
-        <Stack direction="row" spacing={4} alignItems="center" sx={{ mb: 3 }}>
-          <TextField
-            type="number"
-            name="priceMultiplier"
-            label="Price Multiplier"
-            onBlur={formikNonCustomized.handleBlur}
-            onChange={(e) => handlePositivePriceChange(e, 'priceMultiplier', formikNonCustomized)}
-            onClick={handleInputClick}
-            onWheel={handleWheel}
-            value={formikNonCustomized.values.priceMultiplier}
-            error={
-              !!formikNonCustomized.touched.priceMultiplier &&
-              !!formikNonCustomized.errors.priceMultiplier
-            }
-            helperText={
-              formikNonCustomized.touched.priceMultiplier &&
-              formikNonCustomized.errors.priceMultiplier
-            }
-            sx={{ maxWidth: 200 }}
-          />
-          <LoadingButton
-            type="submit"
-            size="medium"
-            variant="contained"
-            loading={nonCustomizedLoading}
-            disabled={formikNonCustomized.isSubmitting}
-          >
-            Save
-          </LoadingButton>
-        </Stack>
-        <Alert sx={{ mt: 2 }} severity="info">
-          The value you set here will automatically be multiplied with the base price of all
-          pre-designed products whose price calculate with automatic mode.
-        </Alert>
-      </Box>
+        </Box>
 
-      {/* Customized Settings Form */}
-      <Box component="form" onSubmit={formikCustomized.handleSubmit}>
-        <Stack sx={{ mb: 2 }} direction="row" alignItems="center" justifyContent="space-between">
-          <Typography variant="h6">Customized Settings</Typography>
-          <LoadingButton
-            type="submit"
-            size="medium"
-            variant="contained"
-            loading={customizedLoading}
-            disabled={customizedLoading || formikCustomized.isSubmitting}
-          >
-            Save
-          </LoadingButton>
-        </Stack>
-        {customizedError && (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {customizedError}
-          </Alert>
-        )}
-        <Stack spacing={3}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} display="flex" flexDirection="column" gap={5}>
-              <Typography variant="subtitle1">Pricing Details</Typography>
-              <TextField
-                type="number"
-                name="customProductPriceMultiplier"
-                label="Price Multiplier"
-                onBlur={formikCustomized.handleBlur}
-                onChange={(e) =>
-                  handlePositivePriceChange(e, 'customProductPriceMultiplier', formikCustomized)
-                }
-                onClick={handleInputClick}
-                onWheel={handleWheel}
-                value={formikCustomized.values.customProductPriceMultiplier}
-                error={
-                  !!formikCustomized.touched.customProductPriceMultiplier &&
-                  !!formikCustomized.errors.customProductPriceMultiplier
-                }
-                helperText={
-                  formikCustomized.touched.customProductPriceMultiplier &&
-                  formikCustomized.errors.customProductPriceMultiplier
-                }
-                fullWidth
-              />
-              <TextField
-                type="number"
-                name="sideDiamondPricePerCarat"
-                label="Side Diamond Price (Per Carat)"
-                onBlur={formikCustomized.handleBlur}
-                onChange={(e) =>
-                  handlePositivePriceChange(e, 'sideDiamondPricePerCarat', formikCustomized)
-                }
-                onClick={handleInputClick}
-                onWheel={handleWheel}
-                value={formikCustomized.values.sideDiamondPricePerCarat}
-                error={
-                  !!formikCustomized.touched.sideDiamondPricePerCarat &&
-                  !!formikCustomized.errors.sideDiamondPricePerCarat
-                }
-                helperText={
-                  formikCustomized.touched.sideDiamondPricePerCarat &&
-                  formikCustomized.errors.sideDiamondPricePerCarat
-                }
-                fullWidth
-              />
-              <TextField
-                type="number"
-                name="metalPricePerGram"
-                label="Metal Price (Per Gram)"
-                onBlur={formikCustomized.handleBlur}
-                onChange={(e) =>
-                  handlePositivePriceChange(e, 'metalPricePerGram', formikCustomized)
-                }
-                onClick={handleInputClick}
-                onWheel={handleWheel}
-                value={formikCustomized.values.metalPricePerGram}
-                error={
-                  !!formikCustomized.touched.metalPricePerGram &&
-                  !!formikCustomized.errors.metalPricePerGram
-                }
-                helperText={
-                  formikCustomized.touched.metalPricePerGram &&
-                  formikCustomized.errors.metalPricePerGram
-                }
-                fullWidth
-              />
+        {/* Customized Settings Form */}
+        <Box component="form" onSubmit={formikCustomized.handleSubmit}>
+          <Stack sx={{ mb: 2 }} direction="row" alignItems="center" justifyContent="space-between">
+            <Typography variant="h6">Customized Settings</Typography>
+            <LoadingButton
+              type="submit"
+              size="medium"
+              variant="contained"
+              loading={customizedLoading}
+              disabled={customizedLoading || formikCustomized.isSubmitting}
+            >
+              Save
+            </LoadingButton>
+          </Stack>
+          {customizedError && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {customizedError}
+            </Alert>
+          )}
+          <Stack spacing={3}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} display="flex" flexDirection="column" gap={5}>
+                <Typography variant="subtitle1">Pricing Details</Typography>
+                <TextField
+                  type="number"
+                  name="customProductPriceMultiplier"
+                  label="Price Multiplier"
+                  onBlur={formikCustomized.handleBlur}
+                  onChange={(e) =>
+                    handlePositivePriceChange(e, 'customProductPriceMultiplier', formikCustomized)
+                  }
+                  onClick={handleInputClick}
+                  onWheel={handleWheel}
+                  value={formikCustomized.values.customProductPriceMultiplier}
+                  error={
+                    !!formikCustomized.touched.customProductPriceMultiplier &&
+                    !!formikCustomized.errors.customProductPriceMultiplier
+                  }
+                  helperText={
+                    formikCustomized.touched.customProductPriceMultiplier &&
+                    formikCustomized.errors.customProductPriceMultiplier
+                  }
+                  fullWidth
+                />
+                <TextField
+                  type="number"
+                  name="sideDiamondPricePerCarat"
+                  label="Side Diamond Price (Per Carat)"
+                  onBlur={formikCustomized.handleBlur}
+                  onChange={(e) =>
+                    handlePositivePriceChange(e, 'sideDiamondPricePerCarat', formikCustomized)
+                  }
+                  onClick={handleInputClick}
+                  onWheel={handleWheel}
+                  value={formikCustomized.values.sideDiamondPricePerCarat}
+                  error={
+                    !!formikCustomized.touched.sideDiamondPricePerCarat &&
+                    !!formikCustomized.errors.sideDiamondPricePerCarat
+                  }
+                  helperText={
+                    formikCustomized.touched.sideDiamondPricePerCarat &&
+                    formikCustomized.errors.sideDiamondPricePerCarat
+                  }
+                  fullWidth
+                />
+                <TextField
+                  type="number"
+                  name="metalPricePerGram"
+                  label="Metal Price (Per Gram)"
+                  onBlur={formikCustomized.handleBlur}
+                  onChange={(e) =>
+                    handlePositivePriceChange(e, 'metalPricePerGram', formikCustomized)
+                  }
+                  onClick={handleInputClick}
+                  onWheel={handleWheel}
+                  value={formikCustomized.values.metalPricePerGram}
+                  error={
+                    !!formikCustomized.touched.metalPricePerGram &&
+                    !!formikCustomized.errors.metalPricePerGram
+                  }
+                  helperText={
+                    formikCustomized.touched.metalPricePerGram &&
+                    formikCustomized.errors.metalPricePerGram
+                  }
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                {renderTable('caratRanges', 'Carat Ranges', [], 'caratRanges')}
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={6}>
-              {renderTable('caratRanges', 'Carat Ranges', [], 'caratRanges')}
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
+                {renderTable(
+                  'diamondColors',
+                  'Diamond Colors',
+                  ALLOWED_DIA_COLORS,
+                  'Diamond Color'
+                )}
+              </Grid>
+              <Grid item xs={12} md={6}>
+                {renderTable(
+                  'diamondClarities',
+                  'Diamond Clarities',
+                  ALLOWED_DIA_CLARITIES,
+                  'Diamond Clarity'
+                )}
+              </Grid>
             </Grid>
-          </Grid>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              {renderTable('diamondColors', 'Diamond Colors', ALLOWED_DIA_COLORS, 'Diamond Color')}
-            </Grid>
-            <Grid item xs={12} md={6}>
-              {renderTable(
-                'diamondClarities',
-                'Diamond Clarities',
-                ALLOWED_DIA_CLARITIES,
-                'Diamond Clarity'
-              )}
-            </Grid>
-          </Grid>
-        </Stack>
-      </Box>
-    </Container>
+          </Stack>
+        </Box>
+      </Container>
+
+      <Backdrop
+        sx={{
+          color: '#fff',
+          zIndex: (theme) => theme.zIndex.modal + 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        open={addUpdateNonCustomizedLoading}
+      >
+        <CircularProgress color="inherit" />
+        <Typography variant="h5" sx={{ mt: 2, fontWeight: 'bold' }}>
+          Updating Product Prices...
+        </Typography>
+        <Typography variant="body1" sx={{ mt: 1, textAlign: 'center', maxWidth: 400 }}>
+          Product price updates are in progress. Leaving the page may interrupt the process. Please
+          wait until the process is complete.
+        </Typography>
+      </Backdrop>
+
+      <Dialog
+        open={openNavigationConfirmDialog}
+        onClose={handleCancelNavigation}
+        aria-labelledby="navigation-confirm-dialog-title"
+        aria-describedby="navigation-confirm-dialog-description"
+        sx={{ zIndex: (theme) => theme.zIndex.modal + 2 }}
+      >
+        <DialogTitle id="navigation-confirm-dialog-title">Confirm Navigation</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="navigation-confirm-dialog-description">
+            Product price updates are in progress. Navigating away may interrupt the process.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="contained" onClick={handleCancelNavigation}>
+            Cancel
+          </Button>
+          {/* <Button variant="contained" onClick={handleConfirmNavigation}>
+            Leave
+          </Button> */}
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 

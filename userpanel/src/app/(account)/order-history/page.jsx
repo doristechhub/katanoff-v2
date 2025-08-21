@@ -150,7 +150,7 @@ export default function OrderHistoryPage() {
 
   const renderTableHeading = () => {
     return (
-      <thead className="text-xs lg:text-sm text-basegray uppercase bg-[#00000005]">
+      <thead className="text-xs lg:text-sm text-basegray capitalize bg-[#0000000D] dark:text-gray-400">
         <tr>
           <th scope="col" className="px-6 py-3.5">
             Order Date
@@ -186,10 +186,10 @@ export default function OrderHistoryPage() {
           titleClassName="!text-[26px] md:!text-3xl"
         />
       </div>
-      <div className="container my-10 relative overflow-x-auto pb-4">
+      <div className="container mt-10">
         {orderLoading ? (
           <div className={`w-full h-[300px] animate-pulse`}>
-            <table className="w-full text-sm text-left rtl:text-right">
+            <table className="w-full text-sm text-left rtl:text-right shadow-[0px_0px_12px_0px_#0000001A]">
               {renderTableHeading()}
 
               <tbody>
@@ -212,49 +212,51 @@ export default function OrderHistoryPage() {
             </table>
           </div>
         ) : paginatedOrder?.length > 0 ? (
-          <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 shadow-lg">
-            {renderTableHeading()}
-            <tbody>
-              {paginatedOrder?.map((order, index) => (
-                <tr
-                  key={`order-${index}`}
-                  className="bg-white border-b border-gray-200 text-baseblack"
-                >
-                  <th
-                    scope="row"
-                    className="px-6 py-4 font-medium whitespace-nowrap"
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 shadow-lg">
+              {renderTableHeading()}
+              <tbody>
+                {paginatedOrder?.map((order, index) => (
+                  <tr
+                    key={`order-${index}`}
+                    className="bg-white border-b border-gray-200 text-baseblack font-medium"
                   >
-                    {order?.createdDate
-                      ? moment(order?.createdDate).format("DD-MM-YYYY")
-                      : null}
-                  </th>
-                  <td className="px-6 py-4">{order?.orderNumber}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    $ {helperFunctions?.toFixedNumber(order?.total)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {helperFunctions?.capitalizeCamelCase(order?.orderStatus)}
-                  </td>
-
-                  <td className="px-3 py-4">
-                    <button
-                      {...getReferenceProps()}
-                      onClick={(e) => handleActionClick(order.id, e)}
-                      className="p-2 rounded"
-                      aria-haspopup="true"
-                      title="More Actions"
+                    <th
+                      scope="row"
+                      className="px-6 py-2.5 font-medium whitespace-nowrap"
                     >
-                      <CustomImg
-                        srcAttr={threeDots}
-                        altAttr="More"
-                        className="w-4 h-4"
-                      />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      {order?.createdDate
+                        ? moment(order?.createdDate).format("DD-MM-YYYY")
+                        : null}
+                    </th>
+                    <td className="px-6 py-2.5">{order?.orderNumber}</td>
+                    <td className="px-6 py-2.5 whitespace-nowrap">
+                      $ {helperFunctions?.toFixedNumber(order?.total)}
+                    </td>
+                    <td className="px-6 py-2.5 whitespace-nowrap">
+                      {helperFunctions?.capitalizeCamelCase(order?.orderStatus)}
+                    </td>
+
+                    <td className="px-3 py-2.5">
+                      <button
+                        {...getReferenceProps()}
+                        onClick={(e) => handleActionClick(order.id, e)}
+                        className="p-2 rounded"
+                        aria-haspopup="true"
+                        title="More Actions"
+                      >
+                        <CustomImg
+                          srcAttr={threeDots}
+                          altAttr="More"
+                          className="w-6 h-6"
+                        />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
           <CommonNotFound
             message="Sorry, No order Found"
@@ -265,9 +267,12 @@ export default function OrderHistoryPage() {
         {openId !== null && (
           <div
             ref={refs.setFloating}
-            style={floatingStyles}
+            style={{
+              ...floatingStyles,
+              boxShadow: "0px 0px 12px 0px #0000001A",
+            }}
             {...getFloatingProps()}
-            className="z-40 py-2 w-48 bg-[#FAFAF8] filter drop-shadow-lg"
+            className="z-40 py-2 min-w-44 w-fit bg-[#FAFAF8] rounded-lg"
           >
             <button
               className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4"
@@ -291,7 +296,7 @@ export default function OrderHistoryPage() {
                   ) &&
                     currentOrder?.paymentStatus === "success" && (
                       <button
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray"
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 text-[#DC3545] flex items-center gap-4 text-base"
                         onClick={() => {
                           dispatch(setShowModal(true));
                           dispatch(setSelectedOrder(openId));
@@ -334,7 +339,13 @@ export default function OrderHistoryPage() {
                     </div>
                   ) : (
                     <>
-                      <div className={`w-full text-left hover:bg-gray-100 flex gap-4 text-base text-basegray   ${invoiceLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100"}`}>
+                      <div
+                        className={`w-full text-left hover:bg-gray-100 flex gap-4 text-base text-basegray   ${
+                          invoiceLoading
+                            ? "opacity-50 cursor-not-allowed"
+                            : "hover:bg-gray-100"
+                        }`}
+                      >
                         <DownloadInvoice
                           orderId={openId}
                           onSuccess={() => setOpenId(null)}

@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useCallback, useEffect, useState } from 'react';
 
-import { Card } from '@mui/material';
+import { Card, CircularProgress, Backdrop, Typography } from '@mui/material';
 import Container from '@mui/material/Container';
 import { TabContext, TabPanel } from '@mui/lab';
 
@@ -10,12 +10,15 @@ import { Tab, TabList } from 'src/components/tabs/tabs';
 
 import CustomizationType from './customization-type';
 import CustomizationSubType from './customization-subtype';
+import { useSelector } from 'react-redux';
 
 const Customization = () => {
   const pathname = usePathname();
   const navigate = useNavigate();
 
   const [value, setValue] = useState('1');
+
+  const { crudCustomizationSubTypeLoading } = useSelector(({ customization }) => customization);
 
   const handleChange = useCallback((e, val) => {
     setValue(val);
@@ -32,29 +35,51 @@ const Customization = () => {
   }, [pathname]);
 
   return (
-    <Container>
-      <Card>
-        <TabContext value={value}>
-          <TabList
-            variant="scrollable"
-            scrollButtons="auto"
-            sx={{ px: 2, py: 1 }}
-            onChange={handleChange}
-            aria-label="Customization"
-            allowScrollButtonsMobile
-          >
-            <Tab label="Customization Type" value="1" />
-            <Tab label="Customization SubType" value="2" />
-          </TabList>
-          <TabPanel value="1" sx={{ p: 0 }}>
-            <CustomizationType />
-          </TabPanel>
-          <TabPanel value="2" sx={{ p: 0 }}>
-            <CustomizationSubType />
-          </TabPanel>
-        </TabContext>
-      </Card>
-    </Container>
+    <>
+      <Container>
+        <Card>
+          <TabContext value={value}>
+            <TabList
+              variant="scrollable"
+              scrollButtons="auto"
+              sx={{ px: 2, py: 1 }}
+              onChange={handleChange}
+              aria-label="Customization"
+              allowScrollButtonsMobile
+            >
+              <Tab label="Customization Type" value="1" />
+              <Tab label="Customization SubType" value="2" />
+            </TabList>
+            <TabPanel value="1" sx={{ p: 0 }}>
+              <CustomizationType />
+            </TabPanel>
+            <TabPanel value="2" sx={{ p: 0 }}>
+              <CustomizationSubType />
+            </TabPanel>
+          </TabContext>
+        </Card>
+      </Container>
+      <Backdrop
+        sx={{
+          color: '#fff',
+          zIndex: (theme) => theme.zIndex.modal + 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        open={crudCustomizationSubTypeLoading}
+      >
+        <CircularProgress color="inherit" />
+        <Typography variant="h5" sx={{ mt: 2, fontWeight: 'bold' }}>
+          Processing Customization Subtype...
+        </Typography>
+        <Typography variant="body1" sx={{ mt: 1, textAlign: 'center', maxWidth: 400 }}>
+          Customization subtype operation is in progress. Leaving the page may interrupt the
+          process. Please wait until the process is complete.
+        </Typography>
+      </Backdrop>
+    </>
   );
 };
 

@@ -2897,66 +2897,73 @@ const processBulkProductsWithApi = async () => {
  * - Logs errors for invalid inputs or failed subtype fetch.
  */
 const updateSingleProductPrice = async ({ product, priceMultiplier, allSubTypes = [] }) => {
-  // Validate input parameters
-  if (
-    !product ||
-    !Number.isFinite(priceMultiplier) ||
-    priceMultiplier <= 0 ||
-    !Array.isArray(product.variComboWithQuantity) ||
-    !product.variComboWithQuantity.length
-  ) {
-    console.error(
-      "Invalid inputs: 'product' must have valid 'variComboWithQuantity', 'priceMultiplier' must be a positive number."
-    );
-    return product;
-  }
-
-  // Return unchanged product if price calculation mode is not automatic
-  if (product.priceCalculationMode !== 'automatic') {
-    console.log('Price calculation mode is not automatic, returning unchanged product.');
-    return product;
-  }
-
-  // Fetch subtypes if not provided
-  let subTypes = allSubTypes;
-  if (!subTypes.length) {
-    try {
-      subTypes = await customizationSubTypeService.getAllSubTypes();
-    } catch (error) {
-      throw new Error(`Failed to fetch subtypes: ${error.message}`);
+  try {
+    // Validate input parameters
+    if (
+      !product ||
+      !Number.isFinite(priceMultiplier) ||
+      priceMultiplier <= 0 ||
+      !Array.isArray(product.variComboWithQuantity) ||
+      !product.variComboWithQuantity.length
+    ) {
+      throw new Error(
+        "Invalid inputs: 'product' must have valid 'variComboWithQuantity', 'priceMultiplier' must be a positive number."
+      );
+      // console.error(
+      //   "Invalid inputs: 'product' must have valid 'variComboWithQuantity', 'priceMultiplier' must be a positive number."
+      // );
+      // return product;
     }
+
+    // Return unchanged product if price calculation mode is not automatic
+    if (product.priceCalculationMode !== 'automatic') {
+      console.log('Price calculation mode is not automatic, returning unchanged product.');
+      return product;
+    }
+
+    // Fetch subtypes if not provided
+    let subTypes = allSubTypes;
+    if (!subTypes.length) {
+      try {
+        subTypes = await customizationSubTypeService.getAllSubTypes();
+      } catch (error) {
+        throw new Error(`Failed to fetch subtypes: ${error.message}`);
+      }
+    }
+
+    // Update variation combinations with new prices and units
+    const updatedVariCombos = product.variComboWithQuantity.map((combo) => {
+      const updatedVariations = combo.combination.map((variation) => {
+        const matchedSubType = subTypes.find((subType) => subType.id === variation.variationTypeId);
+        return {
+          ...variation,
+          price: matchedSubType?.price ?? 0,
+          unit: matchedSubType?.unit ?? '',
+        };
+      });
+
+      // Calculate updated price for the combination
+      const updatedPrice = helperFunctions.calculateNonCustomizedProductPrice({
+        grossWeight: product.grossWeight || 0,
+        totalCaratWeight: product.totalCaratWeight || 0,
+        variations: updatedVariations,
+        priceMultiplier,
+      });
+
+      return { ...combo, price: updatedPrice, combination: updatedVariations };
+    });
+
+    // Update product in the database
+    await fetchWrapperService._update({
+      url: `${productsUrl}/${product.id}`,
+      payload: { variComboWithQuantity: updatedVariCombos },
+    });
+
+    // Return updated product
+    return { ...product, variComboWithQuantity: updatedVariCombos };
+  } catch (error) {
+    throw new Error(error?.message);
   }
-
-  // Update variation combinations with new prices and units
-  const updatedVariCombos = product.variComboWithQuantity.map((combo) => {
-    const updatedVariations = combo.combination.map((variation) => {
-      const matchedSubType = subTypes.find((subType) => subType.id === variation.variationTypeId);
-      return {
-        ...variation,
-        price: matchedSubType?.price ?? 0,
-        unit: matchedSubType?.unit ?? '',
-      };
-    });
-
-    // Calculate updated price for the combination
-    const updatedPrice = helperFunctions.calculateNonCustomizedProductPrice({
-      grossWeight: product.grossWeight || 0,
-      totalCaratWeight: product.totalCaratWeight || 0,
-      variations: updatedVariations,
-      priceMultiplier,
-    });
-
-    return { ...combo, price: updatedPrice, combination: updatedVariations };
-  });
-
-  // Update product in the database
-  await fetchWrapperService._update({
-    url: `${productsUrl}/${product.id}`,
-    payload: { variComboWithQuantity: updatedVariCombos },
-  });
-
-  // Return updated product
-  return { ...product, variComboWithQuantity: updatedVariCombos };
 };
 
 export const productService = {

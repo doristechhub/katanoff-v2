@@ -1,6 +1,5 @@
 import { ReturnHistoryPage } from "@/components/dynamiComponents";
 import CommonBgHeading from "@/components/ui/CommonBgHeading";
-import React from "react";
 
 const ReturnHistory = () => {
   return (

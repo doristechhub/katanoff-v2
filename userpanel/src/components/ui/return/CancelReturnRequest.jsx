@@ -1,5 +1,4 @@
 import { setShowModal } from "@/store/slices/commonSlice";
-import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RxCross2 } from "react-icons/rx";
 import CancelReturnRequestModel from "./CancelReturnRequestModel";
@@ -13,13 +12,13 @@ export default function CancelReturnRequest({ returnId }) {
     dispatch(setReturnOrder(returnId));
   };
   return (
-    <>
+    <div className="h-6 w-6 flex items-center justify-center bg-[#DC3545] rounded-full cursor-pointer">
       <RxCross2
-        title="Cancel Order"
-        className={`cursor-pointer text-xl !text-[#DC3545]`}
+        title="Cancel Return Request"
+        className={`text-lg !text-white`}
         onClick={() => openCancelOrderModal(returnId)}
       />
       {showModal ? <CancelReturnRequestModel /> : null}
-    </>
+    </div>
   );
 }

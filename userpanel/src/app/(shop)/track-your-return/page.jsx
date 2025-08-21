@@ -40,7 +40,7 @@ const ReturnAccordion = ({
   }
 
   return (
-    <div className="border !bg-none border-gray-200 mb-4 rounded-lg">
+    <div className="border !bg-none border-gray-200 mb-4 rounded-md">
       <div
         className={`flex justify-between items-center  p-4 cursor-pointer hover:bg-gray-200 transition-colors ${
           isExpanded ? "border-b  border-gray-200" : ""
@@ -52,17 +52,17 @@ const ReturnAccordion = ({
         aria-expanded={isExpanded}
         aria-controls={`return-panel-${returnItem?.id}`}
       >
-        <div className="flex gap-6">
-          <span className="text-sm font-semibold">
-            {helperFunctions?.formatDate(returnItem?.createdDate)}
-          </span>
+        <div className="flex gap-4">
           <span className="text-sm font-semibold hidden sm:block">
             Order Number:- {returnItem?.orderNumber}
           </span>
-        </div>
-        <div className="flex items-center space-x-2">
           <span className={`text-sm font-semibold ${colorClass}`}>
             {helperFunctions?.capitalizeCamelCase(returnItem?.status)}
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-semibold">
+            {helperFunctions?.formatDate(returnItem?.createdDate)}
           </span>
           <CustomImg
             srcAttr={returnArrow}
@@ -79,16 +79,14 @@ const ReturnAccordion = ({
       {isExpanded && (
         <div
           id={`return-panel-${returnItem?.id}`}
-          className="bg-offwhite w-full"
+          className="bg-offwhite w-full rounded-md"
         >
           {returnItem ? (
-            <div className="">
-              <ReturnDetails
-                returnLoading={returnLoading}
-                returnDetail={returnItem}
-                isShadow={false}
-              />
-            </div>
+            <ReturnDetails
+              returnLoading={returnLoading}
+              returnDetail={returnItem}
+              showShadow={false}
+            />
           ) : (
             <CommonNotFound message="Return Not Found!" />
           )}

@@ -690,7 +690,7 @@ export default function ProductFilter({
     dispatch(
       setSelectedSortByValue(
         sortBy
-          ? helperFunctions?.stringReplacedWithSpace(decodeURIComponent(sortBy))
+          ? helperFunctions?.stringReplacedWithUnderScore(sortBy)
           : "date_new_to_old" // or set a default sort value like "alphabetically_a_to_z"
       )
     );

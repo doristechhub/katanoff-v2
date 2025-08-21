@@ -19,7 +19,7 @@ export default function StartWithSettingPage() {
   } = useSelector(({ product }) => product);
   const router = useRouter();
   const dispatch = useDispatch();
-  
+
   const currentStep = 2;
   const customProduct = helperFunctions?.getCustomProduct();
   const pId = customProduct?.productId;

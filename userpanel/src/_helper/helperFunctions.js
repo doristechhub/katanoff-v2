@@ -7,6 +7,7 @@ import {
   LENGTH,
   SIX,
   SIX_WITH_DECIMAL,
+  allowedVariationListForThreeSteps,
 } from "./constants";
 
 const generateUniqueId = () => {
@@ -111,6 +112,19 @@ const areArraysEqual = (arr1, arr2) => {
     )
   );
 };
+
+const addNamesToVariationsArray = (variations, customizations) =>
+  variations.map((v) => {
+    const variationMatch = customizations?.customizationType?.find((x) => x?.id === v?.variationId);
+    const variationTypeMatch = customizations?.customizationSubType?.find((x) => x?.id === v?.variationTypeId);
+
+    return {
+      ...v,
+      ...(variationMatch?.title ? { variationName: variationMatch.title } : {}),
+      ...(variationTypeMatch?.title ? { variationTypeName: variationTypeMatch.title } : {}),
+    };
+  });
+
 
 const areDiamondDetailsEqual = (d1, d2) => {
   if (!d1 && !d2) return true; // both undefined/null
@@ -228,16 +242,24 @@ const getStatusColor = (status) => {
   const grayFilter =
     "invert(35%) sepia(6%) saturate(336%) hue-rotate(174deg) brightness(95%) contrast(90%)";
   switch (status?.toLowerCase()) {
+    case "pending":
+      return {
+        colorClass: "text-gray-600",
+        // filter:
+        //   "invert(35%) sepia(85%) saturate(2000%) hue-rotate(190deg) brightness(95%) contrast(90%)",
+        filter: grayFilter,
+      };
+    case "cancelled":
     case "rejected":
       return {
-        colorClass: "text-red-600",
+        colorClass: "text-[#d15555]",
         // filter:
         //   "invert(42%) sepia(93%) saturate(1352%) hue-rotate(340deg) brightness(95%) contrast(90%)",
         filter: grayFilter,
       };
     case "approved":
       return {
-        colorClass: "text-green-600",
+        colorClass: "text-[#49a932]",
         // filter:
         //   "invert(35%) sepia(85%) saturate(1350%) hue-rotate(85deg) brightness(95%) contrast(90%)",
         filter: grayFilter,
@@ -257,6 +279,7 @@ const getStatusColor = (status) => {
       };
   }
 };
+
 const getLightShadeOfColor = (hexCode) => {
   // Function to calculate light shade
   const calculateLightShade = (hex, percent) => {
@@ -921,6 +944,100 @@ const getDefaultVariationsForNonCustomizedProducts = (
   return initialSelections;
 };
 
+const getDefaultVariationsForCustomizedProducts = (
+  { productData,
+    preferredGoldColor }
+) => {
+  if (!productData) return [];
+
+  const variations =
+    productData?.variations?.filter((v) =>
+      allowedVariationListForThreeSteps?.includes(v?.variationName)
+    ) || [];
+
+  let selectedGoldColor = null;
+  let selectedRingSize = null;
+
+  const goldColorVariation = variations.find(
+    (v) => v?.variationName?.toLowerCase() === GOLD_COLOR.toLowerCase()
+  );
+
+  if (goldColorVariation?.variationTypes?.length) {
+    if (preferredGoldColor) {
+      const matchingGoldType = goldColorVariation.variationTypes.find(
+        (vt) =>
+          vt.variationTypeName?.toLowerCase() ===
+          preferredGoldColor.toLowerCase()
+      );
+      if (matchingGoldType) {
+        selectedGoldColor = {
+          variationId: goldColorVariation.variationId,
+          variationTypeId: matchingGoldType.variationTypeId,
+          variationName: goldColorVariation.variationName,
+          variationTypeName: matchingGoldType.variationTypeName,
+        };
+      }
+    }
+    // If no match but variation exists → default first type
+    if (!selectedGoldColor) {
+      selectedGoldColor = {
+        variationId: goldColorVariation.variationId,
+        variationTypeId: goldColorVariation.variationTypes[0]?.variationTypeId,
+        variationName: goldColorVariation.variationName,
+        variationTypeName:
+          goldColorVariation.variationTypes[0]?.variationTypeName,
+      };
+    }
+  }
+
+  // RING SIZE selection
+  const ringSizeVariation = variations.find(
+    (v) => v?.variationName?.toLowerCase() === RING_SIZE.toLowerCase()
+  );
+
+  if (ringSizeVariation?.variationTypes?.length) {
+    const matchingRingType =
+      ringSizeVariation.variationTypes.find((vt) => {
+        const value = vt?.variationTypeName?.toLowerCase();
+        return value === SIX || value === SIX_WITH_DECIMAL;
+      }) || ringSizeVariation.variationTypes[0];
+
+    selectedRingSize = {
+      variationId: ringSizeVariation.variationId,
+      variationTypeId: matchingRingType?.variationTypeId,
+      variationName: ringSizeVariation.variationName,
+      variationTypeName: matchingRingType?.variationTypeName,
+    };
+  }
+  // Final selections — preserve order from variations array
+  const initialSelections = variations.map((variation) => {
+    // If already selected from above logic → use that
+    if (
+      variation?.variationName?.toLowerCase() === GOLD_COLOR.toLowerCase() &&
+      selectedGoldColor
+    ) {
+      return selectedGoldColor;
+    }
+    if (
+      variation?.variationName?.toLowerCase() === RING_SIZE.toLowerCase() &&
+      selectedRingSize
+    ) {
+      return selectedRingSize;
+    }
+
+    // Default: first variation type
+    return {
+      variationId: variation?.variationId,
+      variationTypeId: variation?.variationTypes?.[0]?.variationTypeId,
+      variationName: variation?.variationName,
+      variationTypeName: variation?.variationTypes?.[0]?.variationTypeName,
+    };
+  });
+
+  return initialSelections;
+};
+
+
 const formatDimension = ({ value, unit, variationValue }) => {
   if (variationValue) {
     return `${variationValue} inch`;
@@ -936,6 +1053,21 @@ const formatDimension = ({ value, unit, variationValue }) => {
 
   return `${value} ${unit || "mm"}`;
 };
+
+const generateCaratValues = ({ minCarat, maxCarat, step = 0.5 }) => {
+  const values = [];
+
+  let current = parseFloat(minCarat.toFixed(2));
+  values.push(current);
+  const next = Math.ceil((current + 0.0001) / step) * step;
+
+  for (let carat = next; carat <= maxCarat; carat += step) {
+    values.push(parseFloat(carat.toFixed(2)));
+  }
+
+  return values;
+};
+
 
 export const helperFunctions = {
   debounce,
@@ -985,5 +1117,8 @@ export const helperFunctions = {
   formatProductNameWithCarat,
   roundOffPrice,
   getDefaultVariationsForNonCustomizedProducts,
+  getDefaultVariationsForCustomizedProducts,
   formatDimension,
+  addNamesToVariationsArray,
+  generateCaratValues
 };

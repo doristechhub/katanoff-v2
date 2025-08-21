@@ -156,7 +156,7 @@ const CheckoutCommonComponent = () => {
                     <div className="flex-1 w-full">
                       <p className="text-base font-semibold">
                         {helperFunctions?.formatProductNameWithCarat({
-                          caratWeight: cartItem?.totalCaratWeight,
+                          caratWeight: cartItem?.diamondDetail ? cartItem?.diamondDetail?.caratWeight : cartItem?.totalCaratWeight,
                           productName: cartItem?.productName,
                         })}
                       </p>
@@ -189,7 +189,7 @@ const CheckoutCommonComponent = () => {
                         $
                         {cartItem?.productSellingPrice?.toLocaleString("en-US")}
                         {` × ${cartItem?.quantity}`}
-                        {cartItem?.productDiscountPerc ? (
+                        {cartItem?.productDiscountPerc && !cartItem?.diamondDetail ? (
                           <span className="text-xs xs:text-sm text-basegray line-through ml-2 font-normal">
                             $
                             {cartItem?.productBasePrice?.toLocaleString(
@@ -295,7 +295,7 @@ const CheckoutCommonComponent = () => {
                     <div className="flex-1 w-full">
                       <p className="text-base font-semibold">
                         {helperFunctions?.formatProductNameWithCarat({
-                          caratWeight: cartItem?.totalCaratWeight,
+                          caratWeight: cartItem?.diamondDetail ? cartItem?.diamondDetail?.caratWeight : cartItem?.totalCaratWeight,
                           productName: cartItem?.productName,
                         })}
                       </p>

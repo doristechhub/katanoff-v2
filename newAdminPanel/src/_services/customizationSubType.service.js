@@ -182,10 +182,12 @@ const updateCustomizationSubType = (params) => {
         deletedImage,
         unit,
         price,
+        failedProductUpdates,
       } = sanitizeObject(params);
       title = title?.trim() ?? null;
       type = type?.trim() ?? null;
       unit = unit?.trim() ?? null;
+      failedProductUpdates = Array.isArray(failedProductUpdates) ? failedProductUpdates : [];
       price =
         !isNaN(price) && price !== '' && price !== null
           ? Math.round(parseFloat(price) * 100) / 100
@@ -209,7 +211,8 @@ const updateCustomizationSubType = (params) => {
         (customizationTypeId &&
           customizationSubTypeData.customizationTypeId !== customizationTypeId) ||
         Number(customizationSubTypeData?.price || 0) !== price ||
-        customizationSubTypeData?.unit !== unit
+        customizationSubTypeData?.unit !== unit ||
+        failedProductUpdates?.length
       ) {
         products = await productService.getAllProductsWithPagging();
         if (
@@ -236,7 +239,7 @@ const updateCustomizationSubType = (params) => {
         (subType) =>
           subType.title?.toLowerCase() === title.toLowerCase() &&
           subType.customizationTypeId ===
-          (customizationTypeId || customizationSubTypeData.customizationTypeId) &&
+            (customizationTypeId || customizationSubTypeData.customizationTypeId) &&
           subType.id !== customizationSubTypeId
       );
 
@@ -272,9 +275,14 @@ const updateCustomizationSubType = (params) => {
       imageFile = typeof imageFile === 'object' ? [imageFile] : [];
       deletedImage = deletedImage?.trim() ?? null;
 
-      if (type === 'image' && !deletedImage && !imageFile.length) {
-        reject(new Error('Image not found'));
-        return;
+      if (type === 'image') {
+        if (
+          (!imageFile.length && deletedImage) ||
+          (!imageFile.length && !deletedImage && !customizationSubTypeData?.image)
+        ) {
+          reject(new Error('Image not found'));
+          return;
+        }
       }
 
       let uploadedImage = '';
@@ -330,17 +338,20 @@ const updateCustomizationSubType = (params) => {
 
       await fetchWrapperService._update(updatePattern);
 
-      let productsUpdated = true;
+      let failedProducts = [];
 
       if (
         Number(customizationSubTypeData?.price || 0) !== price ||
-        customizationSubTypeData?.unit !== unit
+        customizationSubTypeData?.unit !== unit ||
+        failedProductUpdates?.length
       ) {
         try {
           const priceMultiplier = await settingsService.fetchPriceMultiplier();
           const affectedProducts = products.filter((product) =>
             product.variComboWithQuantity?.some((combo) =>
-              combo.combination?.some((variation) => variation.variationTypeId === customizationSubTypeId)
+              combo.combination?.some(
+                (variation) => variation.variationTypeId === customizationSubTypeId
+              )
             )
           );
 
@@ -348,21 +359,26 @@ const updateCustomizationSubType = (params) => {
           for (let i = 0; i < affectedProducts.length; i += BATCH_SIZE) {
             const batch = affectedProducts.slice(i, i + BATCH_SIZE);
             await Promise.all(
-              batch.map((product) =>
-                productService.updateSingleProductPrice({
-                  product,
-                  priceMultiplier,
-                  allSubTypes: allSubTypes.map((subType) =>
-                    subType.id === customizationSubTypeId ? { ...subType, price, unit } : subType
-                  ),
-                })
-              )
+              batch.map(async (product) => {
+                try {
+                  await productService.updateSingleProductPrice({
+                    product,
+                    priceMultiplier,
+                    allSubTypes: allSubTypes.map((subType) =>
+                      subType.id === customizationSubTypeId ? { ...subType, price, unit } : subType
+                    ),
+                  });
+                } catch (e) {
+                  console.error(`Failed to update product ${product?.sku}: ${e?.message}`);
+                  failedProducts.push(product?.sku);
+                }
+              })
             );
           }
-
+          resolve({ success: true, failedProducts });
         } catch (e) {
           console.error('Batch update failed', e);
-          productsUpdated = false;
+          resolve({ success: true, failedProducts });
         }
       }
 
@@ -372,8 +388,7 @@ const updateCustomizationSubType = (params) => {
       if (oldImage) {
         await deleteFile(customizationSubTypeUrl, oldImage);
       }
-      resolve({ success: true, productsUpdated });
-
+      resolve({ success: true, failedProducts });
     } catch (e) {
       // whenever an error occurs for updating a customization sub type image the uploaded file is deleted
       if (uploadedImage) {

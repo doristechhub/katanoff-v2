@@ -30,6 +30,7 @@ const {
   DISCOUNT_TYPES,
   NEW_YORK,
   NEW_YORK_CODE,
+  isValidVariationsArray,
 } = require("../helpers/common");
 dotenv.config();
 
@@ -368,7 +369,7 @@ const createOrder = async ({ payload, res, userData }) => {
       .map((item) => item.productId);
 
     // Fetch only the required products
-    const activeProductsList = await productService.getActiveProductsByIds(
+    const activeProductsList = await productService?.getActiveProductsByIds(
       productIds
     );
 
@@ -376,8 +377,7 @@ const createOrder = async ({ payload, res, userData }) => {
     const customizeProductSettingsData =
       (await customizeProductService?.getAll()) || {};
 
-    // Process cart items
-    // const allCustomizations = await productService.getAllCustomizations();
+    const allCustomizations = await productService?.getAllCustomizations();
 
     const availableCartItems = [];
 
@@ -403,15 +403,12 @@ const createOrder = async ({ payload, res, userData }) => {
       let isCustomized = !!diamondDetail;
 
       // Validate variations (ensure they exist in product.variations)
-      const isValidVariations = product?.variComboWithQuantity?.some((combo) =>
-        combo.combination.every((item) =>
-          variations?.some(
-            (selected) =>
-              selected?.variationId === item?.variationId &&
-              selected?.variationTypeId === item?.variationTypeId
-          )
-        )
-      );
+      const isValidVariations = isValidVariationsArray({
+        product,
+        selectedVariations: variations,
+        diamondDetail,
+        customizations: allCustomizations
+      });
 
       if (!isValidVariations) {
         continue; // Skip if variations are invalid

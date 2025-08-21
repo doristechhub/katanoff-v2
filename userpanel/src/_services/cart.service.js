@@ -10,11 +10,14 @@ import { productService } from "./product.service";
 import {
   GOLD_COLOR,
   GOLD_COLOR_MAP,
+  GOLD_TYPES,
+  LENGTH,
   MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT,
+  RING_SIZE,
 } from "@/_helper/constants";
 import { customizeService } from "./customize.service";
 
-const filterActiveCartItems = (cartData, activeProductIds, userData = null) => {
+const filterActiveCartItems = async ({ cartData, activeProductIds, userData = null, allActiveProductsData = [] }) => {
   if (!Array.isArray(cartData) || !Array.isArray(activeProductIds)) {
     console.warn(
       "Invalid cartData or activeProductIds, returning empty array."
@@ -22,8 +25,69 @@ const filterActiveCartItems = (cartData, activeProductIds, userData = null) => {
     return [];
   }
 
+  let updatedActiveProductIds = [...activeProductIds];
+  const customProductSettingsData = await customizeService?.fetchCustomizeProductSettings();
+
+  const filteredCartData = cartData.filter((cartItem) => {
+    if (!updatedActiveProductIds.includes(cartItem.productId)) {
+      return false;
+    }
+
+    const findedProduct = allActiveProductsData.find(
+      (product) => product && product.id === cartItem.productId
+    );
+
+    if (!findedProduct) {
+      updatedActiveProductIds = updatedActiveProductIds.filter((id) => id !== cartItem.productId);
+      return false;
+    }
+
+    const cartItemDiamondDetail = cartItem?.diamondDetail;
+
+    if (cartItemDiamondDetail && !findedProduct?.isDiamondFilter) {
+      updatedActiveProductIds = updatedActiveProductIds.filter((id) => id !== cartItem.productId);
+      return false;
+    }
+
+    if (cartItemDiamondDetail && findedProduct?.isDiamondFilter) {
+      const { caratWeight, clarity, color, shapeId } = cartItemDiamondDetail;
+      const { caratWeightRange, diamondShapeIds } = findedProduct?.diamondFilters || {};
+
+      if (
+        caratWeightRange &&
+        (caratWeight < caratWeightRange.min || caratWeight > caratWeightRange.max)
+      ) {
+        updatedActiveProductIds = updatedActiveProductIds?.filter((id) => id !== cartItem?.productId);
+        return false;
+      }
+
+      const clarityExists = customProductSettingsData?.diamondClarities?.some(
+        (clarityOption) => clarityOption?.compatibleOptions?.includes(clarity)
+      );
+      if (!clarityExists) {
+        updatedActiveProductIds = updatedActiveProductIds?.filter((id) => id !== cartItem?.productId);
+        return false;
+      }
+
+      const colorExists = customProductSettingsData?.diamondColors?.some(
+        (colorOption) => colorOption?.compatibleOptions?.includes(color)
+      );
+      if (!colorExists) {
+        updatedActiveProductIds = updatedActiveProductIds?.filter((id) => id !== cartItem?.productId);
+        return false;
+      }
+
+      if (shapeId && diamondShapeIds && !diamondShapeIds.includes(shapeId)) {
+        updatedActiveProductIds = updatedActiveProductIds?.filter((id) => id !== cartItem?.productId);
+        return false;
+      }
+
+    }
+    return true;
+  });
+
   const inactiveCartItems = cartData.filter(
-    (item) => !activeProductIds.includes(item.productId)
+    (item) => !updatedActiveProductIds.includes(item.productId)
   );
 
   if (userData && inactiveCartItems.length > 0) {
@@ -41,7 +105,7 @@ const filterActiveCartItems = (cartData, activeProductIds, userData = null) => {
   }
 
   // Filter and return only active cart items
-  return cartData.filter((item) => activeProductIds.includes(item.productId));
+  return filteredCartData;
 };
 
 const getAllCartWithProduct = () => {
@@ -68,7 +132,7 @@ const getAllCartWithProduct = () => {
         );
 
       const activeProductIds = allActiveProductsData?.map((p) => p?.id);
-      cartData = filterActiveCartItems(cartData, activeProductIds, userData);
+      cartData = await filterActiveCartItems({ cartData, activeProductIds, userData, allActiveProductsData });
 
       // Update localStorage for non-logged-in users
       if (!userData) {
@@ -148,11 +212,11 @@ const getAllCartWithProduct = () => {
 
           const diamondDetail = cartItem?.diamondDetail
             ? {
-                ...cartItem?.diamondDetail,
-                shapeName: findedProduct?.diamondFilters?.diamondShapes?.find(
-                  (shape) => shape?.id === cartItem?.diamondDetail?.shapeId
-                )?.title,
-              }
+              ...cartItem?.diamondDetail,
+              shapeName: findedProduct?.diamondFilters?.diamondShapes?.find(
+                (shape) => shape?.id === cartItem?.diamondDetail?.shapeId
+              )?.title,
+            }
             : null;
 
           const goldColor = variationArray
@@ -221,7 +285,7 @@ const insertProductIntoCart = (params) => {
       }
 
       // Validate variations
-      if (!isValidVariationsArray(productData.variations, variations)) {
+      if (!isValidVariationsArray({ productVariations: productData.variations, selectedVariations: variations, diamondDetail })) {
         reject(
           new Error(
             "Invalid variation or variation does not exist in this product"
@@ -294,7 +358,7 @@ const insertProductIntoCart = (params) => {
             return (
               cartItem?.diamondDetail?.shapeId === diamondDetail?.shapeId &&
               cartItem?.diamondDetail?.caratWeight ===
-                diamondDetail?.caratWeight &&
+              diamondDetail?.caratWeight &&
               cartItem?.diamondDetail?.clarity === diamondDetail?.clarity &&
               cartItem?.diamondDetail?.color === diamondDetail?.color
             );
@@ -399,7 +463,7 @@ const insertMultipleProductsIntoCart = (params) => {
         }
 
         // Validate variations
-        if (!isValidVariationsArray(productData.variations, variations)) {
+        if (!isValidVariationsArray({ productVariations: productData.variations, selectedVariations: variations, diamondDetail })) {
           sendResponse();
           continue;
         }
@@ -471,7 +535,7 @@ const insertMultipleProductsIntoCart = (params) => {
               return (
                 cartItem?.diamondDetail?.shapeId === diamondDetail?.shapeId &&
                 cartItem?.diamondDetail?.caratWeight ===
-                  diamondDetail?.caratWeight &&
+                diamondDetail?.caratWeight &&
                 cartItem?.diamondDetail?.clarity === diamondDetail?.clarity &&
                 cartItem?.diamondDetail?.color === diamondDetail?.color
               );
@@ -666,33 +730,53 @@ const getCartItemOnOffline = () => {
   return localStorageCart ? localStorageCart : [];
 };
 
-const isValidVariationsArray = (productVariations, selectedVariations) => {
-  // eslint-disable-next-line array-callback-return
-  const matchedvariation = selectedVariations.filter((selectedVariItem) => {
-    const findedProductVariation = productVariations.find(
-      (productVariItem) =>
-        productVariItem.variationId === selectedVariItem.variationId
-    );
-    if (findedProductVariation) {
-      const findedProductVariationType =
-        findedProductVariation.variationTypes.find(
-          (productVariType) =>
-            productVariType.variationTypeId === selectedVariItem.variationTypeId
-        );
-      if (findedProductVariationType) {
-        return {
-          variationId: findedProductVariation.variationId,
-          variationTypeId: findedProductVariationType.variationTypeId,
-        };
-      }
-    }
-  });
+const isValidVariationsArray = async ({
+  productVariations,
+  selectedVariations,
+  diamondDetail
+}) => {
+  if (!Array.isArray(selectedVariations) || !selectedVariations?.length) {
+    return false;
+  }
 
-  return matchedvariation.length === selectedVariations.length &&
-    productVariations.length === selectedVariations.length
-    ? true
-    : false;
+  const customizations = await productService?.getAllCustomizations();
+  const enrichedProductVariations = helperFunctions?.addNamesToVariationsArray(productVariations, customizations);
+  const enrichedSelectedVariations = helperFunctions?.addNamesToVariationsArray(selectedVariations, customizations);
+
+  // Constants for diamond-required variation names
+  const requiredForDiamond = [GOLD_COLOR, GOLD_TYPES, RING_SIZE, LENGTH];
+
+  // Helper to check variation match
+  const variationsMatch = (required, selected) =>
+    required.every((req) =>
+      selected.some(
+        (sel) =>
+          sel.variationId === req.variationId &&
+          sel.variationTypeId === req.variationTypeId
+      )
+    );
+
+  if (diamondDetail) {
+    // Filter only the variations that are in the required list
+    const requiredProductVars = enrichedProductVariations?.filter((pv) =>
+      requiredForDiamond?.includes(pv.variationName)
+    );
+    const requiredSelectedVars = enrichedSelectedVariations?.filter((sv) =>
+      requiredForDiamond?.includes(sv.variationName)
+    );
+
+    return (
+      requiredProductVars.length === requiredSelectedVars.length &&
+      variationsMatch(requiredProductVars, requiredSelectedVars)
+    );
+  }
+
+  return (
+    enrichedProductVariations.length === enrichedSelectedVariations.length &&
+    variationsMatch(enrichedProductVariations, enrichedSelectedVariations)
+  );
 };
+
 
 export const cartService = {
   getAllCartWithProduct,

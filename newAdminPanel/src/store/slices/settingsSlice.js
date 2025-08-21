@@ -11,8 +11,10 @@ export const customizedSettingsInit = {
 
 const initialState = {
   priceMultiplier: 1,
+  failedProductUpdates: [],
   customizedSettings: customizedSettingsInit,
   nonCustomizedLoading: false,
+  addUpdateNonCustomizedLoading: false,
   customizedLoading: false,
   nonCustomizedError: '',
   customizedError: '',
@@ -25,6 +27,9 @@ const settingsSlice = createSlice({
     setPriceMultiplier: (state, action) => {
       state.priceMultiplier = action.payload;
     },
+    setFailedProductUpdates: (state, action) => {
+      state.failedProductUpdates = action.payload;
+    },
     setCustomizedSettings: (state, action) => {
       state.customizedSettings = action.payload;
     },
@@ -33,6 +38,9 @@ const settingsSlice = createSlice({
     },
     setNonCustomizedLoading(state, action) {
       state.nonCustomizedLoading = action.payload;
+    },
+    setAddUpdateNonCustomizedLoading(state, action) {
+      state.addUpdateNonCustomizedLoading = action.payload;
     },
     setNonCustomizedError: (state, action) => {
       state.nonCustomizedError = action.payload;
@@ -45,11 +53,13 @@ const settingsSlice = createSlice({
 
 export const {
   setPriceMultiplier,
+  setFailedProductUpdates,
   setCustomizedSettings,
   setNonCustomizedLoading,
+  setAddUpdateNonCustomizedLoading,
   setCustomizedLoading,
   setNonCustomizedError,
-  setCustomizedError
+  setCustomizedError,
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;

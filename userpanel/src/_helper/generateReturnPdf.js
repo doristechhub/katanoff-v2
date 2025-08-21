@@ -43,9 +43,8 @@ export const generateReturnPDF = async (returnData, sizePage = "1") => {
 
   const doc = new jsPDF(sizePage, "pt", "a4");
   const date = new Date();
-  const formattedDate = `Date: ${
-    date.getMonth() + 1
-  } / ${date.getDate()} / ${date.getFullYear()}`;
+  const formattedDate = `Date: ${date.getMonth() + 1
+    } / ${date.getDate()} / ${date.getFullYear()}`;
   const pageWidth = doc.internal.pageSize.getWidth();
   const topHeight = 25;
   const imageSize = 40;
@@ -129,15 +128,15 @@ export const generateReturnPDF = async (returnData, sizePage = "1") => {
     const isDiamond = Boolean(x?.diamondDetail);
 
     const nameLine = helperFunctions?.formatProductNameWithCarat({
-      caratWeight: x?.totalCaratWeight,
+      caratWeight: x?.diamondDetail ? x?.diamondDetail?.caratWeight : x?.totalCaratWeight,
       productName: x?.productName,
     });
     const diamondDetail = isDiamond
       ? `\n\nDiamond Details:\n` +
-        `- Carat: ${x?.diamondDetail?.caratWeight}\n` +
-        `- Clarity: ${x?.diamondDetail?.clarity}\n` +
-        `- Color: ${x?.diamondDetail?.color}\n` +
-        `- Shape: ${x?.diamondDetail?.shapeName}`
+      `- Carat: ${x?.diamondDetail?.caratWeight}\n` +
+      `- Clarity: ${x?.diamondDetail?.clarity}\n` +
+      `- Color: ${x?.diamondDetail?.color}\n` +
+      `- Shape: ${x?.diamondDetail?.shapeName}`
       : "";
 
     const unitPrice = x.productPrice;
@@ -221,10 +220,9 @@ export const generateReturnPDF = async (returnData, sizePage = "1") => {
 
   // Taxes
   doc.text(
-    `Sales Tax: ${
-      invoiceData?.salesTax && Number(invoiceData?.salesTax) !== 0
-        ? `${helperFunctions?.formatCurrencyWithDollar(invoiceData?.salesTax)}`
-        : "$0.00"
+    `Sales Tax: ${invoiceData?.salesTax && Number(invoiceData?.salesTax) !== 0
+      ? `${helperFunctions?.formatCurrencyWithDollar(invoiceData?.salesTax)}`
+      : "$0.00"
     }`,
     bottomRightX,
     currentY,
@@ -234,10 +232,9 @@ export const generateReturnPDF = async (returnData, sizePage = "1") => {
 
   // Shipping Charge
   doc.text(
-    `Shipping Fees: ${
-      helperFunctions.toFixedNumber(invoiceData?.shippingCharge) > 0
-        ? helperFunctions?.formatCurrencyWithDollar(invoiceData?.shippingCharge)
-        : "Free"
+    `Shipping Fees: ${helperFunctions.toFixedNumber(invoiceData?.shippingCharge) > 0
+      ? helperFunctions?.formatCurrencyWithDollar(invoiceData?.shippingCharge)
+      : "Free"
     }`,
     bottomRightX,
     currentY,
@@ -313,10 +310,9 @@ export const generateReturnPDF = async (returnData, sizePage = "1") => {
     // Estimated Amount
     doc.setFont(undefined, "normal");
     doc.text(
-      `Estimated Amount: ${
-        returnAmount > 0
-          ? helperFunctions?.formatCurrencyWithDollar(returnAmount)
-          : "$0.00"
+      `Estimated Amount: ${returnAmount > 0
+        ? helperFunctions?.formatCurrencyWithDollar(returnAmount)
+        : "$0.00"
       }`,
       bottomRightX,
       currentY,
