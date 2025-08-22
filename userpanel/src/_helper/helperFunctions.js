@@ -115,16 +115,21 @@ const areArraysEqual = (arr1, arr2) => {
 
 const addNamesToVariationsArray = (variations, customizations) =>
   variations.map((v) => {
-    const variationMatch = customizations?.customizationType?.find((x) => x?.id === v?.variationId);
-    const variationTypeMatch = customizations?.customizationSubType?.find((x) => x?.id === v?.variationTypeId);
+    const variationMatch = customizations?.customizationType?.find(
+      (x) => x?.id === v?.variationId
+    );
+    const variationTypeMatch = customizations?.customizationSubType?.find(
+      (x) => x?.id === v?.variationTypeId
+    );
 
     return {
       ...v,
       ...(variationMatch?.title ? { variationName: variationMatch.title } : {}),
-      ...(variationTypeMatch?.title ? { variationTypeName: variationTypeMatch.title } : {}),
+      ...(variationTypeMatch?.title
+        ? { variationTypeName: variationTypeMatch.title }
+        : {}),
     };
   });
-
 
 const areDiamondDetailsEqual = (d1, d2) => {
   if (!d1 && !d2) return true; // both undefined/null
@@ -189,9 +194,11 @@ const getSellingPrice = ({ price, discount = 0, isCustomized = false }) => {
 };
 
 const getCurrentUser = () => {
-  const currentUserJson = localStorage.getItem("currentUser");
-  const currentUser = JSON.parse(currentUserJson);
-  return currentUser;
+  if (typeof window !== "undefined") {
+    const currentUserJson = localStorage.getItem("currentUser");
+    return currentUserJson ? JSON.parse(currentUserJson) : null;
+  }
+  return null;
 };
 
 // const getStatusCustomBadge = (status) => {
@@ -944,10 +951,10 @@ const getDefaultVariationsForNonCustomizedProducts = (
   return initialSelections;
 };
 
-const getDefaultVariationsForCustomizedProducts = (
-  { productData,
-    preferredGoldColor }
-) => {
+const getDefaultVariationsForCustomizedProducts = ({
+  productData,
+  preferredGoldColor,
+}) => {
   if (!productData) return [];
 
   const variations =
@@ -1037,7 +1044,6 @@ const getDefaultVariationsForCustomizedProducts = (
   return initialSelections;
 };
 
-
 const formatDimension = ({ value, unit, variationValue }) => {
   if (variationValue) {
     return `${variationValue} inch`;
@@ -1067,7 +1073,6 @@ const generateCaratValues = ({ minCarat, maxCarat, step = 0.5 }) => {
 
   return values;
 };
-
 
 export const helperFunctions = {
   debounce,
@@ -1120,5 +1125,5 @@ export const helperFunctions = {
   getDefaultVariationsForCustomizedProducts,
   formatDimension,
   addNamesToVariationsArray,
-  generateCaratValues
+  generateCaratValues,
 };

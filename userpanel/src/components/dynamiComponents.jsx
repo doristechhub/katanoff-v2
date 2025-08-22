@@ -3,16 +3,22 @@ import dynamic from "next/dynamic";
 
 // Common Component
 export const Header = dynamic(() => import("./layout/header.jsx"), {
-  ssr: false,
+  ssr: true,
 });
+
+export const HeaderLinkButton = dynamic(
+  () => import("./ui/button.jsx").then((mod) => mod.HeaderLinkButton),
+  { ssr: true }
+);
+
 export const Footer = dynamic(() => import("./layout/footer.jsx"), {
-  ssr: false,
+  ssr: true,
 });
 
 export const ProfileHeader = dynamic(
   () => import("./layout/profile/header.jsx"),
   {
-    ssr: false,
+    ssr: true,
   }
 );
 
@@ -30,14 +36,14 @@ export const StoreProvider = dynamic(() => import("@/store/provider"), {
 export const NavigationHeader = dynamic(
   () => import("./layout/navigationHeader"),
   {
-    ssr: false,
+    ssr: true,
   }
 );
 
 export const ProfileNavigationHeader = dynamic(
   () => import("./layout/profile/navigationHeader.jsx"),
   {
-    ssr: false,
+    ssr: true,
   }
 );
 
@@ -169,7 +175,7 @@ export const CartNotFound = dynamic(
 );
 
 export const Layout = dynamic(() => import("./layout/Layout.jsx"), {
-  ssr: false,
+  ssr: true,
 });
 
 export const PaymentPage = dynamic(
@@ -377,10 +383,57 @@ export const CartIconInCheckout = dynamic(
   }
 );
 
+export const CartPopup = dynamic(() => import("./ui/CartPopup.jsx"), {
+  ssr: false,
+});
+
 export const EllipsisLoader = dynamic(() => import("./ui/EllipsisLoader.jsx"), {
   ssr: false,
 });
 
 export const HeroBanner = dynamic(() => import("./ui/HeroBanner.jsx"), {
+  ssr: false,
+});
+
+export const OrderDetailPage = dynamic(
+  () => import("./ui/order-history/OrderDetailPage.jsx"),
+  {
+    ssr: false,
+  }
+);
+
+export const OrderHistoryPage = dynamic(
+  () => import("./ui/order-history/OrderHistoryPage.jsx"),
+  {
+    ssr: false,
+  }
+);
+
+export const SubscribeEmail = dynamic(() => import("./ui/SubscribeEmail.jsx"), {
+  ssr: false,
+});
+
+export const TrackYourOrderPage = dynamic(
+  () => import("./ui/order/TrackYourOrderPage.jsx"),
+  {
+    ssr: false,
+  }
+);
+
+export const TrackYourReturnPage = dynamic(
+  () => import("./ui/return/TrackYourReturnPage.jsx"),
+  {
+    ssr: false,
+  }
+);
+
+export const ProfileDropdown = dynamic(
+  () => import("./ui/ProfileDropdown.jsx"),
+  {
+    ssr: false,
+  }
+);
+
+export const Spinner = dynamic(() => import("./ui/spinner.jsx"), {
   ssr: false,
 });

@@ -2,10 +2,10 @@ import { Footer, ProfileHeader } from "@/components/dynamiComponents";
 
 export default function AccountLayout({ children }) {
   return (
-    <>
+    <main>
       <ProfileHeader />
-      <main>{children}</main>
+      {children}
       <Footer />
-    </>
+    </main>
   );
 }

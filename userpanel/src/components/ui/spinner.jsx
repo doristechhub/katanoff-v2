@@ -1,3 +1,4 @@
+"use client";
 import Lottie from "lottie-react";
 import primaryLoader from "@/assets/animations/primary-loader.json";
 import whiteLoader from "@/assets/animations/white-loader.json";
