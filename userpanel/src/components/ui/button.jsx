@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Spinner from "./spinner";
+import { Spinner } from "../dynamiComponents";
 
 const containedBtn = "bg-white border border-white";
 const outlinedBtn = "border-2 border-white text-white bg-transparent";

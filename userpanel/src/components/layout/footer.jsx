@@ -16,10 +16,10 @@ import {
   pinterestUrl,
   tiktokUrl,
 } from "@/_helper";
-import { CustomImg } from "../dynamiComponents";
+import { SubscribeEmail } from "../dynamiComponents";
 import logo from "@/assets/images/footer-logo.webp";
 import Link from "next/link";
-import SubscribeEmail from "../ui/SubscribeEmail";
+import CustomImg from "../ui/custom-img";
 
 const footerLinks = [
   {
@@ -66,10 +66,10 @@ export default function Footer() {
     : "mt-10 md:mt-14 lg:mt-20 2xl:mt-20";
 
   const mediaLinks = [
-    { icon: <FaFacebookF />, href: facebookUrl },
+    // { icon: <FaFacebookF />, href: facebookUrl },
     { icon: <FaInstagram />, href: instagramUrl },
-    { icon: <FaPinterestP />, href: pinterestUrl },
-    { icon: <FaTiktok />, href: tiktokUrl },
+    // { icon: <FaPinterestP />, href: pinterestUrl },
+    // { icon: <FaTiktok />, href: tiktokUrl },
   ];
 
   return (
@@ -124,7 +124,7 @@ export default function Footer() {
               invites to store openings, and more!
             </p>
             <SubscribeEmail />
-            {/* <div className="flex gap-5 mt-5 lg:mt-8">
+            <div className="flex gap-5 mt-5 lg:mt-8">
               {mediaLinks?.map((media, index) => {
                 return (
                   <Link
@@ -137,7 +137,7 @@ export default function Footer() {
                   </Link>
                 );
               })}
-            </div> */}
+            </div>
           </div>
         </div>
         <div className="lg:h-[30vh] 2xl:h-[35vh] md:flex md:justify-end md:items-end mt-10 md:mt-14 lg:mt-0">

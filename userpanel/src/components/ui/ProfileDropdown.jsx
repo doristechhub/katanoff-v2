@@ -1,3 +1,4 @@
+"use client";
 import Cookies from "js-cookie";
 import { helperFunctions } from "@/_helper";
 import {

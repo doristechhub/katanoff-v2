@@ -1,5 +1,4 @@
-
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams } from "next/navigation";
 
 const useQueryParams = () => {
   const searchParams = useSearchParams();

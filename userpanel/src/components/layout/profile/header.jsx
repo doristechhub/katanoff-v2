@@ -5,8 +5,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { getMenuList } from "@/_actions/home.action";
 import { useEffect, useRef, useState } from "react";
 import {
-  CustomImg,
+  ProfileDropdown,
   ProfileNavigationHeader,
+  CartPopup,
   SearchBar,
 } from "../../dynamiComponents";
 import { setIsMenuOpen, setLastScrollY } from "@/store/slices/commonSlice";
@@ -16,9 +17,8 @@ import diamondIcon from "@/assets/icons/diamond.svg";
 import calendarIcon from "@/assets/icons/calendar.svg";
 import textLogo from "@/assets/images/logo-text.webp";
 import miniLogo from "@/assets/images/mini-logo.webp";
-import CartPopup from "../../ui/CartPopup";
 import { fetchCart } from "@/_actions/cart.action";
-import ProfileDropdown from "@/components/ui/ProfileDropdown";
+import CustomImg from "@/components/ui/custom-img";
 
 export default function Header() {
   const dispatch = useDispatch();
