@@ -1,18 +1,10 @@
-import { WebsiteUrl } from "@/_helper";
+import { META_CONSTANTS } from "@/_helper";
 import { generateCurrentTimeAndDate } from "./common";
-const DEFAULT_META = {
-  title: "Katanoff | Online Jewelry Store for Fine & Custom Jewelry",
-  description:
-    "Katanoff is a trusted online jewelry store offering fine jewelry, gold jewelry, diamond rings, and custom designs. Shop engagement rings, necklaces, bracelets, and more with secure online shopping.",
-  keywords:
-    "Katanoff, online jewelry store, buy jewelry online, fine jewelry, diamond jewelry, gold jewelry, engagement rings, custom jewelry, wedding rings, necklaces, earrings, bracelets, jewelry shop",
-  url: WebsiteUrl,
-  openGraphImage: "/opengraph-image.png",
-  siteName: "Katanoff",
-};
+import { DEFAULT_META, PAGE_META } from "@/_helper/pageMeta";
 
-export const generateMetadata = (customMeta = {}) => {
-  const meta = { ...DEFAULT_META, ...customMeta };
+export const generateMetadata = ({ pageName, customMeta = {} }) => {
+  const currentPageMeta = PAGE_META[pageName] || PAGE_META[META_CONSTANTS.HOME] || customMeta;
+  const meta = { ...DEFAULT_META, ...currentPageMeta };
 
   return {
     metadataBase: new URL(meta?.url),

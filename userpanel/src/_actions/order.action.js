@@ -104,7 +104,7 @@ export const deleteOrder = (orderId) => {
   };
 };
 
-export const downloadOrderInvoice = (orderNumber) => {
+export const downloadOrderInvoice = ({ orderNumber }) => {
   return async (dispatch) => {
     dispatch(setInvoiceLoading(true));
     try {

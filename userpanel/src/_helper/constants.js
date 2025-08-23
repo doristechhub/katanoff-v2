@@ -132,3 +132,36 @@ export const COLLECTION_TYPES = [TWO_GRID, THREE_GRID, SLIDER_GRID];
 export const CURRENT_YEAR = new Date().getFullYear();
 
 export const NEW_YORK_CODE = "NY";
+
+//Meta Constants
+
+export const META_CONSTANTS = {
+  HOME: "home",
+  WARRANTY: "warranty",
+  TRACK_YOUR_RETURN: "track-your-return",
+  TRACK_YOUR_ORDER: "track-your-order",
+  TERMS_AND_CONDITIONS: "terms-and-conditions",
+  SHIPPING_POLICY: "shipping-policy",
+  SHIPPING: "shipping",
+  SEARCH: "search",
+  RETURN_POLICY: "return-policy",
+  PRIVACY_POLICY: "privacy-policy",
+  PAYMENT_FINANCING: "payment-financing",
+  EDUCATION: "education",
+  SELECT_SETTING: "select-setting",
+  SELECT_DIAMOND: "select-diamond",
+  COMPLETE_RING: "complete-ring",
+  CUSTOM_JEWELRY_FORM: "custom-jewelry-form",
+  CUSTOM_JEWELRY: "custom-jewelry",
+  CONTACT_US: "contact-us",
+  CHECKOUT: "checkout",
+  CART: "cart",
+  BOOK_APPOINTMENT: "book-appointment",
+  ABOUT_US: "about-us",
+  SIGN_UP: "sign-up",
+  LOGIN: "login",
+  VERIFY_OTP: "verify-otp",
+  PROFILE: "profile",
+  ORDER_HISTORY: "orderHistory",
+  RETURN_HISTORY: "returnHistory",
+};

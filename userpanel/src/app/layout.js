@@ -6,6 +6,7 @@ import { googleAnalyticsId, googleSiteVerificationId } from "@/_helper";
 import { GoogleAnalytics } from "@next/third-parties/google";
 
 export const metadata = generateMetadata();
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">

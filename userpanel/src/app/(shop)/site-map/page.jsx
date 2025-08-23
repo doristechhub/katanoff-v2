@@ -136,10 +136,10 @@ export default function SiteMapPage() {
           title: "Anniversary Gifts",
           href: "/collections/collection/Anniversary Gifts",
         },
-        // {
-        //   title: "Gifts Under $1000",
-        //   href: "/collections/collection/Gifts_Under_$1000",
-        // },
+        {
+          title: "Gifts Under $1000",
+          href: "/collections/collection/Gifts_Under_$1000",
+        },
       ],
     },
     {
@@ -236,7 +236,8 @@ export default function SiteMapPage() {
                 <HeaderLinkButton
                   key={`link-${idx}-${index}`}
                   href={link?.href}
-                  className="rounded-none flex items-center gap-1 text-sm md:text-base !capitalize !font-medium"
+                  className="rounded-none flex items-center gap-1 text-sm md:text-base !capitalize !font-medium 
+                 before:content-['•'] before:text-gray-800 before:mr-2 before:text-lg !px-2 2xl:!px-4"
                 >
                   {link?.title}
                 </HeaderLinkButton>

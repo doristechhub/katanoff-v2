@@ -137,6 +137,7 @@ const createPaymentIntent = async (req, res) => {
               return res.json({
                 status: 500,
                 message: message.SERVER_ERROR,
+                errorMessage: e?.message,
               });
             });
         })
@@ -153,6 +154,7 @@ const createPaymentIntent = async (req, res) => {
           return res.json({
             status: 500,
             message: message.SERVER_ERROR,
+            errorMessage: e?.message,
           });
         });
     }
@@ -160,6 +162,7 @@ const createPaymentIntent = async (req, res) => {
     return res.json({
       status: 500,
       message: message.SERVER_ERROR,
+      errorMessage: e?.message,
     });
   }
 };
@@ -407,7 +410,7 @@ const createOrder = async ({ payload, res, userData }) => {
         product,
         selectedVariations: variations,
         diamondDetail,
-        customizations: allCustomizations
+        customizations: allCustomizations,
       });
 
       if (!isValidVariations) {
