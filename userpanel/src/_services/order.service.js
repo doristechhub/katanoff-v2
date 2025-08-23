@@ -235,7 +235,7 @@ const deleteOrder = async (orderId) => {
 
 const downloadOrderInvoice = async (orderNumber) => {
   try {
-    orderNumber = sanitizeValue(orderNumber) ? orderNumber.trim() : null;
+    orderNumber = sanitizeValue(orderNumber) ? orderNumber?.trim() : null;
     if (orderNumber) {
       const response = await axios.post(
         "/order/generateOrderInovice",

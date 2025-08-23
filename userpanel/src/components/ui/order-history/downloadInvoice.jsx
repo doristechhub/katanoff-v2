@@ -26,7 +26,7 @@ export default function DownloadInvoice({
         downloadReturnInvoice({ returnId, orderNumber })
       );
     } else if (orderId) {
-      response = await dispatch(downloadOrderInvoice({ orderId, orderNumber }));
+      response = await dispatch(downloadOrderInvoice({ orderNumber }));
     }
     if (response) {
       onSuccess?.();
@@ -35,9 +35,8 @@ export default function DownloadInvoice({
 
   return (
     <div
-      className={`cursor-pointer flex items-center gap-2  ${className} ${
-        invoiceLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100"
-      }`}
+      className={`cursor-pointer flex items-center gap-2  ${className} ${invoiceLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100"
+        }`}
       onClick={downloadInvoiceHandler}
     >
       <CustomImg
