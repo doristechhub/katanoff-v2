@@ -2,8 +2,9 @@ import { META_CONSTANTS } from "@/_helper";
 import { generateCurrentTimeAndDate } from "./common";
 import { DEFAULT_META, PAGE_META } from "@/_helper/pageMeta";
 
-export const generateMetadata = ({ pageName, customMeta = {} }) => {
-  const currentPageMeta = PAGE_META[pageName] || PAGE_META[META_CONSTANTS.HOME] || customMeta;
+export const generateMetadata = ({ pageName = "", customMeta = {} }) => {
+  const currentPageMeta =
+    PAGE_META[pageName] || PAGE_META[META_CONSTANTS.HOME] || customMeta;
   const meta = { ...DEFAULT_META, ...currentPageMeta };
 
   return {
