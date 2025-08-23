@@ -125,6 +125,7 @@ const initialState = {
     filterByCollection: 'all',
     filterBySettingStyle: 'all',
     filterByProductType: 'all',
+    filterByGender: 'all',
     page: 1,
   },
 };
@@ -190,6 +191,7 @@ const productSlice = createSlice({
         filterByCollection: 'all',
         filterBySettingStyle: 'all',
         filterByProductType: 'all',
+        filterByGender: 'all',
         page: 1,
       };
     },

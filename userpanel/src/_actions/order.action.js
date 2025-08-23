@@ -108,7 +108,7 @@ export const downloadOrderInvoice = (orderNumber) => {
   return async (dispatch) => {
     dispatch(setInvoiceLoading(true));
     try {
-      const response = await orderService.downloadOrderInvoice(orderNumber);
+      const response = await orderService?.downloadOrderInvoice(orderNumber);
       if (response?.success) {
         return response;
       }
@@ -160,7 +160,7 @@ export const fetchInvoiceOrderDetail = (orderId) => {
       return false;
     } catch (e) {
       dispatch(setInvoiceLoading(false));
-      console.log('error', e)
+      console.log("error", e);
       return false;
     }
   };

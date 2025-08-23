@@ -145,8 +145,15 @@ export default function Footer() {
             <ul className="md:list-disc">
               <li>© {CURRENT_YEAR} Katanoff.com</li>
             </ul>
-            <Link href={"/terms-and-conditions"}>Terms & Conditions</Link>
-            <Link href={"/privacy-policy"}>Privacy Policy</Link>
+            <Link href="/terms-and-conditions" className="hover:underline">
+              Terms & Conditions
+            </Link>
+            <Link href="/privacy-policy" className="hover:underline">
+              Privacy Policy
+            </Link>
+            <Link href="/site-map" className="hover:underline">
+              Site Map
+            </Link>
           </div>
         </div>
       </div>

@@ -122,10 +122,16 @@ const ProductDetailPage = ({ customizePage }) => {
   let customProductIdFromLocalStorage = customProductDetails?.productId;
 
   const findValidSelection = (name) => {
-    const selectedVar = selectedVariations?.find(v => v?.variationName === name);
-    const productVariations = productDetail?.variations?.find(v => v?.variationName === name);
+    const selectedVar = selectedVariations?.find(
+      (v) => v?.variationName === name
+    );
+    const productVariations = productDetail?.variations?.find(
+      (v) => v?.variationName === name
+    );
     if (!selectedVar || !productVariations) return false;
-    return productVariations?.variationTypes?.some(t => t?.variationTypeId === selectedVar?.variationTypeId);
+    return productVariations?.variationTypes?.some(
+      (t) => t?.variationTypeId === selectedVar?.variationTypeId
+    );
   };
 
   const loadData = useCallback(async () => {
@@ -136,10 +142,13 @@ const ProductDetailPage = ({ customizePage }) => {
       );
       if (response) {
         dispatch(addUpdateRecentlyViewedProducts({ productName }));
-        const selections = helperFunctions?.getDefaultVariationsForNonCustomizedProducts(response, goldColor);
+        const selections =
+          helperFunctions?.getDefaultVariationsForNonCustomizedProducts(
+            response,
+            goldColor
+          );
         dispatch(setSelectedVariations(selections));
       }
-
     } else if (productId || customProductIdFromLocalStorage) {
       await dispatch(fetchCustomizeProductSettings());
       const response = await dispatch(
@@ -151,12 +160,11 @@ const ProductDetailPage = ({ customizePage }) => {
             productName: response?.productName || "",
           })
         );
-        const initialSelections = helperFunctions.getDefaultVariationsForCustomizedProducts(
-          {
+        const initialSelections =
+          helperFunctions.getDefaultVariationsForCustomizedProducts({
             productData: response,
-            preferredGoldColor: goldColor
-          }
-        );
+            preferredGoldColor: goldColor,
+          });
 
         dispatch(setSelectedVariations(initialSelections));
       }
@@ -267,17 +275,21 @@ const ProductDetailPage = ({ customizePage }) => {
 
     const hasGoldType = findValidSelection(GOLD_TYPES);
     const hasGoldColor = findValidSelection(GOLD_COLOR);
-    const hasRingOrLen = findValidSelection(RING_SIZE) || findValidSelection(LENGTH);
+    const hasRingOrLen =
+      findValidSelection(RING_SIZE) || findValidSelection(LENGTH);
     return !(hasGoldType && hasGoldColor && hasRingOrLen);
-  }, [productDetail?.variations?.length, selectedVariations?.length, isCustomizePage]);
-
+  }, [
+    productDetail?.variations?.length,
+    selectedVariations?.length,
+    isCustomizePage,
+  ]);
 
   const hasDiamondDetails = !!customProductDetails?.diamondDetails;
   let diamondDetail;
 
   if (customProductDetails?.diamondDetails) {
-
-    const { shape, caratWeight, clarity, color } = customProductDetails?.diamondDetails || {};
+    const { shape, caratWeight, clarity, color } =
+      customProductDetails?.diamondDetails || {};
 
     diamondDetail = {
       shapeId: shape?.id,
@@ -417,13 +429,15 @@ const ProductDetailPage = ({ customizePage }) => {
   const calculatedPrice = isCustomizePage
     ? helperFunctions?.roundOffPrice(customProductPrice)
     : selectedPrice
-      ? helperFunctions?.roundOffPrice(
+    ? helperFunctions?.roundOffPrice(
         selectedPrice * productQuantity * (1 - productDetail?.discount / 100)
       )
-      : 0;
+    : 0;
 
   const displayProductName = helperFunctions?.formatProductNameWithCarat({
-    caratWeight: isCustomizePage ? customProductDetails?.diamondDetails?.caratWeight : productDetail?.totalCaratWeight,
+    caratWeight: isCustomizePage
+      ? customProductDetails?.diamondDetails?.caratWeight
+      : productDetail?.totalCaratWeight,
     productName: productDetail?.productName,
   });
 
@@ -431,9 +445,18 @@ const ProductDetailPage = ({ customizePage }) => {
     <div className={`${isCustomizePage ? "" : "pt-8 2xl:pt-12"}`}>
       {productLoading ? (
         <DetailPageSkeleton />
-      ) : isCustomizePage && productDetail && productDetail?.isDiamondFilter === false ? (<>
-        <CommonNotFound message="Sorry, Customization for this products is currently unavilable" btnText="Design With Diamond" href="/customize/select-diamond" btnClassName="!w-fit" />
-      </>) : productDetail && Object.keys(productDetail).length > 0 ? (
+      ) : isCustomizePage &&
+        productDetail &&
+        productDetail?.isDiamondFilter === false ? (
+        <>
+          <CommonNotFound
+            message="Sorry, Customization for this products is currently unavilable"
+            btnText="Design With Diamond"
+            href="/customize/select-diamond"
+            btnClassName="!w-fit"
+          />
+        </>
+      ) : productDetail && Object.keys(productDetail).length > 0 ? (
         <>
           <div className="container grid grid-cols-1 md:grid-cols-2 gap-6 xs:gap-8">
             <div className="flex h-fit w-full">
@@ -539,10 +562,10 @@ const ProductDetailPage = ({ customizePage }) => {
                 isCustomizePage={isCustomizePage}
               />
 
-              {customizePage === "completeRing" &&
+              {/* {customizePage === "completeRing" &&
                 customProductDetails?.diamondDetails && (
                   <>
-                    <div className="border-t border-grayborder mt-10" />
+                  <div className="border-t border-grayborder mt-10" />
                     <div className=" text-baseblack pt-4 md:pt-6">
                       <div className="flex  items-start gap-2">
                         <div className="flex flex-col gap-2">
@@ -593,7 +616,7 @@ const ProductDetailPage = ({ customizePage }) => {
                       </div>
                     </div>
                   </>
-                )}
+                )} */}
 
               <section className="pt-8">
                 <div className="grid grid-cols-2 lg:grid-cols-3 max-w-4xl">
@@ -620,7 +643,10 @@ const ProductDetailPage = ({ customizePage }) => {
           </div>
 
           <div className="container pt-10 lg:pt-12 2xl:pt-16 md:p-6">
-            <ProductDetailTabs selectedVariations={selectedVariations} isCustomizePage={isCustomizePage} />
+            <ProductDetailTabs
+              selectedVariations={selectedVariations}
+              isCustomizePage={isCustomizePage}
+            />
           </div>
           <section className="pt-10 lg:pt-12 xl:pt-16 container">
             <KeyFeatures />
@@ -708,8 +734,9 @@ const AddToBagBar = ({
     []
   );
 
-  const baseClasses = `w-full bg-white shadow-md transition-opacity duration-300 z-40 ${position === "bottom" ? "fixed bottom-0 left-0" : "relative mt-4 lg:mt-12"
-    }`;
+  const baseClasses = `w-full bg-white shadow-md transition-opacity duration-300 z-40 ${
+    position === "bottom" ? "fixed bottom-0 left-0" : "relative mt-4 lg:mt-12"
+  }`;
   const estimatedDate = useMemo(() => {
     const date = new Date();
     date.setDate(date.getDate() + 15);
@@ -745,11 +772,11 @@ const AddToBagBar = ({
 
             <p className="text-base pt-1">
               {(isActive && availableQty && availableQty > 0) ||
-                customizePage === "completeRing"
+              customizePage === "completeRing"
                 ? "Made-to-Order"
                 : isActive || !selectedPrice > 0
-                  ? "Out of Stock"
-                  : "Inactive"}{" "}
+                ? "Out of Stock"
+                : "Inactive"}{" "}
               | {estimatedDate}
             </p>
           </div>
@@ -781,7 +808,8 @@ const AddToBagBar = ({
                   disabled={
                     cartLoading ||
                     isInValidSelectedVariation ||
-                    !selectedPrice || selectedPrice <= 0
+                    !selectedPrice ||
+                    selectedPrice <= 0
                   }
                   loaderType={isHovered ? "" : "white"}
                   loadingClassName="w-24"
@@ -807,7 +835,8 @@ const AddToBagBar = ({
                     availableQty < 0 ||
                     isInValidSelectedVariation ||
                     !isActive ||
-                    !selectedPrice || selectedPrice <= 0
+                    !selectedPrice ||
+                    selectedPrice <= 0
                   }
                   loaderType={isHovered ? "" : "white"}
                   loadingClassName="w-24"
@@ -829,8 +858,8 @@ const AddToBagBar = ({
               <ErrorMessage message={"Please select variants"} />
             ) : null}
             {isSubmitted &&
-              cartMessage?.message &&
-              !(cartMessage?.message === "Product already exists in cart") ? (
+            cartMessage?.message &&
+            !(cartMessage?.message === "Product already exists in cart") ? (
               <ErrorMessage message={cartMessage?.message} />
             ) : null}
           </div>
@@ -913,10 +942,11 @@ const ProductDetailTabs = ({ selectedVariations = [], isCustomizePage }) => {
       label: "Product Detail",
       content: (
         <div
-          className={`grid xs:grid-cols-2 ${productDetail?.specifications?.length > 0
-            ? "lg:grid-cols-3 lg:gap-12"
-            : "lg:grid-cols-2 lg:gap-60"
-            } gap-10 mt-4`}
+          className={`grid xs:grid-cols-2 ${
+            productDetail?.specifications?.length > 0
+              ? "lg:grid-cols-3 lg:gap-12"
+              : "lg:grid-cols-2 lg:gap-60"
+          } gap-10 mt-4`}
         >
           <div className="text-sm lg:text-[15px] font-medium">
             <p className="text-base lg:text-lg inline-block font-semibold text-baseblack pb-2 3xl:pb-4">
@@ -954,15 +984,24 @@ const ProductDetailTabs = ({ selectedVariations = [], isCustomizePage }) => {
                     : ""
                 )}
                 {(() => {
-                  const variationValue = helperFunctions?.getVariationValue(selectedVariations, LENGTH);
-                  const finalLengthValue = helperFunctions?.formatDimension({ value: productDetail?.[LENGTH], unit: productDetail?.lengthUnit, variationValue });
+                  const variationValue = helperFunctions?.getVariationValue(
+                    selectedVariations,
+                    LENGTH
+                  );
+                  const finalLengthValue = helperFunctions?.formatDimension({
+                    value: productDetail?.[LENGTH],
+                    unit: productDetail?.lengthUnit,
+                    variationValue,
+                  });
 
                   return renderInfoRow(LENGTH, finalLengthValue);
                 })()}
 
                 {(() => {
-                  const variationValue = helperFunctions?.getVariationValue(selectedVariations, WIDTH);
-                  const finalWidthValue = helperFunctions?.formatDimension({ value: productDetail?.width, unit: productDetail?.widthUnit });
+                  const finalWidthValue = helperFunctions?.formatDimension({
+                    value: productDetail?.width,
+                    unit: productDetail?.widthUnit,
+                  });
 
                   return renderInfoRow(WIDTH, finalWidthValue);
                 })()}
@@ -989,21 +1028,23 @@ const ProductDetailTabs = ({ selectedVariations = [], isCustomizePage }) => {
                 DIAMOND_QUALITY
               )
             )}
-            {isCustomizePage && renderInfoRow(
-              "Side Diamond Weight",
-              productDetail?.sideDiamondWeight
-                ? `${productDetail?.sideDiamondWeight} ctw`
-                : ""
-            )}
+            {isCustomizePage &&
+              renderInfoRow(
+                "Side Diamond Weight",
+                productDetail?.sideDiamondWeight
+                  ? `${productDetail?.sideDiamondWeight} ctw`
+                  : ""
+              )}
             {(() => {
               if (!isCustomizePage) return null;
-              const centerWeightValue = helperFunctions?.getVariationValue(selectedVariations, DIAMOND_WEIGHT);
+              const centerWeightValue = helperFunctions?.getVariationValue(
+                selectedVariations,
+                DIAMOND_WEIGHT
+              );
               return renderInfoRow(
                 "Center Diamond Weight",
-                centerWeightValue
-                  ? `${centerWeightValue} ctw`
-                  : ""
-              )
+                centerWeightValue ? `${centerWeightValue} ctw` : ""
+              );
             })()}
             {!isCustomizePage &&
               renderInfoRow(
@@ -1018,8 +1059,8 @@ const ProductDetailTabs = ({ selectedVariations = [], isCustomizePage }) => {
                 SETTING_STYLE,
                 productDetail?.settingStyleNamesWithImg?.length > 0
                   ? productDetail?.settingStyleNamesWithImg
-                    .map((s) => s.title)
-                    .join(", ")
+                      .map((s) => s.title)
+                      .join(", ")
                   : ""
               )}
           </div>

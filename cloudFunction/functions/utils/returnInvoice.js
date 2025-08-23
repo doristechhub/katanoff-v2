@@ -1,4 +1,5 @@
-const isFirebase = !!process.env.FUNCTION_NAME;
+const isFirebase = (process.env.FUNCTION_TARGET || process.env.FUNCTION_NAME) && process.env.FUNCTIONS_EMULATOR !== 'true';
+
 const puppeteer = isFirebase ? require("puppeteer-core") : require("puppeteer");
 const chromium = isFirebase ? require("@sparticuz/chromium") : null;
 const {
@@ -8,8 +9,8 @@ const {
   SALES_TAX_NOTE,
   generateProductTable,
   processProducts,
-  INVOICE_CONFIG,
 } = require("../helpers/common");
+const companyInfo = require("./companyInfo");
 const { generateHTML } = require("./invoiceTemplate");
 
 const returnInvoiceBody = (invoiceData) => {
@@ -21,92 +22,91 @@ const returnInvoiceBody = (invoiceData) => {
     <main class="my-4 w-full">
       <div class="flex justify-between gap-4 mb-4 w-full">
         <div class="w-[300px]">
-          <h2 class="text-sm font-medium text-black">Return Details</h2>
+          <h2 class="text-md font-semibold text-black">Return Details</h2>
           <p class="text-xs">Order Number: ${invoiceData?.orderNumber}</p>
           <p class="text-xs">Return Request Date: ${formatDate(
-            invoiceData?.createdDate
-          )}</p>
+    invoiceData?.createdDate
+  )}</p>
           <p class="text-xs">Return Status: ${capitalizeCamelCase(
-            invoiceData?.status
-          )}</p>
+    invoiceData?.status
+  )}</p>
           <p class="text-xs">Return Payment Status: ${capitalizeCamelCase(
-            invoiceData?.paymentStatus
-          )}</p>
+    invoiceData?.paymentStatus
+  )}</p>
         </div>
-        <div class="w-[200px]">
-          <h2 class="text-sm font-medium text-black">Shipping Address</h2>
-          <p class="text-xs">Name: ${
-            invoiceData.shippingAddress?.name || ""
-          }</p>
-          <p class="text-xs">Email: ${
-            invoiceData.shippingAddress?.email || ""
-          }</p>
-          <p class="text-xs">Address: ${
-            invoiceData.shippingAddress?.address || ""
-          }, ${invoiceData.shippingAddress?.city || ""}, ${
-    invoiceData.shippingAddress?.state || ""
-  }, ${invoiceData.shippingAddress?.country || ""} - ${
-    invoiceData.shippingAddress?.pinCode || ""
-  }</p>
-          <p class="text-xs">Mobile: ${
-            invoiceData.shippingAddress?.mobile || ""
-          }</p>
+        <div class="w-[300px] text-right">
+          <h2 class="text-md font-semibold text-black">Shipping Address</h2>
+          <p class="text-xs">Name: ${invoiceData.shippingAddress?.name || ""
+    }</p>
+          <p class="text-xs">Email: ${invoiceData.shippingAddress?.email || ""
+    }</p>
+          <p class="text-xs">Address: ${invoiceData.shippingAddress?.address || ""
+    }, ${invoiceData.shippingAddress?.city || ""}, ${invoiceData.shippingAddress?.state || ""
+    }, ${invoiceData.shippingAddress?.country || ""} - ${invoiceData.shippingAddress?.pinCode || ""
+    }</p>
+          <p class="text-xs">Mobile: ${invoiceData.shippingAddress?.mobile || ""
+    }</p>
         </div>
       </div>
       ${generateProductTable(invoiceData.products, "returnQuantity")}
-      <div class="text-right mt-4 text-sm w-full">
-        <p>Subtotal: ${formatCurrencyWithDollar(invoiceData.subTotal)}</p>
-        ${
-          invoiceData.discount > 0
-            ? `<p>Promo Discount: -${formatCurrencyWithDollar(
-                invoiceData.discount
-              )}</p>`
-            : ""
-        }
-        <p>Sales Tax: ${
-          invoiceData.salesTax && Number(invoiceData.salesTax) !== 0
-            ? formatCurrencyWithDollar(invoiceData.salesTax)
-            : "$0.00"
-        }</p>
-        <p>Shipping Fees: ${
-          Number(invoiceData.shippingCharge) > 0
-            ? formatCurrencyWithDollar(invoiceData.shippingCharge)
-            : "Free"
-        }</p>
-        <div class="border-t border-gray-300 w-32 ml-auto my-2"></div>
-        ${
-          returnAmount === refundAmount && refundAmount > 0
-            ? `<p class="font-bold">Refunded Amount: ${formatCurrencyWithDollar(
-                refundAmount
-              )}</p>`
-            : `
-              <p>Estimated Amount: ${
-                returnAmount > 0
-                  ? formatCurrencyWithDollar(returnAmount)
-                  : "$0.00"
-              }</p>
-              ${
-                refundAmount > 0 && deductedAmount > 0
-                  ? `<p>Deducted Amount: ${formatCurrencyWithDollar(
-                      deductedAmount
-                    )}</p>`
-                  : ""
-              }
-              ${
-                refundAmount > 0
-                  ? `<p class="font-bold">Refunded Amount: ${formatCurrencyWithDollar(
-                      refundAmount
-                    )}</p>`
-                  : ""
-              }
-            `
-        }
-        ${
-          invoiceData.salesTax
-            ? `<p class="text-xs text-gray-500 mt-2">${SALES_TAX_NOTE}</p>`
-            : ""
-        }
-      </div>
+  <div class="mt-4 text-sm max-w-fit ml-auto">
+  <div class="grid grid-cols-[max-content,120px] gap-x-1 text-left">
+    <!-- Subtotal -->
+    <div>Subtotal</div>
+    <div class="text-right">${formatCurrencyWithDollar(invoiceData.subTotal)}</div>
+
+    <!-- Promo Discount -->
+    ${invoiceData.discount > 0
+      ? `<div>Promo Discount</div>
+           <div class="text-right">-${formatCurrencyWithDollar(invoiceData.discount)}</div>`
+      : ""
+    }
+
+    <!-- Sales Tax -->
+    <div>Sales Tax</div>
+    <div class="text-right">${invoiceData.salesTax && Number(invoiceData.salesTax) !== 0
+      ? formatCurrencyWithDollar(invoiceData.salesTax)
+      : "$0.00"
+    }</div>
+
+    <!-- Shipping Fees -->
+    <div>Shipping Fees</div>
+    <div class="text-right">${Number(invoiceData.shippingCharge) > 0
+      ? formatCurrencyWithDollar(invoiceData.shippingCharge)
+      : "Free"
+    }</div>
+
+    <!-- Divider -->
+    <div class="col-span-2 border-t border-gray-300 my-2"></div>
+
+    <!-- Conditional amounts -->
+    ${returnAmount === refundAmount && refundAmount > 0
+      ? `<div class="font-semibold">Refunded Amount</div>
+           <div class="font-semibold text-right">${formatCurrencyWithDollar(refundAmount)}</div>`
+      : `
+          <div>Estimated Amount</div>
+          <div class="text-right">${returnAmount > 0 ? formatCurrencyWithDollar(returnAmount) : "$0.00"
+      }</div>
+
+          ${refundAmount > 0 && deductedAmount > 0
+        ? `<div>Deducted Amount</div>
+                 <div class="text-right">${formatCurrencyWithDollar(deductedAmount)}</div>`
+        : ""
+      }
+
+          ${refundAmount > 0
+        ? `<div class="font-semibold">Refunded Amount</div>
+                 <div class="font-semibold text-right">${formatCurrencyWithDollar(refundAmount)}</div>`
+        : ""
+      }
+        `
+    }
+  </div>
+</div>
+        ${invoiceData.salesTax
+      ? `<p class="text-xs text-right text-gray-500 mt-2">${SALES_TAX_NOTE}</p>`
+      : ""
+    }
     </main>
   `;
 };
@@ -124,25 +124,34 @@ const returnInovice = async (orderData) => {
 
     const formattedDate = `Date: ${formatDate(new Date())}`;
     const htmlContent = generateHTML({
-      logoUrl: INVOICE_CONFIG.LOGO_URL,
+      logoUrl: companyInfo?.LOGO,
       formattedDate,
       title: "Return Invoice",
       bodyContent: returnInvoiceBody(invoiceData),
     });
 
-    const launchOptions = isFirebase
-      ? {
-          args: chromium.args,
-          defaultViewport: chromium.defaultViewport,
-          executablePath: await chromium.executablePath(),
-          headless: chromium.headless,
-          timeout: 60000,
-        }
-      : {
-          headless: "new",
-          args: ["--no-sandbox", "--disable-setuid-sandbox"],
-          timeout: 60000,
-        };
+    let launchOptions;
+
+    if (isFirebase) {
+      const executablePath = await chromium.executablePath();
+      if (!executablePath) {
+        throw new Error('Chromium executable path not found');
+      }
+      launchOptions = {
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: executablePath,
+        headless: 'shell',
+        timeout: 60000,
+      };
+    } else {
+
+      launchOptions = {
+        headless: 'new',
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
+        timeout: 60000,
+      };
+    }
 
     const browser = await puppeteer.launch(launchOptions);
     const page = await browser.newPage();

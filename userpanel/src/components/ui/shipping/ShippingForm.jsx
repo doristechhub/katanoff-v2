@@ -45,11 +45,11 @@ const paymentOptions = [
     label: "Apple Pay, Google Pay, Amazon Pay, Link, Klarna",
     logos: [applePay, gpay, amazonPay, link, klarna, samsungPay],
   },
-  {
-    value: PAYPAL,
-    label: "PayPal",
-    logos: [paypal],
-  },
+  // {
+  //   value: PAYPAL,
+  //   label: "PayPal",
+  //   logos: [paypal],
+  // },
 ];
 
 // Handle image load error by showing a placeholder

@@ -42,7 +42,6 @@ import CommonNotFound from "../CommonNotFound";
 import { RxCross2 } from "react-icons/rx";
 import CancelReturnRequestModel from "./CancelReturnRequestModel";
 import DownloadInvoice from "../order-history/downloadInvoice";
-// import { BsDownload } from "react-icons/bs";
 import Spinner from "../spinner";
 
 export default function ReturnHistoryPage() {
@@ -126,16 +125,6 @@ export default function ReturnHistoryPage() {
       refs.setReference(event.currentTarget);
     }
   };
-
-  // const handleDownloadInvoice = async ({ returnId, orderNumber }) => {
-  //   if (!returnId) return;
-  //   const response = await dispatch(
-  //     downloadReturnInvoice({ returnId, orderNumber })
-  //   );
-  //   if (response) {
-  //     setOpenId(null);
-  //   }
-  // };
 
   const renderTableHeading = () => {
     return (
@@ -306,37 +295,17 @@ export default function ReturnHistoryPage() {
                         Exporting...
                       </div>
                     ) : (
-                      <div
-                        className={`w-full text-left  hover:bg-gray-100 flex gap-4 text-base text-basegray ${
-                          invoiceLoading
-                            ? "opacity-50 cursor-not-allowed"
-                            : "hover:bg-gray-100"
-                        }`}
+                      <DownloadInvoice
+                        returnId={currentrReturnOrder?.id}
+                        orderNumber={currentrReturnOrder?.orderNumber}
+                        onSuccess={() => setOpenId(null)}
+                        onClick={() => {
+                          dispatch(setReturnOrder(openId));
+                        }}
+                        className="text-left px-4 py-2 flex gap-4 text-base text-basegray"
                       >
-                        <DownloadInvoice
-                          returnId={currentrReturnOrder?.id}
-                          onSuccess={() => setOpenId(null)}
-                          className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray"
-                        >
-                          Download
-                        </DownloadInvoice>
-                      </div>
-
-                      // <button
-                      //   className="w-full text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray"
-                      //   onClick={() =>
-                      //     handleDownloadInvoice({
-                      //       returnId: currentrReturnOrder?.id,
-                      //       orderNumber: currentrReturnOrder?.orderNumber,
-                      //     })
-                      //   }
-                      // >
-                      //   <BsDownload
-                      //     title="Download Invoice"
-                      //     className="text-xl text-basegray"
-                      //   />
-                      //   Download
-                      // </button>
+                        Download
+                      </DownloadInvoice>
                     ))}
                 </>
               );
