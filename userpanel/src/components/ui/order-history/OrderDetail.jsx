@@ -183,11 +183,6 @@ const OrderDetails = ({
     };
   }, [orderDetail]);
 
-  // const handleDownloadInvoice = (orderNumber) => {
-  //   if (!orderNumber) return;
-  //   dispatch(downloadOrderInvoice(orderNumber));
-  // };
-
   return orderLoading ? (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 container py-5 shadow-[0px_0px_12px_0px_#0000001A] rounded-md">
       {/* Left Panel Skeleton */}
@@ -213,7 +208,10 @@ const OrderDetails = ({
               (invoiceLoading ? (
                 <Spinner className="h-[24px] w-7" />
               ) : (
-                <DownloadInvoice orderId={orderDetail.id} />
+                <DownloadInvoice
+                  orderId={orderDetail?.id}
+                  orderNumber={orderDetail?.orderNumber}
+                ></DownloadInvoice>
               ))}
           </div>
 

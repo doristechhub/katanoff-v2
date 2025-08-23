@@ -124,11 +124,6 @@ const ReturnDetails = ({
     };
   }, [returnDetail]);
 
-  // const handleDownloadInvoice = ({ returnId, orderNumber }) => {
-  //   if (!returnId) return;
-  //   dispatch(downloadReturnInvoice({ returnId, orderNumber }));
-  // };
-
   // Render loading state
   if (returnLoader) {
     return (
@@ -163,33 +158,15 @@ const ReturnDetails = ({
               <CancelReturnRequest returnId={returnDetail.id} />
             )
           : null}
-        {/* {["approved", "received"]?.includes(returnDetail?.status) &&
+        {["approved", "received"]?.includes(returnDetail?.status) &&
           (invoiceLoading ? (
             <Spinner className="h-6" />
           ) : (
-            <button
-              className="text-left px-4 py-2 hover:bg-gray-100 flex gap-4 text-base text-basegray"
-              onClick={() =>
-                handleDownloadInvoice({
-                  returnId: returnDetail?.id,
-                  orderNumber: returnDetail?.orderNumber,
-                })
-              }
-            >
-              <BsDownload
-                title="Download Invoice"
-                className="text-xl text-basegray"
-              />
-            </button>
-          ))} */}
-        <div className="w-[24px]">
-          {["approved", "received"]?.includes(returnDetail?.status) &&
-            (invoiceLoading ? (
-              <Spinner className="h-[24px] w-7" />
-            ) : (
-              <DownloadInvoice returnId={returnDetail.id} />
-            ))}
-        </div>
+            <DownloadInvoice
+              returnId={returnDetail?.id}
+              orderNumber={returnDetail?.orderNumber}
+            ></DownloadInvoice>
+          ))}
       </div>
       {/* Main Content */}
       <div className="flex flex-col lg:flex-row pt-2 lg:pt-3 lg:divide-x divide-[#00000033]">

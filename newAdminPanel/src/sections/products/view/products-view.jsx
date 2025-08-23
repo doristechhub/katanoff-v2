@@ -30,7 +30,7 @@ import {
   getSettingStyleList,
 } from 'src/actions';
 import { Button, LoadingButton } from 'src/components/button';
-import { perPageCountOptions, productStatusOptions } from 'src/_helpers/constants';
+import { GENDER_LIST, perPageCountOptions, productStatusOptions, } from 'src/_helpers/constants';
 import { getCollectionList } from 'src/actions/collectionActions';
 import {
   setCrudProductLoading,
@@ -43,6 +43,14 @@ import {
 
 import ProductCard from '../product-card';
 import { generateExcel } from 'src/_helpers/generateExcel';
+
+const genderOptions = [
+  {
+    title: 'All',
+    value: 'all',
+  },
+  ...GENDER_LIST
+]
 
 // ----------------------------------------------------------------------
 
@@ -73,6 +81,7 @@ export default function ProductsView() {
       filterByCollection = 'all',
       filterBySettingStyle = 'all',
       filterByProductType = 'all',
+      filterByGender = 'all',
       page = 1,
     } = {},
   } = useSelector(({ product }) => product);
@@ -125,6 +134,9 @@ export default function ProductsView() {
       const matchesProductType =
         filterByProductType === 'all' ||
         item?.productTypeIds?.some((id) => String(id) === String(filterByProductType));
+      const matchesGender =
+        filterByGender === 'all' ||
+        String(item?.gender).toLowerCase() === String(filterByGender).toLowerCase();
 
       const matchesStatus =
         selectedProductStatus === 'all' || String(item.active) === String(selectedProductStatus);
@@ -136,6 +148,7 @@ export default function ProductsView() {
         matchesCollection &&
         matchesSettingStyle &&
         matchesProductType &&
+        matchesGender &&
         matchesStatus
       );
     });
@@ -151,6 +164,7 @@ export default function ProductsView() {
     searchQuery,
     filterByCategory,
     filterBySubCategory,
+    filterByGender,
     filterByProductType,
     selectedProductStatus,
     filterByCollection,
@@ -425,6 +439,25 @@ export default function ProductsView() {
           ) : (
             <MenuItem disabled>No Item</MenuItem>
           )}
+        </TextField>
+        <TextField
+          select
+          size="small"
+          label="Gender"
+          sx={{
+            mt: '8px',
+            minWidth: '150px',
+          }}
+          value={filterByGender}
+          onChange={(e) => {
+            dispatch(setFilterState({ filterByGender: e.target.value, page: 1 }));
+          }}
+        >
+          {genderOptions.map((option) => (
+            <MenuItem key={option?.value} value={option?.value}>
+              {option?.title}
+            </MenuItem>
+          ))}
         </TextField>
         <Button
           sx={{ mt: '8px' }}

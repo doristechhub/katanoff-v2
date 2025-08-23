@@ -197,21 +197,20 @@ const generateProductTable = (products, quantityKey = "cartQuantity") => {
         </thead>
         <tbody class="text-black text-xs leading-4">
           ${products
-            .map((x) => {
-              const variations = displayVariationsLabel(x.variations);
-              const nameLine = formatProductNameWithCarat({
-                caratWeight: x.totalCaratWeight,
-                productName: x.productName,
-              });
-              const diamondDetail = displayDiamondDetailsLabel(x.diamondDetail);
-              return `
+      .map((x) => {
+        const variations = displayVariationsLabel(x.variations);
+        const nameLine = formatProductNameWithCarat({
+          caratWeight: x?.diamondDetail ? x?.diamondDetail?.caratWeight : x?.totalCaratWeight,
+          productName: x.productName,
+        });
+        const diamondDetail = displayDiamondDetailsLabel(x.diamondDetail);
+        return `
                 <tr class="border-b border-[#828282]">
                   <td class="p-2 text-center">
-                    ${
-                      x.productImage
-                        ? `<img src="${x.productImage}" class="w-16 h-full object-contain mx-auto" alt="" />`
-                        : ""
-                    }
+                    ${x.productImage
+            ? `<img src="${x.productImage}" class="w-16 h-full object-contain mx-auto" alt="" />`
+            : ""
+          }
                   </td>
                   <td class="p-2 pl-4">
                     <span class="font-semibold text-sm">${nameLine}</span>
@@ -222,15 +221,15 @@ const generateProductTable = (products, quantityKey = "cartQuantity") => {
                   </td>
                   <td class="p-2 text-center">${x[quantityKey]}</td>
                   <td class="p-2 text-right">${formatCurrency(
-                    x.productPrice
-                  )}</td>
+            x.productPrice
+          )}</td>
                   <td class="p-2 text-right">${formatCurrency(
-                    x.unitAmount
-                  )}</td>
+            x.unitAmount
+          )}</td>
                 </tr>
               `;
-            })
-            .join("")}
+      })
+      .join("")}
         </tbody>
       </table>
     </div>
@@ -255,13 +254,9 @@ const processProducts = async (products) => {
 };
 
 const addNamesToVariationsArray = (variations, customizations) =>
-  variations.map((v) => {
-    const variationName = customizations?.customizationType?.find(
-      (x) => x?.id === v?.variationId
-    )?.title;
-    const variationTypeName = customizations?.customizationSubType?.find(
-      (x) => x?.id === v?.variationTypeId
-    )?.title;
+  variations.map(v => {
+    const variationName = customizations?.customizationType?.find(x => x?.id === v?.variationId)?.title;
+    const variationTypeName = customizations?.customizationSubType?.find(x => x?.id === v?.variationTypeId)?.title;
     return {
       ...v,
       ...(variationName && { variationName }),
@@ -272,7 +267,7 @@ const addNamesToVariationsArray = (variations, customizations) =>
 const hasDuplicateVariations = (variations) => {
   const uniqueVariationKeys = new Set();
 
-  return variations.some((variation) => {
+  return variations.some(variation => {
     const variationKey = `${variation.variationId}-${variation.variationTypeId}`;
     if (uniqueVariationKeys.has(variationKey)) {
       return true;
@@ -280,28 +275,19 @@ const hasDuplicateVariations = (variations) => {
     uniqueVariationKeys.add(variationKey);
     return false;
   });
-};
+}
 
-const isValidVariationsArray = ({
-  product,
-  selectedVariations,
-  diamondDetail,
-  customizations,
-}) => {
+const isValidVariationsArray = ({ product, selectedVariations, diamondDetail, customizations }) => {
   if (!product || !Array.isArray(selectedVariations)) return false;
 
-  const productVariationIds = (product?.variations || []).map(
-    (v) => v.variationId
-  );
-  const productVariationTypeIds = (product?.variations || []).flatMap(
-    (v) => v.variationTypes?.map((t) => t.variationTypeId) || []
-  );
+  const productVariationIds = (product?.variations || []).map(v => v.variationId);
+  const productVariationTypeIds = (product?.variations || [])
+    .flatMap(v => v.variationTypes?.map(t => t.variationTypeId) || []);
 
   // Check if all selected variations exist in product
-  const allVariationsExist = selectedVariations.every(
-    (v) =>
-      productVariationIds.includes(v.variationId) &&
-      productVariationTypeIds.includes(v.variationTypeId)
+  const allVariationsExist = selectedVariations.every(v =>
+    productVariationIds.includes(v.variationId) &&
+    productVariationTypeIds.includes(v.variationTypeId)
   );
 
   if (!allVariationsExist) {
@@ -313,44 +299,30 @@ const isValidVariationsArray = ({
     return false;
   }
 
-  const enrichedSelected = addNamesToVariationsArray(
-    selectedVariations,
-    customizations
-  );
+  const enrichedSelected = addNamesToVariationsArray(selectedVariations, customizations);
 
   if (diamondDetail) {
-    const hasGoldColor = enrichedSelected.some(
-      (v) => v.variationName === GOLD_COLOR
-    );
-    const hasGoldType = enrichedSelected.some(
-      (v) => v.variationName === GOLD_TYPES
-    );
-    const hasRingOrLength = enrichedSelected.some((v) =>
+    const hasGoldColor = enrichedSelected.some(v => v.variationName === GOLD_COLOR);
+    const hasGoldType = enrichedSelected.some(v => v.variationName === GOLD_TYPES);
+    const hasRingOrLength = enrichedSelected.some(v =>
       [RING_SIZE, LENGTH].includes(v.variationName)
     );
     return hasGoldColor && hasGoldType && hasRingOrLength;
   }
 
   const requiredVariationIds = new Set(productVariationIds);
-  const selectedVariationIds = new Set(
-    selectedVariations.map((v) => v.variationId)
-  );
+  const selectedVariationIds = new Set(selectedVariations.map(v => v.variationId));
 
-  if (
-    requiredVariationIds.size !== selectedVariationIds.size ||
-    ![...requiredVariationIds].every((id) => selectedVariationIds.has(id))
-  ) {
+  if (requiredVariationIds.size !== selectedVariationIds.size ||
+    ![...requiredVariationIds].every(id => selectedVariationIds.has(id))) {
     return false;
   }
 
-  return selectedVariations.every((selVar) => {
-    const variation = product.variations.find(
-      (v) => v.variationId === selVar.variationId
-    );
-    return variation?.variationTypes?.some(
-      (t) => t.variationTypeId === selVar.variationTypeId
-    );
+  return selectedVariations.every(selVar => {
+    const variation = product.variations.find(v => v.variationId === selVar.variationId);
+    return variation?.variationTypes?.some(t => t.variationTypeId === selVar.variationTypeId);
   });
+
 };
 
 const MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT = 5;
@@ -380,12 +352,6 @@ const DISCOUNT_APPLICATION_METHODS = {
 };
 
 const SIGN_UP_DISCOUNT = "Sign Up Discount";
-
-const INVOICE_CONFIG = {
-  LOGO_URL:
-    "https://firebasestorage.googleapis.com/v0/b/qa-ultimate-jewelry.firebasestorage.app/o/assets%2Flogo.png?alt=media&token=326abce1-8670-4eab-9727-891e465f510f",
-  COMPANY_NAME: "KATANOFF",
-};
 
 const CARD = "card";
 // Constants for variation types
@@ -427,7 +393,6 @@ module.exports = {
   displayDiamondDetailsLabel,
   generateProductTable,
   processProducts,
-  INVOICE_CONFIG,
   addNamesToVariationsArray,
-  isValidVariationsArray,
+  isValidVariationsArray
 };

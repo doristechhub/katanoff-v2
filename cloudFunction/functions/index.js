@@ -54,7 +54,10 @@ app.use("/contact", contactRoutes);
 app.use("/paypal", paypalRoutes);
 app.use("/discounts", discountsRoutes);
 
-exports.cloudFunctionsApi = functions.https.onRequest(app);
+// Export with increased resources
+exports.cloudFunctionsApi = functions
+  .runWith({ memory: '2GB', timeoutSeconds: 300 })
+  .https.onRequest(app);
 
 exports.helloWorld = functions.https.onRequest((req, res) => {
   res.send("hello response from hello world functions");

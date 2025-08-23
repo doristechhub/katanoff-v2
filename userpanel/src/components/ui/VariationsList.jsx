@@ -2,7 +2,21 @@
 import { memo, useCallback, useRef, useMemo, useEffect } from "react";
 import { CustomImg, ProgressiveImg } from "../dynamiComponents";
 import dropdownArrow from "@/assets/icons/dropdownArrow.svg";
-import { DIAMOND_CLARITY, DIAMOND_CLARITY_KEY, DIAMOND_COLOR, DIAMOND_COLOR_KEY, DIAMOND_SHAPE, DIAMOND_SHAPE_KEY, DIAMOND_WEIGHT, DIAMOND_WEIGHT_KEY, GOLD_COLOR, GOLD_TYPES, helperFunctions, LENGTH, RING_SIZE } from "@/_helper";
+import {
+  DIAMOND_CLARITY,
+  DIAMOND_CLARITY_KEY,
+  DIAMOND_COLOR,
+  DIAMOND_COLOR_KEY,
+  DIAMOND_SHAPE,
+  DIAMOND_SHAPE_KEY,
+  DIAMOND_WEIGHT,
+  DIAMOND_WEIGHT_KEY,
+  GOLD_COLOR,
+  GOLD_TYPES,
+  helperFunctions,
+  LENGTH,
+  RING_SIZE,
+} from "@/_helper";
 import { useDispatch, useSelector } from "react-redux";
 import { setCustomProductDetails } from "@/store/slices/commonSlice";
 import { setSelectedVariations } from "@/store/slices/productSlice";
@@ -18,8 +32,17 @@ const useDebounce = (callback, delay) => {
   );
 };
 
-const DisplayVariationButtons = ({ variationName, variationKey, options, selectedVariations, isSelected, handleDiamondSelection }) => {
-  const selectedType = selectedVariations?.find((v) => v?.variationId === variationKey)?.variationTypeName || "";
+const DisplayVariationButtons = ({
+  variationName,
+  variationKey,
+  options,
+  selectedVariations,
+  isSelected,
+  handleDiamondSelection,
+}) => {
+  const selectedType =
+    selectedVariations?.find((v) => v?.variationId === variationKey)
+      ?.variationTypeName || "";
 
   return (
     <div className="flex flex-col gap-2">
@@ -28,14 +51,16 @@ const DisplayVariationButtons = ({ variationName, variationKey, options, selecte
       </p>
       <div className="flex flex-wrap gap-4 md:gap-6 items-start lg:items-center">
         {options?.map((option) => {
-
           const selected = isSelected(variationKey, option?.value);
 
           return (
             <button
               key={option?.value}
-              className={`px-8 py-2 text-[12px] font-semibold rounded-sm transition-all ${selected ? "border-grayborder text-baseblack border" : "text-baseblack border-transparent border"
-                } hover:!border-grayborder`}
+              className={`px-8 py-2 text-[12px] font-semibold rounded-sm transition-all ${
+                selected
+                  ? "border-grayborder text-baseblack border"
+                  : "text-baseblack border-transparent border"
+              } hover:!border-grayborder`}
               onClick={() =>
                 handleDiamondSelection({
                   variationId: variationKey,
@@ -62,12 +87,10 @@ const VariationsList = ({
   hoveredColor,
   isCustomizePage,
 }) => {
-  const { variations, diamondFilters } = productDetail
+  const { variations, diamondFilters } = productDetail;
   const dispatch = useDispatch();
   const debouncedSetHoveredColor = useDebounce(setHoveredColor, 100);
-  const { customProductDetails } = useSelector(
-    ({ common }) => common
-  );
+  const { customProductDetails } = useSelector(({ common }) => common);
   const { customizeProductSettings } = useSelector(
     ({ selectedDiamond }) => selectedDiamond
   );
@@ -113,7 +136,6 @@ const VariationsList = ({
     return sortedVariations;
   }, [sortedVariations, isCustomizePage]);
 
-
   const initialPickValidOption = (savedValue, allowedOptions) => {
     if (savedValue && allowedOptions.some((o) => o.value === savedValue)) {
       return allowedOptions.find((o) => o.value === savedValue);
@@ -126,20 +148,23 @@ const VariationsList = ({
     return null;
   };
 
-
   const caratRangeOptions = useMemo(() => {
     if (!isCustomizePage) return [];
-    return helperFunctions?.generateCaratValues({ minCarat, maxCarat, step: 0.5 }).map(value => ({
-      variationTypeId: `carat-${value}`,
-      variationTypeName: value,
-    }));
+    return helperFunctions
+      ?.generateCaratValues({ minCarat, maxCarat, step: 0.5 })
+      .map((value) => ({
+        variationTypeId: `carat-${value}`,
+        variationTypeName: value,
+      }));
   }, [isCustomizePage, minCarat, maxCarat]);
 
   const allowedClarityOptions = useMemo(() => {
     if (!isCustomizePage) return;
 
     const validValues =
-      customizeProductSettings?.diamondClarities?.flatMap((c) => c.compatibleOptions) || [];
+      customizeProductSettings?.diamondClarities?.flatMap(
+        (c) => c.compatibleOptions
+      ) || [];
 
     return validValues.map((val) => ({
       title: val,
@@ -147,12 +172,13 @@ const VariationsList = ({
     }));
   }, [isCustomizePage, customizeProductSettings]);
 
-
   const allowedColorOptions = useMemo(() => {
     if (!isCustomizePage) return;
 
     const validValues =
-      customizeProductSettings?.diamondColors?.flatMap((c) => c.compatibleOptions) || [];
+      customizeProductSettings?.diamondColors?.flatMap(
+        (c) => c.compatibleOptions
+      ) || [];
 
     return validValues.map((val) => ({
       title: val,
@@ -183,14 +209,23 @@ const VariationsList = ({
         shapeId = firstShape?.id;
         shapeTitle = firstShape?.title;
       }
-      handleSelect({ variationId: DIAMOND_SHAPE_KEY, variationTypeId: shapeId, variationName: DIAMOND_SHAPE, variationTypeName: shapeTitle });
+      handleSelect({
+        variationId: DIAMOND_SHAPE_KEY,
+        variationTypeId: shapeId,
+        variationName: DIAMOND_SHAPE,
+        variationTypeName: shapeTitle,
+      });
     }
 
-    const currentWeight = selectedVariations?.find((v) => v?.variationId === DIAMOND_WEIGHT_KEY);
+    const currentWeight = selectedVariations?.find(
+      (v) => v?.variationId === DIAMOND_WEIGHT_KEY
+    );
     if (caratRangeOptions.length > 0) {
-      const isValidWeight = currentWeight && caratRangeOptions.some(
-        (option) => option.variationTypeId === currentWeight?.variationTypeId
-      );
+      const isValidWeight =
+        currentWeight &&
+        caratRangeOptions.some(
+          (option) => option.variationTypeId === currentWeight?.variationTypeId
+        );
       if (!isValidWeight) {
         let weightOption;
 
@@ -220,14 +255,18 @@ const VariationsList = ({
               caratWeight: parseFloat(weightOption.variationTypeName),
             },
           };
-          localStorage.setItem("customProduct", JSON.stringify(updatedCustomProduct));
+          localStorage.setItem(
+            "customProduct",
+            JSON.stringify(updatedCustomProduct)
+          );
           dispatch(setCustomProductDetails(updatedCustomProduct));
         }
       }
     }
 
-    const currentClarity =
-      selectedVariations?.find((v) => v?.variationId === DIAMOND_CLARITY_KEY);
+    const currentClarity = selectedVariations?.find(
+      (v) => v?.variationId === DIAMOND_CLARITY_KEY
+    );
     if (!currentClarity) {
       const chosenClarity = initialPickValidOption(
         diamondDetails?.clarity?.value,
@@ -250,13 +289,17 @@ const VariationsList = ({
             },
           },
         };
-        localStorage.setItem("customProduct", JSON.stringify(updatedCustomProduct));
+        localStorage.setItem(
+          "customProduct",
+          JSON.stringify(updatedCustomProduct)
+        );
         dispatch(setCustomProductDetails(updatedCustomProduct));
       }
     }
 
-    const currentColor =
-      selectedVariations?.find((v) => v?.variationId === DIAMOND_COLOR_KEY);
+    const currentColor = selectedVariations?.find(
+      (v) => v?.variationId === DIAMOND_COLOR_KEY
+    );
     if (!currentColor) {
       const chosenColor = initialPickValidOption(
         diamondDetails?.color?.value,
@@ -281,15 +324,14 @@ const VariationsList = ({
             },
           },
         };
-        localStorage.setItem("customProduct", JSON.stringify(updatedCustomProduct));
+        localStorage.setItem(
+          "customProduct",
+          JSON.stringify(updatedCustomProduct)
+        );
         dispatch(setCustomProductDetails(updatedCustomProduct));
       }
     }
-
-  }, [
-    selectedVariations
-  ]);
-
+  }, [selectedVariations]);
 
   const handleDiamondSelection = useCallback(
     ({ variationId, variationTypeId, variationName, variationTypeName }) => {
@@ -309,10 +351,13 @@ const VariationsList = ({
 
       switch (variationId) {
         case DIAMOND_WEIGHT_KEY:
-          updatedCustomProduct.diamondDetails.caratWeight = parseFloat(variationTypeName);
+          updatedCustomProduct.diamondDetails.caratWeight =
+            parseFloat(variationTypeName);
           break;
         case DIAMOND_CLARITY_KEY: {
-          const clarity = allowedClarityOptions?.find(c => c?.value === variationTypeId);
+          const clarity = allowedClarityOptions?.find(
+            (c) => c?.value === variationTypeId
+          );
           updatedCustomProduct.diamondDetails.clarity = {
             title: clarity?.title || variationTypeId,
             value: variationTypeId,
@@ -321,15 +366,17 @@ const VariationsList = ({
         }
 
         case DIAMOND_COLOR_KEY: {
-          const color = allowedColorOptions?.find(c => c?.value === variationTypeId);
+          const color = allowedColorOptions?.find(
+            (c) => c?.value === variationTypeId
+          );
           updatedCustomProduct.diamondDetails.color = {
             title: color?.title || variationTypeId,
-            value: variationTypeId
+            value: variationTypeId,
           };
           break;
         }
         case DIAMOND_SHAPE_KEY:
-          const shape = diamondShapes.find(s => s?.id === variationTypeId);
+          const shape = diamondShapes.find((s) => s?.id === variationTypeId);
           updatedCustomProduct.diamondDetails.shape = {
             title: shape?.title || variationTypeName,
             id: variationTypeId,
@@ -338,12 +385,21 @@ const VariationsList = ({
           break;
       }
 
-      localStorage.setItem("customProduct", JSON.stringify(updatedCustomProduct));
+      localStorage.setItem(
+        "customProduct",
+        JSON.stringify(updatedCustomProduct)
+      );
       dispatch(setCustomProductDetails(updatedCustomProduct));
     },
-    [isCustomizePage, diamondShapes, selectedVariations, allowedClarityOptions, allowedColorOptions, dispatch]
+    [
+      isCustomizePage,
+      diamondShapes,
+      selectedVariations,
+      allowedClarityOptions,
+      allowedColorOptions,
+      dispatch,
+    ]
   );
-
 
   return (
     <div className="flex flex-col mt-4 lg:mt-6 gap-6">
@@ -377,7 +433,7 @@ const VariationsList = ({
                       variationId: variation?.variationId,
                       variationTypeId: selectedOption?.variationTypeId,
                       variationName: variation?.variationName,
-                      variationTypeName: selectedOption?.variationTypeName
+                      variationTypeName: selectedOption?.variationTypeName,
                     });
                   }}
                 >
@@ -385,8 +441,8 @@ const VariationsList = ({
                     {isSizeVariation
                       ? "Size"
                       : isLengthVariation
-                        ? "Length"
-                        : null}
+                      ? "Length"
+                      : null}
                   </option>
                   {variation?.variationTypes?.map((type) => (
                     <option
@@ -420,17 +476,18 @@ const VariationsList = ({
                       {type?.type === "color" ? (
                         <div className="relative flex flex-col items-center">
                           <button
-                            className={`relative w-16 3xl:w-[72px] h-8 transition-all flex items-center justify-center outline-1 ${selected ||
+                            className={`relative w-16 3xl:w-[72px] h-8 transition-all flex items-center justify-center outline-1 ${
+                              selected ||
                               hoveredColor?.toLowerCase() ===
-                              type.variationTypeName?.toLowerCase()
-                              ? "outline outline-grayborder"
-                              : "outline-none"
-                              }`}
+                                type.variationTypeName?.toLowerCase()
+                                ? "outline outline-grayborder"
+                                : "outline-none"
+                            }`}
                             style={{
                               backgroundColor: type?.variationTypeHexCode,
                               boxShadow:
                                 selected ||
-                                  hoveredColor?.toLowerCase() ===
+                                hoveredColor?.toLowerCase() ===
                                   type.variationTypeName?.toLowerCase()
                                   ? "0 0 5px 2px #fff"
                                   : "none",
@@ -441,9 +498,8 @@ const VariationsList = ({
                                 variationId: variation?.variationId,
                                 variationTypeId: type?.variationTypeId,
                                 variationName: variation?.variationName,
-                                variationTypeName: type?.variationTypeName
+                                variationTypeName: type?.variationTypeName,
                               })
-
                             }
                             onMouseEnter={() =>
                               debouncedSetHoveredColor(type.variationTypeName)
@@ -454,18 +510,18 @@ const VariationsList = ({
                       ) : type?.type === "image" ? (
                         <div className="relative flex flex-col items-center">
                           <button
-                            className={`w-12 xs:w-16 4xl:w-20 p-1 flex items-center justify-center rounded-sm transition-all ${selected
-                              ? "border-grayborder text-baseblack border"
-                              : "border-transparent border"
-                              } hover:!border-grayborder`}
+                            className={`w-12 xs:w-16 4xl:w-20 p-1 flex items-center justify-center rounded-sm transition-all ${
+                              selected
+                                ? "border-grayborder text-baseblack border"
+                                : "border-transparent border"
+                            } hover:!border-grayborder`}
                             onClick={() =>
                               handleSelect({
                                 variationId: variation?.variationId,
                                 variationTypeId: type?.variationTypeId,
                                 variationName: variation?.variationName,
-                                variationTypeName: type?.variationTypeName
+                                variationTypeName: type?.variationTypeName,
                               })
-
                             }
                           >
                             <CustomImg
@@ -479,18 +535,18 @@ const VariationsList = ({
                         </div>
                       ) : (
                         <button
-                          className={`px-8 py-2 text-[12px] font-semibold rounded-sm transition-all ${selected
-                            ? "border-grayborder text-baseblack border"
-                            : "text-baseblack border-transparent border"
-                            } hover:!border-grayborder`}
+                          className={`px-8 py-2 text-[12px] font-semibold rounded-sm transition-all ${
+                            selected
+                              ? "border-grayborder text-baseblack border"
+                              : "text-baseblack border-transparent border"
+                          } hover:!border-grayborder`}
                           onClick={() =>
                             handleSelect({
                               variationId: variation?.variationId,
                               variationTypeId: type?.variationTypeId,
                               variationName: variation?.variationName,
-                              variationTypeName: type?.variationTypeName
-                            }
-                            )
+                              variationTypeName: type?.variationTypeName,
+                            })
                           }
                         >
                           {type?.variationTypeName}
@@ -526,14 +582,12 @@ const VariationsList = ({
                   const selectedOption = caratRangeOptions.find(
                     (option) => option.variationTypeId === e.target.value
                   );
-                  handleDiamondSelection(
-                    {
-                      variationId: DIAMOND_WEIGHT_KEY,
-                      variationTypeId: selectedOption?.variationTypeId,
-                      variationName: DIAMOND_WEIGHT,
-                      variationTypeName: selectedOption?.variationTypeName
-                    }
-                  );
+                  handleDiamondSelection({
+                    variationId: DIAMOND_WEIGHT_KEY,
+                    variationTypeId: selectedOption?.variationTypeId,
+                    variationName: DIAMOND_WEIGHT,
+                    variationTypeName: selectedOption?.variationTypeName,
+                  });
                 }}
               >
                 <option value="" disabled>
@@ -559,9 +613,6 @@ const VariationsList = ({
             </div>
           </div>
 
-
-
-
           {/* customized page Diamond Shapes */}
           <div className="flex flex-col gap-2">
             <p className="font-semibold text-baseblack text-sm">
@@ -579,18 +630,18 @@ const VariationsList = ({
                     className="relative flex flex-col items-center"
                   >
                     <button
-                      className={`group flex flex-col justify-between items-center w-[70px] h-[76px] py-2 px-2 rounded-md cursor-pointer border transition-all duration-300 ${selected
-                        ? "border-[1.5px] border-baseblack bg-opacity-10"
-                        : "border-transparent hover:border-primary"
-                        }`}
+                      className={`group flex flex-col justify-between items-center w-[70px] h-[76px] py-2 px-2 rounded-md cursor-pointer border transition-all duration-300 ${
+                        selected
+                          ? "border-[1.5px] border-grayborder bg-opacity-10"
+                          : "border-transparent hover:border-grayborder"
+                      }`}
                       onClick={() =>
                         handleDiamondSelection({
                           variationId: DIAMOND_SHAPE_KEY,
                           variationTypeId: shape.id,
                           variationName: DIAMOND_SHAPE,
-                          variationTypeName: shape.title
-                        }
-                        )
+                          variationTypeName: shape.title,
+                        })
                       }
                     >
                       <ProgressiveImg
@@ -599,10 +650,11 @@ const VariationsList = ({
                         className="w-8 h-8 mb-2"
                       />
                       <span
-                        className={`text-xs uppercase transition-all duration-300 ${selected
-                          ? "text-baseblack font-semibold"
-                          : "text-transparent group-hover:text-baseblack"
-                          }`}
+                        className={`text-xs uppercase transition-all duration-300 ${
+                          selected
+                            ? "text-baseblack font-semibold"
+                            : "text-transparent group-hover:text-baseblack"
+                        }`}
                       >
                         {shape.title}
                       </span>
