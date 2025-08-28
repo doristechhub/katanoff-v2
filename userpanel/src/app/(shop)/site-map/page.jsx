@@ -19,15 +19,23 @@ export default function SiteMapPage() {
         // Rings
         {
           title: "Rings",
-          href: "/collections/categories/rings",
+          href: "/collections/subCategories/rings?parentMainCategory=Jewelry",
           subLinks: [
             {
+              title: "High Jewelry",
+              href: "/collections/productTypes/High_Jewelry?parentCategory=Rings&parentMainCategory=Jewelry",
+            },
+            {
+              title: "Fashion Rings",
+              href: "/collections/productTypes/Fashion_Rings?parentCategory=Rings&parentMainCategory=Jewelry",
+            },
+            {
               title: "Diamond Rings",
-              href: "/collections/categories/rings/diamond-rings",
+              href: "/collections/productTypes/Diamond_Rings?parentCategory=Rings&parentMainCategory=Jewelry",
             },
             {
               title: "Anniversary Rings",
-              href: "/collections/categories/rings/anniversary-rings",
+              href: "/collections/productTypes/Anniversary_Rings?parentCategory=Rings&parentMainCategory=Jewelry",
             },
           ],
         },
@@ -35,13 +43,19 @@ export default function SiteMapPage() {
         // Earrings
         {
           title: "Earrings",
-          href: "/collections/categories/earrings",
+          href: "/collections/subCategories/earrings?parentMainCategory=Jewelry",
           subLinks: [
-            { title: "Hoops", href: "/collections/categories/earrings/hoops" },
-            { title: "Studs", href: "/collections/categories/earrings/studs" },
+            {
+              title: "Hoops",
+              href: "/collections/productTypes/Hoops?parentCategory=Earrings&parentMainCategory=Jewelry",
+            },
+            {
+              title: "Studs",
+              href: "/collections/productTypes/Studs?parentCategory=Earrings&parentMainCategory=Jewelry",
+            },
             {
               title: "Fashion",
-              href: "/collections/categories/earrings/fashion",
+              href: "/collections/productTypes/Fashion?parentCategory=Earrings&parentMainCategory=Jewelry",
             },
           ],
         },
@@ -49,19 +63,16 @@ export default function SiteMapPage() {
         // Necklaces
         {
           title: "Necklaces",
-          href: "/collections/categories/necklaces",
+          href: "/collections/subCategories/Necklaces?parentMainCategory=Jewelry",
           subLinks: [
             {
-              title: "Tennis",
-              href: "/collections/categories/necklaces/tennis",
-            },
-            {
               title: "Fashion",
-              href: "/collections/categories/necklaces/fashion",
+              href: "/collections/productTypes/Fashion?parentCategory=Necklaces&parentMainCategory=Jewelry",
             },
+
             {
               title: "Pendants",
-              href: "/collections/categories/necklaces/pendants",
+              href: "/collections/productTypes/Pendants?parentCategory=Necklaces&parentMainCategory=Jewelry",
             },
           ],
         },
@@ -69,40 +80,35 @@ export default function SiteMapPage() {
         // Bracelets
         {
           title: "Bracelets",
-          href: "/collections/categories/bracelets",
+          href: "/collections/subCategories/Bracelets?parentMainCategory=Jewelry",
           subLinks: [
             {
               title: "Tennis",
-              href: "/collections/categories/bracelets/tennis",
+              href: "/collections/productTypes/Tennis?parentCategory=Bracelets&parentMainCategory=Jewelry",
             },
             {
               title: "Fashion",
-              href: "/collections/categories/bracelets/fashion",
+              href: "/collections/productTypes/Fashion?parentCategory=Bracelets&parentMainCategory=Jewelry",
             },
-            { title: "Bands", href: "/collections/categories/bracelets/bands" },
           ],
         },
 
         // Men's Jewelry
         {
           title: "Men’s Jewelry",
-          href: "/collections/categories/mens-jewelry",
+          href: "/collections/subCategories/Men's_Jewelry?parentMainCategory=Jewelry",
           subLinks: [
             {
-              title: "Chains",
-              href: "/collections/categories/mens-jewelry/chains",
-            },
-            {
               title: "Rings",
-              href: "/collections/categories/mens-jewelry/rings",
+              href: "/collections/productTypes/Rings?parentCategory=Men%27s+Jewelry&parentMainCategory=Jewelry",
             },
             {
               title: "Bracelets",
-              href: "/collections/categories/mens-jewelry/bracelets",
+              href: "/collections/productTypes/Bracelets?parentCategory=Men%27s+Jewelry&parentMainCategory=Jewelry",
             },
             {
               title: "Pendants",
-              href: "/collections/categories/mens-jewelry/pendants",
+              href: "/collections/productTypes/Pendants?parentCategory=Men%27s+Jewelry&parentMainCategory=Jewelry",
             },
           ],
         },

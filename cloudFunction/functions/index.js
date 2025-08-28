@@ -42,6 +42,7 @@ const returnsRoutes = require("./routes/returns");
 const contactRoutes = require("./routes/contact");
 const paypalRoutes = require("./routes/paypal");
 const discountsRoutes = require("./routes/discounts");
+const analyticsRoutes = require("./routes/analytics");
 /*   Routes   */
 app.use("/stripe", stripeRoutes);
 app.use("/order", orderRoutes);
@@ -53,6 +54,7 @@ app.use("/returns", returnsRoutes);
 app.use("/contact", contactRoutes);
 app.use("/paypal", paypalRoutes);
 app.use("/discounts", discountsRoutes);
+app.use("/analytics", analyticsRoutes)
 
 // Export with increased resources
 exports.cloudFunctionsApi = functions

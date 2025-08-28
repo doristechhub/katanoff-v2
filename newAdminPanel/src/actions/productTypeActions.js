@@ -1,12 +1,10 @@
 import { toast } from 'react-toastify';
-
 import { toastError } from '.';
 import {
   setMenuProductTypeList,
   setMenuProductTypeLoading,
   setCrudMenuProductTypeLoading,
 } from 'src/store/slices/menuSlice';
-import { helperFunctions } from 'src/_helpers';
 import { productTypeService } from 'src/_services';
 
 // ----------------------------------------------------------------------

@@ -13,9 +13,14 @@ export const collectionModel = {
     type: String,
     enum: [null, 'slider_grid', 'two_grid', 'three_grid'],
   },
+  filterType: {
+    type: String,
+    enum: ['setting_style', 'sub_categories', 'product_types'],
+    default: 'setting_style', // Default for new and existing records
+  },
   position: {
     type: Number,
-    unique: true, // postion set type wise
+    unique: true, // position set type wise
   },
   desktopBannerImage: {
     type: String, // 1920*448

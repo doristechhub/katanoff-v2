@@ -1,8 +1,18 @@
 import { uid } from 'uid';
-import { fetchWrapperService, productTypeUrl, productsUrl, sanitizeObject } from '../_helpers';
+import {
+  fetchWrapperService,
+  productTypeUrl,
+  productsUrl,
+  sanitizeObject,
+  isValidFileType,
+  isValidFileSize,
+  uploadFile,
+  deleteFile,
+} from '../_helpers';
 import { menuCategoryService } from './menuCategory.service';
 import { menuSubCategoryService } from './menuSubCategory.service';
 import { productService } from './product.service';
+import fileSettings from 'src/_utils/fileSettings';
 
 const getAllProductType = () => {
   return new Promise(async (resolve, reject) => {
@@ -65,14 +75,55 @@ const getDefaultPosition = async (categoryId, subCategoryId) => {
   }
 };
 
+const validateFiles = async (files, type, name) => {
+  if (files.length > fileSettings.BANNER_IMAGE_FILE_LIMIT) {
+    throw new Error(
+      `Maximum ${fileSettings.BANNER_IMAGE_FILE_LIMIT} ${name !== 'image' ? 'banner image' : 'image'} allowed`
+    );
+  }
+  if (files.length) {
+    if (!isValidFileType(fileSettings.IMAGE_FILE_NAME, files)) {
+      throw new Error(`Invalid ${name} file type. Only JPG, JPEG, PNG, WEBP allowed`);
+    }
+    if (!isValidFileSize(fileSettings.IMAGE_FILE_NAME, files)) {
+      throw new Error(
+        `Invalid ${name} file size. Maximum ${fileSettings.MAX_FILE_SIZE_MB}MB allowed`
+      );
+    }
+  }
+};
+
+const uploadFiles = async (filesPayload) => {
+  if (!filesPayload.length) return { imageUrl: '' };
+  const fileNames = await uploadFile(productTypeUrl, filesPayload);
+  if (fileNames.length !== filesPayload.length) {
+    throw new Error(`Expected ${filesPayload.length} files, received ${fileNames.length}`);
+  }
+  return { imageUrl: fileNames[0] || '' };
+};
+
+const deleteFiles = async (urls) => {
+  const filesToDelete = urls.filter(Boolean);
+  if (filesToDelete.length) {
+    await Promise.all(
+      filesToDelete.map((url) =>
+        deleteFile(productTypeUrl, url).catch((e) => {
+          console.warn(`Failed to delete file ${url}: ${e.message}`);
+        })
+      )
+    );
+  }
+};
+
 const insertProductType = (params) => {
   return new Promise(async (resolve, reject) => {
     try {
       const uuid = uid();
-      let { title, categoryId, subCategoryId, position } = sanitizeObject(params);
+      let { title, categoryId, subCategoryId, position, imageFile } = sanitizeObject(params);
       title = title ? title.trim() : null;
       categoryId = categoryId ? categoryId.trim() : null;
       subCategoryId = subCategoryId ? subCategoryId.trim() : null;
+      imageFile = imageFile && typeof imageFile === 'object' ? [imageFile] : [];
 
       if (title && categoryId && subCategoryId && uuid) {
         const respData = await fetchWrapperService.getAll(productTypeUrl);
@@ -87,7 +138,7 @@ const insertProductType = (params) => {
         );
 
         if (productTypeData) {
-          reject(new Error('title already exists'));
+          reject(new Error('Title already exists'));
           return;
         }
 
@@ -109,6 +160,12 @@ const insertProductType = (params) => {
           return;
         }
 
+        await validateFiles(imageFile, 'IMAGE_FILE_NAME', 'image');
+
+        const { imageUrl } = await uploadFiles(imageFile).catch((e) => {
+          throw new Error('An error occurred during image uploading.');
+        });
+
         const insertPattern = {
           id: uuid,
           title: title,
@@ -116,6 +173,7 @@ const insertProductType = (params) => {
           subCategoryId: subCategoryId,
           position: finalPosition,
           createdDate: Date.now(),
+          image: imageUrl,
         };
         const createPattern = {
           url: `${productTypeUrl}/${uuid}`,
@@ -123,14 +181,15 @@ const insertProductType = (params) => {
         };
         fetchWrapperService
           .create(createPattern)
-          .then((response) => {
+          .then(() => {
             resolve(true);
           })
           .catch((e) => {
+            deleteFiles([imageUrl]);
             reject(new Error('An error occurred during product type creation.'));
           });
       } else {
-        reject(new Error('title, categoryId, and subCategoryId are required'));
+        reject(new Error('Title, categoryId, and subCategoryId are required'));
       }
     } catch (e) {
       reject(e);
@@ -141,8 +200,12 @@ const insertProductType = (params) => {
 const updateProductType = (params) => {
   return new Promise(async (resolve, reject) => {
     try {
-      let { productTypeId, categoryId, subCategoryId, title, position } = sanitizeObject(params);
+      let { productTypeId, categoryId, subCategoryId, title, position, imageFile, deletedImage } =
+        sanitizeObject(params);
       title = title ? title.trim() : null;
+      imageFile = imageFile && typeof imageFile === 'object' ? [imageFile] : [];
+      deletedImage = deletedImage ? deletedImage.trim() : null;
+
       if (productTypeId && title) {
         const productTypeData = await fetchWrapperService.findOne(productTypeUrl, {
           id: productTypeId,
@@ -164,7 +227,7 @@ const updateProductType = (params) => {
           );
 
           if (duplicateData.length) {
-            reject(new Error('title already exists'));
+            reject(new Error('Title already exists'));
             return;
           }
 
@@ -185,26 +248,38 @@ const updateProductType = (params) => {
             }
           }
 
+          let image = productTypeData?.image || null;
+          if (deletedImage && image === deletedImage) {
+            image = null;
+          }
+
+          await validateFiles(imageFile, 'IMAGE_FILE_NAME', 'image');
+
+          const { imageUrl } = await uploadFiles(imageFile).catch((e) => {
+            throw new Error(`File upload failed: ${e.message}`);
+          });
+
           const payload = {
             title,
             categoryId,
             subCategoryId,
             position: finalPosition,
+            image: imageUrl || image,
           };
           const updatePattern = {
             url: `${productTypeUrl}/${productTypeId}`,
             payload: payload,
           };
-          fetchWrapperService
-            ._update(updatePattern)
-            .then((response) => {
-              resolve(true);
-            })
-            .catch((e) => {
-              reject(new Error('An error occurred during update product type.'));
-            });
+          await fetchWrapperService._update(updatePattern).catch(async (e) => {
+            await deleteFiles([imageUrl]);
+            throw new Error(`Update failed: ${e.message}`);
+          });
+
+          await deleteFiles([deletedImage]);
+
+          resolve(true);
         } else {
-          reject(new Error('product type not found!'));
+          reject(new Error('Product type not found!'));
         }
       } else {
         reject(new Error('Invalid Data'));
@@ -288,14 +363,15 @@ const deleteProductType = (params) => {
           const productsData = await getAllProductsByProductTypeId(productTypeId);
           if (!productsData?.length) {
             await fetchWrapperService._delete(`${productTypeUrl}/${productTypeId}`);
+            await deleteFiles([productTypeData.image]);
             resolve(true);
           } else {
             reject(
-              new Error('product type cannot be deleted because it is associated with products')
+              new Error('Product type cannot be deleted because it is associated with products')
             );
           }
         } else {
-          reject(new Error('product type not found!'));
+          reject(new Error('Product type not found!'));
         }
       } else {
         reject(new Error('Invalid Id'));

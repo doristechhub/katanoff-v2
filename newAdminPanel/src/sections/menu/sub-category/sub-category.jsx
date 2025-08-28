@@ -180,8 +180,10 @@ const SubCategory = () => {
         title: val?.title,
         categoryId: val?.categoryId,
         position: parseInt(val?.position, 10),
+        imageFile: val?.imageFile?.[0] || null,
         desktopBannerFile: val?.desktopBannerFile?.[0] || null,
         mobileBannerFile: val?.mobileBannerFile?.[0] || null,
+        deletedImage: val?.deleteUploadedImage?.[0]?.image || null,
         deletedDesktopBannerImage: val?.desktopBannerUploadedDeletedImage?.[0]?.image || null,
         deletedMobileBannerImage: val?.mobileBannerUploadedDeletedImage?.[0]?.image || null,
       };
@@ -274,6 +276,24 @@ const SubCategory = () => {
         ...subCategory,
         position: subCategory.position || getDefaultPosition(subCategory.categoryId),
       };
+      // Image
+      const imageUrl = subCategory?.image;
+      if (imageUrl) {
+        const url = new URL(imageUrl);
+        const fileExtension = url.pathname.split('.').pop();
+        const imagePreviewObj = {
+          type: 'old',
+          mimeType: `image/${fileExtension}`,
+          image: imageUrl,
+        };
+        updatedSubCategory = {
+          ...updatedSubCategory,
+          imageFile: [],
+          previewImage: [imagePreviewObj],
+          deleteUploadedImage: [],
+        };
+      }
+
       // Desktop Banner Image
       const desktopBannerImageUrl = subCategory?.desktopBannerImage;
       if (desktopBannerImageUrl) {
@@ -309,6 +329,7 @@ const SubCategory = () => {
           mobileBannerUploadedDeletedImage: [],
         };
       }
+
       dispatch(setSelectedMenuSubCategory(updatedSubCategory));
       setOpenMenuSubCategoryDialog(true);
     }
@@ -455,15 +476,12 @@ const SubCategory = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell sx={{ width: '5%' }}></TableCell>
-                      <TableCell sx={{ width: '25%' }}>Title</TableCell>
-                      <TableCell sx={{ width: '25%' }}>Category Name</TableCell>
+                      <TableCell sx={{ width: '20%' }}>Title</TableCell>
+                      <TableCell sx={{ width: '20%' }}>Category Name</TableCell>
                       <TableCell sx={{ width: '10%' }}>Position</TableCell>
-                      <TableCell sx={{ width: '17.5%', minWidth: '150px' }}>
-                        Desktop Banner
-                      </TableCell>
-                      <TableCell sx={{ width: '17.5%', minWidth: '150px' }}>
-                        Mobile Banner
-                      </TableCell>
+                      <TableCell sx={{ width: '15%', minWidth: '150px' }}>Image</TableCell>
+                      <TableCell sx={{ width: '15%', minWidth: '150px' }}>Desktop Banner</TableCell>
+                      <TableCell sx={{ width: '15%', minWidth: '150px' }}>Mobile Banner</TableCell>
                       <TableCell sx={{ width: '5%' }}></TableCell>
                     </TableRow>
                   </TableHead>
@@ -486,10 +504,21 @@ const SubCategory = () => {
                                 <TableCell sx={{ width: '5%' }}>
                                   <Iconify icon="mdi:drag" sx={{ cursor: 'move' }} />
                                 </TableCell>
-                                <TableCell sx={{ width: '25%' }}>{x?.title}</TableCell>
-                                <TableCell sx={{ width: '25%' }}>{x?.categoryName}</TableCell>
+                                <TableCell sx={{ width: '20%' }}>{x?.title}</TableCell>
+                                <TableCell sx={{ width: '20%' }}>{x?.categoryName}</TableCell>
                                 <TableCell sx={{ width: '10%' }}>{x?.position || '-'}</TableCell>
-                                <TableCell sx={{ width: '17.5%', minWidth: '150px' }}>
+                                <TableCell sx={{ width: '15%', minWidth: '150px' }}>
+                                  {x?.image ? (
+                                    <ProgressiveImg
+                                      src={x?.image}
+                                      alt="Image"
+                                      style={{ maxWidth: '100px', height: 'auto' }}
+                                    />
+                                  ) : (
+                                    'No Image'
+                                  )}
+                                </TableCell>
+                                <TableCell sx={{ width: '15%', minWidth: '150px' }}>
                                   {x?.desktopBannerImage ? (
                                     <ProgressiveImg
                                       src={x?.desktopBannerImage}
@@ -500,7 +529,7 @@ const SubCategory = () => {
                                     'No Image'
                                   )}
                                 </TableCell>
-                                <TableCell sx={{ width: '17.5%', minWidth: '150px' }}>
+                                <TableCell sx={{ width: '15%', minWidth: '150px' }}>
                                   {x?.mobileBannerImage ? (
                                     <ProgressiveImg
                                       src={x?.mobileBannerImage}
@@ -727,7 +756,22 @@ const SubCategory = () => {
                             helperText={touched.position && errors.position ? errors.position : ''}
                           />
                           <Grid container spacing={3}>
-                            <Grid xs={12} sm={6} md={6}>
+                            <Grid xs={12} sm={4} md={4}>
+                              <Typography variant="subtitle2" gutterBottom>
+                                Image
+                              </Typography>
+                              <FileDrop
+                                mediaLimit={1}
+                                formik={formik}
+                                productId={selectedMenuSubCategory}
+                                fileKey="imageFile"
+                                previewKey="previewImage"
+                                deleteKey="deleteUploadedImage"
+                                loading={crudMenuSubCategoryLoading}
+                                dropzoneProps={{ disabled: crudMenuSubCategoryLoading }}
+                              />
+                            </Grid>
+                            <Grid xs={12} sm={4} md={4}>
                               <Typography variant="subtitle2" gutterBottom>
                                 Desktop Banner (1920x448)
                               </Typography>
@@ -742,7 +786,7 @@ const SubCategory = () => {
                                 dropzoneProps={{ disabled: crudMenuSubCategoryLoading }}
                               />
                             </Grid>
-                            <Grid xs={12} sm={6} md={6}>
+                            <Grid xs={12} sm={4} md={4}>
                               <Typography variant="subtitle2" gutterBottom>
                                 Mobile Banner (1500x738)
                               </Typography>

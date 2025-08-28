@@ -11,6 +11,7 @@ const fileSettings = {
   IMAGE_FILE_NAME: 'IMAGE_FILE',
   THUMBNAIL_IMAGE_FILE_NAME: 'THUMBNAIL_IMAGE_FILE',
   IMAGE_ALLOW_FILE_SIZE: 5242880, // 5 MB
+  MAX_FILE_SIZE_MB: 5, // 5 MB
   IMAGE_ALLOW_MIME_TYPE: ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'],
 
   VIDEO_FILE_NAME: 'VIDEO_FILE',

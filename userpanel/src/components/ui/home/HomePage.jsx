@@ -3,6 +3,9 @@ import "swiper/css";
 import "swiper/css/navigation";
 import newArrivalBannerMobile from "@/assets/images/home/newArrivalBannerMobile.png";
 import newArrivalBannerDesktop from "@/assets/images/home/newArrivalBanner-desktop.png";
+import threeGrid1 from "@/assets/images/home/three-grid-gifts-for-her.webp";
+import threeGrid2 from "@/assets/images/home/three-grid-gifts-for-him.webp";
+import threeGrid3 from "@/assets/images/home/three-grid-gift-under-1000.webp";
 
 import {
   AccordionDropdown,
@@ -10,7 +13,7 @@ import {
   GetToKnowUsSection,
   HeroBanner,
   HomePagePopup,
-  HomePagePopupWithLogin,
+  // HomePagePopupWithLogin,
   JewelryAppointment,
   LatestProduct,
   ReviewSlider,
@@ -24,6 +27,10 @@ import { setLoginMessage } from "@/store/slices/userSlice";
 import { useAlertTimeout } from "@/hooks/use-alert-timeout";
 import CategoryGallery from "./categoryGallery";
 import {
+  GENERAL,
+  GIFTS_FOR_HER,
+  GIFTS_FOR_HIM,
+  GIFTS_UNDER_1000,
   helperFunctions,
   messageType,
   SLIDER_GRID,
@@ -33,16 +40,14 @@ import {
 import KeyFeatures from "../KeyFeatures";
 import { setAppointmentMessage } from "@/store/slices/appointmentSlice";
 import { setCustomJewelryMessage } from "@/store/slices/customjewelrySlice";
-import GiftCollections from "../GiftCollections";
-import fiveStar from "@/assets/icons/fiveStar.svg";
-import fourStar from "@/assets/icons/fourStar.svg";
-import fourAndHalfStar from "@/assets/icons/fourAndHalfStar.svg";
+// import GiftCollections from "../GiftCollections";
+import ThreeGridHomePage from "../ThreeGridHomePage";
 import ResponsiveImageAndContent from "../ResponsiveImageAndContent";
 import { useEffect } from "react";
 import { fetchCollectionsByTypes } from "@/_actions/collection.action";
 import HomePageSliderSkeleton from "../HomePageSliderSkeleton";
 import TwoGridSkeleton from "../TwoGridSkeleton";
-import ThreeGridSkeleton from "../ThreeGridSkeleton";
+// import ThreeGridSkeleton from "../ThreeGridSkeleton";
 
 const faqData = [
   {
@@ -151,6 +156,30 @@ const mockReviews = [
   },
 ];
 
+const staticThreeGridData = [
+  {
+    title: GIFTS_FOR_HER,
+    image: threeGrid1,
+    link: `/collections/${GENERAL}/${helperFunctions?.stringReplacedWithUnderScore(
+      GIFTS_FOR_HER
+    )}`,
+  },
+  {
+    title: GIFTS_UNDER_1000,
+    image: threeGrid3,
+    link: `/collections/${GENERAL}/${helperFunctions?.stringReplacedWithUnderScore(
+      GIFTS_UNDER_1000
+    )}`,
+  },
+  {
+    title: GIFTS_FOR_HIM,
+    image: threeGrid2,
+    link: `/collections/${GENERAL}/${helperFunctions?.stringReplacedWithUnderScore(
+      GIFTS_FOR_HIM
+    )}`,
+  },
+];
+
 const Home = () => {
   const dispatch = useDispatch();
   const { loginMessage } = useSelector(({ user }) => user);
@@ -180,8 +209,8 @@ const Home = () => {
 
   const twoGridData =
     collectionsData.find((item) => item.type === TWO_GRID)?.data || [];
-  const threeGridData =
-    collectionsData.find((item) => item.type === THREE_GRID)?.data || [];
+  // const threeGridData =
+  //   collectionsData.find((item) => item.type === THREE_GRID)?.data || [];
   const sliderData =
     collectionsData.find((item) => item.type === SLIDER_GRID)?.data || [];
 
@@ -224,6 +253,7 @@ const Home = () => {
         <KeyFeatures />
       </section>
 
+
       {collectionsLoading ? (
         <TwoGridSkeleton />
       ) : twoGridData.length > 0 ? (
@@ -235,13 +265,15 @@ const Home = () => {
         </section>
       ) : null}
 
-      {collectionsLoading ? (
+      {/* {collectionsLoading ? (
         <ThreeGridSkeleton />
       ) : threeGridData.length > 0 ? (
         <section className="container mx-auto pt-8 lg:pt-6 2xl:pt-6">
           <GiftCollections giftCategories={threeGridData} />
         </section>
-      ) : null}
+      ) : null} */}
+
+      <ThreeGridHomePage gridItems={staticThreeGridData} className="px-4 pt-8 lg:pt-6" />
 
       <section className="pt-12 lg:pt-16 2xl:pt-24">
         <JewelryAppointment />

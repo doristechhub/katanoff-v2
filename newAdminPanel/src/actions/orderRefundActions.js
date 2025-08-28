@@ -1,7 +1,12 @@
 import { toastError } from '.';
 import { orderService } from 'src/_services';
 import { helperFunctions } from 'src/_helpers';
-import { setOrderRefundList, setOrderRefundPaymentLoading } from 'src/store/slices/refundSlice';
+import {
+  setOrderRefundList,
+  setOrderRefundPaymentLoading,
+  setOrderRefundPaymentMessage,
+} from 'src/store/slices/refundSlice';
+import { initMessageObj, messageType } from 'src/_helpers/constants';
 
 // ----------------------------------------------------------------------
 
@@ -22,9 +27,21 @@ export const getOrderRefundList = () => async (dispatch) => {
 
 export const orderRefundPayment = (payload, abortController) => async (dispatch) => {
   try {
+    dispatch(setOrderRefundPaymentMessage(initMessageObj));
     dispatch(setOrderRefundPaymentLoading(true));
     const res = await orderService.refundPayment(payload, abortController);
-    if (res) return true;
+    if (res) {
+      if (res?.status === 200) {
+        dispatch(
+          setOrderRefundPaymentMessage({
+            message:
+              'Refund request initiated successfully. The payment status will be updated in the system shortly.',
+            type: messageType.SUCCESS,
+          })
+        );
+      }
+      return true;
+    }
   } catch (e) {
     console.log('e', e);
     toastError(e);

@@ -165,3 +165,8 @@ export const META_CONSTANTS = {
   ORDER_HISTORY: "orderHistory",
   RETURN_HISTORY: "returnHistory",
 };
+
+export const GIFTS_FOR_HIM = "Gifts For Him";
+export const GIFTS_FOR_HER = "Gifts For Her";
+export const GIFTS_UNDER_1000 = "Gifts Under $1000";
+export const GENERAL = "general";

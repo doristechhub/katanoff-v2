@@ -76,10 +76,11 @@ const getReturnDetailByReturnId = (returnId) => {
       const returnDetail = await fetchWrapperService.findOne(returnsUrl, { id: trimmedReturnId });
       if (!returnDetail) return reject(new Error('Return does not exist'));
 
-      const [orders, products, customizationTypes, customizationSubTypes, diamondShapes, users] =
+      const [matchedOrder, customizationTypes, customizationSubTypes, diamondShapes, users] =
         await Promise.all([
-          fetchWrapperService.getAll(ordersUrl).catch(() => ({})),
-          productService.getAllActiveProducts().catch(() => []),
+          fetchWrapperService.findOne(ordersUrl, {
+            orderNumber: returnDetail?.orderNumber,
+          }),
           customizationTypeService.getAllCustomizationTypes().catch(() => []),
           customizationSubTypeService.getAllCustomizationSubTypes().catch(() => []),
           diamondShapeService.getAllDiamondShape().catch(() => []),
@@ -87,9 +88,6 @@ const getReturnDetailByReturnId = (returnId) => {
         ]);
 
       // Match order and set payment method
-      const matchedOrder = Object.values(orders).find(
-        (order) => order?.orderNumber === returnDetail?.orderNumber
-      );
       if (matchedOrder) {
         returnDetail.paymentMethod = matchedOrder.paymentMethod || null;
       }
@@ -99,6 +97,9 @@ const getReturnDetailByReturnId = (returnId) => {
         const user = users.find((u) => u?.id === returnDetail.userId);
         if (user) returnDetail.createdBy = user.name || 'Unknown';
       }
+
+      const productIds = returnDetail?.products.map((x) => x?.productId);
+      const products = await productService.getProductsByIds(productIds);
 
       // Process products
       returnDetail.products = (returnDetail.products || []).map((item) => {
@@ -745,7 +746,7 @@ const refundPaymentForReturn = async (payload, abortController) => {
       const { status, message } = response.data;
 
       if (status === 200) {
-        toast.success('Refund payment successfully');
+        // toast.success('Refund payment successfully');
         return response.data;
       } else if (status === 302) {
         toast.error(message);

@@ -691,6 +691,16 @@ const formatPriceTo9Ending = (multipliedPrice = 1) => {
   return finalPrice;
 };
 
+const alertseverity = (type) => {
+  const severity = {
+    SUCCESS: 'success',
+    INFO: 'info',
+    WARNING: 'warning',
+    ERROR: 'error',
+  };
+  return severity[type] || severity.INFO;
+};
+
 export const helperFunctions = {
   getCurrentUser,
   getVariationsArray,
@@ -734,4 +744,5 @@ export const helperFunctions = {
   splitDiscountAmongProducts,
   calculateNonCustomizedProductPrice,
   calculateAutomaticPrices,
+  alertseverity,
 };

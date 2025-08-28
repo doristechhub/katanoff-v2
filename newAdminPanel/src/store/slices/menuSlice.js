@@ -4,6 +4,10 @@ export const initMenuProductType = {
   title: '',
   categoryId: undefined,
   subCategoryId: undefined,
+  position: undefined,
+  imageFile: [],
+  previewImage: [],
+  deleteUploadedImage: [],
 };
 
 export const initMenuCategory = {
@@ -20,6 +24,9 @@ export const initMenuSubCategory = {
   title: '',
   categoryId: undefined,
   position: undefined,
+  imageFile: [],
+  previewImage: [],
+  deleteUploadedImage: [],
   desktopBannerFile: [],
   desktopBannerPreviewImage: [],
   desktopBannerUploadedDeletedImage: [],

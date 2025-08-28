@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { initMessageObj } from 'src/_helpers/constants';
 
 export const initRefundPayment = {
   refundDescription: '',
@@ -9,6 +10,7 @@ const initialState = {
   orderRefundList: [],
   orderRefundLoader: false,
   orderRefundPaymentLoading: false,
+  orderRefundPaymentMessage: initMessageObj,
   selectedOrderRefund: initRefundPayment,
 };
 
@@ -41,6 +43,9 @@ const refundSlice = createSlice({
     setOrderRefundPaymentLoading: (state, action) => {
       state.orderRefundPaymentLoading = action.payload;
     },
+    setOrderRefundPaymentMessage: (state, action) => {
+      state.orderRefundPaymentMessage = action.payload;
+    },
   },
 });
 
@@ -50,5 +55,6 @@ export const {
   setOrderRefundLoader,
   setSelectedOrderRefund,
   setOrderRefundPaymentLoading,
+  setOrderRefundPaymentMessage,
 } = refundSlice.actions;
 export default refundSlice.reducer;

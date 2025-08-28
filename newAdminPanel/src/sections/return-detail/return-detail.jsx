@@ -22,12 +22,19 @@ import { helperFunctions } from 'src/_helpers';
 import { fCurrency } from 'src/utils/format-number';
 import { Button, LoadingButton } from 'src/components/button';
 import { getSingleReturnById, recievedReturn } from 'src/actions/returnActions';
-import { setSelectedApproveReturn, setSelectedRefundReturn } from 'src/store/slices/returnSlice';
+import {
+  setRefundReturnMessage,
+  setSelectedApproveReturn,
+  setSelectedRefundReturn,
+} from 'src/store/slices/returnSlice';
 
 import RejectReturnDialog from './../returns/returns-reject-dialog';
 import RefundReturnsDialog from '../returns/returns-refund-dialog';
 import ApproveReturnDialog from './../returns/returns-approve-dialog';
 import ProgressiveImg from 'src/components/progressive-img';
+import AnimatedAlert from 'src/components/alert/AnimatedAlert';
+import { initMessageObj } from 'src/_helpers/constants';
+import { useAlertTimeout } from 'src/hooks/user-alert-timeout';
 
 // ----------------------------------------------------------------------
 
@@ -51,8 +58,15 @@ const ReturnDetail = () => {
     crudReturnLoading,
     rejectReturnLoading,
     refundReturnLoading,
+    refundReturnMessage,
     recievedReturnLoading,
   } = useSelector(({ returns }) => returns);
+
+  useAlertTimeout(
+    refundReturnMessage,
+    () => dispatch(setRefundReturnMessage(initMessageObj)),
+    6000
+  );
 
   const loadData = useCallback(() => {
     dispatch(getSingleReturnById(returnId));
@@ -209,6 +223,10 @@ const ReturnDetail = () => {
               <Typography mt={1} variant="body2" color={'grey.600'}>
                 {moment(selectedReturn?.createdDate)?.format('MM-DD-YYYY hh:mm a')}{' '}
               </Typography>
+              <AnimatedAlert
+                messageObj={refundReturnMessage}
+                onClose={() => dispatch(setRefundReturnMessage(initMessageObj))}
+              />
               <Stack
                 sx={{ height: '99%', display: 'flex', justifyContent: 'space-between', mt: 3 }}
               >
@@ -256,20 +274,26 @@ const ReturnDetail = () => {
                               </Box>
 
                               <Box minWidth={'300px'} width={'100%'}>
-                                {x?.productName}
-                                <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-                                  {x?.variations?.map((y, j) => (
-                                    <Stack key={`variations-${j}`}>
-                                      <Typography variant="caption">{y?.variationName}</Typography>
-                                      <Label
-                                        color={'default'}
-                                        sx={{ width: 'fit-content', fontSize: '11px' }}
-                                      >
-                                        {y?.variationTypeName}
-                                      </Label>
-                                    </Stack>
-                                  ))}
-                                </Stack>
+                                {x?.productName || 'Unknown Product'}
+                                {x?.variations?.length > 0 && (
+                                  <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+                                    {x?.variations
+                                      ?.filter((y) => y?.variationName && y?.variationTypeName)
+                                      .map((y, j) => (
+                                        <Stack key={`variations-${j}`}>
+                                          <Typography variant="caption">
+                                            {y?.variationName || 'Unknown Variation'}{' '}
+                                          </Typography>
+                                          <Label
+                                            color={'default'}
+                                            sx={{ width: 'fit-content', fontSize: '11px' }}
+                                          >
+                                            {y?.variationTypeName || 'Unknown Type'}{' '}
+                                          </Label>
+                                        </Stack>
+                                      ))}
+                                  </Stack>
+                                )}
                                 <Box sx={{ fontSize: '12px' }} mt={1}>
                                   {fCurrency(x?.productPrice)} {''}
                                   per item

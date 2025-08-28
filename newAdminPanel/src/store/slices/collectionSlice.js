@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 export const initCollection = {
   title: '',
   type: 'default',
+  filterType: 'setting_style',
   selectedProductsList: [],
   desktopBannerFile: [],
   desktopBannerPreviewImage: [],
