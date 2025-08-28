@@ -20,8 +20,12 @@ const getAllCollection = () => {
     try {
       const respData = await fetchWrapperService.getAll(collectionUrl);
       const collectionData = respData ? Object.values(respData) : [];
+      const normalizedData = collectionData.map((item) => ({
+        ...item,
+        filterType: item?.filterType || 'setting_style',
+      }));
       resolve(
-        collectionData.sort((a, b) => {
+        normalizedData.sort((a, b) => {
           if (a.type === b.type) {
             return (a.position || 0) - (b.position || 0);
           }
@@ -51,6 +55,7 @@ const getSingleCollection = (collectionId) => {
       const products = await getAllProductsByCollectionId(collectionId);
       const collectionWithProducts = {
         ...collectionData,
+        filterType: collectionData?.filterType || 'setting_style',
         products,
       };
 
@@ -65,6 +70,7 @@ const sanitizeAndValidateInput = (params) => {
   const sanitized = sanitizeObject(params);
   sanitized.title = sanitized.title?.trim() || null;
   sanitized.type = sanitized?.type?.trim() || null;
+  sanitized.filterType = sanitized?.filterType?.trim() || 'setting_style';
   sanitized.position = sanitized?.position ? parseInt(sanitized.position, 10) : null;
   sanitized.desktopBannerFile =
     sanitized.desktopBannerFile && typeof sanitized.desktopBannerFile === 'object'
@@ -218,6 +224,7 @@ const insertCollection = (params) => {
       const {
         title,
         type,
+        filterType,
         position,
         desktopBannerFile,
         mobileBannerFile,
@@ -232,6 +239,12 @@ const insertCollection = (params) => {
       if (type && !['slider_grid', 'two_grid', 'three_grid'].includes(type)) {
         return reject(
           new Error('Invalid collection type. Must be slider_grid, two_grid, or three_grid')
+        );
+      }
+
+      if (!['setting_style', 'sub_categories', 'product_types'].includes(filterType)) {
+        return reject(
+          new Error('Invalid filter type. Must be setting_style, sub_categories, or product_types')
         );
       }
 
@@ -288,6 +301,7 @@ const insertCollection = (params) => {
         id: uuid,
         title: title,
         type: type || null,
+        filterType: filterType || 'setting_style',
         position: finalPosition,
         createdDate: Date.now(),
         updatedDate: Date.now(),
@@ -326,6 +340,7 @@ const updateCollection = (params) => {
         collectionId,
         title,
         type,
+        filterType,
         position,
         desktopBannerFile,
         mobileBannerFile,
@@ -343,6 +358,12 @@ const updateCollection = (params) => {
       if (type && !['slider_grid', 'two_grid', 'three_grid'].includes(type)) {
         return reject(
           new Error('Invalid collection type. Must be slider_grid, two_grid, or three_grid')
+        );
+      }
+
+      if (!['setting_style', 'sub_categories', 'product_types'].includes(filterType)) {
+        return reject(
+          new Error('Invalid filter type. Must be setting_style, sub_categories, or product_types')
         );
       }
 
@@ -437,6 +458,7 @@ const updateCollection = (params) => {
       const payload = {
         title,
         type: type || null,
+        filterType: filterType || 'setting_style',
         position: position ? position : collectionData?.position,
         desktopBannerImage: desktopBannerUrl || desktopBannerImage,
         mobileBannerImage: mobileBannerUrl || mobileBannerImage,

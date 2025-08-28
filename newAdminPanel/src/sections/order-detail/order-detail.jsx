@@ -218,20 +218,28 @@ const OrderDetail = () => {
                               </Box>
 
                               <Box minWidth={'250px'} width={'100%'}>
-                                {x?.productName}
-                                <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-                                  {x?.variations?.map((y, j) => (
-                                    <Stack key={`variations-${j}`}>
-                                      <Typography variant="caption">{y?.variationName}</Typography>
-                                      <Label
-                                        color={'default'}
-                                        sx={{ width: 'fit-content', fontSize: '11px' }}
-                                      >
-                                        {y?.variationTypeName}
-                                      </Label>
-                                    </Stack>
-                                  ))}
-                                </Stack>
+                                {x?.productName || 'Unknown Product'}
+                                {x?.variations?.length > 0 && (
+                                  <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+                                    {x?.variations
+                                      ?.filter((y) => y?.variationName && y?.variationTypeName)
+                                      .map((y, j) => (
+                                        <Stack key={`variations-${j}`}>
+                                          <Typography variant="caption">
+                                            {y?.variationName || 'Unknown Variation'}{' '}
+                                            {/* Fallback for variationName */}
+                                          </Typography>
+                                          <Label
+                                            color={'default'}
+                                            sx={{ width: 'fit-content', fontSize: '11px' }}
+                                          >
+                                            {y?.variationTypeName || 'Unknown Type'}{' '}
+                                            {/* Fallback for variationTypeName */}
+                                          </Label>
+                                        </Stack>
+                                      ))}
+                                  </Stack>
+                                )}
                                 <Box sx={{ fontSize: '12px' }} mt={1}>
                                   {fCurrency(x?.productPrice)} {''}
                                   per item

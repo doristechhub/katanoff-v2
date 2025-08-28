@@ -42,6 +42,8 @@ import { getMenuCategoryList } from 'src/actions/menuActions';
 import { Button, LoadingButton } from 'src/components/button';
 import { getMenuSubCategoryList } from 'src/actions/menuSubCategoryActions';
 import { productTypeService } from 'src/_services';
+import { FileDrop } from 'src/components/file-drop';
+import ProgressiveImg from 'src/components/progressive-img';
 
 // ----------------------------------------------------------------------
 
@@ -199,7 +201,7 @@ const ProductType = () => {
   const handleEdit = useCallback(async () => {
     const productType = menuProductTypeList?.find((x) => x?.id === selectedProductTypeId);
     if (productType) {
-      const updatedProductType = {
+      let updatedProductType = {
         ...productType,
         position:
           productType.position ||
@@ -207,7 +209,26 @@ const ProductType = () => {
             productType.categoryId,
             productType.subCategoryId
           )),
+        imageFile: [],
+        previewImage: [],
+        deleteUploadedImage: [],
       };
+
+      // Handle existing image
+      const imageUrl = productType?.image;
+      if (imageUrl) {
+        const url = new URL(imageUrl);
+        const fileExtension = url.pathname.split('.').pop();
+        const imagePreviewObj = {
+          type: 'old',
+          mimeType: `image/${fileExtension}`,
+          image: imageUrl,
+        };
+        updatedProductType = {
+          ...updatedProductType,
+          previewImage: [imagePreviewObj],
+        };
+      }
 
       // Dispatch the updated product type to Redux
       dispatch(setSelectedMenuProductType(updatedProductType));
@@ -224,6 +245,8 @@ const ProductType = () => {
         categoryId: val?.categoryId,
         subCategoryId: val?.subCategoryId,
         position: parseInt(val?.position, 10),
+        imageFile: val?.imageFile?.[0] || null,
+        deletedImage: val?.deleteUploadedImage?.[0]?.image || null,
       };
       let res;
       if (val?.id) {
@@ -258,7 +281,7 @@ const ProductType = () => {
       // Parse droppableId to extract categoryId and subCategoryId
       const idParts = source?.droppableId?.split('-');
       if (idParts.length !== 3 || idParts[0] !== 'group') {
-        console.warn('Invalid droppableId format', { droppableId, idParts });
+        console.warn('Invalid droppableId format', { droppableId: source.droppableId, idParts });
         return;
       }
 
@@ -525,9 +548,10 @@ const ProductType = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell sx={{ width: '5%' }}></TableCell>
-                      <TableCell sx={{ width: '25%' }}>Title</TableCell>
-                      <TableCell sx={{ width: '25%' }}>Category Name</TableCell>
-                      <TableCell sx={{ width: '25%' }}>SubCategory Name</TableCell>
+                      <TableCell sx={{ width: '20%' }}>Title</TableCell>
+                      <TableCell sx={{ width: '20%' }}>Category Name</TableCell>
+                      <TableCell sx={{ width: '20%' }}>SubCategory Name</TableCell>
+                      <TableCell sx={{ width: '15%' }}>Image</TableCell>
                       <TableCell sx={{ width: '10%' }}>Position</TableCell>
                       <TableCell sx={{ width: '10%' }}></TableCell>
                     </TableRow>
@@ -554,12 +578,23 @@ const ProductType = () => {
                                 <TableCell sx={{ width: '5%' }}>
                                   <Iconify icon="mdi:drag" sx={{ cursor: 'move' }} />
                                 </TableCell>
-                                <TableCell sx={{ width: '25%' }}>{x?.title || '-'}</TableCell>
-                                <TableCell sx={{ width: '25%' }}>
+                                <TableCell sx={{ width: '20%' }}>{x?.title || '-'}</TableCell>
+                                <TableCell sx={{ width: '20%' }}>
                                   {x?.categoryName || '-'}
                                 </TableCell>
-                                <TableCell sx={{ width: '25%' }}>
+                                <TableCell sx={{ width: '20%' }}>
                                   {x?.subCategoryName || '-'}
+                                </TableCell>
+                                <TableCell sx={{ width: '15%', minWidth: '150px' }}>
+                                  {x?.image ? (
+                                    <ProgressiveImg
+                                      src={x?.image}
+                                      alt="Image"
+                                      style={{ maxWidth: '100px', height: 'auto' }}
+                                    />
+                                  ) : (
+                                    'No Image'
+                                  )}
                                 </TableCell>
                                 <TableCell sx={{ width: '10%' }}>{x?.position || '-'}</TableCell>
                                 <TableCell sx={{ width: '10%' }}>
@@ -854,6 +889,19 @@ const ProductType = () => {
                             label="Position"
                             error={!!(touched.position && errors.position)}
                             helperText={touched.position && errors.position ? errors.position : ''}
+                          />
+                          <Typography variant="subtitle2" gutterBottom>
+                            Image
+                          </Typography>
+                          <FileDrop
+                            mediaLimit={1}
+                            formik={formik}
+                            productId={selectedMenuProductType}
+                            fileKey="imageFile"
+                            previewKey="previewImage"
+                            deleteKey="deleteUploadedImage"
+                            loading={crudMenuProductTypeLoading}
+                            dropzoneProps={{ disabled: crudMenuProductTypeLoading }}
                           />
                         </Stack>
                       </StyledDialogContent>

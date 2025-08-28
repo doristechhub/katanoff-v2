@@ -98,9 +98,11 @@ const getOrderDetailByOrderId = (orderId) => {
       const orderDetail = await fetchWrapperService.findOne(ordersUrl, { id: trimmedOrderId });
       if (!orderDetail) return reject(new Error('Order does not exist'));
 
+      const productIds = orderDetail?.products.map((x) => x?.productId);
+
       const [allActiveProductsData, customizationTypes, customizationSubTypes, diamondShapes] =
         await Promise.all([
-          productService.getAllActiveProducts(),
+          productService.getProductsByIds(productIds),
           customizationTypeService.getAllCustomizationTypes(),
           customizationSubTypeService.getAllCustomizationSubTypes(),
           diamondShapeService.getAllDiamondShape(),
@@ -767,7 +769,7 @@ const refundPayment = async (payload, abortController) => {
       const { status, message } = response.data;
 
       if (status === 200) {
-        toast.success('Refund payment successfully');
+        // toast.success('Refund payment successfully');
         return response.data;
       } else if (status === 302) {
         toast.error(message);

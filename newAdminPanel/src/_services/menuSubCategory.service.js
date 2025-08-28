@@ -48,6 +48,8 @@ const sanitizeAndValidateInput = (params) => {
   sanitized.title = sanitized?.title?.trim() || null;
   sanitized.categoryId = sanitized?.categoryId?.trim() || null;
   sanitized.position = sanitized?.position ? parseInt(sanitized.position, 10) : null;
+  sanitized.imageFile =
+    sanitized?.imageFile && typeof sanitized?.imageFile === 'object' ? [sanitized?.imageFile] : [];
   sanitized.desktopBannerFile =
     sanitized?.desktopBannerFile && typeof sanitized?.desktopBannerFile === 'object'
       ? [sanitized?.desktopBannerFile]
@@ -75,7 +77,9 @@ const validatePosition = async (categoryId, position, excludeSubCategoryIds = []
 
 const validateFiles = async (files, type, name) => {
   if (files.length > fileSettings.BANNER_IMAGE_FILE_LIMIT) {
-    throw new Error(`Maximum ${fileSettings.BANNER_IMAGE_FILE_LIMIT} ${name} banner image allowed`);
+    throw new Error(
+      `Maximum ${fileSettings.BANNER_IMAGE_FILE_LIMIT} ${name !== 'image' ? 'banner image' : 'image'} allowed`
+    );
   }
   if (files.length) {
     if (!isValidFileType(fileSettings.IMAGE_FILE_NAME, files)) {
@@ -86,24 +90,30 @@ const validateFiles = async (files, type, name) => {
         `Invalid ${name} file size. Maximum ${fileSettings.MAX_FILE_SIZE_MB}MB allowed`
       );
     }
-    const resolution = IMAGE_RESOLUTIONS[name.toUpperCase()];
-    if (
-      files[0] &&
-      !(await validateImageResolution(files[0], resolution.width, resolution.height))
-    ) {
-      throw new Error(
-        `${name.charAt(0).toUpperCase() + name.slice(1)} banner must be ${resolution.width}x${resolution.height}`
-      );
+    if (name !== 'image') {
+      const resolution = IMAGE_RESOLUTIONS[name.toUpperCase()];
+      if (
+        files[0] &&
+        !(await validateImageResolution(files[0], resolution.width, resolution.height))
+      ) {
+        throw new Error(
+          `${name.charAt(0).toUpperCase() + name.slice(1)} must be ${resolution.width}x${resolution.height}`
+        );
+      }
     }
   }
 };
 
-const uploadFiles = async (filesPayload, desktopBannerFile, mobileBannerFile) => {
-  if (!filesPayload.length) return { desktopBannerUrl: '', mobileBannerUrl: '' };
+const uploadFiles = async (filesPayload, imageFile, desktopBannerFile, mobileBannerFile) => {
+  if (!filesPayload.length) return { imageUrl: '', desktopBannerUrl: '', mobileBannerUrl: '' };
 
   const categoryIndices = {
-    desktopBanner: { start: 0, length: desktopBannerFile.length },
-    mobileBanner: { start: desktopBannerFile.length, length: mobileBannerFile.length },
+    image: { start: 0, length: imageFile.length },
+    desktopBanner: { start: imageFile.length, length: desktopBannerFile.length },
+    mobileBanner: {
+      start: imageFile.length + desktopBannerFile.length,
+      length: mobileBannerFile.length,
+    },
   };
 
   const fileNames = await uploadFile(menuSubCategoriesUrl, filesPayload);
@@ -112,6 +122,7 @@ const uploadFiles = async (filesPayload, desktopBannerFile, mobileBannerFile) =>
   }
 
   return {
+    imageUrl: categoryIndices.image.length ? fileNames[categoryIndices.image.start] : '',
     desktopBannerUrl: categoryIndices.desktopBanner.length
       ? fileNames[categoryIndices.desktopBanner.start]
       : '',
@@ -138,7 +149,7 @@ const insertMenuSubCategory = (params) => {
   return new Promise(async (resolve, reject) => {
     try {
       const uuid = uid();
-      const { title, categoryId, position, desktopBannerFile, mobileBannerFile } =
+      const { title, categoryId, position, imageFile, desktopBannerFile, mobileBannerFile } =
         sanitizeAndValidateInput(params);
 
       if (!title || !categoryId) {
@@ -166,16 +177,18 @@ const insertMenuSubCategory = (params) => {
         await validatePosition(categoryId, finalPosition);
       }
 
+      await validateFiles(imageFile, 'IMAGE_FILE_NAME', 'image');
       await validateFiles(desktopBannerFile, 'IMAGE_FILE_NAME', 'desktop');
       await validateFiles(mobileBannerFile, 'IMAGE_FILE_NAME', 'mobile');
 
-      const filesPayload = [...desktopBannerFile, ...mobileBannerFile];
-      const { desktopBannerUrl, mobileBannerUrl } = await uploadFiles(
+      const filesPayload = [...imageFile, ...desktopBannerFile, ...mobileBannerFile];
+      const { imageUrl, desktopBannerUrl, mobileBannerUrl } = await uploadFiles(
         filesPayload,
+        imageFile,
         desktopBannerFile,
         mobileBannerFile
       ).catch((e) => {
-        throw new Error('An error occurred during banner image uploading.');
+        throw new Error('An error occurred during image uploading.');
       });
 
       const insertPattern = {
@@ -184,6 +197,7 @@ const insertMenuSubCategory = (params) => {
         categoryId,
         position: finalPosition,
         createdDate: Date.now(),
+        image: imageUrl,
         desktopBannerImage: desktopBannerUrl,
         mobileBannerImage: mobileBannerUrl,
       };
@@ -197,7 +211,7 @@ const insertMenuSubCategory = (params) => {
         .create(createPattern)
         .then(() => resolve(insertPattern))
         .catch((e) => {
-          deleteFiles([desktopBannerUrl, mobileBannerUrl]);
+          deleteFiles([imageUrl, desktopBannerUrl, mobileBannerUrl]);
           reject(new Error('An error occurred during menu subcategory creation.'));
         });
     } catch (e) {
@@ -214,8 +228,10 @@ const updateMenuSubCategory = (params) => {
         title,
         categoryId,
         position,
+        imageFile,
         desktopBannerFile,
         mobileBannerFile,
+        deletedImage,
         deletedDesktopBannerImage,
         deletedMobileBannerImage,
       } = sanitizeAndValidateInput(params);
@@ -246,6 +262,10 @@ const updateMenuSubCategory = (params) => {
         await validatePosition(categoryId || subCategoryData.categoryId, position, [subCategoryId]);
       }
 
+      let image = subCategoryData?.image || null;
+      if (deletedImage && image === deletedImage) {
+        image = null;
+      }
       let desktopBannerImage = subCategoryData?.desktopBannerImage || null;
       if (deletedDesktopBannerImage && desktopBannerImage === deletedDesktopBannerImage) {
         desktopBannerImage = null;
@@ -255,12 +275,14 @@ const updateMenuSubCategory = (params) => {
         mobileBannerImage = null;
       }
 
+      await validateFiles(imageFile, 'IMAGE_FILE_NAME', 'image');
       await validateFiles(desktopBannerFile, 'IMAGE_FILE_NAME', 'desktop');
       await validateFiles(mobileBannerFile, 'IMAGE_FILE_NAME', 'mobile');
 
-      const filesPayload = [...desktopBannerFile, ...mobileBannerFile];
-      const { desktopBannerUrl, mobileBannerUrl } = await uploadFiles(
+      const filesPayload = [...imageFile, ...desktopBannerFile, ...mobileBannerFile];
+      const { imageUrl, desktopBannerUrl, mobileBannerUrl } = await uploadFiles(
         filesPayload,
+        imageFile,
         desktopBannerFile,
         mobileBannerFile
       ).catch((e) => {
@@ -271,6 +293,7 @@ const updateMenuSubCategory = (params) => {
         title,
         categoryId: categoryId || subCategoryData?.categoryId,
         position: position !== null ? position : subCategoryData.position,
+        image: imageUrl || image,
         desktopBannerImage: desktopBannerUrl || desktopBannerImage,
         mobileBannerImage: mobileBannerUrl || mobileBannerImage,
       };
@@ -281,11 +304,11 @@ const updateMenuSubCategory = (params) => {
       };
 
       await fetchWrapperService._update(updatePattern).catch(async (e) => {
-        await deleteFiles([desktopBannerUrl, mobileBannerUrl]);
+        await deleteFiles([imageUrl, desktopBannerUrl, mobileBannerUrl]);
         throw new Error(`Update failed: ${e.message}`);
       });
 
-      await deleteFiles([deletedDesktopBannerImage, deletedMobileBannerImage]);
+      await deleteFiles([deletedImage, deletedDesktopBannerImage, deletedMobileBannerImage]);
 
       resolve(payload);
     } catch (e) {
@@ -316,7 +339,11 @@ const deleteMenuSubCategory = (params) => {
 
       await fetchWrapperService._delete(`${menuSubCategoriesUrl}/${subCategoryId}`);
 
-      await deleteFiles([subCategoryData.desktopBannerImage, subCategoryData.mobileBannerImage]);
+      await deleteFiles([
+        subCategoryData.image,
+        subCategoryData.desktopBannerImage,
+        subCategoryData.mobileBannerImage,
+      ]);
 
       resolve(true);
     } catch (e) {

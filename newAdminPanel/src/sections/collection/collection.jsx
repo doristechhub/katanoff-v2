@@ -32,7 +32,8 @@ import { Button } from 'src/components/button';
 import ConfirmationDialog from 'src/components/confirmation-dialog';
 import ProgressiveImg from 'src/components/progressive-img';
 import { helperFunctions } from 'src/_helpers';
-import { COLLECTION_TYPES } from 'src/_helpers/constants';
+import { COLLECTION_TYPES, COLLECTION_FILTER_TYPES } from 'src/_helpers/constants';
+import { toast } from 'react-toastify';
 
 // Bounce animation for arrow
 const bounce = keyframes`
@@ -48,6 +49,7 @@ const Collection = () => {
   const [searchedValue, setSearchedValue] = useState('');
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [filterByType, setFilterByType] = useState('all');
+  const [filterByFilterType, setFilterByFilterType] = useState('all');
   const [selectedCollectionId, setSelectedCollectionId] = useState();
   const [expandedTypes, setExpandedTypes] = useState({});
 
@@ -93,8 +95,11 @@ const Collection = () => {
     if (filterByType !== 'all') {
       items = items.filter((item) => (item.type || 'default') === filterByType);
     }
+    if (filterByFilterType !== 'all') {
+      items = items.filter((item) => (item?.filterType || 'setting_style') === filterByFilterType);
+    }
     return items;
-  }, [collectionList, searchedValue, filterByType]);
+  }, [collectionList, searchedValue, filterByType, filterByFilterType]);
 
   const groupedFilteredItems = useMemo(() => {
     const grouped = {};
@@ -150,6 +155,7 @@ const Collection = () => {
     },
     [dispatch, groupedItems]
   );
+
   const handlePopup = useCallback(
     (e, reason) => {
       if (crudCollectionLoading && reason === 'backdropClick') return;
@@ -211,6 +217,17 @@ const Collection = () => {
 
   const collectionTypeOptions = useMemo(() => {
     return ['all', ...Object.values(COLLECTION_TYPES).map((type) => type.value)];
+  }, []);
+
+  const filterTypeOptions = useMemo(() => {
+    return ['all', ...COLLECTION_FILTER_TYPES.map((type) => type.value)];
+  }, []);
+
+  const getFilterTypeLabel = useCallback((value) => {
+    const filterType = COLLECTION_FILTER_TYPES.find(
+      (type) => type.value === (value || 'setting_style')
+    );
+    return filterType ? filterType.label : 'Setting Style';
   }, []);
 
   const renderTypeTables = useMemo(() => {
@@ -283,6 +300,7 @@ const Collection = () => {
                       <TableCell sx={{ width: '5%' }}></TableCell>
                       <TableCell sx={{ width: '20%' }}>Title</TableCell>
                       <TableCell sx={{ width: '15%' }}>Type</TableCell>
+                      <TableCell sx={{ width: '15%' }}>Filter Type</TableCell>
                       <TableCell sx={{ width: '10%' }}>Position</TableCell>
                       <TableCell sx={{ width: '15%', minWidth: '150px' }}>
                         Thumbnail Image
@@ -314,6 +332,9 @@ const Collection = () => {
                                 <TableCell sx={{ width: '20%' }}>{x?.title}</TableCell>
                                 <TableCell sx={{ width: '15%' }} className="capitalize">
                                   {helperFunctions.stringReplacedWithSpace(x?.type || 'Default')}
+                                </TableCell>
+                                <TableCell sx={{ width: '15%' }} className="capitalize">
+                                  {getFilterTypeLabel(x?.filterType)}
                                 </TableCell>
                                 <TableCell sx={{ width: '10%' }}>{x?.position || '-'}</TableCell>
                                 <TableCell sx={{ width: '15%', minWidth: '150px' }}>
@@ -375,7 +396,7 @@ const Collection = () => {
       );
     });
     return tables;
-  }, [groupedFilteredItems, expandedTypes, toggleType]);
+  }, [groupedFilteredItems, expandedTypes, toggleType, getFilterTypeLabel]);
 
   return (
     <>
@@ -433,12 +454,33 @@ const Collection = () => {
                     </MenuItem>
                   ))}
                 </TextField>
+                <TextField
+                  size="small"
+                  select
+                  className="capitalize"
+                  label="Filter Type"
+                  value={filterByFilterType}
+                  onChange={(e) => {
+                    setFilterByFilterType(e.target.value);
+                  }}
+                  sx={{ minWidth: 150 }}
+                >
+                  {filterTypeOptions.map((option) => (
+                    <MenuItem className="capitalize" key={option} value={option}>
+                      {option === 'all'
+                        ? 'All'
+                        : COLLECTION_FILTER_TYPES.find((type) => type.value === option)?.label ||
+                          'Setting Style'}
+                    </MenuItem>
+                  ))}
+                </TextField>
                 <Button
                   onClick={() => {
                     setFilterByType('all');
+                    setFilterByFilterType('all');
                     setSearchedValue('');
                   }}
-                  variant="outlined"
+                  variant="contained"
                   startIcon={<Iconify icon="tdesign:filter-clear" key={Math.random()} />}
                 >
                   Clear

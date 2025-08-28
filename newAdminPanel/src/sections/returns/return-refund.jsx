@@ -28,6 +28,7 @@ import {
   setSelectedReturn,
   setRefundReturnPage,
   setSelectedRefundReturn,
+  setRefundReturnMessage,
 } from 'src/store/slices/returnSlice';
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
@@ -38,6 +39,9 @@ import Scrollbar from 'src/components/scrollbar';
 import { refundStatuses } from 'src/store/slices/refundSlice';
 import { getReturnRefundList } from 'src/actions/returnActions';
 import RefundReturnsDialog from '../returns/returns-refund-dialog';
+import AnimatedAlert from 'src/components/alert/AnimatedAlert';
+import { initMessageObj } from 'src/_helpers/constants';
+import { useAlertTimeout } from 'src/hooks/user-alert-timeout';
 
 // ----------------------------------------------------------------------
 
@@ -55,8 +59,19 @@ const ReturnRefund = () => {
   const [filterByPaymentStatus, setFilterByPaymentStatus] = useState('all');
   const [filteredReturnRefundList, setFilteredReturnRefundList] = useState([]);
 
-  const { refundReturnPage, returnRefundList, refundReturnLoading, returnRefundLoader } =
-    useSelector(({ returns }) => returns);
+  const {
+    refundReturnPage,
+    returnRefundList,
+    refundReturnLoading,
+    refundReturnMessage,
+    returnRefundLoader,
+  } = useSelector(({ returns }) => returns);
+
+  useAlertTimeout(
+    refundReturnMessage,
+    () => dispatch(setRefundReturnMessage(initMessageObj)),
+    6000
+  );
 
   useEffect(() => {
     let filteredItems = [...returnRefundList];
@@ -226,6 +241,7 @@ const ReturnRefund = () => {
     setSearchedValue('');
     setFilterByPaymentStatus('all');
   }, []);
+
   return (
     <>
       {returnRefundLoader ? (
@@ -234,6 +250,10 @@ const ReturnRefund = () => {
         </div>
       ) : (
         <>
+          <AnimatedAlert
+            messageObj={refundReturnMessage}
+            onClose={() => dispatch(setRefundReturnMessage(initMessageObj))}
+          />
           <Stack my={2} mx={2} gap={2} direction="row" flexWrap={'wrap'} alignItems="center">
             <TextField
               type="search"

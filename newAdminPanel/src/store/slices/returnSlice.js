@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { initMessageObj } from 'src/_helpers/constants';
 
 export const initApproveReturn = {
   imageFile: [],
@@ -50,6 +51,7 @@ const initialState = {
   crudReturnLoading: false, //update operation
   returnRefundLoader: false,
   refundReturnLoading: false,
+  refundReturnMessage: initMessageObj,
   rejectReturnLoading: false,
   recievedReturnLoading: false,
   selectedRefundReturn: initRefundReturn,
@@ -94,6 +96,9 @@ const returnSlice = createSlice({
     setRefundReturnLoading: (state, action) => {
       state.refundReturnLoading = action.payload;
     },
+    setRefundReturnMessage: (state, action) => {
+      state.refundReturnMessage = action.payload;
+    },
     setSelectedRefundReturn: (state, action) => {
       state.selectedRefundReturn = action.payload;
     },
@@ -119,6 +124,7 @@ export const {
   setReturnRefundLoader,
   setRejectReturnLoading,
   setRefundReturnLoading,
+  setRefundReturnMessage,
   setSelectedRefundReturn,
   setSelectedRejectReturn,
   setSelectedApproveReturn,

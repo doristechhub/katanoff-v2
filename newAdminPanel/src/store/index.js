@@ -23,6 +23,7 @@ import reportAndAnalysis from '../store/slices/reportAndAnalysisSlice';
 import contacts from '../store/slices/contactSlice';
 import discounts from '../store/slices/discountSlice';
 import settings from '../store/slices/settingsSlice';
+import websiteAnalytics from '../store/slices/websiteAnalyticsSlice';
 // ----------------------------------------------------------------------
 
 const reducers = combineReducers({
@@ -49,6 +50,7 @@ const reducers = combineReducers({
   contacts,
   discounts,
   settings,
+  websiteAnalytics
 });
 
 // ----------------------------------------------------------------------

@@ -15,7 +15,6 @@ import Textarea from 'src/components/textarea';
 import { getTypoGraphy } from './returns-list';
 import { refundReturn } from 'src/actions/returnActions';
 import { Button, LoadingButton } from 'src/components/button';
-import { helperFunctions } from 'src/_helpers';
 
 // ----------------------------------------------------------------------
 

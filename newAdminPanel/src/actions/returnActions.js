@@ -9,10 +9,12 @@ import {
   setReturnRefundLoader,
   setRefundReturnLoading,
   setRejectReturnLoading,
+  setRefundReturnMessage,
 } from 'src/store/slices/returnSlice';
 import { helperFunctions } from 'src/_helpers';
 import { returnService, toast } from 'src/_services';
 import { setSelectedOrder } from 'src/store/slices/ordersSlice';
+import { initMessageObj, messageType } from 'src/_helpers/constants';
 
 // ----------------------------------------------------------------------
 
@@ -104,10 +106,22 @@ export const recievedReturn = (payload) => async (dispatch) => {
 
 export const refundReturn = (payload, abortController) => async (dispatch) => {
   try {
+    dispatch(setRefundReturnMessage(initMessageObj));
     dispatch(setRefundReturnLoading(true));
     const res = await returnService.refundPaymentForReturn(payload, abortController);
 
-    if (res) return true;
+    if (res) {
+      if (res?.status === 200) {
+        dispatch(
+          setRefundReturnMessage({
+            message:
+              'Refund request initiated successfully. The payment status will be updated in the system shortly.',
+            type: messageType.SUCCESS,
+          })
+        );
+      }
+      return true;
+    }
   } catch (e) {
     toastError(e);
     return false;

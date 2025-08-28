@@ -35,7 +35,7 @@ import {
 import { setSelectedCollection, initCollection } from 'src/store/slices/collectionSlice';
 import { Button, LoadingButton } from 'src/components/button';
 import { FileDrop } from 'src/components/file-drop';
-import { COLLECTION_TYPES } from 'src/_helpers/constants';
+import { COLLECTION_TYPES, COLLECTION_FILTER_TYPES } from 'src/_helpers/constants';
 import Dialog from 'src/components/dialog';
 import Scrollbar from 'src/components/scrollbar';
 import Iconify from 'src/components/iconify';
@@ -59,9 +59,14 @@ const validationSchema = Yup.object().shape({
         return !(thumbnailFile?.length > 0 && !value);
       }
     ),
+  filterType: Yup.string()
+    .required('Filter type is required')
+    .oneOf(
+      ['setting_style', 'sub_categories', 'product_types'],
+      'Invalid filter type. Must be Setting Style, Sub Categories, or Product Types'
+    ),
   thumbnailPreviewImage: Yup.array().test('thumbnail-required-if-type', function (value) {
     const { type, thumbnailPreviewImage } = this.parent;
-    // Skip validation if type is blank, null, undefined, or 'default'
     if (!type || type === '' || type === 'default') {
       return thumbnailPreviewImage?.length
         ? this.createError({
@@ -161,8 +166,9 @@ const AddCollectionPage = () => {
       setSelectedProductCount(updated.filter((x) => x.selected).length);
       dispatch(setProductList(updated));
     },
-    [dispatch, productList] // Add productList
+    [dispatch, productList]
   );
+
   const toggleSelectAll = useCallback(() => {
     const updated = productList.map((x) => ({ ...x, selected: !isAllSelected }));
     setSelectedProductCount(updated.filter((x) => x.selected).length);
@@ -175,6 +181,7 @@ const AddCollectionPage = () => {
         const payload = {
           title: values?.title,
           type: values?.type === 'default' ? '' : values?.type,
+          filterType: values?.filterType,
           desktopBannerFile: values?.desktopBannerFile?.[0] || null,
           mobileBannerFile: values?.mobileBannerFile?.[0] || null,
           thumbnailFile: values?.thumbnailFile?.[0] || null,
@@ -199,6 +206,7 @@ const AddCollectionPage = () => {
     },
     [dispatch, navigate]
   );
+
   const formik = useFormik({
     enableReinitialize: true,
     onSubmit,
@@ -211,10 +219,9 @@ const AddCollectionPage = () => {
   const handleConfirmSelectedProducts = useCallback(() => {
     const allSelectedProducts = productList.filter((x) => x.selected);
     formik.setFieldValue('selectedProductsList', allSelectedProducts);
-
     setBrowseDialog(false);
     setConfirmSelectProductDialog(false);
-  }, [productList, formik, selectedCollection]);
+  }, [productList, formik]);
 
   const removeSelectedProduct = useCallback(
     (e, product) => {
@@ -232,7 +239,6 @@ const AddCollectionPage = () => {
   const handleAccordionChange = (panel) => (event, isExpanded) => {
     setExpandedAccordions((prev) => ({
       ...prev,
-
       [panel]: isExpanded,
     }));
   };
@@ -263,43 +269,65 @@ const AddCollectionPage = () => {
       </Box>
       <Card sx={{ p: 3 }}>
         <Grid container spacing={2}>
-          <Grid xs={12} md={6}>
-            <TextField
-              fullWidth
-              name="title"
-              label="Collection Title"
-              value={values?.title || ''}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={touched.title && !!errors.title}
-              helperText={touched.title && errors.title}
-            />
-          </Grid>
-          <Grid xs={12} md={6}>
-            <TextField
-              select
-              fullWidth
-              name="type"
-              label="Collection Type"
-              value={values?.type || ''}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={touched.type && !!errors.type}
-              helperText={touched.type && errors.type}
-            >
-              {Object.values(COLLECTION_TYPES).map((type) => (
-                <MenuItem key={type.label} value={type.value}>
-                  {type.label}
-                </MenuItem>
-              ))}
-            </TextField>
+          <Grid container xs={12} spacing={2}>
+            <Grid xs={12} md={6}>
+              <TextField
+                fullWidth
+                name="title"
+                label="Collection Title"
+                value={values?.title || ''}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.title && !!errors.title}
+                helperText={touched.title && errors.title}
+              />
+            </Grid>
+            <Grid container xs={12} md={6} spacing={2}>
+              <Grid xs={12} md={6}>
+                <TextField
+                  select
+                  fullWidth
+                  name="type"
+                  label="Collection Type"
+                  value={values?.type || ''}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.type && !!errors.type}
+                  helperText={touched.type && errors.type}
+                >
+                  {Object.values(COLLECTION_TYPES).map((type) => (
+                    <MenuItem key={type.label} value={type.value}>
+                      {type.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid xs={12} md={6}>
+                <TextField
+                  select
+                  fullWidth
+                  name="filterType"
+                  label="Filter Type"
+                  value={values?.filterType || 'setting_style'}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.filterType && !!errors.filterType}
+                  helperText={touched.filterType && errors.filterType}
+                >
+                  {COLLECTION_FILTER_TYPES.map((option) => (
+                    <MenuItem key={option.value} value={option.value} className="capitalize">
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+            </Grid>
           </Grid>
           <Grid xs={12} lg={4} mt={3}>
             <Accordion defaultExpanded={false} onChange={handleAccordionChange('desktopBanner')}>
               <AccordionSummary expandIcon={<Iconify icon="eva:chevron-down-fill" />}>
                 <Typography variant="subtitle2">Desktop Banner (1920x448)</Typography>
               </AccordionSummary>
-
               <AccordionDetails>
                 <FileDrop
                   mediaLimit={1}
@@ -312,7 +340,6 @@ const AddCollectionPage = () => {
                 />
               </AccordionDetails>
             </Accordion>
-
             {!expandedAccordions.desktopBanner &&
               formik.touched.desktopBannerPreviewImage &&
               formik.errors.desktopBannerPreviewImage && (
@@ -326,7 +353,6 @@ const AddCollectionPage = () => {
               <AccordionSummary expandIcon={<Iconify icon="eva:chevron-down-fill" />}>
                 <Typography variant="subtitle2">Mobile Banner (1500x738)</Typography>
               </AccordionSummary>
-
               <AccordionDetails>
                 <FileDrop
                   mediaLimit={1}
@@ -339,7 +365,6 @@ const AddCollectionPage = () => {
                 />
               </AccordionDetails>
             </Accordion>
-
             {!expandedAccordions.mobileBanner &&
               formik.touched.mobileBannerPreviewImage &&
               formik.errors.mobileBannerPreviewImage && (
@@ -355,7 +380,6 @@ const AddCollectionPage = () => {
                   Thumbnail Images ({COLLECTION_TYPES[values.type]?.thumbnailDimensions})
                 </Typography>
               </AccordionSummary>
-
               <AccordionDetails>
                 <FileDrop
                   mediaLimit={1}
@@ -368,7 +392,6 @@ const AddCollectionPage = () => {
                 />
               </AccordionDetails>
             </Accordion>
-
             {!expandedAccordions.thumbnail &&
               formik.touched.thumbnailPreviewImage &&
               formik.errors.thumbnailPreviewImage && (
@@ -423,7 +446,6 @@ const AddCollectionPage = () => {
                         </TableCell>
                       </TableRow>
                     </TableHead>
-
                     <TableBody>
                       {values.selectedProductsList?.length ? (
                         values.selectedProductsList.map((product, index) => (
@@ -499,7 +521,7 @@ const AddCollectionPage = () => {
             fullWidth
             size="small"
             type="search"
-            placeholder="Search by Title,Gender or SKU"
+            placeholder="Search by Title, Gender or SKU"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             InputProps={{
@@ -539,7 +561,6 @@ const AddCollectionPage = () => {
                   <TableCell sx={{ minWidth: 80 }}>Price</TableCell>
                 </TableRow>
               </TableHead>
-
               <TableBody>
                 {paginatedItems?.length ? (
                   paginatedItems.map((product, i) => (
@@ -555,7 +576,6 @@ const AddCollectionPage = () => {
                           }
                         />
                       </TableCell>
-
                       <TableCell>{renderProductInfo(product)}</TableCell>
                       <TableCell sx={{ textTransform: 'capitalize' }}>
                         {product.gender || 'N/A'}
@@ -577,7 +597,6 @@ const AddCollectionPage = () => {
             </Table>
           </TableContainer>
         </Scrollbar>
-
         <Box
           sx={{ p: 3, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 2 }}
         >
@@ -604,7 +623,6 @@ const AddCollectionPage = () => {
             onClick={() => {
               const allSelectedProducts = productList.filter((x) => x.selected);
               if (allSelectedProducts.length) {
-                // Add condition for custom or zero-priced products if needed
                 setConfirmSelectProductDialog(true);
               }
             }}

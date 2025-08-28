@@ -39,6 +39,7 @@ export const ShowCaseBanner = lazy(() => import('src/pages/showcase-banner'));
 export const Contacts = lazy(() => import('src/pages/contacts'));
 export const ReturnList = lazy(() => import('src/sections/returns/returns-list'));
 export const ReturnRefund = lazy(() => import('src/sections/returns/return-refund'));
+export const WebsiteAnalytics = lazy(() => import('src/pages/website-analytics'));
 
 // ----------------------------------------------------------------------
 
@@ -347,6 +348,14 @@ export default function Router() {
           element: (
             <ProtectedRoutes pageId={'report & analysis'}>
               <ReportAnalysis />
+            </ProtectedRoutes>
+          ),
+        },
+        {
+          path: '/website-analytics',
+          element: (
+            <ProtectedRoutes pageId={'website-analytics'}>
+              <WebsiteAnalytics />
             </ProtectedRoutes>
           ),
         },

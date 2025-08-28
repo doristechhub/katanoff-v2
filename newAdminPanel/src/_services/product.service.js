@@ -3,6 +3,7 @@ import {
   customizationSubTypeUrl,
   customizationUrl,
   fetchWrapperService,
+  ordersUrl,
   prefixSaltSku,
   productSliderUrl,
   productsUrl,
@@ -916,6 +917,22 @@ const deleteProduct = (productId) => {
       });
       if (productSliderData) {
         reject(new Error('Product cannot be deleted because it has a product slider'));
+        return;
+      }
+
+      // Check if product exists in any orders
+      const ordersRespData = await fetchWrapperService.getAll(ordersUrl);
+      const orders = ordersRespData ? Object.values(ordersRespData) : [];
+      const isProductInOrder = orders?.some(
+        (order) =>
+          order?.products &&
+          Array.isArray(order?.products) &&
+          order?.products?.some((product) => product?.productId === productId)
+      );
+      if (isProductInOrder) {
+        reject(
+          new Error('Product cannot be deleted because it is associated with an existing order')
+        );
         return;
       }
 
@@ -2966,6 +2983,26 @@ const updateSingleProductPrice = async ({ product, priceMultiplier, allSubTypes 
   }
 };
 
+const getProductsByIds = (productIds) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!Array.isArray(productIds) || !productIds.length) {
+        resolve([]);
+        return;
+      }
+
+      const productsByIds = await fetchWrapperService.getItemsByIds({
+        url: productsUrl,
+        itemIds: productIds,
+      });
+
+      resolve(productsByIds);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 export const productService = {
   insertProduct,
   getAllProductsWithPagging,
@@ -2981,4 +3018,5 @@ export const productService = {
   updateProductQtyForReturn,
   processBulkProductsWithApi,
   updateSingleProductPrice,
+  getProductsByIds,
 };

@@ -233,3 +233,18 @@ export const DIMENSION_UNITS = [
   { value: 'mm', label: 'mm' },
   { value: 'in', label: 'in' },
 ];
+
+export const COLLECTION_FILTER_TYPES = [
+  { value: 'setting_style', label: 'Setting Style' },
+  { value: 'sub_categories', label: 'Sub Categories' },
+  { value: 'product_types', label: 'Product Types' },
+];
+
+export const messageType = {
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+  INFO: 'INFO',
+  WARNING: 'WARNING',
+};
+
+export const initMessageObj = { message: '', type: '', status: '' };

@@ -3,7 +3,7 @@ import {
   fetchCollectionBannersAction,
   fetchCollectionsTypeWiseProduct,
 } from "@/_actions/product.actions";
-import { helperFunctions } from "@/_helper";
+import { GENERAL, GIFTS_FOR_HER, GIFTS_FOR_HIM, GIFTS_UNDER_1000, helperFunctions } from "@/_helper";
 import {
   HeroBanner,
   ProductFilter,
@@ -15,6 +15,12 @@ import { useDispatch, useSelector } from "react-redux";
 import KeyFeatures from "@/components/ui/KeyFeatures";
 import SettingStyleCategorySwiper from "@/components/ui/settingStyleSwiper";
 import SkeletonLoader from "./skeletonLoader";
+import giftsForHimDesktop from "@/assets/images/collections/giftsForHimDesktop.webp";
+import giftsForHimMobile from "@/assets/images/collections/giftsForHimMobile.webp";
+import giftsForHerDesktop from "@/assets/images/collections/giftsForHerDesktop.webp";
+import giftsForHerMobile from "@/assets/images/collections/giftsForHerMobile.webp";
+import giftsUnder1000Desktop from "@/assets/images/collections/giftsUnder1000Desktop.webp";
+import giftsUnder1000Mobile from "@/assets/images/collections/giftsUnder1000Mobile.webp";
 
 export default function CollectionPage() {
   const params = useParams();
@@ -68,18 +74,32 @@ export default function CollectionPage() {
     }
   }, [collectionType, collectionTitle, loadData]);
 
+  const STATIC_PROPS = {
+    [GIFTS_FOR_HER]: { desktop: giftsForHerDesktop, mobile: giftsForHerMobile },
+    [GIFTS_FOR_HIM]: { desktop: giftsForHimDesktop, mobile: giftsForHimMobile },
+    [GIFTS_UNDER_1000]: { desktop: giftsUnder1000Desktop, mobile: giftsUnder1000Mobile },
+  };
+
+  const bannerProps =
+    collectionType === GENERAL && STATIC_PROPS[collectionTitle]
+      ? {
+        staticSrcDesktop: STATIC_PROPS[collectionTitle]?.desktop,
+        staticSrcMobile: STATIC_PROPS[collectionTitle]?.mobile,
+      }
+      : {
+        imageSrcDesktop: banners?.desktop,
+        imageSrcMobile: banners?.mobile,
+      };
+
   return (
     <>
       {/* Swiper Section */}
       {bannerLoading ? (
         <SkeletonLoader className="aspect-[1500/738] lg:aspect-[1920/448] w-full" />
-      ) : (
-        <HeroBanner
-          imageSrcDesktop={banners?.desktop}
-          imageSrcMobile={banners?.mobile}
-          altAttr=""
-          titleAttr=""
-        />
+      ) : (<>
+
+        <HeroBanner {...bannerProps} altAttr="" titleAttr="" />
+      </>
       )}
 
       <h2 className="sm:text-[20px] sm:leading-[24px]  md:text-[16px] md:leading-[20px] lg:text-[30px] lg:leading-[35px] 2xl:text-[35px] 2xl:leading-[40px] text-[26px] leading-[33px] font-normal font-castoro text-center pt-10 2xl:pt-12 capitalize text-[#2B2B2B]">

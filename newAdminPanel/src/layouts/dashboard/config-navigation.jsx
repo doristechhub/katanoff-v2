@@ -14,6 +14,7 @@ import Inventory2TwoToneIcon from '@mui/icons-material/Inventory2TwoTone';
 import PentagonTwoToneIcon from '@mui/icons-material/PentagonTwoTone';
 import DiscountIcon from '@mui/icons-material/Discount';
 import SettingsIcon from '@mui/icons-material/Settings';
+import InsightsTwoToneIcon from '@mui/icons-material/InsightsTwoTone';
 
 import Iconify from 'src/components/iconify';
 import SvgColor from 'src/components/svg-color';
@@ -170,6 +171,13 @@ const navConfig = [
     pageId: 'report & analysis',
     path: '/report-analysis',
     icon: <AssessmentTwoToneIcon />,
+    children: [],
+  },
+  {
+    title: 'Website Analytics',
+    pageId: 'website-analytics',
+    path: '/website-analytics',
+    icon: <InsightsTwoToneIcon />,
     children: [],
   },
 ];

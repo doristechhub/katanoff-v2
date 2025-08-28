@@ -35,6 +35,7 @@ import {
   setSelectedRefundReturn,
   setSelectedRejectReturn,
   setSelectedApproveReturn,
+  setRefundReturnMessage,
 } from 'src/store/slices/returnSlice';
 import {
   StyledDialogTitle,
@@ -53,6 +54,9 @@ import { rejectReturn, getReturnList, recievedReturn } from 'src/actions/returnA
 import RejectReturnDialog from './returns-reject-dialog';
 import RefundReturnsDialog from './returns-refund-dialog';
 import ApproveReturnDialog from './returns-approve-dialog';
+import { initMessageObj } from 'src/_helpers/constants';
+import { useAlertTimeout } from 'src/hooks/user-alert-timeout';
+import AnimatedAlert from 'src/components/alert/AnimatedAlert';
 
 // ----------------------------------------------------------------------
 
@@ -94,10 +98,17 @@ const ReturnList = () => {
     returnLoading,
     crudReturnLoading,
     refundReturnLoading,
+    refundReturnMessage,
     rejectReturnLoading,
     selectedRejectReturn,
     recievedReturnLoading,
   } = useSelector(({ returns }) => returns);
+
+  useAlertTimeout(
+    refundReturnMessage,
+    () => dispatch(setRefundReturnMessage(initMessageObj)),
+    6000
+  );
 
   useEffect(() => {
     let filteredItems = [...returnList];
@@ -368,7 +379,7 @@ const ReturnList = () => {
                 }}
               >
                 <Spinner width={20} /> Update
-              </Box>
+              </Box> 
             ) : (
               <>
                 <Iconify icon="ic:round-update" sx={{ mr: 2 }} />
@@ -501,6 +512,10 @@ const ReturnList = () => {
         </div>
       ) : (
         <>
+          <AnimatedAlert
+            messageObj={refundReturnMessage}
+            onClose={() => dispatch(setRefundReturnMessage(initMessageObj))}
+          />
           <Stack my={2} mx={2} gap={2} direction="row" flexWrap={'wrap'} alignItems="center">
             <TextField
               type="search"

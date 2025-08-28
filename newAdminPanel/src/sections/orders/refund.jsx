@@ -32,9 +32,16 @@ import { Button } from 'src/components/button';
 import Scrollbar from 'src/components/scrollbar';
 import { setSelectedOrder } from 'src/store/slices/ordersSlice';
 import { getOrderRefundList } from 'src/actions/orderRefundActions';
-import { refundStatuses, setOrderRefundPage } from 'src/store/slices/refundSlice';
+import {
+  refundStatuses,
+  setOrderRefundPage,
+  setOrderRefundPaymentMessage,
+} from 'src/store/slices/refundSlice';
 
 import RefundOrderDialog from './refund-order-dialog';
+import AnimatedAlert from 'src/components/alert/AnimatedAlert';
+import { initMessageObj } from 'src/_helpers/constants';
+import { useAlertTimeout } from 'src/hooks/user-alert-timeout';
 
 // ----------------------------------------------------------------------
 
@@ -60,8 +67,19 @@ const Refund = () => {
   const [filteredOrderList, setFilteredOrderList] = useState([]);
   const [filterByPaymentStatus, setFilterByPaymentStatus] = useState('all');
 
-  const { orderRefundPage, orderRefundList, orderRefundLoader, orderRefundPaymentLoading } =
-    useSelector(({ refund }) => refund);
+  const {
+    orderRefundPage,
+    orderRefundList,
+    orderRefundLoader,
+    orderRefundPaymentLoading,
+    orderRefundPaymentMessage,
+  } = useSelector(({ refund }) => refund);
+
+  useAlertTimeout(
+    orderRefundPaymentMessage,
+    () => dispatch(setOrderRefundPaymentMessage(initMessageObj)),
+    6000
+  );
 
   useEffect(() => {
     let filteredItems = [...orderRefundList];
@@ -226,6 +244,10 @@ const Refund = () => {
         </div>
       ) : (
         <>
+          <AnimatedAlert
+            messageObj={orderRefundPaymentMessage}
+            onClose={() => dispatch(setOrderRefundPaymentMessage(initMessageObj))}
+          />
           <Stack my={2} mx={2} gap={2} direction="row" flexWrap={'wrap'} alignItems="center">
             <TextField
               type="search"

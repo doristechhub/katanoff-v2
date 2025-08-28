@@ -8,6 +8,10 @@ const pagesList = [
     pageName: "Report & Analysis",
   },
   {
+    pageId: "website-analytics",
+    pageName: "Website Analytics",
+  },
+  {
     pageId: "users",
     pageName: "users",
   },
@@ -55,6 +59,7 @@ const pagesList = [
 
 const dashboardPageId = "dashboard";
 const reportAndAnalysisPageId = "report & analysis";
+const websiteAnalyticsPageId = "website-analytics";
 const usersPageId = "users";
 const menuPageId = "menu";
 const customizationPageId = "customization";
@@ -83,5 +88,6 @@ module.exports = {
   permissionsPageId,
   appointmentsPageId,
   returnsPageId,
-  discountsPageId
+  discountsPageId,
+  websiteAnalyticsPageId
 };
