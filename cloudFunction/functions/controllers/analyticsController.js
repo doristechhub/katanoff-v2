@@ -7,6 +7,11 @@ const sanitizeValue = require("../helpers/sanitizeParams");
 
 // Initialize GA4 Data API client
 const client = new BetaAnalyticsDataClient({
+    // test analytics account file
+    // keyFilename: path.join(__dirname, "../credentials/google-service-test-account.json"),
+
+
+    // katanoff analytics account file
     keyFilename: path.join(__dirname, "../credentials/google-service-katanoff-account.json"),
 });
 
