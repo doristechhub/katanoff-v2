@@ -61,25 +61,28 @@ const getAllActiveProducts = () => {
             : product?.diamondFilters,
           categoryName: menuData.categories.find(
             (category) => category.id === product.categoryId
-          )?.title,
-          subCategoryNames: subCategoryIds?.length
-            ? subCategoryIds
-              .map(
-                (id) =>
-                  menuData?.subCategories?.find(
-                    (subCategory) => subCategory?.id === id
-                  )?.title
-              )
-              ?.filter(Boolean)
-            : [],
-          ...(product.productTypeIds?.length > 0 && {
-            productTypeNames: product.productTypeIds.map(
-              (id) =>
-                menuData.productTypes.find(
-                  (productType) => productType?.id === id
-                )?.title
-            ),
-          }),
+          )?.title || "",
+          subCategoryNames: subCategoryIds?.map((id) => {
+            const subCategory = menuData?.subCategories?.find(
+              (subCategory) => subCategory?.id === id
+            );
+            return subCategory
+              ? subCategory
+              : null;
+          }).filter(Boolean)
+            || [],
+
+          productTypeNames:
+            product.productTypeIds?.map((id) => {
+              const productType = menuData?.productTypes?.find(
+                (productType) => productType?.id === id
+              );
+              return productType
+                ? productType
+                : null;
+            })
+              .filter(Boolean) || [],
+
           variations: helperFunctions.getVariationsArray(
             product.variations,
             customizations
@@ -241,7 +244,8 @@ const getCollectionsTypeWiseProduct = (
         // Filter by subcategory name
         let subCategoryFilter = allActiveProductsData.filter((item) =>
           item?.subCategoryNames?.some(
-            (name) => name?.toLowerCase() === collectionTitle?.toLowerCase()
+            (subCategory) =>
+              subCategory?.title?.toLowerCase() === collectionTitle?.toLowerCase()
           )
         );
 
@@ -259,9 +263,9 @@ const getCollectionsTypeWiseProduct = (
         // First filter by product type
         let productTypeFilter = allActiveProductsData.filter(
           (item) =>
-            item.productTypeNames?.length &&
-            item.productTypeNames.some(
-              (name) => name?.toLowerCase() === collectionTitle?.toLowerCase()
+            item?.productTypeNames?.length &&
+            item?.productTypeNames?.some(
+              (name) => name?.title?.toLowerCase() === collectionTitle?.toLowerCase()
             )
         );
 
@@ -269,7 +273,8 @@ const getCollectionsTypeWiseProduct = (
         if (parentCategory) {
           productTypeFilter = productTypeFilter.filter((item) =>
             item?.subCategoryNames?.some(
-              (name) => name?.toLowerCase() === parentCategory?.toLowerCase()
+              (subCategory) =>
+                subCategory?.title?.toLowerCase() === parentCategory?.toLowerCase()
             )
           );
         }
@@ -351,6 +356,7 @@ const getCollectionsTypeWiseProduct = (
             settingStyleNamesWithImg: product?.settingStyleNamesWithImg,
             // Add category and subcategory info for debugging/reference
             categoryName: product.categoryName,
+            categoryId: product.categoryId,
             subCategoryNames: product.subCategoryNames,
             productTypeNames: product.productTypeNames,
           };
@@ -537,24 +543,28 @@ const getProcessProducts = async (singleProductData) => {
 
     convertedProductData.subCategoryNames = subCategoryIds.length
       ? subCategoryIds
-        .map(
-          (id) =>
-            menuData.subCategories.find(
-              (subCategory) => subCategory.id === id
-            )?.title
-        )
+        .map((id) => {
+          const subCategory = menuData.subCategories.find(
+            (subCategory) => subCategory.id === id
+          );
+          return subCategory
+            ? subCategory
+            : null;
+        })
         .filter(Boolean)
       : [];
 
     if (convertedProductData?.productTypeIds?.length) {
       convertedProductData.productTypeNames =
         convertedProductData.productTypeIds
-          .map(
-            (id) =>
-              menuData.productTypes.find(
-                (productType) => productType?.id === id
-              )?.title
-          )
+          .map((id) => {
+            const productType = menuData.productTypes.find(
+              (productType) => productType?.id === id
+            );
+            return productType
+              ? productType
+              : null;
+          })
           .filter(Boolean);
     }
 
@@ -752,9 +762,9 @@ const getFilteredDiamondProducts = (params) => {
         const settingStylesItem = element?.settingStyleNamesWithImg;
         const variComboWithQtyItems = element?.variComboWithQuantity;
         const variationItems = element?.variations;
-        if (productTypeItems?.length)
-          tempProductTypes.push(...productTypeItems);
-
+        if (productTypeItems?.length) {
+          tempProductTypes.push(...productTypeItems?.map((pt) => pt?.title));
+        }
         if (collectionItems?.length) tempCollections.push(...collectionItems);
         if (settingStylesItem?.length)
           tempSettingStyles.push(...settingStylesItem);
@@ -807,7 +817,7 @@ const getFilteredDiamondProducts = (params) => {
           // Filter by product type
           const isProductTypeValid = selectedProductTypes?.length
             ? selectedProductTypes.some((type) =>
-              product?.productTypeNames.includes(type?.value)
+              product?.productTypeNames.some((pt) => pt?.title === type?.value)
             )
             : true;
 
@@ -874,53 +884,46 @@ const getFilteredDiamondProducts = (params) => {
           );
         });
 
-      const processedDiamondProducts = filteredDiamondProducts.map(
-        (product) => {
-          const { price = 0 } = helperFunctions.getMinPriceVariCombo(
-            product.variComboWithQuantity
-          );
-          return {
-            productName: product.productName,
-            whiteGoldImages: product?.whiteGoldImages,
-            yellowGoldImages: product?.yellowGoldImages,
-            roseGoldImages: product?.roseGoldImages,
-            whiteGoldThumbnailImage: product?.whiteGoldThumbnailImage,
-            yellowGoldThumbnailImage: product?.yellowGoldThumbnailImage,
-            roseGoldThumbnailImage: product?.roseGoldThumbnailImage,
-            id: product.id,
-            basePrice: helperFunctions?.roundOffPrice(price),
-            baseSellingPrice: helperFunctions.getSellingPrice({
-              price,
-              discount: product.discount,
-            }),
+      const processedDiamondProducts = filteredDiamondProducts.map((product) => {
+        const { price = 0 } = helperFunctions.getMinPriceVariCombo(
+          product.variComboWithQuantity
+        );
+        return {
+          productName: product.productName,
+          whiteGoldImages: product?.whiteGoldImages,
+          yellowGoldImages: product?.yellowGoldImages,
+          roseGoldImages: product?.roseGoldImages,
+          whiteGoldThumbnailImage: product?.whiteGoldThumbnailImage,
+          yellowGoldThumbnailImage: product?.yellowGoldThumbnailImage,
+          roseGoldThumbnailImage: product?.roseGoldThumbnailImage,
+          id: product.id,
+          basePrice: helperFunctions?.roundOffPrice(price),
+          baseSellingPrice: helperFunctions.getSellingPrice({
+            price,
             discount: product.discount,
-            goldTypeVariations: product?.variations?.find(
-              (x) =>
-                x?.variationName?.toLowerCase() === GOLD_TYPES?.toLowerCase()
-            )?.variationTypes,
-            goldColorVariations: product?.variations?.find(
-              (x) =>
-                x?.variationName?.toLowerCase() === GOLD_COLOR?.toLowerCase()
-            )?.variationTypes,
-          };
-        }
-      );
-
+          }),
+          discount: product.discount,
+          goldTypeVariations: product?.variations?.find(
+            (x) => x?.variationName?.toLowerCase() === GOLD_TYPES?.toLowerCase()
+          )?.variationTypes,
+          goldColorVariations: product?.variations?.find(
+            (x) => x?.variationName?.toLowerCase() === GOLD_COLOR?.toLowerCase()
+          )?.variationTypes,
+        };
+      });
       // Get the minimum and maximum price for the availablePriceRange
-      const minPrice = Math.min(...tempPriceRange);
-      const maxPrice = Math.max(...tempPriceRange);
+      const minPrice = tempPriceRange.length ? Math.min(...tempPriceRange) : 0;
+      const maxPrice = tempPriceRange.length ? Math.max(...tempPriceRange) : 0;
       const uniqueSettingStyles = tempSettingStyles
         .filter(
           (item, index, self) =>
             index === self.findIndex((t) => t.title === item.title)
         )
-        .map((x) => {
-          return {
-            title: x?.title,
-            value: x?.title,
-            image: x?.image,
-          };
-        });
+        .map((x) => ({
+          title: x?.title,
+          value: x?.title,
+          image: x?.image,
+        }));
 
       const metaData = {
         availablePriceRange: [minPrice, maxPrice],
@@ -1121,8 +1124,8 @@ const searchProducts = (params) => {
           product.subCategoryNames &&
           Array.isArray(product.subCategoryNames)
         ) {
-          product.subCategoryNames.forEach((subCategoryName) => {
-            fieldsToSearch.push(subCategoryName);
+          product.subCategoryNames.forEach((subCategory) => {
+            fieldsToSearch.push(subCategory?.title);
           });
         }
 
@@ -1130,8 +1133,8 @@ const searchProducts = (params) => {
           product.productTypeNames &&
           Array.isArray(product.productTypeNames)
         ) {
-          product.productTypeNames.forEach((productTypeName) => {
-            fieldsToSearch.push(productTypeName);
+          product.productTypeNames.forEach((productType) => {
+            fieldsToSearch.push(productType?.title);
           });
         }
 

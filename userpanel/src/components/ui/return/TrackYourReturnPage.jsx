@@ -42,9 +42,8 @@ const ReturnAccordion = ({
   return (
     <div className="border !bg-none border-gray-200 mb-4 rounded-md">
       <div
-        className={`flex justify-between items-center  p-4 cursor-pointer hover:bg-gray-200 transition-colors ${
-          isExpanded ? "border-b  border-gray-200" : ""
-        } `}
+        className={`flex justify-between items-center  p-4 cursor-pointer hover:bg-gray-200 transition-colors ${isExpanded ? "border-b  border-gray-200" : ""
+          } `}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         tabIndex={0}
@@ -68,9 +67,8 @@ const ReturnAccordion = ({
             srcAttr={returnArrow}
             altAttr="Arrow"
             titleAttr="Arrow"
-            className={`w-5 h-5 transition-transform duration-200 ${
-              isExpanded ? "rotate-180" : ""
-            }`}
+            className={`w-5 h-5 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""
+              }`}
             style={{ filter }}
           />
         </div>

@@ -9,6 +9,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { setTransparentHeaderBg } from "@/store/slices/commonSlice";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { useLenis } from "@/hooks/useLenis";
 
 const Layout = ({ children }) => {
   const router = useRouter();
@@ -18,6 +19,7 @@ const Layout = ({ children }) => {
   axios.defaults.baseURL = apiUrl;
   setAuthToken();
   errorInterceptor(router);
+  useLenis()
 
   useEffect(() => {
     const isCollectionPage = /^\/collections\/[^/]+\/[^/]+$/.test(pathname);

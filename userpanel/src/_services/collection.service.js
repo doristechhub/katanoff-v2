@@ -62,7 +62,33 @@ const getCollectionsWithProduct = () => {
   });
 };
 
+/**
+ * Fetch collection(s) by title
+ * @param {string} title
+ * @returns {Promise<Object|null>}
+ */
+const getCollectionByTitle = (title) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      title = title ? title?.trim() : null;
+      if (!title) {
+        return reject(new Error("Invalid title"));
+      }
+
+      const collectionData = await getAllCollection();
+      const collection = collectionData?.find(
+        (item) => item?.title?.toLowerCase()?.trim() === title?.toLowerCase()?.trim()
+      );
+
+      resolve(collection);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 export const collectionService = {
   getAllCollection,
   getCollectionsWithProduct,
+  getCollectionByTitle,
 };

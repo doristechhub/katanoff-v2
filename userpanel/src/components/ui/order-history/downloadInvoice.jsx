@@ -35,8 +35,8 @@ export default function DownloadInvoice({
 
   return (
     <div
-      className={`cursor-pointer flex items-center gap-2  ${className} ${invoiceLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100"
-        }`}
+      className={`cursor-pointer flex items-center gap-2  ${className} ${invoiceLoading ? "opacity-50 cursor-not-allowed" : ""
+        } ${children ? "hover:bg-gray-100" : ""}`}
       onClick={downloadInvoiceHandler}
     >
       <CustomImg

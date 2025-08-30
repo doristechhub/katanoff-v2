@@ -203,10 +203,10 @@ const OrderDetails = ({
     >
       <div className="flex justify-end">
         <div className="flex gap-4 mb-2">
-          <div className="w-[24px]">
+          <div>
             {showInvoice &&
               (invoiceLoading ? (
-                <Spinner className="h-[24px] w-7" />
+                <Spinner className="h-6" />
               ) : (
                 <DownloadInvoice
                   orderId={orderDetail?.id}
@@ -376,22 +376,22 @@ const OrderDetails = ({
               },
               ...(orderDetail?.discount > 0
                 ? [
-                    {
-                      label: `Promo Discount (${orderDetail?.promoCode})`,
-                      value: `- ${helperFunctions?.formatCurrencyWithDollar(
-                        orderDetail?.discount
-                      )}`,
-                      strong: false,
-                    },
-                  ]
+                  {
+                    label: `Promo Discount (${orderDetail?.promoCode})`,
+                    value: `- ${helperFunctions?.formatCurrencyWithDollar(
+                      orderDetail?.discount
+                    )}`,
+                    strong: false,
+                  },
+                ]
                 : []),
               {
                 label: `Sales Tax (${SALES_TAX_PERCENTAGE_VALUE})`,
                 value:
                   orderDetail?.salesTax > 0
                     ? helperFunctions?.formatCurrencyWithDollar(
-                        orderDetail?.salesTax
-                      )
+                      orderDetail?.salesTax
+                    )
                     : "$0.00",
               },
               {
@@ -399,8 +399,8 @@ const OrderDetails = ({
                 value:
                   orderDetail?.shippingCharge > 0
                     ? `$${helperFunctions?.formatCurrencyWithDollar(
-                        orderDetail.shippingCharge
-                      )}`
+                      orderDetail.shippingCharge
+                    )}`
                     : "Free",
               },
               {
@@ -415,9 +415,8 @@ const OrderDetails = ({
                 className="flex justify-between"
               >
                 <h4
-                  className={`${
-                    item.label === "Total Amount" ? "font-bold" : "font-medium"
-                  }`}
+                  className={`${item.label === "Total Amount" ? "font-bold" : "font-medium"
+                    }`}
                 >
                   {item.label}
                 </h4>

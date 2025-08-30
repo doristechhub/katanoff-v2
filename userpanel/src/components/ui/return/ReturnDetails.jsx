@@ -146,17 +146,16 @@ const ReturnDetails = ({
 
   return (
     <div
-      className={`p-4 lg:p-8 2xl:p-10 ${
-        showShadow ? "shadow-[0px_0px_10px_0px_#0000001A]" : ""
-      } rounded-md`}
+      className={`p-4 lg:p-8 2xl:p-10 ${showShadow ? "shadow-[0px_0px_10px_0px_#0000001A]" : ""
+        } rounded-md`}
     >
       {/* Action Buttons */}
       <div className="flex justify-end gap-4">
         {showCancel
           ? returnDetail?.status === "pending" &&
-            returnDetail?.returnPaymentStatus === "pending" && (
-              <CancelReturnRequest returnId={returnDetail.id} />
-            )
+          returnDetail?.returnPaymentStatus === "pending" && (
+            <CancelReturnRequest returnId={returnDetail.id} />
+          )
           : null}
         {["approved", "received"]?.includes(returnDetail?.status) &&
           (invoiceLoading ? (
@@ -164,7 +163,6 @@ const ReturnDetails = ({
           ) : (
             <DownloadInvoice
               returnId={returnDetail?.id}
-              orderNumber={returnDetail?.orderNumber}
             ></DownloadInvoice>
           ))}
       </div>
@@ -350,8 +348,8 @@ const ReturnDetails = ({
             </div>
             <hr className="w-full border-t border-gray-300 my-2 mx-auto" />
             {returnDetail?.returnRequestAmount &&
-            returnDetail?.refundAmount &&
-            Number(returnDetail?.returnRequestAmount) ===
+              returnDetail?.refundAmount &&
+              Number(returnDetail?.returnRequestAmount) ===
               Number(returnDetail?.refundAmount) ? (
               // Case: Full refund, show only Refunded Amount
               <div className="flex justify-between">
@@ -379,7 +377,7 @@ const ReturnDetails = ({
                         -
                         {formatCurrency(
                           Number(returnDetail?.returnRequestAmount) -
-                            Number(returnDetail?.refundAmount)
+                          Number(returnDetail?.refundAmount)
                         )}
                       </p>
                     </div>

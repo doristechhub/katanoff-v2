@@ -3,14 +3,14 @@ import {
   fetchCollectionBannersAction,
   fetchCollectionsTypeWiseProduct,
 } from "@/_actions/product.actions";
-import { GENERAL, GIFTS_FOR_HER, GIFTS_FOR_HIM, GIFTS_UNDER_1000, helperFunctions } from "@/_helper";
+import { COLLECTION, FILTER_TO_OPTIONS_MAP, GENERAL, GIFTS_FOR_HER, GIFTS_FOR_HIM, GIFTS_UNDER_1000, helperFunctions, SETTING_STYLE_KEY } from "@/_helper";
 import {
   HeroBanner,
   ProductFilter,
   ProductGrid,
 } from "@/components/dynamiComponents";
 import { useParams, useSearchParams } from "next/navigation";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import KeyFeatures from "@/components/ui/KeyFeatures";
 import SettingStyleCategorySwiper from "@/components/ui/settingStyleSwiper";
@@ -21,6 +21,8 @@ import giftsForHerDesktop from "@/assets/images/collections/giftsForHerDesktop.w
 import giftsForHerMobile from "@/assets/images/collections/giftsForHerMobile.webp";
 import giftsUnder1000Desktop from "@/assets/images/collections/giftsUnder1000Desktop.webp";
 import giftsUnder1000Mobile from "@/assets/images/collections/giftsUnder1000Mobile.webp";
+import { fetchCollectionByTitle } from "@/_actions/collection.action";
+import { setActiveFilterType } from "@/store/slices/productSlice";
 
 export default function CollectionPage() {
   const params = useParams();
@@ -33,7 +35,9 @@ export default function CollectionPage() {
     filteredProducts,
     bannerLoading,
     banners,
+    activeFilterType
   } = useSelector(({ product }) => product);
+
   let { collectionType, collectionTitle } = params;
   const parentCategory = searchParams.get("parentCategory");
   const parentMainCategory = searchParams.get("parentMainCategory");
@@ -42,6 +46,18 @@ export default function CollectionPage() {
   );
 
   const loadData = useCallback(async () => {
+    let latestFilterType = SETTING_STYLE_KEY;
+    if (collectionType === COLLECTION) {
+      const collectionData = await dispatch(fetchCollectionByTitle(collectionTitle));
+      latestFilterType = collectionData?.filterType || latestFilterType;
+      
+    } else {
+      latestFilterType = helperFunctions?.getFilterTypeForPage(
+        collectionType,
+        collectionTitle
+      );
+    }
+    dispatch(setActiveFilterType(latestFilterType));
     if (collectionType && collectionTitle) {
       await dispatch(
         fetchCollectionBannersAction({
@@ -66,6 +82,7 @@ export default function CollectionPage() {
     collectionTitle,
     parentCategory,
     parentMainCategory,
+    activeFilterType,
   ]);
 
   useEffect(() => {
@@ -114,11 +131,17 @@ export default function CollectionPage() {
 
       {/* Setting Style Swiper */}
       <section className="container">
-        <SettingStyleCategorySwiper
-          settingStyleCategories={uniqueFilterOptions.uniqueSettingStyles}
-          loading={productLoading}
-        />
+        {activeFilterType && (
+          <SettingStyleCategorySwiper
+            settingStyleCategories={
+              uniqueFilterOptions[FILTER_TO_OPTIONS_MAP[activeFilterType]]
+            }
+            loading={productLoading}
+            filterType={activeFilterType}
+          />
+        )}
       </section>
+
       {/* Product Grid Section */}
       <section className="container pt-6 lg:pt-10 2xl:pt-12">
         <ProductGrid

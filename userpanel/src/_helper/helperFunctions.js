@@ -8,6 +8,9 @@ import {
   SIX,
   SIX_WITH_DECIMAL,
   allowedVariationListForThreeSteps,
+  FILTER_CONFIG,
+  GENERAL,
+  DEFAULT,
 } from "./constants";
 
 const generateUniqueId = () => {
@@ -1074,6 +1077,23 @@ const generateCaratValues = ({ minCarat, maxCarat, step = 0.5 }) => {
   return values;
 };
 
+const getFilterTypeForPage = (collectionType, collectionTitle) => {
+  const config = FILTER_CONFIG?.find((c) => c?.page === collectionType);
+
+  if (!config) {
+    return FILTER_CONFIG?.find((c) => c?.page === DEFAULT)?.filter;
+  }
+
+  if (collectionType === GENERAL) {
+    const match = config.filterOptions.find(
+      (opt) => opt.title.toLowerCase() === collectionTitle.toLowerCase()
+    );
+    return match ? match.filter : config.defaultFilter;
+  }
+
+  return config.filter;
+};
+
 export const helperFunctions = {
   debounce,
   generateUniqueId,
@@ -1126,4 +1146,5 @@ export const helperFunctions = {
   formatDimension,
   addNamesToVariationsArray,
   generateCaratValues,
+  getFilterTypeForPage
 };

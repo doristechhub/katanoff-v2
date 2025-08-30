@@ -7,9 +7,7 @@ import {
   setRecentlyViewProductList,
   setUniqueFilterOptions,
   setProductMessage,
-  setSearchedProductList,
   setSelectedPrices,
-  setSearchResults,
   setBannerLoading,
   setBanners,
 } from "@/store/slices/productSlice";
@@ -17,6 +15,8 @@ import { productService, recentlyViewedService } from "@/_services";
 import {
   ENGAGEMENT_RINGS,
   messageType,
+  PRODUCT_TYPE_KEY,
+  SUB_CATEGORIES_KEY,
   WEDDING_RINGS,
 } from "@/_helper/constants";
 import {
@@ -25,6 +25,7 @@ import {
   setWeddingHeaderLoader,
   setWeddingHeaderUniqueFilterOptions,
 } from "@/store/slices/commonSlice";
+import { helperFunctions, sanitizeValue } from "@/_helper";
 
 export const fetchLatestProductList = (length) => {
   return async (dispatch) => {
@@ -56,7 +57,7 @@ export const fetchWeddingCollectionsTypeWiseProduct = () => {
         );
       if (WeddingCollectionProducts) {
         const tempUniqueFilterOptions = getUniqueFilterOptions(
-          WeddingCollectionProducts
+          { productList: WeddingCollectionProducts }
         );
         const uniqueFilterOptions = { ...tempUniqueFilterOptions };
         dispatch(setWeddingHeaderUniqueFilterOptions(uniqueFilterOptions));
@@ -85,7 +86,7 @@ export const fetchEngagementCollectionsTypeWiseProduct = () => {
         );
       if (engagementCollectionProducts) {
         const tempUniqueFilterOptions = getUniqueFilterOptions(
-          engagementCollectionProducts
+          { productList: engagementCollectionProducts }
         );
         const uniqueFilterOptions = { ...tempUniqueFilterOptions };
         dispatch(setEngagementHeaderUniqueFilterOptions(uniqueFilterOptions));
@@ -106,7 +107,7 @@ export const fetchEngagementCollectionsTypeWiseProduct = () => {
  * @param {Function} dispatch - Redux dispatch function
  */
 const resetAllInit = (dispatch) => {
-  const uniqueFilterOptions = getUniqueFilterOptions([]);
+  const uniqueFilterOptions = getUniqueFilterOptions({ productList: [] });
   dispatch(setUniqueFilterOptions(uniqueFilterOptions));
   dispatch(setSelectedPrices(uniqueFilterOptions?.availablePriceRange ?? []));
   dispatch(setCollectionTypeProductList([]));
@@ -143,8 +144,51 @@ export const fetchCollectionsTypeWiseProduct = (
         parentMainCategory
       );
 
+      let categoryId = null;
+      let subCategoryId = null;
+      const activeFilterType = helperFunctions?.getFilterTypeForPage(collectionType, collectionTitle);
+
       if (Array.isArray(products) && products.length > 0) {
-        const uniqueFilterOptions = getUniqueFilterOptions(products);
+
+        if ([SUB_CATEGORIES_KEY, PRODUCT_TYPE_KEY].includes(activeFilterType)) {
+          collectionType = sanitizeValue(collectionType)
+            ? collectionType.trim()
+            : null;
+          collectionTitle = sanitizeValue(collectionTitle)
+            ? collectionTitle.trim()
+            : null;
+
+          for (const product of products) {
+            if (parentMainCategory) {
+              if (product?.categoryName?.toLowerCase() === parentMainCategory.toLowerCase()) {
+                categoryId = product.categoryId;
+              }
+            } else if (!categoryId) {
+              categoryId = product.categoryId || null;
+            }
+
+            if (activeFilterType === PRODUCT_TYPE_KEY && Array.isArray(product?.subCategoryNames)) {
+
+              const subMatch = product.subCategoryNames.find((sub) => {
+                const titleMatch = sub?.title?.toLowerCase() === collectionTitle?.toLowerCase();
+                if (categoryId) return titleMatch && product?.categoryId === categoryId;
+                return titleMatch;
+              });
+
+              if (subMatch?.id) {
+                subCategoryId = subMatch.id;
+              }
+            }
+
+            if (subCategoryId && categoryId) break;
+          }
+        }
+
+        const uniqueFilterOptions = getUniqueFilterOptions({
+          productList: products,
+          subCategoryId,
+          categoryId
+        });
         dispatch(setUniqueFilterOptions(uniqueFilterOptions));
         dispatch(
           setSelectedPrices(uniqueFilterOptions?.availablePriceRange ?? [])
@@ -260,20 +304,49 @@ export const fetchProductDetailByProductName = (productName) => {
 // };
 
 const getUniqueSettingStyles = (styles) => {
-  return Array.from(new Set(styles.map((item) => item.title))).map((title) => {
-    const { image, id } = styles.find((item) => item.title === title) || {};
+  return Array.from(new Set(styles.map((item) => item.id))).map((styleId) => {
+    const { title, image, id } = styles.find((item) => item.id === styleId) || {};
     return { title, value: id, image };
   });
 };
 
-export const getUniqueFilterOptions = (productList) => {
+
+const getUniqueProductTypes = (productTypes) => {
+  return Array.from(new Set(productTypes.map((item) => item.id))).map((id) => {
+    const { title, image, subCategoryId } = productTypes.find((item) => item.id === id) || {};
+    return {
+      id,
+      title,
+      image,
+      value: id,
+      subCategoryId: subCategoryId || null,
+    };
+  });
+};
+
+const getUniqueSubCategories = (subCategories) => {
+  return Array.from(new Set(subCategories.map((item) => item.id))).map((id) => {
+    const { title, image } = subCategories.find((item) => item.id === id) || {};
+    return {
+      id,
+      title,
+      image,
+      value: id,
+    };
+  });
+};
+
+
+
+export const getUniqueFilterOptions = ({ productList, subCategoryId, categoryId }) => {
   const uniqueVariations = new Map();
   const tempSettingStyles = [];
   const uniqueShapeIds = new Set();
   const uniqueDiamondShapes = [];
   const tempPriceRange = [];
   const uniqueGenders = new Set();
-
+  const tempProductTypes = [];
+  const tempSubCategories = [];
   // For gender-based filtering
   const maleVariations = new Map();
   const femaleVariations = new Map();
@@ -325,6 +398,16 @@ export const getUniqueFilterOptions = (productList) => {
   };
 
   productList.forEach((product) => {
+    const subCategories = product?.subCategoryNames || [];
+    if (subCategories?.length) {
+      tempSubCategories.push(...subCategories);
+    }
+
+    const productTypes = product?.productTypeNames || [];
+    if (productTypes?.length) {
+      tempProductTypes.push(...productTypes);
+    }
+
     // Collect all setting styles for global filters
     const settingStyles = product?.settingStyleNamesWithImg;
     if (settingStyles?.length) {
@@ -393,12 +476,33 @@ export const getUniqueFilterOptions = (productList) => {
   const minPrice = tempPriceRange.length ? Math.min(...tempPriceRange) : 0;
   const maxPrice = tempPriceRange.length ? Math.max(...tempPriceRange) : 0;
 
+  // Filter product types by subCategoryId if provided
+  let filteredProductTypes = tempProductTypes;
+  let filteredSubCategories = tempSubCategories;
+
+
+  if (categoryId) {
+    filteredProductTypes = filteredProductTypes.filter(
+      (pt) => pt.categoryId === categoryId
+    );
+    filteredSubCategories = filteredSubCategories.filter(
+      (subCat) => subCat.categoryId === categoryId
+    );
+  }
+  if (subCategoryId) {
+    filteredProductTypes = filteredProductTypes.filter(
+      (pt) => pt.subCategoryId === subCategoryId
+    );
+  }
+
   return {
     uniqueVariations: variationsArray,
     uniqueSettingStyles: getUniqueSettingStyles(tempSettingStyles),
     uniqueDiamondShapes,
     availablePriceRange: [minPrice, maxPrice],
-    uniqueGenders: Array.from(uniqueGenders), // Add unique genders
+    uniqueGenders: Array.from(uniqueGenders),
+    uniqueProductTypes: getUniqueProductTypes(filteredProductTypes),
+    uniqueSubCategories: getUniqueSubCategories(filteredSubCategories),
     maleFilters: {
       variations: maleVariationsArray,
       settingStyles: getUniqueSettingStyles(tempMaleSettingStyles),
