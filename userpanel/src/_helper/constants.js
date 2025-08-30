@@ -44,18 +44,23 @@ export const WEDDING = "Wedding";
 export const WEDDING_RINGS = "Wedding Rings";
 export const ENGAGEMENT_RINGS = "Engagement Rings";
 export const Start_WITH_SETTING = "Start With Setting";
-export const SIX = '6'
-export const SIX_WITH_DECIMAL = '6.00'
+export const SIX = "6";
+export const SIX_WITH_DECIMAL = "6.00";
 
-export const DIAMOND_WEIGHT = "Diamond Weight"
-export const DIAMOND_CLARITY = "Diamond Clarity"
-export const DIAMOND_COLOR = "Diamond Color"
-export const DIAMOND_SHAPE_KEY = "diamondShape"
-export const DIAMOND_WEIGHT_KEY = "diamondWeight"
-export const DIAMOND_CLARITY_KEY = "diamondClarity"
-export const DIAMOND_COLOR_KEY = "diamondColor"
+export const DIAMOND_WEIGHT = "Diamond Weight";
+export const DIAMOND_CLARITY = "Diamond Clarity";
+export const DIAMOND_COLOR = "Diamond Color";
+export const DIAMOND_SHAPE_KEY = "diamondShape";
+export const DIAMOND_WEIGHT_KEY = "diamondWeight";
+export const DIAMOND_CLARITY_KEY = "diamondClarity";
+export const DIAMOND_COLOR_KEY = "diamondColor";
 
-export const allowedVariationListForThreeSteps = [GOLD_COLOR, RING_SIZE, GOLD_TYPES, LENGTH];
+export const allowedVariationListForThreeSteps = [
+  GOLD_COLOR,
+  RING_SIZE,
+  GOLD_TYPES,
+  LENGTH,
+];
 
 export const sortByList = [
   { value: "date_new_to_old", title: "New to Old" },
@@ -178,7 +183,6 @@ export const GIFTS_UNDER_1000 = "Gifts Under $1000";
 export const GENERAL = "general";
 export const DEFAULT = "default";
 
-
 export const FILTER_CONFIG = [
   {
     page: CATEGORIES,
@@ -196,7 +200,7 @@ export const FILTER_CONFIG = [
     page: GENERAL,
     filterOptions: [
       { title: GIFTS_FOR_HER, filter: SUB_CATEGORIES_KEY },
-      { title: GIFTS_FOR_HIM, filter: SUB_CATEGORIES_KEY },
+      { title: GIFTS_FOR_HIM, filter: PRODUCT_TYPE_KEY },
       { title: GIFTS_UNDER_1000, filter: SUB_CATEGORIES_KEY },
     ],
     defaultFilter: SETTING_STYLE_KEY,
@@ -207,10 +211,9 @@ export const FILTER_CONFIG = [
   },
 ];
 
-
 export const FILTER_TO_OPTIONS_MAP = {
   [SETTING_STYLE_KEY]: "uniqueSettingStyles",
   [PRODUCT_TYPE_KEY]: "uniqueProductTypes",
   [SUB_CATEGORIES_KEY]: "uniqueSubCategories",
-  [DEFAULT]: "uniqueSettingStyles"
+  [DEFAULT]: "uniqueSettingStyles",
 };
