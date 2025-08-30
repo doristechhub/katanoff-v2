@@ -37,7 +37,7 @@ const SearchProductPage = () => {
             searchValue: searchQuery,
           })
         );
-        const tempUniqueFilterOptions = getUniqueFilterOptions(result);
+        const tempUniqueFilterOptions = getUniqueFilterOptions({ productList: result });
         dispatch(setSearchResults(result));
         dispatch(setUniqueFilterOptions(tempUniqueFilterOptions));
       } catch (error) {

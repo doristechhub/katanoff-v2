@@ -42,7 +42,7 @@ export default function TrackYourOrderPage() {
   const { handleSubmit, getFieldProps, touched, errors } = formik;
 
   useEffect(() => {
-    if (orderDetailsRef.current) {
+    if (formSubmitted && orderDetailsRef.current) {
       const topOffset =
         orderDetailsRef.current.getBoundingClientRect().top +
         window.pageYOffset;

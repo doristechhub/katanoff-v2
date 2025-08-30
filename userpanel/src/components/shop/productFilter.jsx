@@ -12,6 +12,8 @@ import {
   setIsFilterFixed,
   toggleSMOpenFilter,
   setProductLoading,
+  setSelectedProductTypes,
+  setSelectedSubCategories,
 } from "@/store/slices/productSlice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,7 +25,9 @@ import {
   DIAMOND_SHAPE,
   GOLD_COLOR,
   helperFunctions,
+  PRODUCT_TYPE_KEY,
   sortByList,
+  SUB_CATEGORIES_KEY,
 } from "@/_helper";
 import { RxCross1 } from "react-icons/rx";
 import * as Yup from "yup";
@@ -48,12 +52,15 @@ export default function ProductFilter({
     selectedSortByValue,
     selectedFilterVariations,
     selectedSettingStyles,
+    selectedProductTypes,
+    selectedSubCategories,
     selectedPrices,
     uniqueFilterOptions,
     selectedGenders,
     isFilterFixed,
     isFilterMenuOpen,
     smOpenFilter,
+    activeFilterType
   } = useSelector(({ product }) => product);
 
   // Swiper
@@ -122,6 +129,8 @@ export default function ProductFilter({
 
       // Define filter-related parameter keys that we manage
       const filterParamKeys = [
+        "product_type",
+        "sub_category",
         "setting_style",
         "min_price",
         "max_price",
@@ -166,10 +175,35 @@ export default function ProductFilter({
       // Handle setting styles
       if (newFilters.settingStyles && newFilters.settingStyles.length > 0) {
         newFilters.settingStyles.forEach((style) => {
-          params.append(
-            "setting_style",
-            helperFunctions?.stringReplacedWithUnderScore(style)
-          );
+          const styleId = style?.value;
+          const styleTitle = helperFunctions?.stringReplacedWithUnderScore(style?.title);
+
+          // Combine title and ID with '/'
+          params.append("setting_style", `${styleTitle}/${styleId}`);
+        });
+      }
+
+
+
+      // Handle product types
+      if (newFilters.productType && newFilters.productType.length > 0) {
+        newFilters.productType.forEach((productType) => {
+          const typeId = productType?.value;
+          const typeTitle = helperFunctions?.stringReplacedWithUnderScore(productType?.title);
+
+          // Combine title and ID with '/'
+          params.append("product_type", `${typeTitle}/${typeId}`);
+        });
+      }
+
+      // Handle sub-categories
+      if (newFilters.subCategory && newFilters.subCategory.length > 0) {
+        newFilters.subCategory.forEach((subCategory) => {
+          const subCategoryId = subCategory?.value;
+          const subCategoryTitle = helperFunctions?.stringReplacedWithUnderScore(subCategory?.title);
+
+          // Combine title and ID with '/'
+          params.append("sub_category", `${subCategoryTitle}/${subCategoryId}`);
         });
       }
 
@@ -209,6 +243,7 @@ export default function ProductFilter({
     },
     [router, uniqueFilterOptions, searchParams]
   );
+
   const onPriceChange = useCallback(
     (value) => {
       dispatch(setSelectedPrices(value));
@@ -218,6 +253,8 @@ export default function ProductFilter({
         priceRange: value,
         sortBy: selectedSortByValue,
         genders: selectedGenders,
+        productType: selectedProductTypes,
+        subCategory: selectedSubCategories,
       });
     },
     [
@@ -226,6 +263,8 @@ export default function ProductFilter({
       selectedSettingStyles,
       selectedSortByValue,
       selectedGenders,
+      selectedProductTypes,
+      selectedSubCategories,
       updateURL,
     ]
   );
@@ -245,7 +284,7 @@ export default function ProductFilter({
     }),
     validateOnChange: true,
     validateOnBlur: true,
-    onSubmit: () => {}, // Not needed for onChange usage
+    onSubmit: () => { }, // Not needed for onChange usage
   });
   const { values, setFieldValue, errors, touched } = formik;
 
@@ -301,9 +340,8 @@ export default function ProductFilter({
     <div
       {...props}
       key={state.index}
-      className={`absolute top-0 bottom-0 rounded-md ${
-        [0, 2].includes(state.index) ? "bg-gray-200" : "bg-primary"
-      }`}
+      className={`absolute top-0 bottom-0 rounded-md ${[0, 2].includes(state.index) ? "bg-gray-200" : "bg-primary"
+        }`}
     />
   );
   const handleInputChange = (e, index) => {
@@ -355,6 +393,8 @@ export default function ProductFilter({
         priceRange: selectedPrices,
         sortBy: selectedSortByValue,
         genders: selectedGenders,
+        productType: selectedProductTypes,
+        subCategory: selectedSubCategories,
       });
     },
     [
@@ -363,31 +403,34 @@ export default function ProductFilter({
       selectedSettingStyles,
       selectedPrices,
       selectedSortByValue,
+      selectedProductTypes,
+      selectedSubCategories,
       selectedGenders,
       updateURL,
     ]
   );
-  const onSelectSettingStyle = useCallback(
-    (styleTitle) => {
-      const normalizedStyleTitle =
-        helperFunctions?.stringReplacedWithSpace(styleTitle);
-      const currentStyles = selectedSettingStyles || [];
-      let newStyles;
 
-      if (currentStyles.includes(normalizedStyleTitle)) {
-        newStyles = currentStyles.filter(
-          (title) => title !== normalizedStyleTitle
-        );
-      } else {
-        newStyles = [...currentStyles, normalizedStyleTitle];
-      }
+  const onSelectSettingStyle = useCallback(
+    (style) => {
+      const styleTitle = typeof style === "object" ? style.title : style;
+      const styleValue = typeof style === "object" ? style.value : styleTitle;
+
+      const currentStyles = selectedSettingStyles || [];
+      const isSelected = currentStyles?.some((s) => s.value === styleValue);
+
+      const newStyles = isSelected
+        ? currentStyles.filter((s) => s.value !== styleValue)
+        : [...currentStyles, { value: styleValue, title: styleTitle }];
 
       dispatch(setSelectedSettingStyles(newStyles));
+
       updateURL({
         variations: selectedFilterVariations,
         settingStyles: newStyles,
         priceRange: selectedPrices,
         sortBy: selectedSortByValue,
+        productType: selectedProductTypes,
+        subCategory: selectedSubCategories,
         genders: selectedGenders,
       });
     },
@@ -396,11 +439,80 @@ export default function ProductFilter({
       selectedFilterVariations,
       selectedSettingStyles,
       selectedPrices,
+      selectedProductTypes,
+      selectedSubCategories,
       selectedSortByValue,
       selectedGenders,
       updateURL,
     ]
   );
+
+  const onSelectProductType = useCallback(
+    (style) => {
+      const styleTitle = typeof style === "object" ? style?.title : style;
+      const styleValue = typeof style === "object" ? style?.value : styleTitle;
+
+      const currentStyles = selectedProductTypes || [];
+      const isSelected = currentStyles?.some((s) => s?.value === styleValue);
+
+      const newStyles = isSelected
+        ? currentStyles?.filter((s) => s?.value !== styleValue)
+        : [...currentStyles, { value: styleValue, title: styleTitle }];
+
+      dispatch(setSelectedProductTypes(newStyles));
+      updateURL({
+        variations: selectedFilterVariations,
+        settingStyles: selectedSettingStyles,
+        priceRange: selectedPrices,
+        productType: selectedProductTypes,
+        subCategory: selectedSubCategories,
+        genders: selectedGenders,
+      });
+    },
+    [
+      dispatch,
+      selectedFilterVariations,
+      selectedSettingStyles,
+      selectedPrices,
+      selectedGenders,
+      selectedProductTypes,
+      updateURL,
+    ]
+  );
+
+  const onSelectSubCategory = useCallback(
+    (style) => {
+      const styleTitle = typeof style === "object" ? style.title : style;
+      const styleValue = typeof style === "object" ? style.value : styleTitle;
+
+      const currentStyles = selectedSubCategories || [];
+      const isSelected = currentStyles?.some((s) => s?.value === styleValue);
+
+      const newStyles = isSelected
+        ? currentStyles?.filter((s) => s?.value !== styleValue)
+        : [...currentStyles, { value: styleValue, title: styleTitle }];
+      dispatch(setSelectedSubCategories(newStyles));
+      updateURL({
+        variations: selectedFilterVariations,
+        settingStyles: selectedSettingStyles,
+        priceRange: selectedPrices,
+        productType: selectedProductTypes,
+        subCategory: selectedSubCategories,
+        genders: selectedGenders,
+      });
+    },
+    [
+      dispatch,
+      selectedFilterVariations,
+      selectedSettingStyles,
+      selectedPrices,
+      selectedGenders,
+      selectedProductTypes,
+      selectedSubCategories,
+      updateURL,
+    ]
+  );
+
   const onSelectGender = useCallback(
     (gender) => {
       const normalizedGender = helperFunctions?.stringReplacedWithSpace(gender);
@@ -414,6 +526,8 @@ export default function ProductFilter({
         variations: selectedFilterVariations,
         settingStyles: selectedSettingStyles,
         priceRange: selectedPrices,
+        productType: selectedProductTypes,
+        subCategory: selectedSubCategories,
         sortBy: selectedSortByValue,
         genders: newGenders,
       });
@@ -422,6 +536,8 @@ export default function ProductFilter({
       dispatch,
       selectedFilterVariations,
       selectedSettingStyles,
+      selectedProductTypes,
+      selectedSubCategories,
       selectedPrices,
       selectedSortByValue,
       selectedGenders,
@@ -436,6 +552,8 @@ export default function ProductFilter({
         variations: selectedFilterVariations,
         settingStyles: selectedSettingStyles,
         priceRange: selectedPrices,
+        productType: selectedProductTypes,
+        subCategory: selectedSubCategories,
         genders: selectedGenders,
         sortBy: sortValue,
       });
@@ -447,6 +565,8 @@ export default function ProductFilter({
       selectedPrices,
       selectedGenders,
       updateURL,
+      selectedProductTypes,
+      selectedSubCategories,
     ]
   );
 
@@ -458,6 +578,8 @@ export default function ProductFilter({
         priceRange: selectedPrices,
         sortBy: selectedSortByValue,
         genders: selectedGenders,
+        productType: selectedProductTypes,
+        subCategory: selectedSubCategories,
       };
       if (filterType === "gender") {
         newFilters.genders = specificValue
@@ -487,7 +609,7 @@ export default function ProductFilter({
         case "settingStyle":
           if (specificValue) {
             const newStyles = (selectedSettingStyles || []).filter(
-              (title) => title !== specificValue
+              (style) => style?.value !== specificValue   // compare by value
             );
             newFilters.settingStyles = newStyles;
             dispatch(setSelectedSettingStyles(newStyles));
@@ -496,6 +618,34 @@ export default function ProductFilter({
             dispatch(setSelectedSettingStyles([]));
           }
           break;
+
+        case "productType":
+          if (specificValue) {
+            const newStyles = (selectedProductTypes || []).filter(
+              (pt) => pt.value !== specificValue
+            );
+            newFilters.productType = newStyles;
+            dispatch(setSelectedProductTypes(newStyles));
+          } else {
+            newFilters.productType = [];
+            dispatch(setSelectedProductTypes([]));
+          }
+          break;
+
+        case "subCategory":
+          if (specificValue) {
+            const newStyles = (selectedSubCategories || []).filter(
+              (sub) => sub.value !== specificValue
+            );
+            newFilters.subCategory = newStyles;
+            dispatch(setSelectedSubCategories(newStyles));
+          } else {
+            newFilters.subCategory = [];
+            dispatch(setSelectedSubCategories([]));
+          }
+          break;
+
+
         case "priceRange":
           const defaultRange = uniqueFilterOptions?.availablePriceRange || [
             0, 0,
@@ -519,11 +669,14 @@ export default function ProductFilter({
       selectedPrices,
       selectedSortByValue,
       uniqueFilterOptions,
+      selectedProductTypes,
+      selectedSubCategories,
       selectedGenders,
       setFieldValue,
       updateURL,
     ]
   );
+
   const resetAllFilters = () => {
     dispatch(resetFilters());
 
@@ -575,12 +728,34 @@ export default function ProductFilter({
 
     // Filter by setting styles (now supports multiple)
     if (selectedSettingStyles && selectedSettingStyles.length > 0) {
-      filteredItemsList = filteredItemsList.filter((product) =>
-        product?.settingStyleNamesWithImg?.some((item) =>
-          selectedSettingStyles.includes(item.title)
+      const selectedIds = selectedSettingStyles.map((pt) => pt.value);
+      filteredItemsList = filteredItemsList.filter((product) => {
+        return product?.settingStyleNamesWithImg?.some((item) =>
+          selectedIds.includes(item?.id)
         )
-      );
+      });
     }
+
+    // Filter by product type (now supports multiple selections)
+    if (selectedProductTypes && selectedProductTypes.length > 0) {
+      const selectedIds = selectedProductTypes.map((pt) => pt.value);
+      filteredItemsList = filteredItemsList.filter((product) => {
+        return product?.productTypeNames?.some((type) =>
+          selectedIds.includes(type?.id)
+        );
+      });
+    }
+
+    // Filter by subCategory (now supports multiple selections)
+    if (selectedSubCategories && selectedSubCategories.length > 0) {
+      const selectedIds = selectedSubCategories.map((pt) => pt.value);
+      filteredItemsList = filteredItemsList.filter((product) => {
+        return product?.subCategoryNames?.some((type) =>
+          selectedIds.includes(type?.id)
+        );
+      });
+    }
+
     // Price filter remains the same
     if (selectedPrices?.length === 2) {
       const [minPrice, maxPrice] = selectedPrices;
@@ -594,7 +769,7 @@ export default function ProductFilter({
       if (!selectedSortByValue) return 0; // Default case if no sort value
       try {
         switch (
-          helperFunctions?.stringReplacedWithUnderScore(selectedSortByValue)
+        helperFunctions?.stringReplacedWithUnderScore(selectedSortByValue)
         ) {
           case "alphabetically_a_to_z":
             return (a.productName || "").localeCompare(b.productName || "");
@@ -626,6 +801,8 @@ export default function ProductFilter({
     return filteredItemsList;
   }, [
     productList,
+    selectedProductTypes,
+    selectedSubCategories,
     selectedFilterVariations,
     selectedSettingStyles,
     selectedPrices,
@@ -662,12 +839,45 @@ export default function ProductFilter({
     }
 
     // Parse setting styles
-    const settingStyles = urlParams
-      .getAll("setting_style")
-      .map((style) =>
-        helperFunctions?.stringReplacedWithSpace(decodeURIComponent(style))
-      );
+
+    const settingStyles = urlParams.getAll("setting_style")
+      .map((item) => {
+        const [titlePart, idPart] = item.split("/");
+        if (!idPart || !titlePart) return null;
+
+        const decodedTitle = helperFunctions?.stringReplacedWithSpace(decodeURIComponent(titlePart));
+
+        return { value: idPart, title: decodedTitle };
+      })
+      .filter(Boolean);
+
     dispatch(setSelectedSettingStyles(settingStyles));
+
+    const productTypes = urlParams.getAll("product_type")
+      .map((item) => {
+        const [titlePart, idPart] = item.split("/");
+        if (!idPart || !titlePart) return null;
+
+        const decodedTitle = helperFunctions?.stringReplacedWithSpace(decodeURIComponent(titlePart));
+
+        return { value: idPart, title: decodedTitle };
+      })
+      .filter(Boolean);
+
+    dispatch(setSelectedProductTypes(productTypes));
+
+    const subCategories = urlParams.getAll("sub_category")
+      .map((item) => {
+        const [titlePart, idPart] = item.split("/");
+        if (!idPart || !titlePart) return null;
+
+        const decodedTitle = helperFunctions?.stringReplacedWithSpace(decodeURIComponent(titlePart));
+
+        return { value: idPart, title: decodedTitle };
+      })
+      .filter(Boolean);
+
+    dispatch(setSelectedSubCategories(subCategories));
 
     // Parse price range
     const minPrice = urlParams.get("min_price");
@@ -699,7 +909,6 @@ export default function ProductFilter({
       .map((g) =>
         helperFunctions?.stringReplacedWithSpace(decodeURIComponent(g))
       );
-    dispatch(setSelectedGenders(genders));
     dispatch(setSelectedGenders(genders));
   }, [searchParams, dispatch, setFieldValue, uniqueFilterOptions]);
 
@@ -751,24 +960,57 @@ export default function ProductFilter({
     );
 
     // Add setting style filters
-    if (selectedSettingStyles && selectedSettingStyles.length > 0) {
-      selectedSettingStyles.forEach((styleId) => {
-        const originalStyleTitle =
-          helperFunctions?.stringReplacedWithSpace(styleId);
-        const style = uniqueFilterOptions?.uniqueSettingStyles?.find(
-          (s) => s.title === originalStyleTitle
+
+    if (selectedSettingStyles && selectedSettingStyles?.length) {
+      selectedSettingStyles.forEach(({ value: styleId, title: styleTitle }) => {
+        const matchedStyle = uniqueFilterOptions?.uniqueSettingStyles?.find(
+          (s) => s.value === styleId
+        );
+        selectedFilters.push({
+          type: "settingStyle",
+          key: `settingStyle-${helperFunctions?.stringReplacedWithUnderScore(styleId)}`,
+          label: helperFunctions?.stringReplacedWithSpace(
+            matchedStyle?.title || styleTitle
+          ),
+          value: null,
+          specificValue: styleId,
+        });
+      });
+    }
+
+
+    if (selectedProductTypes && selectedProductTypes?.length) {
+      selectedProductTypes.forEach(({ value: productTypeId, title: productTypeTitle }) => {
+        const matchedType = uniqueFilterOptions?.uniqueProductTypes?.find(
+          (p) => p.value === productTypeId
         );
 
         selectedFilters.push({
-          type: "settingStyle",
-          key: `settingStyle-${helperFunctions?.stringReplacedWithUnderScore(
-            styleId
-          )}`,
-          label: style
-            ? helperFunctions?.stringReplacedWithSpace(style.title)
-            : originalStyleTitle,
+          type: "productType",
+          key: `productType-${helperFunctions?.stringReplacedWithUnderScore(productTypeId)}`,
+          label: helperFunctions?.stringReplacedWithSpace(
+            matchedType?.title || productTypeTitle
+          ),
           value: null,
-          specificValue: styleId,
+          specificValue: productTypeId,
+        });
+      });
+    }
+
+    if (selectedSubCategories && selectedSubCategories?.length) {
+      selectedSubCategories.forEach(({ value: subCategoryId, title: subCategoryTitle }) => {
+        const matchedSubCategory = uniqueFilterOptions?.uniqueSubCategories?.find(
+          (sc) => sc?.value === subCategoryId
+        );
+
+        selectedFilters.push({
+          type: "subCategory",
+          key: `subCategory-${helperFunctions?.stringReplacedWithUnderScore(subCategoryId)}`,
+          label: helperFunctions?.stringReplacedWithSpace(
+            matchedSubCategory?.title || subCategoryTitle
+          ),
+          value: null,
+          specificValue: subCategoryId,
         });
       });
     }
@@ -825,11 +1067,10 @@ export default function ProductFilter({
         //     ? "fixed top-[110px] lg:top-[60px] clear-both w-full pt-6 bg-white shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] animate-slideDown animate-duration-900 animate-ease-in-out"
         //     : "top-0 border-b-2 border-primary bg-transparent "
         // }`}
-        className={`z-30 transition-all duration-700 ease-in-out ${
-          isFilterFixed
-            ? "fixed top-[110px] lg:top-[50px] clear-both w-full pt-6 bg-white shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] animate-slideDown animate-duration-900 animate-ease-in-out"
-            : "top-0  bg-transparent border-b-2 "
-        }`}
+        className={`z-30 transition-all duration-700 ease-in-out ${isFilterFixed
+          ? "fixed top-[110px] lg:top-[50px] clear-both w-full pt-6 bg-white shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] animate-slideDown animate-duration-900 animate-ease-in-out"
+          : "top-0  bg-transparent border-b-2 "
+          }`}
       >
         <div className="container">
           <div className="gap-2 flex flex-col lg:flex-row lg:items-center lg:justify-between lg:h-[45px] relative pb-4">
@@ -892,19 +1133,18 @@ export default function ProductFilter({
                   <ul className="text-[14px] leading-[17px] font-semibold text-baseblack">
                     {sortByList?.length
                       ? sortByList.map((item) => (
-                          <li
-                            key={item?.value}
-                            style={{ textTransform: "capitalize" }}
-                            className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${
-                              selectedSortByValue === item?.value
-                                ? "bg-gray-200 font-bold"
-                                : ""
+                        <li
+                          key={item?.value}
+                          style={{ textTransform: "capitalize" }}
+                          className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${selectedSortByValue === item?.value
+                            ? "bg-gray-200 font-bold"
+                            : ""
                             }`}
-                            onClick={() => onSelectSortBy(item?.value)}
-                          >
-                            {item.title}
-                          </li>
-                        ))
+                          onClick={() => onSelectSortBy(item?.value)}
+                        >
+                          {item.title}
+                        </li>
+                      ))
                       : null}
                   </ul>
                 </div>
@@ -965,11 +1205,10 @@ export default function ProductFilter({
                             <div className="p-3 relative">
                               {showNavigationButtons && (
                                 <button
-                                  className={`absolute top-1/2 left-[25px] -translate-x-8 -translate-y-1/2 ${
-                                    isBeginning
-                                      ? "opacity-50 cursor-not-allowed"
-                                      : ""
-                                  }`}
+                                  className={`absolute top-1/2 left-[25px] -translate-x-8 -translate-y-1/2 ${isBeginning
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
+                                    }`}
                                   onClick={() => swiperRef.current?.slidePrev()}
                                   disabled={isBeginning}
                                 >
@@ -978,9 +1217,8 @@ export default function ProductFilter({
                               )}
                               {showNavigationButtons && (
                                 <button
-                                  className={`absolute top-1/2 -right-[8px]  -translate-y-1/2 ${
-                                    isEnd ? "opacity-50 cursor-not-allowed" : ""
-                                  }`}
+                                  className={`absolute top-1/2 -right-[8px]  -translate-y-1/2 ${isEnd ? "opacity-50 cursor-not-allowed" : ""
+                                    }`}
                                   onClick={() => swiperRef.current?.slideNext()}
                                   disabled={isEnd}
                                 >
@@ -1023,7 +1261,7 @@ export default function ProductFilter({
                                       (item, index) => {
                                         const selectedDiamondShape =
                                           selectedFilterVariations[
-                                            DIAMOND_SHAPE
+                                          DIAMOND_SHAPE
                                           ] || [];
                                         const isSelected =
                                           selectedDiamondShape.includes(
@@ -1034,11 +1272,10 @@ export default function ProductFilter({
                                             key={`filter-diamond-shape-${index}`}
                                           >
                                             <div
-                                              className={`flex flex-col items-center gap-2 group cursor-pointer p-1 rounded border ${
-                                                isSelected
-                                                  ? "border-baseblack bg-gray-50"
-                                                  : "border-gray-200 hover:border-baseblack"
-                                              }`}
+                                              className={`flex flex-col items-center gap-2 group cursor-pointer p-1 rounded border ${isSelected
+                                                ? "border-baseblack bg-gray-50"
+                                                : "border-gray-200 hover:border-baseblack"
+                                                }`}
                                               onClick={() =>
                                                 onSelectVariant(
                                                   DIAMOND_SHAPE,
@@ -1061,11 +1298,10 @@ export default function ProductFilter({
                                                 />
                                               </span>
                                               <span
-                                                className={`text-[14px] font-light ${
-                                                  isSelected
-                                                    ? "font-semibold"
-                                                    : ""
-                                                }`}
+                                                className={`text-[14px] font-light ${isSelected
+                                                  ? "font-semibold"
+                                                  : ""
+                                                  }`}
                                               >
                                                 {helperFunctions?.stringReplacedWithSpace(
                                                   item?.variationTypeName
@@ -1102,58 +1338,56 @@ export default function ProductFilter({
                               (variation) =>
                                 variation.variationName === GOLD_COLOR
                                   ? variation.variationTypes.map(
-                                      (item, index) => {
-                                        const selectedGoldColors =
-                                          selectedFilterVariations[
-                                            GOLD_COLOR
-                                          ] || [];
-                                        const isSelected =
-                                          selectedGoldColors.includes(
-                                            item.variationTypeName
-                                          );
-                                        return (
-                                          <div
-                                            className={`gap-1.5 flex items-center cursor-pointer p-1`}
-                                            key={`filter-variation-${index}2`}
-                                            onClick={() =>
-                                              onSelectVariant(
-                                                GOLD_COLOR,
-                                                item.variationTypeName
-                                              )
-                                            }
-                                          >
-                                            <input
-                                              type="checkbox"
-                                              checked={isSelected}
-                                              readOnly
-                                              className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
-                                            />
-                                            <div
-                                              className={`rounded-full w-5 h-5 border ${
-                                                isSelected
-                                                  ? "border-primary"
-                                                  : "border-black"
-                                              }`}
-                                              style={{
-                                                background:
-                                                  item?.variationTypeHexCode,
-                                              }}
-                                            ></div>
-                                            <span
-                                              className={`text-[14px] font-light ${
-                                                isSelected
-                                                  ? "font-semibold"
-                                                  : ""
-                                              }`}
-                                            >
-                                              {helperFunctions?.stringReplacedWithSpace(
-                                                item?.variationTypeName
-                                              )}
-                                            </span>
-                                          </div>
+                                    (item, index) => {
+                                      const selectedGoldColors =
+                                        selectedFilterVariations[
+                                        GOLD_COLOR
+                                        ] || [];
+                                      const isSelected =
+                                        selectedGoldColors.includes(
+                                          item.variationTypeName
                                         );
-                                      }
-                                    )
+                                      return (
+                                        <div
+                                          className={`gap-1.5 flex items-center cursor-pointer p-1`}
+                                          key={`filter-variation-${index}2`}
+                                          onClick={() =>
+                                            onSelectVariant(
+                                              GOLD_COLOR,
+                                              item.variationTypeName
+                                            )
+                                          }
+                                        >
+                                          <input
+                                            type="checkbox"
+                                            checked={isSelected}
+                                            readOnly
+                                            className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
+                                          />
+                                          <div
+                                            className={`rounded-full w-5 h-5 border ${isSelected
+                                              ? "border-primary"
+                                              : "border-black"
+                                              }`}
+                                            style={{
+                                              background:
+                                                item?.variationTypeHexCode,
+                                            }}
+                                          ></div>
+                                          <span
+                                            className={`text-[14px] font-light ${isSelected
+                                              ? "font-semibold"
+                                              : ""
+                                              }`}
+                                          >
+                                            {helperFunctions?.stringReplacedWithSpace(
+                                              item?.variationTypeName
+                                            )}
+                                          </span>
+                                        </div>
+                                      );
+                                    }
+                                  )
                                   : null
                             )}
                           </div>
@@ -1178,17 +1412,16 @@ export default function ProductFilter({
                             <div className="flex flex-col gap-[10px] p-2">
                               {uniqueFilterOptions?.uniqueSettingStyles.map(
                                 (item, index) => {
-                                  const isSelected =
-                                    selectedSettingStyles?.includes(item.title);
+                                  const isSelected = selectedSettingStyles?.some(
+                                    (s) => s.value === item.value
+                                  );
+
                                   return (
                                     <span
                                       key={`filter-variation-${index}4`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
-                                        isSelected ? "font-semibold" : ""
-                                      }`}
-                                      onClick={() =>
-                                        onSelectSettingStyle(item.title)
-                                      }
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
+                                        }`}
+                                      onClick={() => onSelectSettingStyle(item)}
                                     >
                                       <input
                                         type="checkbox"
@@ -1301,9 +1534,8 @@ export default function ProductFilter({
                                   return (
                                     <span
                                       key={`filter-gender-${index}`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
-                                        isSelected ? "font-semibold" : ""
-                                      }`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
+                                        }`}
                                       onClick={() =>
                                         onSelectGender(normalizedGender)
                                       }
@@ -1323,6 +1555,89 @@ export default function ProductFilter({
                           ) : null}
                         </div>
                       ) : null}
+                      {/* PRODUCT TYPE FILTER */}
+                      {activeFilterType === PRODUCT_TYPE_KEY &&
+                        uniqueFilterOptions?.uniqueProductTypes?.length > 0 && (
+                          <div className="border-b border-baseblack">
+                            <button
+                              className="w-full flex justify-between items-center py-3 font-medium text-base"
+                              onClick={() => toggleDropdown("productType")}
+                            >
+                              Product Type
+                              <span>
+                                {smOpenFilter.includes("productType") ? <FiMinus /> : <FaPlus />}
+                              </span>
+                            </button>
+                            {smOpenFilter.includes("productType") && (
+                              <div className="flex flex-col gap-[10px] p-2">
+                                {uniqueFilterOptions?.uniqueProductTypes.map((item, index) => {
+                                  const isSelected = selectedProductTypes?.some(
+                                    (s) => s.value === item.value
+                                  );
+
+                                  return (
+                                    <span
+                                      key={`filter-productType-${index}`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
+                                        }`}
+                                      onClick={() => onSelectProductType(item)}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={isSelected}
+                                        readOnly
+                                        className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
+                                      />
+                                      {item.title}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                      {/* SUB CATEGORY FILTER */}
+                      {activeFilterType === SUB_CATEGORIES_KEY &&
+                        uniqueFilterOptions?.uniqueSubCategories?.length > 0 && (
+                          <div className="border-b border-baseblack">
+                            <button
+                              className="w-full flex justify-between items-center py-3 font-medium text-base"
+                              onClick={() => toggleDropdown("subCategory")}
+                            >
+                              Sub Category
+                              <span>
+                                {smOpenFilter.includes("subCategory") ? <FiMinus /> : <FaPlus />}
+                              </span>
+                            </button>
+                            {smOpenFilter.includes("subCategory") && (
+                              <div className="flex flex-col gap-[10px] p-2">
+                                {uniqueFilterOptions?.uniqueSubCategories.map((item, index) => {
+                                  const isSelected = selectedSubCategories?.some(
+                                    (s) => s.value === item.value
+                                  );
+
+                                  return (
+                                    <span
+                                      key={`filter-subCategory-${index}`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
+                                        }`}
+                                      onClick={() => onSelectSubCategory(item)}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={isSelected}
+                                        readOnly
+                                        className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
+                                      />
+                                      {item.title}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        )}
                     </div>
                     {/* Desktop Layout */}
                     <div className="hidden lg:flex justify-between w-full gap-[30px]">
@@ -1356,11 +1671,10 @@ export default function ProductFilter({
                                       }
                                     >
                                       <span
-                                        className={`flex items-center justify-center w-full flex-[0_0_36px] max-w-[36px] h-[36px] border ${
-                                          isSelected
-                                            ? "border-baseblack"
-                                            : "border-transparent group-hover:border-baseblack"
-                                        } rounded-full overflow-hidden`}
+                                        className={`flex items-center justify-center w-full flex-[0_0_36px] max-w-[36px] h-[36px] border ${isSelected
+                                          ? "border-baseblack"
+                                          : "border-transparent group-hover:border-baseblack"
+                                          } rounded-full overflow-hidden`}
                                       >
                                         <ProgressiveImg
                                           className={`w-[25px] h-[25px] !transition-none`}
@@ -1372,9 +1686,8 @@ export default function ProductFilter({
                                         />
                                       </span>
                                       <span
-                                        className={`text-[15px] font-light ${
-                                          isSelected ? "font-semibold" : ""
-                                        }`}
+                                        className={`text-[15px] font-light ${isSelected ? "font-semibold" : ""
+                                          }`}
                                       >
                                         {helperFunctions?.stringReplacedWithSpace(
                                           item?.variationTypeName
@@ -1397,55 +1710,53 @@ export default function ProductFilter({
                             >
                               {variation.variationName === GOLD_COLOR
                                 ? variation.variationTypes.map(
-                                    (item, index) => {
-                                      const selectedGoldColors =
-                                        selectedFilterVariations[GOLD_COLOR] ||
-                                        [];
-                                      const isSelected =
-                                        selectedGoldColors.includes(
-                                          item.variationTypeName
-                                        );
-                                      return (
-                                        <div
-                                          className={`gap-1.5 flex items-center cursor-pointer p-1`}
-                                          key={`filter-variation-${index}2`}
-                                          onClick={() =>
-                                            onSelectVariant(
-                                              GOLD_COLOR,
-                                              item.variationTypeName
-                                            )
-                                          }
-                                        >
-                                          <input
-                                            type="checkbox"
-                                            checked={isSelected}
-                                            readOnly
-                                            className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
-                                          />
-                                          <div
-                                            className={`rounded-full w-5 h-5 border ${
-                                              isSelected
-                                                ? "border-primary"
-                                                : "border-black"
-                                            }`}
-                                            style={{
-                                              background:
-                                                item?.variationTypeHexCode,
-                                            }}
-                                          ></div>
-                                          <span
-                                            className={`text-[14px] font-light ${
-                                              isSelected ? "font-semibold" : ""
-                                            }`}
-                                          >
-                                            {helperFunctions?.stringReplacedWithSpace(
-                                              item?.variationTypeName
-                                            )}
-                                          </span>
-                                        </div>
+                                  (item, index) => {
+                                    const selectedGoldColors =
+                                      selectedFilterVariations[GOLD_COLOR] ||
+                                      [];
+                                    const isSelected =
+                                      selectedGoldColors.includes(
+                                        item.variationTypeName
                                       );
-                                    }
-                                  )
+                                    return (
+                                      <div
+                                        className={`gap-1.5 flex items-center cursor-pointer p-1`}
+                                        key={`filter-variation-${index}2`}
+                                        onClick={() =>
+                                          onSelectVariant(
+                                            GOLD_COLOR,
+                                            item.variationTypeName
+                                          )
+                                        }
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          checked={isSelected}
+                                          readOnly
+                                          className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
+                                        />
+                                        <div
+                                          className={`rounded-full w-5 h-5 border ${isSelected
+                                            ? "border-primary"
+                                            : "border-black"
+                                            }`}
+                                          style={{
+                                            background:
+                                              item?.variationTypeHexCode,
+                                          }}
+                                        ></div>
+                                        <span
+                                          className={`text-[14px] font-light ${isSelected ? "font-semibold" : ""
+                                            }`}
+                                        >
+                                          {helperFunctions?.stringReplacedWithSpace(
+                                            item?.variationTypeName
+                                          )}
+                                        </span>
+                                      </div>
+                                    );
+                                  }
+                                )
                                 : null}
                             </div>
                           )
@@ -1460,17 +1771,15 @@ export default function ProductFilter({
                             <div className="flex flex-col gap-[10px]">
                               {uniqueFilterOptions?.uniqueSettingStyles.map(
                                 (item, index) => {
-                                  const isSelected =
-                                    selectedSettingStyles?.includes(item.title);
+                                  const isSelected = selectedSettingStyles?.some(
+                                    (s) => s.value === item.value
+                                  );
                                   return (
                                     <span
                                       key={`filter-variation-${index}4`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
-                                        isSelected ? "font-semibold" : ""
-                                      }`}
-                                      onClick={() =>
-                                        onSelectSettingStyle(item.title)
-                                      }
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
+                                        }`}
+                                      onClick={() => onSelectSettingStyle(item)}
                                     >
                                       <input
                                         type="checkbox"
@@ -1557,9 +1866,8 @@ export default function ProductFilter({
                                   return (
                                     <span
                                       key={`filter-gender-${index}`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
-                                        isSelected ? "font-semibold" : ""
-                                      }`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
+                                        }`}
                                       onClick={() =>
                                         onSelectGender(normalizedGender)
                                       }
@@ -1578,6 +1886,59 @@ export default function ProductFilter({
                             </div>
                           </div>
                         ) : null}
+
+                        {activeFilterType === PRODUCT_TYPE_KEY && uniqueFilterOptions?.uniqueProductTypes?.length ? (
+                          <div>
+                            <h5 className={filterHeadingClass}>Product Type</h5>
+                            <div className="flex gap-6">
+                              {uniqueFilterOptions?.uniqueProductTypes?.map((item, index) => {
+                                const isSelected = selectedProductTypes?.some(s => s.value === item.value);
+                                return (
+                                  <span
+                                    key={`filter-productType-${index}`}
+                                    className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""}`}
+                                    onClick={() => onSelectProductType(item)}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={isSelected}
+                                      readOnly
+                                      className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
+                                    />
+                                    {item.title}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ) : null}
+
+                        {activeFilterType === SUB_CATEGORIES_KEY && uniqueFilterOptions?.uniqueSubCategories?.length ? (
+                          <div>
+                            <h5 className={filterHeadingClass}>Sub Category</h5>
+                            <div className="flex gap-6">
+                              {uniqueFilterOptions.uniqueSubCategories.map((item, index) => {
+                                const isSelected = selectedSubCategories?.some(s => s.value === item.value);
+                                return (
+                                  <span
+                                    key={`filter-subCategory-${index}`}
+                                    className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""}`}
+                                    onClick={() => onSelectSubCategory(item)}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={isSelected}
+                                      readOnly
+                                      className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
+                                    />
+                                    {item.title}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ) : null}
+
                       </div>
                     </div>
                   </div>

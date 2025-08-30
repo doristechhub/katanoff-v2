@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-export const defaultsmOpenFilter = ["shape", "metal", "settingStyle", "price"];
+export const defaultsmOpenFilter = ["shape", "metal", "settingStyle", "price", "productType", "subCategory"];
 const initialState = {
   productLoading: false,
   recentlyProductLoading: false,
@@ -17,6 +17,8 @@ const initialState = {
   isFilterFixed: false,
   uniqueFilterOptions: {},
   selectedSettingStyles: [],
+  selectedProductTypes: [],
+  selectedSubCategories: [],
   selectedSettingStyle: "",
   selectedDiamondShapes: [],
   selectedDiamondShape: "",
@@ -38,6 +40,7 @@ const initialState = {
     desktop: "",
     mobile: "",
   },
+  activeFilterType: "",
 };
 
 const productSlice = createSlice({
@@ -114,6 +117,8 @@ const productSlice = createSlice({
       state.smOpenFilter = defaultsmOpenFilter;
       state.selectedSettingStyles = [];
       state.selectedDiamondShapes = [];
+      state.selectedProductTypes = [];
+      state.selectedSubCategories = [];
       state.selectedGenders = [];
     },
     setSelectedPrices: (state, action) => {
@@ -124,6 +129,12 @@ const productSlice = createSlice({
     },
     setSelectedSettingStyles: (state, action) => {
       state.selectedSettingStyles = action.payload;
+    },
+    setSelectedProductTypes: (state, action) => {
+      state.selectedProductTypes = action.payload;
+    },
+    setSelectedSubCategories: (state, action) => {
+      state.selectedSubCategories = action.payload;
     },
     setSelectedSettingStyle: (state, action) => {
       state.selectedSettingStyle = action.payload;
@@ -170,6 +181,9 @@ const productSlice = createSlice({
     setBanners: (state, action) => {
       state.banners = action.payload;
     },
+    setActiveFilterType: (state, action) => {
+      state.activeFilterType = action.payload;
+    },
   },
 });
 
@@ -210,6 +224,9 @@ export const {
   setFilteredProducts,
   setBannerLoading,
   setBanners,
+  setSelectedProductTypes,
+  setSelectedSubCategories,
+  setActiveFilterType
 } = productSlice.actions;
 
 export default productSlice.reducer;

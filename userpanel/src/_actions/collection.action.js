@@ -50,6 +50,42 @@ const fetchCollectionsByTypes = (types) => {
   };
 };
 
+const fetchCollectionByTitle = (title) => {
+  return async (dispatch) => {
+    try {
+      dispatch(setCollectionsLoading(true));
+
+      const collection = await collectionService.getCollectionByTitle(title);
+
+      if (!collection) {
+        dispatch(
+          setCollectionMessage({
+            message: "Collection not found",
+            type: messageType.ERROR,
+          })
+        );
+        return null;
+      }
+
+      dispatch(setCollectionsData([collection]));
+      return collection;
+    } catch (e) {
+      dispatch(
+        setCollectionMessage({
+          message: e?.message || "Something went wrong",
+          type: messageType.ERROR,
+        })
+      );
+      return null;
+    } finally {
+      dispatch(setCollectionsLoading(false));
+    }
+  };
+};
+
+
+
 module.exports = {
   fetchCollectionsByTypes,
+  fetchCollectionByTitle
 };
