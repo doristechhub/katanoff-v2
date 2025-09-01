@@ -22,11 +22,9 @@ export const fetchCustomizeProducts = (params) => {
       const customizProductList = await productService.getCustomizeProduct(
         params
       );
-
       if (customizProductList) {
         const tempUniqueFilterOptions =
-          getUniqueFilterOptions(customizProductList);
-
+          getUniqueFilterOptions({ productList: customizProductList });
         dispatch(setUniqueFilterOptions(tempUniqueFilterOptions));
       }
 

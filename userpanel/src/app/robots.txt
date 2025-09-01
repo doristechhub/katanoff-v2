@@ -1,9 +1,12 @@
 # *
 User-agent: *
 Allow: /
+ 
+# Disallow
+Disallow: /*.vercel.app/
 
 # Host
 Host: https://www.katanoff.com
-
+ 
 # Sitemaps
 Sitemap: https://www.katanoff.com/sitemap.xml

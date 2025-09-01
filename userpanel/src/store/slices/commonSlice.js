@@ -33,6 +33,7 @@ const initialState = {
   selectedDiamondInfoModel: "",
   openHomePagePopup: false,
   homePagePopupLoader: false,
+  networkErrMsg: "",
 };
 
 const commonSlice = createSlice({
@@ -141,6 +142,9 @@ const commonSlice = createSlice({
     setHomePagePopupLoader: (state, action) => {
       state.homePagePopupLoader = action.payload;
     },
+    setNetworkErrMessage: (state, action) => {
+      state.networkErrMsg = action.payload;
+    },
   },
 });
 
@@ -177,6 +181,7 @@ export const {
   setSelectedDiamondInfoModel,
   setOpenHomePagePopup,
   setHomePagePopupLoader,
+  setNetworkErrMessage,
 } = commonSlice.actions;
 
 export default commonSlice.reducer;

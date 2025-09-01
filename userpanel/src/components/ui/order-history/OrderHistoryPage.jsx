@@ -250,7 +250,6 @@ export default function OrderHistoryPage() {
         ) : (
           <CommonNotFound
             message="Sorry, No order Found"
-            subMessage=""
             showButton={true}
           />
         )}

@@ -76,7 +76,7 @@ export const fetchOrderDetail = (orderId) => {
   return async (dispatch) => {
     dispatch(setOrderDetailLoading(true));
     try {
-      const orderDetail = await orderService.getOrderDetailByOrderId(orderId);
+      const orderDetail = await orderService?.getOrderDetailByOrderId(orderId);
       if (orderDetail) {
         dispatch(setOrderDetail(orderDetail));
         return orderDetail;

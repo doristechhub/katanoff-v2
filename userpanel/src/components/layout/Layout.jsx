@@ -10,11 +10,14 @@ import { setTransparentHeaderBg } from "@/store/slices/commonSlice";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useLenis } from "@/hooks/useLenis";
+import { useNetworkLost } from "@/hooks/networkLost";
+import { NetworkLostOverlay } from "../dynamiComponents";
 
 const Layout = ({ children }) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const pathname = usePathname();
+  useNetworkLost();
 
   axios.defaults.baseURL = apiUrl;
   setAuthToken();
@@ -33,9 +36,9 @@ const Layout = ({ children }) => {
     dispatch(
       setTransparentHeaderBg(
         isCollectionPage ||
-          isProductPage ||
-          isStartWithDiamond ||
-          isStaticTransparent
+        isProductPage ||
+        isStartWithDiamond ||
+        isStaticTransparent
       )
     );
   }, [pathname, dispatch]);
@@ -48,7 +51,10 @@ const Layout = ({ children }) => {
     }
   }, []);
 
-  return children;
+  return <>
+    <NetworkLostOverlay />
+    {children}
+  </>;
 };
 
 export default Layout;

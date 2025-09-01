@@ -28,7 +28,11 @@ export function middleware(request) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+
+  response.headers.set("x-url", request.url);
+
+  return response;
 }
 
 export const config = {
@@ -43,5 +47,7 @@ export const config = {
     "/return-request", // Return Request
     "/return-request/:path*", // Return Request detail
     "/profile", // Profile
+    "/collections/:path*",
+    "/products/:path*",
   ],
 };

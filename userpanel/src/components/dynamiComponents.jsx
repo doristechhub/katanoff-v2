@@ -436,3 +436,10 @@ export const ProfileDropdown = dynamic(
 export const Spinner = dynamic(() => import("./ui/spinner.jsx"), {
   ssr: false,
 });
+
+export const NetworkLostOverlay = dynamic(
+  () => import("./ui/NetworkLostOverlay.jsx"),
+  {
+    ssr: false,
+  }
+);

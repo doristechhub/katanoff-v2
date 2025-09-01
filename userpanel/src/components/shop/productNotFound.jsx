@@ -4,7 +4,7 @@ import { CustomImg } from "../dynamiComponents";
 
 export default function ProductNotFound({
   message = "Sorry, No product Found",
-  subMessage = "You can Try Our Different Product...",
+  subMessage = "",
 }) {
   return (
     <section className="h-[60vh] lg:h-[70vh] gap-8 lg:gap-10 flex flex-col justify-center items-center text-center">
@@ -19,7 +19,11 @@ export default function ProductNotFound({
         <h3 className="text-2xl md:text-3xl 2xl:text-4xl font-castoro">
           {message}
         </h3>
-        <p className="text-base mt-2 font-semibold">{subMessage}</p>
+        {
+          subMessage ?
+            <p className="text-base mt-2 font-semibold">{subMessage}</p>
+            : null
+        }
         <div className="flex justify-center mt-4">
           <PrimaryLinkButton href="/" className="w-[70%] text-sm 2xl:text-xl">
             BACK TO SHOP

@@ -22,11 +22,11 @@ const ProductNotFound = ({ textClassName = "" }) => {
       >
         Sorry, No product Found
       </p>
-      <p
+      {/* <p
         className={`text-base md:text-lg 2xl:text-xl font-medium  text-baseblack mt-4 md:mt-6 text-center ${textClassName}`}
       >
         You can Try Our Different Product...
-      </p>
+      </p> */}
       <div className="mt-6 md:mt-8">
         <PrimaryLinkButton
           href="/"

@@ -235,7 +235,6 @@ export default function ReturnHistoryPage() {
         ) : (
           <CommonNotFound
             message="Sorry, No Return Found"
-            subMessage=""
             showButton={true}
           />
         )}
