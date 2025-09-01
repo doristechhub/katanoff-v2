@@ -156,11 +156,11 @@ const displayDiamondDetailsLabel = (diamondDetail) => {
 
   const fields = [
     diamondDetail.caratWeight
-      ? `Carat Weight: ${diamondDetail.caratWeight}`
+      ? `Carat Weight: ${diamondDetail?.caratWeight}`
       : "",
-    diamondDetail.clarity ? `Clarity: ${diamondDetail.clarity}` : "",
-    diamondDetail.color ? `Color: ${diamondDetail.color}` : "",
-    diamondDetail.shapeName ? `Shape: ${diamondDetail.shapeName}` : "",
+    diamondDetail?.clarity ? `Clarity: ${diamondDetail?.clarity}` : "",
+    diamondDetail?.color ? `Color: ${diamondDetail?.color}` : "",
+    diamondDetail?.shapeName ? `Shape: ${diamondDetail?.shapeName}` : "",
   ].filter(Boolean);
 
   const result =
@@ -205,7 +205,7 @@ const generateProductTable = (products, quantityKey = "cartQuantity") => {
         });
         const diamondDetail = displayDiamondDetailsLabel(x.diamondDetail);
         return `
-                <tr class="border-b border-[#828282]">
+                <tr class="border-b border-gray-300">
                   <td class="p-2 text-center">
                     ${x.productImage
             ? `<img src="${x.productImage}" class="w-16 h-full object-contain mx-auto" alt="" />`

@@ -67,7 +67,7 @@ export async function generateMetadata({ params }) {
         metaKeyword = `${collectionTitle} ${parentCategory}, diamond ${collectionTitle} ${parentCategory}, lab grown ${collectionTitle} ${parentCategory}, sustainable ${collectionTitle} jewelry`;
       }
     } else if ([COLLECTION, GENERAL].includes(collectionType)) {
-      metaTitle = `${collectionTitle} | Lab Grown Diamond Jewelry Deals | Katanoff`;
+      metaTitle = `${collectionTitle} | Lab Grown Diamond Jewelry | Katanoff`;
       metaDesc = `Discover ${collectionTitle} collection at Katanoff. Featuring lab grown diamond jewelry with timeless design, expert craftsmanship, and exceptional value.`;
       metaKeyword = `${collectionTitle}, Lab Grown Diamond Jewelry, Fine Jewelry, Katanoff Jewelry`;
     }

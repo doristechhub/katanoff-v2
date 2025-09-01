@@ -49,5 +49,6 @@ export const config = {
     "/profile", // Profile
     "/collections/:path*",
     "/products/:path*",
+    "/customize/select-diamond/:path*",
   ],
 };
