@@ -1054,6 +1054,8 @@ export default function ProductFilter({
     return selectedFilters;
   };
 
+  const haveUniqueDiamondShapeOptions = uniqueFilterOptions?.uniqueDiamondShapes?.length;
+
   const selectedFilters = renderSelectedFilters();
   return (
     <>
@@ -1185,7 +1187,7 @@ export default function ProductFilter({
                   <div className="w-full">
                     {/* Mobile Dropdowns */}
                     <div className="lg:hidden flex flex-col w-full">
-                      {!isDiamondSettingPage && (
+                      {!isDiamondSettingPage && haveUniqueDiamondShapeOptions ? (
                         // <div className="border-b border-baseblack ">
                         <div>
                           <button
@@ -1317,7 +1319,7 @@ export default function ProductFilter({
                             </div>
                           )}
                         </div>
-                      )}
+                      ) : null}
                       <div className="border-b border-baseblack">
                         <button
                           className="w-full flex justify-between items-center py-3 font-medium text-base"
@@ -1393,7 +1395,7 @@ export default function ProductFilter({
                           </div>
                         )}
                       </div>
-                      {uniqueFilterOptions?.uniqueSettingStyles?.length && (
+                      {uniqueFilterOptions?.uniqueSettingStyles?.length ? (
                         <div className="border-b border-baseblack">
                           <button
                             className="w-full flex justify-between items-center py-3 font-medium text-base"
@@ -1437,7 +1439,7 @@ export default function ProductFilter({
                             </div>
                           )}
                         </div>
-                      )}
+                      ) : null}
                       <div className="border-b border-baseblack">
                         <button
                           className="w-full flex justify-between items-center py-3 font-medium text-base"
@@ -1557,91 +1559,91 @@ export default function ProductFilter({
                       ) : null}
                       {/* PRODUCT TYPE FILTER */}
                       {activeFilterType === PRODUCT_TYPE_KEY &&
-                        uniqueFilterOptions?.uniqueProductTypes?.length > 0 && (
-                          <div className="border-b border-baseblack">
-                            <button
-                              className="w-full flex justify-between items-center py-3 font-medium text-base"
-                              onClick={() => toggleDropdown("productType")}
-                            >
-                              Product Type
-                              <span>
-                                {smOpenFilter.includes("productType") ? <FiMinus /> : <FaPlus />}
-                              </span>
-                            </button>
-                            {smOpenFilter.includes("productType") && (
-                              <div className="flex flex-col gap-[10px] p-2">
-                                {uniqueFilterOptions?.uniqueProductTypes.map((item, index) => {
-                                  const isSelected = selectedProductTypes?.some(
-                                    (s) => s.value === item.value
-                                  );
+                        uniqueFilterOptions?.uniqueProductTypes?.length ? (
+                        <div className="border-b border-baseblack">
+                          <button
+                            className="w-full flex justify-between items-center py-3 font-medium text-base"
+                            onClick={() => toggleDropdown("productType")}
+                          >
+                            Product Type
+                            <span>
+                              {smOpenFilter.includes("productType") ? <FiMinus /> : <FaPlus />}
+                            </span>
+                          </button>
+                          {smOpenFilter.includes("productType") && (
+                            <div className="flex flex-col gap-[10px] p-2">
+                              {uniqueFilterOptions?.uniqueProductTypes.map((item, index) => {
+                                const isSelected = selectedProductTypes?.some(
+                                  (s) => s.value === item.value
+                                );
 
-                                  return (
-                                    <span
-                                      key={`filter-productType-${index}`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
-                                        }`}
-                                      onClick={() => onSelectProductType(item)}
-                                    >
-                                      <input
-                                        type="checkbox"
-                                        checked={isSelected}
-                                        readOnly
-                                        className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
-                                      />
-                                      {item.title}
-                                    </span>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        )}
+                                return (
+                                  <span
+                                    key={`filter-productType-${index}`}
+                                    className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
+                                      }`}
+                                    onClick={() => onSelectProductType(item)}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={isSelected}
+                                      readOnly
+                                      className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
+                                    />
+                                    {item.title}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      ) : null}
 
                       {/* SUB CATEGORY FILTER */}
                       {activeFilterType === SUB_CATEGORIES_KEY &&
-                        uniqueFilterOptions?.uniqueSubCategories?.length > 0 && (
-                          <div className="border-b border-baseblack">
-                            <button
-                              className="w-full flex justify-between items-center py-3 font-medium text-base"
-                              onClick={() => toggleDropdown("subCategory")}
-                            >
-                              Sub Category
-                              <span>
-                                {smOpenFilter.includes("subCategory") ? <FiMinus /> : <FaPlus />}
-                              </span>
-                            </button>
-                            {smOpenFilter.includes("subCategory") && (
-                              <div className="flex flex-col gap-[10px] p-2">
-                                {uniqueFilterOptions?.uniqueSubCategories.map((item, index) => {
-                                  const isSelected = selectedSubCategories?.some(
-                                    (s) => s.value === item.value
-                                  );
+                        uniqueFilterOptions?.uniqueSubCategories?.length > 0 ? (
+                        <div className="border-b border-baseblack">
+                          <button
+                            className="w-full flex justify-between items-center py-3 font-medium text-base"
+                            onClick={() => toggleDropdown("subCategory")}
+                          >
+                            Sub Category
+                            <span>
+                              {smOpenFilter.includes("subCategory") ? <FiMinus /> : <FaPlus />}
+                            </span>
+                          </button>
+                          {smOpenFilter.includes("subCategory") && (
+                            <div className="flex flex-col gap-[10px] p-2">
+                              {uniqueFilterOptions?.uniqueSubCategories.map((item, index) => {
+                                const isSelected = selectedSubCategories?.some(
+                                  (s) => s.value === item.value
+                                );
 
-                                  return (
-                                    <span
-                                      key={`filter-subCategory-${index}`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
-                                        }`}
-                                      onClick={() => onSelectSubCategory(item)}
-                                    >
-                                      <input
-                                        type="checkbox"
-                                        checked={isSelected}
-                                        readOnly
-                                        className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
-                                      />
-                                      {item.title}
-                                    </span>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        )}
+                                return (
+                                  <span
+                                    key={`filter-subCategory-${index}`}
+                                    className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
+                                      }`}
+                                    onClick={() => onSelectSubCategory(item)}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={isSelected}
+                                      readOnly
+                                      className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
+                                    />
+                                    {item.title}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      ) : null}
                     </div>
                     {/* Desktop Layout */}
                     <div className="hidden lg:flex justify-between w-full gap-[30px]">
-                      {!isDiamondSettingPage ? (
+                      {!isDiamondSettingPage && haveUniqueDiamondShapeOptions ? (
                         <div className="w-[30%]">
                           <h5 className={filterHeadingClass}>Shape</h5>
                           <div className="grid grid-cols-2 gap-[10px]">
@@ -1762,6 +1764,7 @@ export default function ProductFilter({
                           )
                         )}
                       </div>
+
                       <div className="w-[20%]">
                         {uniqueFilterOptions?.uniqueSettingStyles?.length ? (
                           <div>
@@ -1796,6 +1799,7 @@ export default function ProductFilter({
                           </div>
                         ) : null}
                       </div>
+
                       <div className="w-[30%] flex flex-col gap-y-6">
                         <div>
                           <h5 className={filterHeadingClass}>Price</h5>

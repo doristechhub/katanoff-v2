@@ -397,7 +397,7 @@ export const getUniqueFilterOptions = ({ productList, subCategoryId, categoryId 
     });
   };
 
-  productList.forEach((product) => {
+  productList?.forEach((product) => {
     const subCategories = product?.subCategoryNames || [];
     if (subCategories?.length) {
       tempSubCategories.push(...subCategories);
@@ -422,17 +422,17 @@ export const getUniqueFilterOptions = ({ productList, subCategoryId, categoryId 
       product.isDiamondFilter &&
       product.diamondFilters?.diamondShapes?.length
     ) {
-      product.diamondFilters.diamondShapes.forEach((shape) => {
-        if (!uniqueShapeIds.has(shape.id)) {
-          uniqueShapeIds.add(shape.id);
-          uniqueDiamondShapes.push(shape);
+      product?.diamondFilters?.diamondShapes?.forEach((shape) => {
+        if (!uniqueShapeIds?.has(shape?.id)) {
+          uniqueShapeIds?.add(shape?.id);
+          uniqueDiamondShapes?.push(shape);
         }
       });
     }
-    tempPriceRange.push(product?.baseSellingPrice || 0);
+    tempPriceRange?.push(product?.baseSellingPrice || 0);
 
     // Collect unique genders
-    const gender = product.gender?.toLowerCase() || "";
+    const gender = product?.gender?.toLowerCase() || "";
     if (gender) {
       uniqueGenders.add(gender);
     }
@@ -451,7 +451,7 @@ export const getUniqueFilterOptions = ({ productList, subCategoryId, categoryId 
   });
 
   // Convert maps to arrays for global filters
-  const variationsArray = Array.from(uniqueVariations.values()).map(
+  const variationsArray = Array.from(uniqueVariations?.values()).map(
     (variation) => ({
       ...variation,
       variationTypes: Array.from(variation.variationTypes.values()),
@@ -482,16 +482,16 @@ export const getUniqueFilterOptions = ({ productList, subCategoryId, categoryId 
 
 
   if (categoryId) {
-    filteredProductTypes = filteredProductTypes.filter(
-      (pt) => pt.categoryId === categoryId
+    filteredProductTypes = filteredProductTypes?.filter(
+      (pt) => pt?.categoryId === categoryId
     );
-    filteredSubCategories = filteredSubCategories.filter(
-      (subCat) => subCat.categoryId === categoryId
+    filteredSubCategories = filteredSubCategories?.filter(
+      (subCat) => subCat?.categoryId === categoryId
     );
   }
   if (subCategoryId) {
-    filteredProductTypes = filteredProductTypes.filter(
-      (pt) => pt.subCategoryId === subCategoryId
+    filteredProductTypes = filteredProductTypes?.filter(
+      (pt) => pt?.subCategoryId === subCategoryId
     );
   }
 

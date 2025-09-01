@@ -118,6 +118,7 @@ export default function SettingStyleCategorySwiper({
             )}
             <Swiper
               spaceBetween={20}
+              centerInsufficientSlides={true}
               modules={[Navigation]}
               slidesPerView={7}
               breakpoints={{

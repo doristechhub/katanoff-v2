@@ -1,8 +1,14 @@
+import DOMPurify from "isomorphic-dompurify";
 import { fileSettings } from "@/_utils/fileSettings";
-import DOMPurify from "dompurify";
 
 export const sanitizeValue = (value) => {
-  return DOMPurify.sanitize(value);
+  if (typeof value !== "string") return value;
+  try {
+    return DOMPurify.sanitize(value);
+  } catch (error) {
+    console.error("Sanitization failed:", error);
+    return value;
+  }
 };
 
 export const sanitizeObject = (obj) => {

@@ -3,7 +3,13 @@ import { generateCurrentTimeAndDate } from "./common";
 import { DEFAULT_META, PAGE_META } from "@/_helper/pageMeta";
 
 export const generateMetadata = ({ pageName = "", customMeta = {} } = {}) => {
-  const currentPageMeta = PAGE_META[pageName] || PAGE_META[META_CONSTANTS.HOME] || customMeta;
+  const currentPageMeta =
+    Object.keys(customMeta).length > 0
+      ? customMeta
+      : pageName
+        ? PAGE_META[pageName] || PAGE_META[META_CONSTANTS.HOME]
+        : PAGE_META[META_CONSTANTS.HOME];
+
   const meta = { ...DEFAULT_META, ...currentPageMeta };
 
   return {

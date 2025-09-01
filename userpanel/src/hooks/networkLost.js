@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { setNetworkErrMessage } from "../store/actions/commonActions";
+import { setNetworkErrMessage } from "@/store/slices/commonSlice";
 
 export const useNetworkLost = (ref, handler) => {
   const dispatch = useDispatch();
@@ -8,9 +8,7 @@ export const useNetworkLost = (ref, handler) => {
   useEffect(() => {
     const handleOnlineStatusChange = () => {
       dispatch(
-        setNetworkErrMessage({
-          networkErrMsg: navigator.onLine ? "" : "No internet connection",
-        })
+        setNetworkErrMessage(navigator.onLine ? "" : "No Internet Connection")
       );
     };
     window.addEventListener("online", handleOnlineStatusChange);

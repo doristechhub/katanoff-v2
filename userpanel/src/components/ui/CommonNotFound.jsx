@@ -4,7 +4,7 @@ import { CustomImg } from "../dynamiComponents";
 
 export default function CommonNotFound({
   message = "Sorry, No product Found",
-  subMessage = "You can Try Our Different Product...",
+  subMessage = "",
   notFoundImg,
   showButton = true,
   href = "/",

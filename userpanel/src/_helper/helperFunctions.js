@@ -836,7 +836,7 @@ const getFraction = (num) => {
 export const formatProductNameWithCarat = ({ caratWeight, productName }) => {
   const formattedCarat =
     caratWeight > 0 ? `${getFraction(caratWeight)} ctw ` : "";
-  return `${formattedCarat}${productName || ""}`.trim();
+  return `${formattedCarat}${productName ? productName : "Unknown Product"}`.trim();
 };
 
 export const roundOffPrice = (price) => {
