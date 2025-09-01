@@ -165,10 +165,6 @@ export default function SiteMapPage() {
           href: "/customize/select-diamond?shape=cushion",
         },
         {
-          title: "Asscher Lab Grown Diamonds",
-          href: "/customize/select-diamond?shape=asscher",
-        },
-        {
           title: "Heart Lab Grown Diamonds",
           href: "/customize/select-diamond?shape=heart",
         },
