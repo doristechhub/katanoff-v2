@@ -20,7 +20,8 @@ const enrichProducts = async ({
   const productIds = products
     .map((product) => product?.productId)
     .filter(Boolean);
-  const productDetails = await productService?.getActiveProductsByIds(
+
+  const productDetails = await productService?.getProductsByIds(
     productIds
   );
   const diamondShapeList = await diamondShapeService?.getAllDiamondShapes();
@@ -213,8 +214,7 @@ const invoiceController = async (req, res, type = "order") => {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename=${
-        type === "order" ? "invoice" : "return-invoice"
+      `attachment; filename=${type === "order" ? "invoice" : "return-invoice"
       }.pdf`
     );
     res.status(200).end(pdfBuffer);

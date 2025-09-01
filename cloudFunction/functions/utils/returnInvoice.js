@@ -41,7 +41,7 @@ const returnInvoiceBody = (invoiceData) => {
           <p class="text-xs">Email: ${invoiceData.shippingAddress?.email || ""
     }</p>
           <p class="text-xs">Address: ${invoiceData.shippingAddress?.address || ""
-    }, ${invoiceData.shippingAddress?.city || ""}, ${invoiceData.shippingAddress?.state || ""
+    }, ${invoiceData.shippingAddress?.city || ""}<br/> ${invoiceData.shippingAddress?.state || ""
     }, ${invoiceData.shippingAddress?.country || ""} - ${invoiceData.shippingAddress?.pinCode || ""
     }</p>
           <p class="text-xs">Mobile: ${invoiceData.shippingAddress?.mobile || ""
@@ -49,11 +49,12 @@ const returnInvoiceBody = (invoiceData) => {
         </div>
       </div>
       ${generateProductTable(invoiceData.products, "returnQuantity")}
-  <div class="mt-4 text-sm max-w-fit ml-auto">
-  <div class="grid grid-cols-[max-content,120px] gap-x-1 text-left">
-    <!-- Subtotal -->
-    <div>Subtotal</div>
-    <div class="text-right">${formatCurrencyWithDollar(invoiceData.subTotal)}</div>
+    <div class="bg-[#F4F4F4] py-4 px-2">
+      <div class="text-sm max-w-fit ml-auto">
+      <div class="grid grid-cols-[max-content,120px] gap-x-1 text-left">
+       <!-- Subtotal -->
+      <div>Subtotal</div>
+      <div class="text-right">${formatCurrencyWithDollar(invoiceData.subTotal)}</div>
 
     <!-- Promo Discount -->
     ${invoiceData.discount > 0
@@ -107,6 +108,7 @@ const returnInvoiceBody = (invoiceData) => {
       ? `<p class="text-xs text-right text-gray-500 mt-2">${SALES_TAX_NOTE}</p>`
       : ""
     }
+    </div>
     </main>
   `;
 };

@@ -140,7 +140,7 @@ export default function SiteMapPage() {
         },
         {
           title: "Anniversary Gifts",
-          href: "/collections/collection/Anniversary Gifts",
+          href: "/collections/collection/Anniversary_Gifts",
         },
         {
           title: "Gifts Under $1000",

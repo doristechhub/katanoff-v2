@@ -63,7 +63,7 @@ const orderInoviceBody = (invoiceData) => {
           <p class="text-xs">Email: ${invoiceData.shippingAddress?.email || ""
     }</p>
           <p class="text-xs">Address: ${invoiceData.shippingAddress?.address || ""
-    }, ${invoiceData.shippingAddress?.city || ""}, ${invoiceData.shippingAddress?.state || ""
+    }, ${invoiceData.shippingAddress?.city || ""} <br/> ${invoiceData.shippingAddress?.state || ""
     }, ${invoiceData.shippingAddress?.country || ""} - ${invoiceData.shippingAddress?.pinCode || ""
     }</p>
           <p class="text-xs">Mobile: ${invoiceData.shippingAddress?.mobile || ""
@@ -71,7 +71,8 @@ const orderInoviceBody = (invoiceData) => {
         </div>
       </div>
       ${generateProductTable(invoiceData.products, "cartQuantity")}
-      <div class="mt-4 text-sm max-w-fit ml-auto">
+      <div class="bg-[#F4F4F4] py-4 px-2">
+      <div class="text-sm max-w-fit ml-auto">
  <div class="grid grid-cols-[max-content,120px] gap-x-1 text-left">
 
     <div>Sub Total</div>
@@ -106,7 +107,7 @@ const orderInoviceBody = (invoiceData) => {
       : ""
     }
 
-        
+      </div>
     </main>
   `;
 };

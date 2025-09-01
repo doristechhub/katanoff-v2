@@ -24,7 +24,7 @@ exportFunction.getAllActiveProducts = () => {
   });
 };
 
-exportFunction.getActiveProductsByIds = (productIds) => {
+exportFunction.getProductsByIds = (productIds) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!Array.isArray(productIds) || !productIds.length) {
@@ -35,14 +35,25 @@ exportFunction.getActiveProductsByIds = (productIds) => {
       const productRef = productsDbInstance.ref(`${productUrl}`);
       const promises = productIds.map(async (productId) => {
         const snapshot = await productRef.child(productId).once("value");
-        const product = snapshot.exists() ? snapshot.val() : null;
-        return product && product.active ? product : null;
+        return snapshot.exists() ? snapshot.val() : null;
       });
 
       const products = (await Promise.all(promises)).filter(
         (product) => product !== null
       );
       resolve(products);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+exportFunction.getActiveProductsByIds = (productIds) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const products = await exportFunction.getProductsByIds(productIds);
+      const activeProducts = products.filter((product) => product.active);
+      resolve(activeProducts);
     } catch (e) {
       reject(e);
     }
