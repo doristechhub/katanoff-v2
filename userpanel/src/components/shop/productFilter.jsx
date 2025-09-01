@@ -1054,7 +1054,11 @@ export default function ProductFilter({
     return selectedFilters;
   };
 
-  const haveUniqueDiamondShapeOptions = uniqueFilterOptions?.uniqueDiamondShapes?.length;
+  const haveUniqueDiamondShapeOptions =
+    uniqueFilterOptions?.uniqueVariations?.some(
+      (variation) => variation.variationName === DIAMOND_SHAPE
+    );
+
 
   const selectedFilters = renderSelectedFilters();
   return (
@@ -1920,7 +1924,7 @@ export default function ProductFilter({
                         {activeFilterType === SUB_CATEGORIES_KEY && uniqueFilterOptions?.uniqueSubCategories?.length ? (
                           <div>
                             <h5 className={filterHeadingClass}>Sub Category</h5>
-                            <div className="flex gap-6">
+                            <div className="grid grid-cols-3 gap-3">
                               {uniqueFilterOptions.uniqueSubCategories.map((item, index) => {
                                 const isSelected = selectedSubCategories?.some(s => s.value === item.value);
                                 return (

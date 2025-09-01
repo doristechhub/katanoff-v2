@@ -89,7 +89,7 @@ export async function generateMetadata({ params }) {
     }
 
     /** ----------- CANONICAL URL ----------- **/
-    const canonicalUrl = `${WebsiteUrl}/${collectionType}/${collectionTitle}${
+    const canonicalUrl = `${WebsiteUrl}/collections/${collectionType}/${collectionTitle}${
       searchParams.toString() ? `?${searchParams.toString()}` : ""
     }`;
 
