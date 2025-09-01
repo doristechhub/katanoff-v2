@@ -12,7 +12,7 @@ export async function generateMetadata({ params }) {
     const urlObj = new URL(completeUrl);
     const searchParams = urlObj.searchParams;
 
-    productName = helperFunctions?.stringReplacedWithSpace(productName);
+    productName = helperFunctions?.stringReplacedWithUnderScore(productName);
 
     if (!productName) {
       return {
