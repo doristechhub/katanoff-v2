@@ -17,9 +17,9 @@ export default function JewelryAppointment() {
 
         <div className="relative z-10 container mx-auto h-full flex pb-10 xs:pb-0 items-center">
           <div className="text-white max-w-xl">
-            <h2 className="text-3xl md:text-4xl xl:text-5xl font-medium text-baseblack font-castoro mb-4">
+            <h1 className="text-3xl md:text-4xl xl:text-5xl font-medium text-baseblack font-castoro mb-4">
               Meet our jewelry specialists
-            </h2>
+            </h1>
             <p className="text-baseblack mb-6 max-w-lg mx-auto md:mx-0">
               Book a complimentary virtual or in-person appointment at one of
               our stores, and let our jewelry specialists guide you every step
@@ -40,9 +40,9 @@ export default function JewelryAppointment() {
       <section className="lg:hidden relative w-full overflow-hidden">
         <div className="container flex text-center justify-center bg-[#F6F6EA] pt-12 md:pt-16 pb-12">
           <div className="text-white max-w-xl">
-            <h2 className="text-3xl md:text-4xl xl:text-5xl font-medium text-baseblack font-castoro">
+            <h1 className="text-3xl md:text-4xl xl:text-5xl font-medium text-baseblack font-castoro">
               Meet our jewelry specialists
-            </h2>
+            </h1>
             <p className="text-sm md:text-base text-baseblack pt-2 sm:pt-4 max-w-lg">
               Book a complimentary virtual or in-person appointment at one of
               our stores, and let our jewelry specialists guide you every step

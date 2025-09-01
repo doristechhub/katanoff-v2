@@ -34,7 +34,7 @@ export async function generateMetadata({ params }) {
     const parentCategory = searchParams.get("parentCategory") || "";
     const parentMainCategory = searchParams.get("parentMainCategory") || "";
 
-    collectionTitle = helperFunctions.stringReplacedWithSpace(
+    collectionTitle = helperFunctions.stringReplacedWithUnderScore(
       decodeURIComponent(collectionTitle)
     );
 
