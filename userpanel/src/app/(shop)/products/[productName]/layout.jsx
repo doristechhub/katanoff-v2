@@ -1,4 +1,9 @@
-import { DIAMOND_SHAPE, helperFunctions, WebsiteUrl } from "@/_helper";
+import {
+  DIAMOND_SHAPE,
+  GOLD_COLOR_MAP,
+  helperFunctions,
+  WebsiteUrl,
+} from "@/_helper";
 import { productService } from "@/_services";
 import { generateMetadata as generateMetaConfig } from "@/_utils/metaConfig";
 import { headers } from "next/headers";
@@ -12,9 +17,13 @@ export async function generateMetadata({ params }) {
     const urlObj = new URL(completeUrl);
     const searchParams = urlObj.searchParams;
 
-    productName = helperFunctions?.stringReplacedWithUnderScore(productName);
+    const productNameWithUnderscore =
+      helperFunctions?.stringReplacedWithUnderScore(productName);
 
-    if (!productName) {
+    const productNameWithSpace =
+      helperFunctions?.stringReplacedWithSpace(productName);
+
+    if (!productNameWithSpace) {
       return {
         title: "Product Not Found | Katanoff Jewelry",
         description: "This product does not exist or has been removed.",
@@ -22,7 +31,9 @@ export async function generateMetadata({ params }) {
       };
     }
 
-    const productDetail = await productService.getSingleProduct(productName);
+    const productDetail = await productService.getSingleProduct(
+      productNameWithSpace
+    );
 
     if (!productDetail) {
       return {
@@ -32,23 +43,53 @@ export async function generateMetadata({ params }) {
       };
     }
 
-    const ogImage =
-      productDetail?.yellowGoldThumbnailImage ||
-      productDetail?.roseGoldThumbnailImage ||
-      productDetail?.whiteGoldThumbnailImage ||
-      productDetail?.roseGoldImages?.[0]?.image ||
-      productDetail?.whiteGoldImages?.[0]?.image ||
-      productDetail?.yellowGoldImages?.[0]?.image ||
-      `${WebsiteUrl}/opengraph-image.png`;
+    /** ----------------------------
+     * DYNAMIC OG IMAGE LOGIC
+     * ---------------------------- */
+    let ogImage = "";
 
+    // Get selected gold color from query param
+    const selectedGoldColor = helperFunctions.stringReplacedWithSpace(
+      searchParams.get("goldColor")?.toLowerCase()
+    );
+
+    if (selectedGoldColor && GOLD_COLOR_MAP[selectedGoldColor]) {
+      const selectedImageKey = GOLD_COLOR_MAP[selectedGoldColor];
+      if (productDetail[selectedImageKey]) {
+        ogImage = productDetail[selectedImageKey];
+      }
+    }
+
+    if (!ogImage) {
+      const fallbackColors = [
+        "yellowGoldImages",
+        "roseGoldImages",
+        "whiteGoldImages",
+      ];
+      for (const color of fallbackColors) {
+        if (productDetail?.[color]?.[0]?.image) {
+          ogImage = productDetail[color][0].image;
+          break;
+        }
+      }
+
+      // Final fallback → placeholder image
+      if (!ogImage) {
+        ogImage = `${WebsiteUrl}/opengraph-image.png`;
+      }
+    }
+
+    /** ----------------------------
+     * META CONFIGURATION
+     * ---------------------------- */
     const diamondShapeVariation = productDetail?.variations?.find(
       (v) => v?.variationName === DIAMOND_SHAPE
     );
     const diamondShape =
-      diamondShapeVariation?.variationTypes?.[0].variationTypeName || "";
-    const subCategory = productDetail.subCategoryNames[0].title;
+      diamondShapeVariation?.variationTypes?.[0]?.variationTypeName || "";
+    const subCategory = productDetail.subCategoryNames?.[0]?.title || "";
 
-    const canonicalUrl = `${WebsiteUrl}/${params.productName}${
+    const canonicalUrl = `${WebsiteUrl}/${productNameWithUnderscore}${
       searchParams.toString() ? `?${searchParams.toString()}` : ""
     }`;
 
@@ -57,7 +98,7 @@ export async function generateMetadata({ params }) {
       description:
         `Shop ${productDetail.productName} featuring brilliant ${diamondShape} diamonds at Katanoff. Elegant craftsmanship and timeless fine jewelry.` ||
         "Explore the latest jewelry designs with Katanoff. High-quality, beautifully crafted pendants and more.",
-      keywords: `${productDetail.productName},  ${diamondShape} Diamond ${subCategory}, Diamond Jewelry, Fine Jewelry, Katanoff`,
+      keywords: `${productDetail.productName}, ${diamondShape} Diamond ${subCategory}, Diamond Jewelry, Fine Jewelry, Katanoff`,
       openGraphImage: ogImage,
       url: canonicalUrl,
     };

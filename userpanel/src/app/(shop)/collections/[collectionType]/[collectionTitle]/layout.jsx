@@ -34,7 +34,12 @@ export async function generateMetadata({ params }) {
     const parentCategory = searchParams.get("parentCategory") || "";
     const parentMainCategory = searchParams.get("parentMainCategory") || "";
 
-    collectionTitle = helperFunctions.stringReplacedWithUnderScore(
+    // Keep both versions
+    const collectionTitleWithUnderscore =
+      helperFunctions.stringReplacedWithUnderScore(
+        decodeURIComponent(collectionTitle)
+      );
+    const collectionTitleWithSpace = helperFunctions.stringReplacedWithSpace(
       decodeURIComponent(collectionTitle)
     );
 
@@ -47,49 +52,52 @@ export async function generateMetadata({ params }) {
 
     /** ----------- META TITLE / DESC / KEYWORDS ----------- **/
     if ([CATEGORIES, SUB_CATEGORIES].includes(collectionType)) {
-      metaTitle = `Shop ${collectionTitle} | Lab Grown Diamond Jewelry | Katanoff`;
-      metaDesc = `Explore ${collectionTitle} at Katanoff – luxury lab grown diamond jewelry crafted for everyday elegance, special occasions, and lasting beauty.`;
-      metaKeyword = `Shop ${collectionTitle}, Buy ${collectionTitle}, Lab Grown Diamond ${collectionTitle}, Ethical Diamond Jewelry, Katanoff`;
+      metaTitle = `Shop ${collectionTitleWithSpace} | Lab Grown Diamond Jewelry | Katanoff`;
+      metaDesc = `Explore ${collectionTitleWithSpace} at Katanoff – luxury lab grown diamond jewelry crafted for everyday elegance, special occasions, and lasting beauty.`;
+      metaKeyword = `Shop ${collectionTitleWithSpace}, Buy ${collectionTitleWithSpace}, Lab Grown Diamond ${collectionTitleWithSpace}, Ethical Diamond Jewelry, Katanoff`;
     } else if (collectionType === PRODUCT_TYPES) {
       if (parentCategory === "Men’s Jewelry") {
-        metaTitle = `Shop Men's ${collectionTitle} | Lab Grown Diamond Jewelry | Katanoff`;
-        metaDesc = `Explore our collection of men's ${collectionTitle} crafted with lab grown diamonds. Katanoff brings modern style, fine craftsmanship, and sustainable luxury.`;
-        metaKeyword = `men's ${collectionTitle}, men's diamond ${collectionTitle}, lab grown diamond men's ${collectionTitle}, sustainable men's jewelry`;
+        metaTitle = `Shop Men's ${collectionTitleWithSpace} | Lab Grown Diamond Jewelry | Katanoff`;
+        metaDesc = `Explore our collection of men's ${collectionTitleWithSpace} crafted with lab grown diamonds. Katanoff brings modern style, fine craftsmanship, and sustainable luxury.`;
+        metaKeyword = `men's ${collectionTitleWithSpace}, men's diamond ${collectionTitleWithSpace}, lab grown diamond men's ${collectionTitleWithSpace}, sustainable men's jewelry`;
       } else if (
-        collectionTitle?.toLowerCase()?.includes(parentCategory?.toLowerCase())
+        collectionTitleWithSpace
+          ?.toLowerCase()
+          ?.includes(parentCategory?.toLowerCase())
       ) {
-        metaTitle = `Shop ${collectionTitle} | Lab Grown Diamond Jewelry | Katanoff`;
-        metaDesc = `Discover our stunning ${collectionTitle} collection, featuring lab grown diamonds set in timeless designs. Shop sustainable, high-quality jewelry at Katanoff.`;
-        metaKeyword = `${collectionTitle}, diamond ${collectionTitle}, lab grown diamond ${collectionTitle}, sustainable ${collectionTitle} jewelry`;
+        metaTitle = `Shop ${collectionTitleWithSpace} | Lab Grown Diamond Jewelry | Katanoff`;
+        metaDesc = `Discover our stunning ${collectionTitleWithSpace} collection, featuring lab grown diamonds set in timeless designs. Shop sustainable, high-quality jewelry at Katanoff.`;
+        metaKeyword = `${collectionTitleWithSpace}, diamond ${collectionTitleWithSpace}, lab grown diamond ${collectionTitleWithSpace}, sustainable ${collectionTitleWithSpace} jewelry`;
       } else {
-        metaTitle = `Shop ${collectionTitle} ${parentCategory} | Lab Grown Diamond Jewelry | Katanoff`;
-        metaDesc = `Shop elegant ${collectionTitle} ${parentCategory} at Katanoff. Designed with lab grown diamonds, each piece blends brilliance, quality, and sustainability.`;
-        metaKeyword = `${collectionTitle} ${parentCategory}, diamond ${collectionTitle} ${parentCategory}, lab grown ${collectionTitle} ${parentCategory}, sustainable ${collectionTitle} jewelry`;
+        metaTitle = `Shop ${collectionTitleWithSpace} ${parentCategory} | Lab Grown Diamond Jewelry | Katanoff`;
+        metaDesc = `Shop elegant ${collectionTitleWithSpace} ${parentCategory} at Katanoff. Designed with lab grown diamonds, each piece blends brilliance, quality, and sustainability.`;
+        metaKeyword = `${collectionTitleWithSpace} ${parentCategory}, diamond ${collectionTitleWithSpace} ${parentCategory}, lab grown ${collectionTitleWithSpace} ${parentCategory}, sustainable ${collectionTitleWithSpace} jewelry`;
       }
     } else if ([COLLECTION, GENERAL].includes(collectionType)) {
-      metaTitle = `${collectionTitle} | Lab Grown Diamond Jewelry | Katanoff`;
-      metaDesc = `Discover ${collectionTitle} collection at Katanoff. Featuring lab grown diamond jewelry with timeless design, expert craftsmanship, and exceptional value.`;
-      metaKeyword = `${collectionTitle}, Lab Grown Diamond Jewelry, Fine Jewelry, Katanoff Jewelry`;
+      metaTitle = `${collectionTitleWithSpace} | Lab Grown Diamond Jewelry | Katanoff`;
+      metaDesc = `Discover ${collectionTitleWithSpace} collection at Katanoff. Featuring lab grown diamond jewelry with timeless design, expert craftsmanship, and exceptional value.`;
+      metaKeyword = `${collectionTitleWithSpace}, Lab Grown Diamond Jewelry, Fine Jewelry, Katanoff Jewelry`;
     }
 
     /** ----------- BANNER HANDLING ----------- **/
     let openGraphImage = DEFAULT_META.openGraphImage;
 
     if (collectionType === GENERAL) {
-      if (STATIC_PROPS[collectionTitle])
-        openGraphImage = `${WebsiteUrl}${STATIC_PROPS[collectionTitle]}`;
+      if (STATIC_PROPS[collectionTitleWithSpace]) {
+        openGraphImage = `${WebsiteUrl}${STATIC_PROPS[collectionTitleWithSpace]}`;
+      }
     } else {
       const collectionDetail = await productService.fetchCollectionBanners({
         collectionCategory: collectionType,
-        collectionName: collectionTitle,
+        collectionName: collectionTitleWithSpace, // <-- Using space for API
         parentSubCategory: parentCategory || "",
         parentMainCategory,
       });
-      if (collectionDetail?.mobile) openGraphImage = collectionDetail?.mobile;
+      if (collectionDetail?.mobile) openGraphImage = collectionDetail.mobile;
     }
 
     /** ----------- CANONICAL URL ----------- **/
-    const canonicalUrl = `${WebsiteUrl}/collections/${collectionType}/${collectionTitle}${
+    const canonicalUrl = `${WebsiteUrl}/collections/${collectionType}/${collectionTitleWithUnderscore}${
       searchParams.toString() ? `?${searchParams.toString()}` : ""
     }`;
 
@@ -112,6 +120,6 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export default function collectionLayout({ children }) {
+export default function CollectionLayout({ children }) {
   return children;
 }
