@@ -7,7 +7,7 @@ export default function CustomJewelry() {
       <div className="relative w-full">
         <HeroBanner
           imageSrc={contactus}
-          title="  Custom Jewelry"
+          title="Custom Jewelry"
           description="  We're here to help – reach out anytime!"
           isStaticBanner={true}
           altAttr=""

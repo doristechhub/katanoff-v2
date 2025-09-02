@@ -13,6 +13,7 @@ import customJewelry21 from "@/assets/images/custom-jewelry/custom-jewelry-21.we
 import { AccordionTabs, CustomImg } from "@/components/dynamiComponents";
 import { LinkButton } from "@/components/ui/button";
 import breadCrumb from "@/assets/icons/breadCrumbBigArrow.svg";
+import Link from "next/link";
 
 const accordianContent = [
   {
@@ -118,20 +119,19 @@ const CustomJewelryDetailPage = () => {
 
         <div className="top-[5%] absolute w-full h-full flex items-center justify-start px-6 md:px-16">
           <div className="text-baseblack flex flex-col gap-2 md:gap-4">
-            <p className="text-base font-semibold uppercase tracking-wide">
-              Truly Custom Diamond
-            </p>
-            <h2 className="text-4xl md:text-5xl xl:text-6xl 4xl:text-7xl font-castoro font-semibold">
+            <h2 className="text-3xl md:text-5xl xl:text-[80px] 4xl:text-7xl font-great-vibes">
               Custom jewelry
             </h2>
-
+            <p className="text-sm lg:text-base 2xl:text-lg font-semibold tracking-wide w-[70%] md:w-[80%]">
+              Where imagination meets timeless custom jewelry design
+            </p>
             <div className="flex flex-col md:flex-row gap-6">
-              <LinkButton
+              <Link
                 href="/custom-jewelry-form"
-                className="!text-white !uppercase !font-medium w-fit !py-4 md:!py-6 !bg-baseblack !text-base hover:!border-[#202A4E] hover:!bg-transparent hover:!text-baseblack !border-black !border !rounded-none"
+                className="font-extrabold transition-all duration-300 hover:text- 2xl:text-lg underline-offset-2 uppercase underline"
               >
                 Start Creating
-              </LinkButton>
+              </Link>
             </div>
           </div>
         </div>
