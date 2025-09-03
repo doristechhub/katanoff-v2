@@ -14,6 +14,7 @@ import {
   setProductLoading,
   setSelectedProductTypes,
   setSelectedSubCategories,
+  setVisibleItemCount,
 } from "@/store/slices/productSlice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -40,6 +41,7 @@ import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import { SlArrowLeft, SlArrowRight } from "react-icons/sl";
+import { ITEMS_PER_PAGE } from "@/_utils/common";
 
 const filterHeadingClass =
   "text-[14px] lg:text-base leading-4 font-semibold pb-[15px]";
@@ -47,6 +49,7 @@ const filterHeadingClass =
 export default function ProductFilter({
   productList,
   isDiamondSettingPage = false,
+  displayRef
 }) {
   const {
     selectedSortByValue,
@@ -62,6 +65,7 @@ export default function ProductFilter({
     smOpenFilter,
     activeFilterType
   } = useSelector(({ product }) => product);
+  const { lastScrollY } = useSelector(({ common }) => common);
 
   // Swiper
   const [isBeginning, setIsBeginning] = useState(true);
@@ -386,6 +390,7 @@ export default function ProductFilter({
         }
       });
 
+      dispatch(setVisibleItemCount(ITEMS_PER_PAGE));
       dispatch(setSelectedFilterVariations(newVariations));
       updateURL({
         variations: newVariations,
@@ -396,6 +401,8 @@ export default function ProductFilter({
         productType: selectedProductTypes,
         subCategory: selectedSubCategories,
       });
+      helperFunctions?.scrollToRefWithExtraSpacing({ ref: displayRef });
+
     },
     [
       dispatch,
@@ -407,6 +414,8 @@ export default function ProductFilter({
       selectedSubCategories,
       selectedGenders,
       updateURL,
+      displayRef,
+      ITEMS_PER_PAGE,
     ]
   );
 
@@ -423,6 +432,7 @@ export default function ProductFilter({
         : [...currentStyles, { value: styleValue, title: styleTitle }];
 
       dispatch(setSelectedSettingStyles(newStyles));
+      dispatch(setVisibleItemCount(ITEMS_PER_PAGE));
 
       updateURL({
         variations: selectedFilterVariations,
@@ -433,6 +443,7 @@ export default function ProductFilter({
         subCategory: selectedSubCategories,
         genders: selectedGenders,
       });
+      helperFunctions?.scrollToRefWithExtraSpacing({ ref: displayRef });
     },
     [
       dispatch,
@@ -444,6 +455,8 @@ export default function ProductFilter({
       selectedSortByValue,
       selectedGenders,
       updateURL,
+      displayRef,
+      ITEMS_PER_PAGE,
     ]
   );
 
@@ -459,6 +472,7 @@ export default function ProductFilter({
         ? currentStyles?.filter((s) => s?.value !== styleValue)
         : [...currentStyles, { value: styleValue, title: styleTitle }];
 
+      dispatch(setVisibleItemCount(ITEMS_PER_PAGE));
       dispatch(setSelectedProductTypes(newStyles));
       updateURL({
         variations: selectedFilterVariations,
@@ -468,6 +482,7 @@ export default function ProductFilter({
         subCategory: selectedSubCategories,
         genders: selectedGenders,
       });
+      helperFunctions?.scrollToRefWithExtraSpacing({ ref: displayRef });
     },
     [
       dispatch,
@@ -477,6 +492,8 @@ export default function ProductFilter({
       selectedGenders,
       selectedProductTypes,
       updateURL,
+      ITEMS_PER_PAGE,
+      displayRef,
     ]
   );
 
@@ -491,6 +508,7 @@ export default function ProductFilter({
       const newStyles = isSelected
         ? currentStyles?.filter((s) => s?.value !== styleValue)
         : [...currentStyles, { value: styleValue, title: styleTitle }];
+      dispatch(setVisibleItemCount(ITEMS_PER_PAGE));
       dispatch(setSelectedSubCategories(newStyles));
       updateURL({
         variations: selectedFilterVariations,
@@ -500,6 +518,7 @@ export default function ProductFilter({
         subCategory: selectedSubCategories,
         genders: selectedGenders,
       });
+      helperFunctions?.scrollToRefWithExtraSpacing({ ref: displayRef });
     },
     [
       dispatch,
@@ -510,6 +529,8 @@ export default function ProductFilter({
       selectedProductTypes,
       selectedSubCategories,
       updateURL,
+      ITEMS_PER_PAGE,
+      displayRef,
     ]
   );
 
@@ -521,6 +542,7 @@ export default function ProductFilter({
         ? currentGenders.filter((g) => g !== normalizedGender)
         : [...currentGenders, normalizedGender];
 
+      dispatch(setVisibleItemCount(ITEMS_PER_PAGE));
       dispatch(setSelectedGenders(newGenders));
       updateURL({
         variations: selectedFilterVariations,
@@ -531,6 +553,7 @@ export default function ProductFilter({
         sortBy: selectedSortByValue,
         genders: newGenders,
       });
+      helperFunctions?.scrollToRefWithExtraSpacing({ ref: displayRef });
     },
     [
       dispatch,
@@ -542,6 +565,8 @@ export default function ProductFilter({
       selectedSortByValue,
       selectedGenders,
       updateURL,
+      ITEMS_PER_PAGE,
+      displayRef,
     ]
   );
 
@@ -557,6 +582,7 @@ export default function ProductFilter({
         genders: selectedGenders,
         sortBy: sortValue,
       });
+      helperFunctions?.scrollToRefWithExtraSpacing({ ref: displayRef });
     },
     [
       dispatch,
@@ -659,6 +685,8 @@ export default function ProductFilter({
           dispatch(setSelectedSortByValue(null));
           break;
       }
+      dispatch(setVisibleItemCount(ITEMS_PER_PAGE));
+      helperFunctions?.scrollToRefWithExtraSpacing({ ref: displayRef });
 
       updateURL(newFilters);
     },
@@ -674,6 +702,7 @@ export default function ProductFilter({
       selectedGenders,
       setFieldValue,
       updateURL,
+      displayRef,
     ]
   );
 
@@ -685,6 +714,8 @@ export default function ProductFilter({
     setFieldValue("priceRange", defaultRange);
 
     router.replace(window.location.pathname, { scroll: false });
+    dispatch(setVisibleItemCount(ITEMS_PER_PAGE));
+    helperFunctions?.scrollToRefWithExtraSpacing({ ref: displayRef });
   };
 
   const filteredProducts = useMemo(() => {
@@ -1116,9 +1147,15 @@ export default function ProductFilter({
               <div className="relative">
                 <button
                   className="flex items-center gap-2 filter-button"
-                  onClick={() =>
-                    dispatch(setIsFilterMenuOpen(!isFilterMenuOpen))
-                  }
+                  onClick={() => {
+                    if (displayRef?.current) {
+                      const rect = displayRef.current.getBoundingClientRect();
+                      if (rect.top > 0) {
+                        helperFunctions?.scrollToRefWithExtraSpacing({ ref: displayRef });
+                      }
+                    }
+                    dispatch(setIsFilterMenuOpen(!isFilterMenuOpen));
+                  }}
                 >
                   <CustomImg
                     srcAttr={settingsSlidersIcon}

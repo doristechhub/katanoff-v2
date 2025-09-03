@@ -10,7 +10,7 @@ import {
   ProductGrid,
 } from "@/components/dynamiComponents";
 import { useParams, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import KeyFeatures from "@/components/ui/KeyFeatures";
 import SettingStyleCategorySwiper from "@/components/ui/settingStyleSwiper";
@@ -28,6 +28,7 @@ export default function CollectionPage() {
   const params = useParams();
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
+  const headingRef = useRef(null);
   const {
     collectionTypeProductList,
     productLoading,
@@ -50,7 +51,7 @@ export default function CollectionPage() {
     if (collectionType === COLLECTION) {
       const collectionData = await dispatch(fetchCollectionByTitle(collectionTitle));
       latestFilterType = collectionData?.filterType || latestFilterType;
-      
+
     } else {
       latestFilterType = helperFunctions?.getFilterTypeForPage(
         collectionType,
@@ -119,13 +120,13 @@ export default function CollectionPage() {
       </>
       )}
 
-      <h2 className="sm:text-[20px] sm:leading-[24px]  md:text-[16px] md:leading-[20px] lg:text-[30px] lg:leading-[35px] 2xl:text-[35px] 2xl:leading-[40px] text-[26px] leading-[33px] font-normal font-castoro text-center pt-10 2xl:pt-12 capitalize text-[#2B2B2B]">
+      <h2 ref={headingRef} className="sm:text-[20px] sm:leading-[24px]  md:text-[16px] md:leading-[20px] lg:text-[30px] lg:leading-[35px] 2xl:text-[35px] 2xl:leading-[40px] text-[26px] leading-[33px] font-normal font-castoro text-center pt-10 2xl:pt-12 capitalize text-[#2B2B2B]">
         {collectionTitle}
       </h2>
 
       {collectionTypeProductList?.length ? (
         <section className="pt-6 2xl:pt-10">
-          <ProductFilter productList={collectionTypeProductList} />
+          <ProductFilter productList={collectionTypeProductList} displayRef={headingRef} />
         </section>
       ) : null}
 

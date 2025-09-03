@@ -1094,6 +1094,31 @@ const getFilterTypeForPage = (collectionType, collectionTitle) => {
   return config.filter;
 };
 
+const scrollToRefWithExtraSpacing = ({
+  ref,
+  extraSpacingDesktop = 50,
+  extraSpacingMobile = 0,
+}) => {
+  if (!ref?.current) return;
+
+  const elementTop =
+    ref?.current?.getBoundingClientRect()?.top + window?.scrollY;
+
+  const headerEl = document.querySelector("header");
+  const headerHeight = headerEl?.offsetHeight || 0;
+
+  const isMobile = window.innerWidth < 768;
+  const extraSpacing = isMobile ? extraSpacingMobile : extraSpacingDesktop;
+
+  const scrollTarget = elementTop - (headerHeight + extraSpacing);
+
+  window.scrollTo({
+    top: scrollTarget >= 0 ? scrollTarget : 0,
+    behavior: "smooth",
+  });
+};
+
+
 export const helperFunctions = {
   debounce,
   generateUniqueId,
@@ -1146,5 +1171,6 @@ export const helperFunctions = {
   formatDimension,
   addNamesToVariationsArray,
   generateCaratValues,
-  getFilterTypeForPage
+  getFilterTypeForPage,
+  scrollToRefWithExtraSpacing
 };
