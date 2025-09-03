@@ -46,16 +46,16 @@ const ProductGrid = memo(
       dispatch(setSelectedSortByValue(selectedSortByValue));
     }, [selectedSortByValue, dispatch]);
 
-    useEffect(() => {
-      dispatch(setVisibleItemCount(ITEMS_PER_PAGE));
-    }, [
-      // selectedSortByValue,
-      selectedFilterVariations,
-      selectedSettingStyles,
-      selectedPrices,
-      selectedGenders,
-      dispatch,
-    ]);
+    // useEffect(() => {
+    //   dispatch(setVisibleItemCount(ITEMS_PER_PAGE));
+    // }, [
+    //   // selectedSortByValue,
+    //   selectedFilterVariations,
+    //   selectedSettingStyles,
+    //   selectedPrices,
+    //   selectedGenders,
+    //   dispatch,
+    // ]);
 
     return (
       <>

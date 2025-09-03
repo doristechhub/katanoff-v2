@@ -15,8 +15,10 @@ import {
   setSelectedSettingStyles,
   setSelectedProductTypes,
   setSelectedSubCategories,
+  setVisibleItemCount,
 } from "@/store/slices/productSlice";
 import { PRODUCT_TYPE_KEY, SETTING_STYLE_KEY, SUB_CATEGORIES_KEY } from "@/_helper";
+import { ITEMS_PER_PAGE } from "@/_utils/common";
 
 const FILTER_STATE_MAP = {
   [SETTING_STYLE_KEY]: { stateKey: "selectedSettingStyles", action: setSelectedSettingStyles },
@@ -79,6 +81,7 @@ export default function SettingStyleCategorySwiper({
       updatedFilters = [...selectedFilters, { value, title }];
     }
 
+    dispatch(setVisibleItemCount(ITEMS_PER_PAGE));
     dispatch(action(updatedFilters));
   };
 

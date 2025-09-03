@@ -2,7 +2,7 @@
 
 import { ProductFilter, ProductGrid } from "@/components/dynamiComponents";
 import KeyFeatures from "@/components/ui/KeyFeatures";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchSearchedProducts,
@@ -21,6 +21,8 @@ import searchVector from "@/assets/images/search-vector.webp";
 const SearchProductPage = () => {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
+
+  const searchRef = useRef(null);
   const searchQuery = searchParams.get("q") || "";
   const { searchResults, productLoading, filteredProducts } = useSelector(
     ({ product }) => product
@@ -54,13 +56,13 @@ const SearchProductPage = () => {
         {searchQuery ? (
           <>
             {!productLoading && resultCount ? (
-              <p className="text-center my-6 text-base 2xl:text-lg font-normal">
+              <p ref={searchRef} className="text-center my-6 text-base 2xl:text-lg font-normal">
                 {resultCount} Products Matched Your Search
               </p>
             ) : null}
             {searchResults?.length ? (
               <section className="pt-6 2xl:pt-10">
-                <ProductFilter productList={searchResults} />
+                <ProductFilter productList={searchResults} displayRef={searchRef} />
               </section>
             ) : null}
             <div className="container mt-8">

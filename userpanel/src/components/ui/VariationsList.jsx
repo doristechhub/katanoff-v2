@@ -20,6 +20,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { setCustomProductDetails } from "@/store/slices/commonSlice";
 import { setSelectedVariations } from "@/store/slices/productSlice";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const useDebounce = (callback, delay) => {
   const timeoutRef = useRef(null);
@@ -87,6 +88,9 @@ const VariationsList = ({
   hoveredColor,
   isCustomizePage,
 }) => {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   const { variations, diamondFilters } = productDetail;
   const dispatch = useDispatch();
   const debouncedSetHoveredColor = useDebounce(setHoveredColor, 100);
@@ -493,14 +497,30 @@ const VariationsList = ({
                                   : "none",
                               outlineOffset: "4px",
                             }}
-                            onClick={() =>
+                            onClick={() => {
                               handleSelect({
                                 variationId: variation?.variationId,
                                 variationTypeId: type?.variationTypeId,
                                 variationName: variation?.variationName,
                                 variationTypeName: type?.variationTypeName,
-                              })
-                            }
+                              });
+                              const params = new URLSearchParams(
+                                searchParams.toString()
+                              );
+
+                              params.set(
+                                "goldColor",
+                                helperFunctions?.stringReplacedWithUnderScore(
+                                  type?.variationTypeName
+                                )
+                              );
+                              const queryString = params.toString();
+
+                              const newURL = queryString
+                                ? `?${queryString}`
+                                : window.location.pathname;
+                              router.replace(newURL, { scroll: false });
+                            }}
                             onMouseEnter={() =>
                               debouncedSetHoveredColor(type.variationTypeName)
                             }

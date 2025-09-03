@@ -1,7 +1,7 @@
 "use client";
 import { fetchCustomizeProducts } from "@/_actions/customize.action";
 import { ProductFilter, ProductGrid } from "@/components/dynamiComponents";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import StepsGrid from "../StepsGrid";
 import { helperFunctions } from "@/_helper";
@@ -19,7 +19,7 @@ export default function StartWithSettingPage() {
   } = useSelector(({ product }) => product);
   const router = useRouter();
   const dispatch = useDispatch();
-
+  const contentRef = useRef(null);
   const currentStep = 2;
   const customProduct = helperFunctions?.getCustomProduct();
   const pId = customProduct?.productId;
@@ -119,11 +119,14 @@ export default function StartWithSettingPage() {
   return (
     <>
       <section className="pt-10 md:pt-14 lg:pt-10 2xl:pt-12">
-        <StepsGrid steps={steps} currentStep={currentStep} />
+        <div ref={contentRef}>
+          <StepsGrid steps={steps} currentStep={currentStep} />
+        </div>
         {customizeProductList?.length ? (
           <ProductFilter
             productList={customizeProductList}
             isDiamondSettingPage={true}
+            displayRef={contentRef}
           />
         ) : null}
         <div className="container">
