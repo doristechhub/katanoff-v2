@@ -244,7 +244,8 @@ const insertProduct = (params) => {
       variations = Array.isArray(variations) ? variations : [];
       specifications = Array.isArray(specifications) ? specifications : [];
       variComboWithQuantity = Array.isArray(variComboWithQuantity) ? variComboWithQuantity : [];
-      active = JSON.parse(active);
+      // active = JSON.parse(active);
+      active = false;
       isDiamondFilter = isBoolean(isDiamondFilter) ? isDiamondFilter : false;
       diamondFilters = typeof diamondFilters === 'object' ? diamondFilters : {};
       priceCalculationMode = priceCalculationMode

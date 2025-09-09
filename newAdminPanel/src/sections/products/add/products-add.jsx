@@ -1548,10 +1548,14 @@ export default function AddProductPage() {
                                   <Switch
                                     name="active"
                                     sx={{ mx: 1 }}
-                                    checked={hasZeroPrice ? false : values?.active}
+                                    checked={
+                                      productId ? (hasZeroPrice ? false : values?.active) : false
+                                    } // If no productId (new product), default to unchecked
+                                    disabled={productId ? hasZeroPrice : true}  // Disable switch for new products (no productId)
+                                    // checked={hasZeroPrice ? false : values?.active}
+                                    // disabled={hasZeroPrice}
                                     onBlur={handleBlur}
                                     onChange={() => setStatusConfirmationDialog(true)}
-                                    disabled={hasZeroPrice}
                                   />
                                 }
                                 label="Active"
