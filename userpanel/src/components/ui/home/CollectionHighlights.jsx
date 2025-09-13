@@ -4,10 +4,11 @@ import markTheMoment from "@/assets/images/home/mark-the-moment.webp";
 import CustomImg from "../custom-img";
 import { PrimaryLinkButton } from "../button";
 import { helperFunctions } from "@/_helper";
+import Link from "next/link";
 
 const collections = [
   {
-    title: "Ready to Ship",
+    title: "Ready to Ship Gifts",
     image: readyToShip,
     span: "row-span-2",
   },
@@ -27,7 +28,7 @@ export default function CollectionHighlights() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {collections.map((item, idx) => {
           const href = `/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-            item?.title?.toLowerCase()
+            item.title.toLowerCase()
           )}`;
 
           return (
@@ -36,17 +37,23 @@ export default function CollectionHighlights() {
                 srcAttr={item.image}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute bottom-9 left-1/2 -translate-x-1/2 text-center text-white">
-                <h3 className="uppercase font-gelasio font-normal text-lg lg:text-2xl 2xl:text-3xl mb-4 tracking-[3.5px]">
+              <div className="absolute bottom-9 left-1/2 -translate-x-1/2 text-center w-full  text-white">
+                <h3 className="uppercase  w-full font-gelasio font-normal text-lg lg:text-xl 2xl:text-2xl 4xl:text-3xl mb-1 lg:mb-3 tracking-[3.5px]">
                   {item.title}
                 </h3>
-                <PrimaryLinkButton
+                <Link
+                  href={href}
+                  className="font-medium text-white underline decoration-white underline-offset-4  inline-block"
+                >
+                  SHOP NOW
+                </Link>
+                {/* <PrimaryLinkButton
                   href={href}
                   variant="offWhiteHover"
                   className="!w-fit mx-auto"
                 >
                   SHOP NOW
-                </PrimaryLinkButton>
+                </PrimaryLinkButton> */}
               </div>
             </div>
           );

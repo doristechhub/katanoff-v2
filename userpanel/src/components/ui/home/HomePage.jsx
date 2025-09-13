@@ -221,7 +221,7 @@ const Home = () => {
       {/* {currentUser ? <HomePagePopupWithLogin /> : <HomePagePopup />} */}
       {!currentUser && <HomePagePopup />}
       <HeroBanner isHomePage={true} titleAttr="" altAttr="Hero Banner" />
-      <section className="bg-white pt-16 pb-16 xl:pb-20">
+      <section className="bg-white py-10 xl:pb-16">
         <RingSettingCenterStone />
       </section>
 

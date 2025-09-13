@@ -25,7 +25,7 @@ export default function GetToKnowUsSection() {
           Get to know us
         </p>
         <h2 className="text-2xl md:text-4xl font-gelasio mt-2">
-          Diamonds That Deserve You
+          Where Knowledge Meets Elegance
         </h2>
       </div>
 
@@ -33,8 +33,9 @@ export default function GetToKnowUsSection() {
         {CARD_DATA.map((card, index) => (
           <div
             key={index}
-            className={`group relative overflow-hidden ${index % 2 === 0 ? "justify-self-end" : "justify-self-start"
-              }`}
+            className={`group relative overflow-hidden ${
+              index % 2 === 0 ? "justify-self-end" : "justify-self-start"
+            }`}
           >
             <Link href={card.link}>
               <div>
