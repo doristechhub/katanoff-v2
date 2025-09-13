@@ -40,7 +40,7 @@ const AccordionTabs = ({
               className="w-full text-left px-4 py-6 flex justify-between items-center"
             >
               <span
-                className={`text-lg lg:text-xl 2xl:text-2xl font-medium font-castoro text-baseblack ${labelCustomClass}`}
+                className={`text-lg lg:text-xl 2xl:text-2xl font-medium font-gelasio text-baseblack ${labelCustomClass}`}
               >
                 {label}
               </span>

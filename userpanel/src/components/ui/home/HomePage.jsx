@@ -47,6 +47,7 @@ import { useEffect } from "react";
 import { fetchCollectionsByTypes } from "@/_actions/collection.action";
 import HomePageSliderSkeleton from "../HomePageSliderSkeleton";
 import TwoGridSkeleton from "../TwoGridSkeleton";
+import CollectionHighlights from "./CollectionHighlights";
 // import ThreeGridSkeleton from "../ThreeGridSkeleton";
 
 const faqData = [
@@ -253,17 +254,20 @@ const Home = () => {
         <KeyFeatures />
       </section>
 
+      <section className="mt-10 lg:mt-12 xl:mt-16">
+        <CollectionHighlights />
+      </section>
 
-      {collectionsLoading ? (
+      {/* {collectionsLoading ? (
         <TwoGridSkeleton />
       ) : twoGridData.length > 0 ? (
         <section className="container pt-12 md:pt-16 2xl:pt-20 4xl:pt-24">
           <TextAboveImage
             categoryData={twoGridData}
-            textClassName={"castoro"}
+            textClassName={"gelasio"}
           />
         </section>
-      ) : null}
+      ) : null} */}
 
       {/* {collectionsLoading ? (
         <ThreeGridSkeleton />
@@ -273,7 +277,10 @@ const Home = () => {
         </section>
       ) : null} */}
 
-      <ThreeGridHomePage gridItems={staticThreeGridData} className="px-4 pt-8 lg:pt-6" />
+      {/* <ThreeGridHomePage
+        gridItems={staticThreeGridData}
+        className="px-4 pt-8 lg:pt-6"
+      /> */}
 
       <section className="pt-12 lg:pt-16 2xl:pt-24">
         <JewelryAppointment />

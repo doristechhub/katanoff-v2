@@ -214,7 +214,7 @@ const CartPage = () => {
       ) : cartList?.length ? (
         <>
           <div className="mx-auto w-fit pt-4">
-            <h1 className="text-2xl xl:text-3xl 4xl:text-4xl font-medium font-castoro text-baseblack">
+            <h1 className="text-2xl xl:text-3xl 4xl:text-4xl font-medium font-gelasio text-baseblack">
               My Bag
             </h1>
           </div>

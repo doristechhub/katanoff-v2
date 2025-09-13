@@ -196,7 +196,7 @@ const ReturnPolicy = () => {
         />
 
         <div className="py-8">
-          <h3 className="text-xl  font-castoro font-semibold text-primary">
+          <h3 className="text-xl  font-gelasio font-semibold text-primary">
             Important Note
           </h3>
           <p className="py-2.5 text-base lg:text-lg">

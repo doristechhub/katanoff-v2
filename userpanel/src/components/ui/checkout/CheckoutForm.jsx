@@ -302,7 +302,7 @@ const CheckoutForm = () => {
         <div className="flex flex-col gap-4 pt-4 md:pt-8 lg:pt-12">
           <section className="px-4">
             <div className="flex xs:flex-row flex-col justify-between">
-              <h2 className="text-lg xs:text-xl 4xl:text-2xl text-baseblack font-medium pt-4 font-castoro">
+              <h2 className="text-lg xs:text-xl 4xl:text-2xl text-baseblack font-medium pt-4 font-gelasio">
                 Contact Information
               </h2>
 
@@ -371,11 +371,10 @@ const CheckoutForm = () => {
                 <input
                   type="email"
                   placeholder="Your Email"
-                  className={`custom-input ${inputClassName} ${
-                    !!currentUser?.email
-                      ? "!bg-[#f1f1f1] cursor-not-allowed"
-                      : ""
-                  }`}
+                  className={`custom-input ${inputClassName} ${!!currentUser?.email
+                    ? "!bg-[#f1f1f1] cursor-not-allowed"
+                    : ""
+                    }`}
                   name="email"
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -391,7 +390,7 @@ const CheckoutForm = () => {
           </section>
 
           <section className="px-4">
-            <h2 className="text-lg lg:text-xl 4xl:text-2xl text-baseblack font-medium pt-4 font-castoro">
+            <h2 className="text-lg lg:text-xl 4xl:text-2xl text-baseblack font-medium pt-4 font-gelasio">
               Shipping Address
             </h2>
             <div className="flex flex-col gap-4 pt-6">
@@ -473,11 +472,10 @@ const CheckoutForm = () => {
                     value={values.stateCode || ""}
                     onChange={(e) => handleStateChange(e.target.value)}
                     onBlur={handleBlur}
-                    className={`custom-input appearance-none ${inputClassName} ${
-                      touched?.stateCode && errors?.stateCode
-                        ? "border-rose-500"
-                        : "border-gray-300"
-                    }`}
+                    className={`custom-input appearance-none ${inputClassName} ${touched?.stateCode && errors?.stateCode
+                      ? "border-rose-500"
+                      : "border-gray-300"
+                      }`}
                   >
                     <option value="" hidden>
                       Select State
@@ -542,21 +540,21 @@ const CheckoutForm = () => {
                 <div className="flex flex-col md:flex-row gap-4 mt-4">
                   {invalidAddressDetail?.unconfirmedComponentTypes?.length >
                     0 && (
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-red-600 mb-2">
-                        Unconfirmed:
-                      </h4>
-                      <ul className="list-inside text-red-500 text-sm">
-                        {invalidAddressDetail?.unconfirmedComponentTypes?.map(
-                          (componentType, index) => (
-                            <li key={index}>
-                              {componentType?.replace(/_/g, " ")}
-                            </li>
-                          )
-                        )}
-                      </ul>
-                    </div>
-                  )}
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-red-600 mb-2">
+                          Unconfirmed:
+                        </h4>
+                        <ul className="list-inside text-red-500 text-sm">
+                          {invalidAddressDetail?.unconfirmedComponentTypes?.map(
+                            (componentType, index) => (
+                              <li key={index}>
+                                {componentType?.replace(/_/g, " ")}
+                              </li>
+                            )
+                          )}
+                        </ul>
+                      </div>
+                    )}
 
                   {invalidAddressDetail?.missingComponentTypes?.length > 0 && (
                     <div className="flex-1">

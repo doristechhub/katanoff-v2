@@ -143,10 +143,10 @@ const SignUpForm = () => {
 
   return (
     <div className="w-full 2xl:w-[100%] flex flex-col items-center justify-center h-full py-20 md:py-20 2xl:py-28">
-      <h2 className="text-3xl md:text-3xl 2xl:text-4xl text-baseblack font-castoro">
+      <h2 className="text-3xl md:text-3xl 2xl:text-4xl text-baseblack font-gelasio">
         Create Your Account
       </h2>
-      <p className="text-sm sm:text-base 2xl:text-lg text-basegray mt-2 font-Figtree">
+      <p className="text-sm sm:text-base 2xl:text-lg text-basegray mt-2 font-Poppins">
         Sign up for your new account
       </p>
 
@@ -157,11 +157,10 @@ const SignUpForm = () => {
               type="text"
               name="firstName"
               placeholder="First name"
-              className={`custom-input w-full ${
-                touched?.firstName && errors?.firstName
-                  ? "border border-red-500"
-                  : ""
-              }`}
+              className={`custom-input w-full ${touched?.firstName && errors?.firstName
+                ? "border border-red-500"
+                : ""
+                }`}
               onChange={handleChange}
               onBlur={handleBlur}
               value={values?.firstName}
@@ -176,11 +175,10 @@ const SignUpForm = () => {
               type="text"
               name="lastName"
               placeholder="Last name"
-              className={`custom-input w-full ${
-                touched?.lastName && errors?.lastName
-                  ? "border border-red-500"
-                  : ""
-              }`}
+              className={`custom-input w-full ${touched?.lastName && errors?.lastName
+                ? "border border-red-500"
+                : ""
+                }`}
               onChange={handleChange}
               onBlur={handleBlur}
               value={values?.lastName}
@@ -196,9 +194,8 @@ const SignUpForm = () => {
               type="email"
               name="email"
               placeholder="Email ID"
-              className={`custom-input w-full ${
-                touched?.email && errors?.email ? "border border-red-500" : ""
-              }`}
+              className={`custom-input w-full ${touched?.email && errors?.email ? "border border-red-500" : ""
+                }`}
               onChange={handleChange}
               onBlur={handleBlur}
               value={values?.email}
@@ -215,11 +212,10 @@ const SignUpForm = () => {
                 type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Password"
-                className={`custom-input w-full ${
-                  touched?.password && errors?.password
-                    ? "border border-red-500"
-                    : ""
-                }`}
+                className={`custom-input w-full ${touched?.password && errors?.password
+                  ? "border border-red-500"
+                  : ""
+                  }`}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={values?.password}
@@ -238,11 +234,10 @@ const SignUpForm = () => {
                 type={showPassword ? "text" : "password"}
                 name="confirmPassword"
                 placeholder="Confirm Password"
-                className={`custom-input w-full ${
-                  touched?.confirmPassword && errors?.confirmPassword
-                    ? "border border-red-500"
-                    : ""
-                }`}
+                className={`custom-input w-full ${touched?.confirmPassword && errors?.confirmPassword
+                  ? "border border-red-500"
+                  : ""
+                  }`}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={values?.confirmPassword}

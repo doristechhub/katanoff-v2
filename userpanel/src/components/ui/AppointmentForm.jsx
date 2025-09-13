@@ -107,7 +107,7 @@ const AppointmentForm = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h3 className="font-castoro font-normal text-[35px] xxs:mt-12 leading-[46px] tracking-[0.8px] text-left text-baseblack mb-4">
+      <h3 className="font-gelasio font-normal text-[35px] xxs:mt-12 leading-[46px] tracking-[0.8px] text-left text-baseblack mb-4">
         Send a message
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -124,8 +124,8 @@ const AppointmentForm = () => {
             id="firstName"
             placeholder="First name"
             className={`custom-input 2xl:py-4 bg-transparent border border-grayborder rounded ${touched?.firstName && errors?.firstName
-                ? "border-red-500 border"
-                : ""
+              ? "border-red-500 border"
+              : ""
               }`}
             onChange={handleChange}
             onBlur={handleBlur}

@@ -18,7 +18,7 @@ export default function AccordionDropdown({ items }) {
             className="w-full flex justify-between items-center py-8 px-6 text-left transition-all duration-200"
             onClick={() => toggleDropdown(index)}
           >
-            <span className="text-base md:text-xl xl:text-2xl font-castoro font-medium">
+            <span className="text-base md:text-xl xl:text-2xl font-gelasio font-medium">
               {item?.title}
             </span>
             {openIndex === index ? <Minus size={18} /> : <Plus size={18} />}

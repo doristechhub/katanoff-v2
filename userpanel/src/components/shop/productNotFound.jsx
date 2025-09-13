@@ -16,7 +16,7 @@ export default function ProductNotFound({
       />
       <div>
         {" "}
-        <h3 className="text-2xl md:text-3xl 2xl:text-4xl font-castoro">
+        <h3 className="text-2xl md:text-3xl 2xl:text-4xl font-gelasio">
           {message}
         </h3>
         {

@@ -32,7 +32,7 @@ const OrderSuccessfulPage = () => {
         </div>
 
         {/* Heading */}
-        <h2 className="text-3xl md:text-4xl 2xl:text-5xl font-medium font-castoro mt-10 mb-6 text-gray-900">
+        <h2 className="text-3xl md:text-4xl 2xl:text-5xl font-medium font-gelasio mt-10 mb-6 text-gray-900">
           Order Successfully
         </h2>
 

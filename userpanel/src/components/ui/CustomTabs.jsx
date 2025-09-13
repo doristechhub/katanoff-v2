@@ -9,7 +9,7 @@ const CustomTabs = ({ childs, defaultActiveKey, className = "" }) => {
   };
   return (
     <div className={`w-full ${className}`}>
-      <div className="flex justify-center mb-6 font-Figtree">
+      <div className="flex justify-center mb-6 font-Poppins">
         <div className="flex border-b border-#D9D9D9 px-0">
           {childs.map((tab) => (
             <button

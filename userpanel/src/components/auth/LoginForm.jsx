@@ -91,10 +91,10 @@ const LoginForm = () => {
 
   return (
     <div className="w-full lg:w-[100%] flex flex-col items-center justify-center h-full py-12">
-      <h2 className="text-3xl sm:text-2xl md:text-3xl 2xl:text-4xl text-baseblack font-castoro">
+      <h2 className="text-3xl sm:text-2xl md:text-3xl 2xl:text-4xl text-baseblack font-gelasio">
         Login
       </h2>
-      <p className="text-sm sm:text-base 2xl:text-lg text-basegray mt-2 font-Figtree">
+      <p className="text-sm sm:text-base 2xl:text-lg text-basegray mt-2 font-Poppins">
         Enter your registered email address to receive the OTP
       </p>
 
@@ -104,9 +104,8 @@ const LoginForm = () => {
           type="email"
           name="email"
           placeholder="Email ID"
-          className={`custom-input w-full ${
-            touched?.email && errors?.email ? "border border-red-500" : ""
-          }`}
+          className={`custom-input w-full ${touched?.email && errors?.email ? "border border-red-500" : ""
+            }`}
           onChange={handleChange}
           onBlur={handleBlur}
           value={values?.email}

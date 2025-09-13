@@ -243,7 +243,7 @@ const CartPopup = () => {
       >
         <div className="flex flex-col h-full">
           <div className="shrink-0 p-4 border-b border-black flex justify-between items-center pt-4">
-            <h2 className="text-xl md:text-2xl font-medium font-castoro text-baseblack mx-auto">
+            <h2 className="text-xl md:text-2xl font-medium font-gelasio text-baseblack mx-auto">
               My Bag {cartList?.length ? "(" + cartList.length + ")" : null}
             </h2>
             <button

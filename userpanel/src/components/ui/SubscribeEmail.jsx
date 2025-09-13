@@ -55,15 +55,15 @@ const SubscribeEmail = () => {
     <form
       onSubmit={handleSubmit}
       onKeyDown={handleKeyPress}
-      className="flex flex-col gap-2 pt-2 lg:pt-5 lg:w-[80%]"
+      className="flex flex-col gap-2 pt-4 lg:pt-5"
     >
-      <div className="flex h-12">
+      <div className="flex gap-2 h-12">
         <input
           className={inputClassName}
           id="email"
           type="email"
           name="email"
-          placeholder="Enter your email"
+          placeholder="Sign Me Up"
           onChange={handleChange}
           onBlur={handleBlur}
           value={values?.email || ""}
@@ -77,17 +77,15 @@ const SubscribeEmail = () => {
           disabled={subscriberLoading}
           onMouseEnter={() => dispatch(setIsHovered(true))}
           onMouseLeave={() => dispatch(setIsHovered(false))}
-          className={`relative group !h-full !min-w-[100px] lg:!min-w-[100px] !text-primary rounded-none font-inter overflow-hidden border rounded-e cursor-pointer transition-all duration-500 ${
-            subscriberLoading
-              ? "border-white !bg-primary !hover:bg-primary pointer-events-none"
-              : "!bg-primary "
-          }`}
+          className={`relative group !h-full !min-w-[100px] lg:!min-w-[100px] !text-primary rounded-none font-inter overflow-hidden border rounded-e cursor-pointer transition-all duration-500 ${subscriberLoading
+            ? "border-white !bg-primary !hover:bg-primary pointer-events-none"
+            : "!bg-primary "
+            }`}
         >
           {/* Button Text */}
           <span
-            className={`relative z-10 transition-colors duration-500 ${
-              subscriberLoading ? "" : "group-hover:text-white"
-            }`}
+            className={`relative z-10 transition-colors duration-500 ${subscriberLoading ? "" : "group-hover:text-white"
+              }`}
           >
             {subscriberLoading ? (
               <Spinner
@@ -115,7 +113,7 @@ const SubscribeEmail = () => {
             removeMessage={
               subscriberMessage.type === messageType.ERROR
                 ? () =>
-                    dispatch(setSubscriberMessage({ message: "", type: "" }))
+                  dispatch(setSubscriberMessage({ message: "", type: "" }))
                 : undefined
             }
           />

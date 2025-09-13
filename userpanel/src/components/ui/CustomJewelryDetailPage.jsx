@@ -193,15 +193,15 @@ const CustomJewelryDetailPage = () => {
 
       <section className="pt-16 xl:pt-20 2xl:pt-28 container mx-auto px-4">
         <div className="flex flex-col items-center">
-          <h2 className="text-baseblack font-castoro font-medium text-3xl md:text-4xl lg:text-5xl 2xl:text-5xl 4xl:text-6xl uppercase">
-            The Journey
+          <h2 className="text-baseblack font-gelasio font-medium text-3xl md:text-4xl lg:text-5xl 2xl:text-5xl 4xl:text-6xl uppercase text-center">
+            From Dream to Design
           </h2>
         </div>
         <div className=" mx-auto justify-center flex text-center pt-4 xs:pt-6">
           <p className="text-sm lg:text-md mx-auto lg:w-[70%] 2xl:w-[60%]">
-            Our expert craftspeople will recreate the necklace you’re seeking,
-            based on a sketch, photo or reference. From imagination to reality
-            in as little as 14 days. If you can dream it, we’ll create it.
+            Share your vision, whether it’s a sketch, photo, or idea, and our
+            master craftspeople will bring it to life. In just 14 days, we
+            transform imagination into a jewelry made exclusively for you.
           </p>
         </div>
       </section>
@@ -255,7 +255,7 @@ const CustomJewelryDetailPage = () => {
           </div>
 
           <div className="sm:max-w-md text-center sm:text-left">
-            <h3 className="text-xl lg:text-3xl xl:text-4xl mb-4 font-castoro">
+            <h3 className="text-xl lg:text-3xl xl:text-4xl mb-4 font-gelasio">
               Describe Your Custom Jewelry
             </h3>
             <p className="text-sm lg:text-base 2xl:text-xl text-baseblack font-semibold">
@@ -277,7 +277,7 @@ const CustomJewelryDetailPage = () => {
           </h2>
           <div className="hidden md:flex flex-col justify-between relative pl-8">
             <div className="z-10 relative mt-32 lg:mt-40 xl:mt-52">
-              <h3 className="text-xl lg:text-3xl xl:text-4xl mb-4 font-castoro">
+              <h3 className="text-xl lg:text-3xl xl:text-4xl mb-4 font-gelasio">
                 Upload Reference Images
               </h3>
               <p className="text-sm lg:text-base 2xl:text-xl text-baseblack font-semibold max-w-md">
@@ -300,7 +300,7 @@ const CustomJewelryDetailPage = () => {
           </div>
 
           <div className="md:hidden">
-            <h3 className="text-xl lg:text-3xl xl:text-4xl mb-4 font-castoro">
+            <h3 className="text-xl lg:text-3xl xl:text-4xl mb-4 font-gelasio">
               Upload Reference Images
             </h3>
             <p className="text-sm lg:text-base 2xl:text-xl text-baseblack font-semibold mb-6">
@@ -315,7 +315,7 @@ const CustomJewelryDetailPage = () => {
             STEP THREE
           </h2>
           <div className="flex flex-col items-center pt-6 lg:pt-8">
-            <h3 className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-castoro mb-4 text-baseblack">
+            <h3 className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-gelasio mb-4 text-baseblack">
               Review & Submit
             </h3>
             <p className="text-sm md:text-base xl:text-lg 2xl:text-xl text-baseblack font-semibold max-w-3xl mx-auto">

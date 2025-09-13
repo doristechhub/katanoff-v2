@@ -46,7 +46,7 @@ const CustomJewelryCommon = ({
             <p className="uppercase text-sm md:text-base tracking-widest text-baseblack">
               {step}
             </p>
-            <h2 className="text-2xl md:text-3xl font-medium text-baseblack font-castoro 4xl:w-[90%]">
+            <h2 className="text-2xl md:text-3xl font-medium text-baseblack font-gelasio 4xl:w-[90%]">
               {title}
             </h2>
             <p className="text-baseblack font-medium text-sm md:text-base max-w-md">

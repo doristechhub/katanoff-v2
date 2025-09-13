@@ -18,7 +18,7 @@ const TextAboveImage = ({ categoryData, className, textClassName }) => {
 
           <div className="px-4 md:px-0 absolute bottom-16 left-1/2 -translate-x-1/2 w-full lg:bottom-[15%] text-center text-white uppercase">
             <h3
-              className={`text-xl md:text-2xl xl:text-2xl tracking-wider font-castoro pb-6 ${textClassName}`}
+              className={`text-xl md:text-2xl xl:text-2xl tracking-wider font-gelasio pb-6 ${textClassName}`}
             >
               {item?.title}
             </h3>

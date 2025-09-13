@@ -70,7 +70,7 @@ export default function ProfileDetailPage() {
               <div
                 className={`bg-white md:rounded-lg shadow-md px-6 pt-12 pb-10 lg:pb-12 xl:pb-20`}
               >
-                <h2 className="text-center text-2xl 3xl:text-3xl text-baseblack font-castoro">
+                <h2 className="text-center text-2xl 3xl:text-3xl text-baseblack font-gelasio">
                   Profile
                 </h2>
                 <div className="px-6 lg:px-10 pt-6">
@@ -178,9 +178,8 @@ export default function ProfileDetailPage() {
       </div>
 
       <div
-        className={`${
-          editMode ? "h-[50vh] md:h-[45vh] xl:h-[50vh]" : "h-[40vh]"
-        }`}
+        className={`${editMode ? "h-[50vh] md:h-[45vh] xl:h-[50vh]" : "h-[40vh]"
+          }`}
       />
     </>
   );
@@ -192,7 +191,7 @@ const UserPofileSkeleton = () => {
       <div
         className={`bg-white md:rounded-lg shadow-md px-6 pt-12 pb-10 lg:pb-12 xl:pb-20`}
       >
-        <h2 className="text-center text-2xl 3xl:text-3xl text-baseblack font-castoro">
+        <h2 className="text-center text-2xl 3xl:text-3xl text-baseblack font-gelasio">
           Profile
         </h2>
         <div className="flex flex-col gap-6 pt-6">

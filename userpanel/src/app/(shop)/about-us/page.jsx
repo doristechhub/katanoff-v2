@@ -23,10 +23,10 @@ const aboutUsContent = [
     titleAttr: "",
     direction: "RTF",
     altAttr: "",
-    title: "Ethical luxury: Our promise",
+    title: "Luxury with Integrity",
     description: [
-      "At Katanoff, we believe luxury should never come at the cost of ethics. Our promise is rooted in responsibility from sourcing to craftsmanship. Each piece is created using lab-grown diamonds that are chemically and visually identical to mined ones, yet leave a lighter footprint on the planet. By choosing conscious materials, we uphold a standard of beauty that honors both the wearer and the world.",
-      "Our jewelry is designed to make you feel good in every way. With exceptional attention to detail, quality, and design, we ensure that every Katanoff creation reflects refined taste and modern values. This is our definition of ethical luxury thoughtfully made, honestly sourced, and endlessly beautiful.",
+      "At Katanoff, we believe true luxury should be as responsible as it is beautiful. Our promise begins with how we source and continues through every stage of craftsmanship. Each piece is crafted using lab-grown diamonds that are chemically and visually identical to mined ones, yet have a significantly lighter environmental impact. By choosing sustainable and conscious materials, we embrace a vision of beauty that honors not only the wearer but also the world we share.",
+      "Our jewelry is designed to make you feel confident, proud, and connected to your values. With uncompromising attention to detail, artistry, and design, every Katanoff creation reflects refined taste and modern responsibility. To us, luxury is not just about brilliance it’s about meaning. That is why our definition of luxury is thoughtful, ethical, and timeless in its beauty.",
     ],
   },
   {
@@ -207,7 +207,7 @@ export default function AboutPage() {
                 altAttr={pillar.altAttr}
                 titleAttr={pillar.titleAttr}
               />
-              <h3 className="text-2xl 2xl:text-3xl font-castoro py-3">
+              <h3 className="text-2xl 2xl:text-3xl font-gelasio py-3">
                 {pillar.title}
               </h3>
               <p className="font-medium text-base 2xl:text-base">

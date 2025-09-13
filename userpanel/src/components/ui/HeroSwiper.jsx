@@ -19,25 +19,25 @@ export default function HeroSwiper({ slides }) {
       >
         {slides?.length
           ? slides.map((slide, index) => (
-              <SwiperSlide key={`slides-${index}`}>
-                <div className="relative w-full">
-                  <CustomImg
-                    srcAttr={slide.image}
-                    className="h-[30vh] lg:h-auto object-cover lg:object-contain"
-                  />
-                  <div className="absolute inset-0 grid lg:grid-cols-2 place-items-center bg-black  bg-opacity-5 items-center justify-center  text-white text-center p-4">
-                    <div className="md:w-[70%]">
-                      <h2 className="text-2xl lg:text-4xl 2xl:text-6xl font-castoro mb-3 lg:mb-5">
-                        {slide.title}
-                      </h2>
-                      <p className="text-base 2xl:text-lg">
-                        {slide.description}
-                      </p>
-                    </div>
+            <SwiperSlide key={`slides-${index}`}>
+              <div className="relative w-full">
+                <CustomImg
+                  srcAttr={slide.image}
+                  className="h-[30vh] lg:h-auto object-cover lg:object-contain"
+                />
+                <div className="absolute inset-0 grid lg:grid-cols-2 place-items-center bg-black  bg-opacity-5 items-center justify-center  text-white text-center p-4">
+                  <div className="md:w-[70%]">
+                    <h2 className="text-2xl lg:text-4xl 2xl:text-6xl font-gelasio mb-3 lg:mb-5">
+                      {slide.title}
+                    </h2>
+                    <p className="text-base 2xl:text-lg">
+                      {slide.description}
+                    </p>
                   </div>
                 </div>
-              </SwiperSlide>
-            ))
+              </div>
+            </SwiperSlide>
+          ))
           : null}
       </Swiper>
     </section>

@@ -135,7 +135,7 @@ export default function CenterFocusSlider() {
   return (
     <section className="relative pt-6 sm:pt-8 pb-12 md:py-16 overflow-hidden">
       <div className="flex flex-col gap-2 sm:gap-4 xl:gap-6 justify-center text-center items-center">
-        <h2 className="text-center text-2xl md:text-2xl xl:text-3xl 2xl:text-4xl font-semibold uppercase font-castoro">
+        <h2 className="text-center text-2xl md:text-2xl xl:text-3xl 2xl:text-4xl font-semibold uppercase font-gelasio">
           Discover Shapes
         </h2>
         <p className="w-[90%] md:w-[60%] 2xl:w-[40%] text-center text-base lg:text-lg xl:text-xl">

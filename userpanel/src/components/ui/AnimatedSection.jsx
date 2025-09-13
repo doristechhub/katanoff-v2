@@ -77,7 +77,7 @@ const AnimatedSection = ({
           }`}
         >
           <h2
-            className={`text-2xl md:text-4xl mb-4 2xl:text-5xl lg:leading-[50px] font-castoro 2xl:leading-[60px] ${titleClassName}`}
+            className={`text-2xl md:text-4xl mb-4 2xl:text-5xl lg:leading-[50px] font-gelasio 2xl:leading-[60px] ${titleClassName}`}
           >
             {title}
           </h2>
