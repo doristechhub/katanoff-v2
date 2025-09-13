@@ -60,17 +60,19 @@ const RingSettingCenterStone = () => {
       </div>
 
       <div className="container md:hidden">
-        <div className="flex flex-col items-center gap-4 text-center justify-center">
+        <div className="flex flex-col items-center gap-2 text-center justify-center">
           <CustomImg
             srcAttr={centerStoneCombine}
             altAttr="Center Stone"
-            className=""
+            className="w-[80%]"
           />
-          <h2 className="text-3xl sm:text-4xl font-semibold font-gelasio uppercase text-black w-[80%]">
+          <h2 className="text-xl font-semibold font-gelasio uppercase text-black w-[80%] mt-3">
             Personalize Your Ring
           </h2>
-          <p>Create a ring that tells your story — crafted in 3 simple steps.</p>
-          <div className="flex justify-center">
+          <p className="text-sm">
+            Create a ring that tells your story — crafted in 3 simple steps.
+          </p>
+          <div className="flex justify-center mt-2">
             <PrimaryLinkButton
               variant="blackHover"
               className="!uppercase !rounded-none"

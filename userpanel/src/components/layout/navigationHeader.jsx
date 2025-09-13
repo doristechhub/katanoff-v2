@@ -44,7 +44,7 @@ import calendarIcon from "@/assets/icons/calendar.svg";
 import CustomImg from "../ui/custom-img";
 
 const headingClass =
-  "font-gelasio text-[0.9375em] leading-[1.0625em] mb-4 pb-2 border-b border-baseblack";
+  "font-gelasio text-[0.9375em] leading-[1.0625em] mb-4 pb-2 border-b border-baseblack font-semibold";
 const staticLinks = [
   {
     title: "Custom",
@@ -310,8 +310,8 @@ export default function NavigationHeader() {
                           {engagementHeaderUniqueFilterOptions
                             ?.uniqueSettingStyles?.length ? (
                             <div className={`col-span-3`}>
-                              <h3 className="font-semibold p-[10px]">
-                                Shop by Style
+                              <h3 className="capitalize font-medium font-gelasio p-[10px]">
+                                Shop By Style
                               </h3>
                               <div className="flex flex-col">
                                 {engagementHeaderUniqueFilterOptions?.uniqueSettingStyles.map(
@@ -345,7 +345,7 @@ export default function NavigationHeader() {
                           {engagementHeaderUniqueFilterOptions?.uniqueVariations
                             ?.length ? (
                             <div className="col-span-6">
-                              <h3 className="font-semibold p-[10px]">
+                              <h3 className="capitalize font-medium font-gelasio p-[10px]">
                                 Shop by Shape
                               </h3>
                               <div className="grid grid-cols-2 text-center">
@@ -392,7 +392,7 @@ export default function NavigationHeader() {
                             ?.length ? (
                             <div className="col-span-3">
                               {" "}
-                              <h3 className="font-semibold p-[10px]">
+                              <h3 className="capitalize font-medium font-gelasio p-[10px]">
                                 Shop by Metal
                               </h3>
                               {engagementHeaderUniqueFilterOptions?.uniqueVariations?.map(
@@ -596,7 +596,7 @@ export default function NavigationHeader() {
                           {weddingHeaderUniqueFilterOptions?.femaleFilters
                             ?.settingStyles?.length ? (
                             <div className={`col-span-3`}>
-                              <h3 className="font-semibold p-[10px]">
+                              <h3 className="capitalize font-medium font-gelasio p-[10px]">
                                 Shop by Style
                               </h3>
                               <div className="flex flex-col">
@@ -631,7 +631,7 @@ export default function NavigationHeader() {
                           {weddingHeaderUniqueFilterOptions?.femaleFilters
                             ?.variations?.length ? (
                             <div className="col-span-6">
-                              <h3 className="font-semibold p-[10px]">
+                              <h3 className="capitalize font-medium font-gelasio p-[10px]">
                                 Shop by Shape
                               </h3>
                               <div className="grid grid-cols-2 text-center">
@@ -687,7 +687,7 @@ export default function NavigationHeader() {
                                       className="flex flex-col col-span-3"
                                       key={`variation-${index}`}
                                     >
-                                      <h3 className="font-semibold p-[10px]">
+                                      <h3 className="capitalize font-medium font-gelasio p-[10px]">
                                         Shop by Metal
                                       </h3>
                                       {variation.variationTypes.map(
@@ -743,7 +743,7 @@ export default function NavigationHeader() {
                               <h3 className={headingClass}>MEN</h3>
                               {displayMaleSettingStyle ? (
                                 <div className={`col-span-3`}>
-                                  <h3 className="font-semibold p-[10px]">
+                                  <h3 className="capitalize font-medium font-gelasio p-[10px]">
                                     Shop by Style
                                   </h3>
                                   <div className="flex flex-col">
@@ -823,7 +823,7 @@ export default function NavigationHeader() {
                               altAttr=""
                               titleAttr=""
                             />
-                            <p className="font-medium text-sm mt-2">
+                            <p className="font-medium text-sm mt-2 italic">
                               Grab stunning lab-grown diamond jewelry now, with
                               limited-time flash deals you don’t want to miss!
                             </p>
@@ -886,7 +886,7 @@ export default function NavigationHeader() {
                               >
                                 <HeaderLinkButton
                                   href={subItem.href}
-                                  className="block text-sm !font-semibold capitalize !p-[10px]"
+                                  className="block text-sm !font-semibold font-gelasio capitalize !p-[10px]"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     closeAllDropdown();
@@ -934,7 +934,7 @@ export default function NavigationHeader() {
                             altAttr=""
                             titleAttr=""
                           />
-                          <p className="font-medium text-sm mt-2">
+                          <p className="font-medium text-sm mt-2 italic">
                             Discover stunning lab-grown diamonds, ethical,
                             brilliant, and crafted to perfection for every
                             occasion.
@@ -1147,7 +1147,7 @@ export default function NavigationHeader() {
                             {engagementHeaderUniqueFilterOptions
                               ?.uniqueSettingStyles?.length ? (
                               <div>
-                                <h3 className="font-semibold text-[14px] p-[10px] uppercase">
+                                <h3 className="font-semibold font-gelasio text-[14px] p-[10px] uppercase">
                                   Shop by Style
                                 </h3>
                                 <div className="ps-3 flex flex-col gap-1">
@@ -1182,7 +1182,7 @@ export default function NavigationHeader() {
                             {engagementHeaderUniqueFilterOptions
                               ?.uniqueVariations?.length ? (
                               <div>
-                                <h3 className="font-semibold text-[14px] p-[10px] uppercase">
+                                <h3 className="font-semibold font-gelasio text-[14px] p-[10px] uppercase">
                                   Shop by Shape
                                 </h3>
                                 <div className="ps-3 grid grid-cols-2 ">
@@ -1229,7 +1229,7 @@ export default function NavigationHeader() {
                             {engagementHeaderUniqueFilterOptions
                               ?.uniqueSettingStyles?.length ? (
                               <div>
-                                <h3 className="font-semibold text-[14px] p-[10px] uppercase">
+                                <h3 className="font-semibold font-gelasio text-[14px] p-[10px] uppercase">
                                   Shop by Metal
                                 </h3>
                                 <div className="ps-3 flex flex-col gap-1">

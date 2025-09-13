@@ -22,7 +22,7 @@ const Layout = ({ children }) => {
   axios.defaults.baseURL = apiUrl;
   setAuthToken();
   errorInterceptor(router);
-  useLenis()
+  useLenis();
 
   useEffect(() => {
     const isCollectionPage = /^\/collections\/[^/]+\/[^/]+$/.test(pathname);
@@ -36,9 +36,9 @@ const Layout = ({ children }) => {
     dispatch(
       setTransparentHeaderBg(
         isCollectionPage ||
-        isProductPage ||
-        isStartWithDiamond ||
-        isStaticTransparent
+          isProductPage ||
+          isStartWithDiamond ||
+          isStaticTransparent
       )
     );
   }, [pathname, dispatch]);
@@ -51,10 +51,12 @@ const Layout = ({ children }) => {
     }
   }, []);
 
-  return <>
-    <NetworkLostOverlay />
-    {children}
-  </>;
+  return (
+    <>
+      <NetworkLostOverlay />
+      {children}
+    </>
+  );
 };
 
 export default Layout;
