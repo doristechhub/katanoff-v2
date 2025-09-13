@@ -22,7 +22,7 @@ const Modal = ({
         {/* Top: Title & Close */}
         <div className="flex justify-between items-center px-8 pt-6 pb-4 bg-white">
           <h2
-            className={`font-castoro text-xl md:text-2xl xl:text-2xl text-baseblack ${titleClassName}`}
+            className={`font-gelasio text-xl md:text-2xl xl:text-2xl text-baseblack ${titleClassName}`}
           >
             {title}
           </h2>

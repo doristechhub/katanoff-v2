@@ -107,6 +107,9 @@ const Permissions = () => {
   const [selectedPermissionsId, setSelectedPermissionsId] = useState();
   const [openPermissionsDialog, setOpenPermissionsDialog] = useState(false);
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const {
     adminList,
     selectedAdmin,
@@ -442,7 +445,7 @@ const Permissions = () => {
                     width: '100%',
                     minWidth: '250px',
                   }}
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   name="password"
                   label="Password"
                   onBlur={handleBlur}
@@ -450,6 +453,15 @@ const Permissions = () => {
                   value={values.password || ''}
                   error={!!(touched.password && errors.password)}
                   helperText={touched.password && errors.password ? errors.password : ''}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                          <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </Grid>
               <Grid xs={12} sm={6}>
@@ -459,16 +471,30 @@ const Permissions = () => {
                     width: '100%',
                     minWidth: '250px',
                   }}
-                  type="password"
-                  onBlur={handleBlur}
+                  type={showConfirmPassword ? 'text' : 'password'}
                   name="confirmPassword"
-                  onChange={handleChange}
                   label="Confirm Password"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
                   value={values.confirmPassword || ''}
                   error={!!(touched.confirmPassword && errors.confirmPassword)}
                   helperText={
                     touched.confirmPassword && errors.confirmPassword ? errors.confirmPassword : ''
                   }
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          edge="end"
+                        >
+                          <Iconify
+                            icon={showConfirmPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'}
+                          />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </Grid>
             </Grid>
@@ -512,7 +538,16 @@ const Permissions = () => {
         </StyledDialogActions>
       </Dialog>
     ) : null;
-  }, [values, errors, touched, selectedAdmin, crudPermissionsLoading, openPermissionsDialog]);
+  }, [
+    values,
+    errors,
+    touched,
+    selectedAdmin,
+    crudPermissionsLoading,
+    openPermissionsDialog,
+    showPassword,
+    showConfirmPassword,
+  ]);
 
   return (
     <>

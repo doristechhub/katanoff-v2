@@ -31,7 +31,7 @@ export default function DiamondInspirationSection() {
   return (
     <section className="container py-12 lg:py-20 2xl:py-20 ">
       <div className="flex flex-col lg:flex-row justify-between items-start gap-y-0 lg:gap-y-0 mb-10">
-        <h2 className="text-4xl md:text-6xl 2xl:text-7xl leading-tight font-castoro mb-2 lg:mb-0">
+        <h2 className="text-4xl md:text-6xl 2xl:text-7xl leading-tight font-gelasio mb-2 lg:mb-0">
           Understanding Lab-Grown
           <br />
           Diamonds
@@ -56,7 +56,7 @@ export default function DiamondInspirationSection() {
                 className="w-full object-cover"
                 layout="responsive"
               />
-              <h3 className="absolute bottom-5 text-white left-[10%] text-center font-castoro text-lg md:text-xl xl:text-2xl font-medium mt-2">
+              <h3 className="absolute bottom-5 text-white left-[10%] text-center font-gelasio text-lg md:text-xl xl:text-2xl font-medium mt-2">
                 {item?.label}
               </h3>
             </div>

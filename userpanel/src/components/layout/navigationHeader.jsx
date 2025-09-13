@@ -44,7 +44,7 @@ import calendarIcon from "@/assets/icons/calendar.svg";
 import CustomImg from "../ui/custom-img";
 
 const headingClass =
-  "font-castoro text-[0.9375em] leading-[1.0625em] mb-4 pb-2 border-b border-baseblack";
+  "font-gelasio text-[0.9375em] leading-[1.0625em] mb-4 pb-2 border-b border-baseblack";
 const staticLinks = [
   {
     title: "Custom",
@@ -447,7 +447,8 @@ export default function NavigationHeader() {
                               e.stopPropagation();
                               closeAllDropdown();
                             }}
-                            className={`transition-all !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
+                            variant="primaryHover"
+                            className="flex justify-center items-center"
                           >
                             View All
                           </HeaderLinkButton>
@@ -465,7 +466,7 @@ export default function NavigationHeader() {
                           <HeaderLinkButton
                             href={"/customize/select-diamond"}
                             onClick={closeAllDropdown}
-                            className={`transition-all !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
+                            variant="primaryHover"
                           >
                             DESIGN WITH DIAMOND
                           </HeaderLinkButton>
@@ -729,7 +730,8 @@ export default function NavigationHeader() {
                             e.stopPropagation();
                             closeAllDropdown();
                           }}
-                          className={`transition-all !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
+                          variant="primaryHover"
+                          className="flex justify-center items-center"
                         >
                           View All
                         </HeaderLinkButton>
@@ -780,7 +782,8 @@ export default function NavigationHeader() {
                                   e.stopPropagation();
                                   closeAllDropdown();
                                 }}
-                                className={`transition-all !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
+                                variant="primaryHover"
+                                className="flex justify-center items-center"
                               >
                                 View All
                               </HeaderLinkButton>
@@ -793,7 +796,7 @@ export default function NavigationHeader() {
                                 : "col-span-12"
                             }`}
                           >
-                            <h3
+                            {/* <h3
                               className={`${headingClass} uppercase !border-0`}
                             >
                               {FLASH_DEALS}
@@ -808,11 +811,30 @@ export default function NavigationHeader() {
                                   e.stopPropagation();
                                   closeAllDropdown();
                                 }}
-                                className={`transition-all w-fit !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
+                                variant="primaryHover"
+                                className="flex justify-center items-center"
                               >
                                 View All
                               </HeaderLinkButton>
-                            </div>
+                            </div> */}
+                            <CustomImg
+                              srcAttr={flashDeal}
+                              className="w-full"
+                              altAttr=""
+                              titleAttr=""
+                            />
+                            <p className="font-medium text-sm mt-2">
+                              Grab stunning lab-grown diamond jewelry now, with
+                              limited-time flash deals you don’t want to miss!
+                            </p>
+                            <Link
+                              href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                                FLASH_DEALS
+                              )}`}
+                              className="mt-5 font-semibold text-primary underline decoration-primary underline-offset-2  inline-block"
+                            >
+                              Flash Deals
+                            </Link>
                           </div>
                         </div>
                       </div>
@@ -896,7 +918,8 @@ export default function NavigationHeader() {
                                       e.stopPropagation();
                                       closeAllDropdown();
                                     }}
-                                    className={`transition-all duration-300 w-full capitalize mt-2 !px-3 !py-1.5 hover:text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
+                                    variant="primaryHover"
+                                    className="flex justify-center items-center"
                                   >
                                     View All
                                   </HeaderLinkButton>
@@ -905,34 +928,23 @@ export default function NavigationHeader() {
                             ))}
                         </div>
                         <div className="ps-10 w-[30%]">
-                          <HeaderLinkButton
-                            href={`/collections/collection/Special_Buys`}
-                            className="block text-sm !font-semibold capitalize !py-[10px] !px-0 mb-3"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              closeAllDropdown();
-                            }}
-                          >
-                            Special buys
-                          </HeaderLinkButton>
                           <CustomImg
                             srcAttr={jewelry}
                             className="w-full"
                             altAttr=""
                             titleAttr=""
                           />
-                          <div className="text-sm flex justify-center pt-5">
-                            <Link
-                              href={`/collections/collection/Special_Buys`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                closeAllDropdown();
-                              }}
-                              className="px-4 py-1.5 w-fit flex justify-center items-center border border-baseblack hover:text-white hover:bg-[#393939] transition-all duration-300"
-                            >
-                              View All
-                            </Link>
-                          </div>
+                          <p className="font-medium text-sm mt-2">
+                            Discover stunning lab-grown diamonds, ethical,
+                            brilliant, and crafted to perfection for every
+                            occasion.
+                          </p>
+                          <Link
+                            href={`/collections/collection/Special_Buys`}
+                            className="mt-5 font-semibold text-primary underline decoration-primary underline-offset-2  inline-block"
+                          >
+                            SPECIAL BUYS
+                          </Link>
                         </div>
                       </div>
                     </div>
@@ -983,7 +995,7 @@ export default function NavigationHeader() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="lg:hidden fixed top-[100px] left-0 right-0 bottom-0 bg-white z-50"
+            className="lg:hidden fixed top-[60px] md:top-[70px] left-0 right-0 bottom-0 bg-white z-50"
           >
             {menuLoading ? (
               <div className="px-4 py-2 flex flex-col">
@@ -1068,7 +1080,7 @@ export default function NavigationHeader() {
                       >
                         <div className="flex items-center gap-3">
                           <div className="relative">
-                            <h3 className="text-sm font-castoro p-[8px]">
+                            <h3 className="text-sm font-gelasio p-[8px]">
                               PRE-DESIGNED RINGS
                             </h3>
                           </div>
@@ -1281,7 +1293,7 @@ export default function NavigationHeader() {
                       >
                         <div className="flex items-center gap-3">
                           <div className="relative">
-                            <h3 className="text-sm font-castoro p-[8px]">
+                            <h3 className="text-sm font-gelasio p-[8px]">
                               DESIGN YOUR RING
                             </h3>
                           </div>
@@ -1321,7 +1333,8 @@ export default function NavigationHeader() {
                               e.stopPropagation();
                               closeAllDropdown();
                             }}
-                            className={` transition-all !text-baseblack duration-300 capitalize mt-2 !py-2 hover:!text-white hover:!bg-[#393939] flex justify-center items-center border border-baseblack`}
+                            variant="primaryHover"
+                            className="flex justify-center items-center"
                           >
                             DESIGN WITH DIAMOND
                           </HeaderLinkButton>

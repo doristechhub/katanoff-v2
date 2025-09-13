@@ -28,23 +28,20 @@ const DropdownMenu = ({
       }}
       href="#"
       variant={variant}
-      className={`!rounded-none cursor-pointer !text-sm ${
-        fullWidth ? "!w-full" : ""
-      }`}
-    >
-      SHOP ENGAGEMENT
-      <ChevronDown
-        className={`w-5 h-5 transition-transform duration-200 ${
-          isOpen ? "rotate-180" : ""
+      className={`!rounded-none cursor-pointer !text-sm ${fullWidth ? "!w-full" : ""
         }`}
+    >
+      Find Your Ring
+      <ChevronDown
+        className={`w-5 h-5 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
+          }`}
       />
     </PrimaryLinkButton>
 
     {isOpen && (
       <div
-        className={`absolute top-full ${
-          fullWidth ? "left-1/2 -translate-x-1/2" : "left-0"
-        } mt-0 w-full bg-white shadow-md`}
+        className={`absolute top-full ${fullWidth ? "left-1/2 -translate-x-1/2" : "left-0"
+          } mt-0 w-full bg-white shadow-md`}
       >
         {items.map((item, index) => (
           <Link
@@ -131,13 +128,12 @@ const BannerImage = ({
         altAttr={altAttr}
         titleAttr={titleAttr}
         priority
-        className={`w-full ${
-          isStaticBanner
-            ? "object-cover h-[40vh] lg:h-auto"
-            : isHomePage
+        className={`w-full ${isStaticBanner
+          ? "object-cover h-[40vh] lg:h-auto"
+          : isHomePage
             ? "object-cover h-full"
             : "h-[18vh] lg:h-auto"
-        }`}
+          }`}
       />
     );
   }
@@ -177,9 +173,8 @@ const HeroBanner = (props) => {
 
   return (
     <section
-      className={`relative md:overflow-hidden ${
-        isHomePage ? "flex flex-col gap-6 md:gap-10" : "h-auto"
-      }`}
+      className={`relative md:overflow-hidden ${isHomePage ? "flex flex-col gap-6 md:gap-10" : "h-auto"
+        }`}
     >
       {isHomePage ? (
         <div className="w-full xl:h-[90vh] 2xl:h-[100vh] text-center">
@@ -189,20 +184,22 @@ const HeroBanner = (props) => {
             playsInline
             autoPlay
             loop
-            className="w-full h-auto object-cover"
+            className="w-full h-full object-cover"
           >
             <source src="/videos/home-page-video.mp4" type="video/mp4" />
           </video>
+          <div className="hidden md:block absolute inset-0 bg-black bg-opacity-60"></div>
         </div>
       ) : (
         <BannerImage {...props} />
       )}
 
       {isHomePage ? (
-        <div className="md:absolute md:inset-0 flex justify-center md:justify-normal items-center w-full my-6">
-          <div className="md:w-[60%] lg:w-[45%] 2xl:w-[40%] text-baseblack md:text-white text-center">
-            <h2 className="text-3xl 2xl:text-4xl font-medium leading-tight font-castoro">
-              Diamonds that <br /> Deserve You.
+        <div className="md:absolute md:inset-0 flex justify-center md:justify-normal items-start md:items-center w-full md:my-6 h-[30vh] md:h-auto">
+          {/* <div className="md:w-[60%] lg:w-[45%] 2xl:w-[100%] text-baseblack md:text-white text-center"> */}
+          <div className="w-full text-baseblack md:text-white text-center mt-4 md:mt-0">
+            <h2 className="text-2xl lg:text-3xl 2xl:text-4xl font-medium leading-tight font-gelasio">
+              Diamonds That Celebrate <br /> Your Unique Style.
             </h2>
 
             {/* Desktop Dropdown */}
@@ -217,12 +214,12 @@ const HeroBanner = (props) => {
                 variant="transparentHover"
                 className="!rounded-none !text-sm"
               >
-                SHOP ALL JEWELRY
+                Explore Jewelry
               </PrimaryLinkButton>
             </div>
 
             {/* Mobile Dropdown */}
-            <div className="md:hidden px-2 flex mt-4 flex-col items-center justify-center gap-2.5 md:gap-4">
+            <div className="md:hidden flex mt-6 items-center gap-3 px-5">
               <DropdownMenu
                 isOpen={isDropdownOpen}
                 toggle={toggleDropdown}
@@ -233,9 +230,9 @@ const HeroBanner = (props) => {
               <PrimaryLinkButton
                 href="/collections/categories/Jewelry"
                 variant="blackHover"
-                className="!rounded-none !text-sm !w-full"
+                className="!rounded-none !text-sm "
               >
-                SHOP ALL JEWELRY
+                Explore Jewelry
               </PrimaryLinkButton>
             </div>
           </div>
@@ -249,7 +246,7 @@ const HeroBanner = (props) => {
           >
             {title && description && (
               <>
-                <h1 className="text-3xl md:text-5xl 2xl:text-6xl text-white font-castoro capitalize">
+                <h1 className="text-3xl md:text-5xl 2xl:text-6xl text-white font-gelasio capitalize">
                   {title}
                 </h1>
                 <p className="text-base md:text-lg text-white">{description}</p>

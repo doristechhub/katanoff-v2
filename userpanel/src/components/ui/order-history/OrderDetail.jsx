@@ -447,7 +447,7 @@ const OrderDetails = ({
           {/* Shipping Info Section */}
           {orderDetail?.shippingAddress ? (
             <div>
-              <h3 className="font-castoro text-xl">Shipping Details</h3>
+              <h3 className="font-gelasio text-xl">Shipping Details</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3 mt-4">
                 {shippingFields.map(
                   ({ label, key, default: defaultValue = "" }) => {
@@ -490,7 +490,7 @@ const OrderDetails = ({
           ) : null}
           {orderDetail?.paymentMethodDetails ? (
             <div>
-              <h3 className="font-castoro text-xl">Payment Details</h3>
+              <h3 className="font-gelasio text-xl">Payment Details</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 text-sm md:text-base pt-4">
                 {paymentDataFields.map(
                   ({ label, value, render, isOptional }) =>

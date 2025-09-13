@@ -47,6 +47,14 @@ export default function AccountPopover() {
     navigate('/login');
   };
 
+  // New handler for Forget Password
+  const handleForgetPassword = (path) => {
+    authenticationService.logOut(); // Log out first
+    setOpen(null);
+    navigate(path); // Navigate to forget-password route
+    handleClose(option.path);
+  };
+
   return (
     <>
       <IconButton
@@ -102,7 +110,14 @@ export default function AccountPopover() {
           <Divider sx={{ borderStyle: 'dashed' }} />
 
           {MENU_OPTIONS?.map((option) => (
-            <MenuItem key={option?.label} onClick={() => handleClose(option?.path)}>
+            <MenuItem
+              key={option?.label}
+              onClick={
+                option.label === 'Forget Password'
+                  ? () => handleForgetPassword(option.path)
+                  : () => handleClose(option.path)
+              }
+            >
               {option?.label}
             </MenuItem>
           ))}

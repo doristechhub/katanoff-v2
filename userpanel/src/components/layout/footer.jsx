@@ -8,6 +8,7 @@ import {
   FaTiktok,
 } from "react-icons/fa6";
 import footerBGShape from "@/assets/images/footer-bg-shape.webp";
+import footerDiamondShape from "@/assets/images/footer-shape-diamond.webp";
 import {
   companyEmail,
   CURRENT_YEAR,
@@ -18,6 +19,7 @@ import {
 } from "@/_helper";
 import { SubscribeEmail } from "../dynamiComponents";
 import logo from "@/assets/images/footer-logo.webp";
+import footerLogo from "@/assets/images/footer-logo-name.webp";
 import Link from "next/link";
 import CustomImg from "../ui/custom-img";
 
@@ -67,37 +69,27 @@ export default function Footer() {
 
   const mediaLinks = [
     // { icon: <FaFacebookF />, href: facebookUrl },
-    { icon: <FaInstagram />, href: instagramUrl },
+    { icon: <FaInstagram />, href: instagramUrl, name: "#katanoff_luxury" },
     // { icon: <FaPinterestP />, href: pinterestUrl },
     // { icon: <FaTiktok />, href: tiktokUrl },
   ];
 
   return (
     <footer className={`${footerMarginClass} bg-primary relative`}>
-      <div className="pt-20 pb-10 2xl:pt-24 2xl:pb-14 text-white px-6 md:px-14 2xl:px-20">
-        <div className="z-10 relative grid grid-cols-1 md:grid-cols-12 gap-10">
-          <div className="md:col-span-6 lg:col-span-3">
-            <Link href="/" className="inline-block">
-              <CustomImg
-                srcAttr={logo}
-                className="w-32 2xl:w-auto"
-                altAttr="katanoff"
-                titleAttr="katanoff"
-              />
-            </Link>
-          </div>
+      <div className="pt-6 md:pt-10 pb-10 xl:pt-10 2xl:pb-14 text-white px-6 md:px-14 2xl:px-20">
+        <div className="flex justify-center">
+          <CustomImg srcAttr={footerLogo} className="w-44 md:w-56 2xl:w-64" />
+        </div>
+        <div className="container z-10 pt-8 md:pt-10 xl:pt-6 relative grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10">
           {footerLinks?.length &&
             footerLinks?.map((link, index) => {
               return (
-                <div
-                  className="md:col-span-6 lg:col-span-2"
-                  key={`footer-link-${index}`}
-                >
-                  <h4 className="text-lg 2xl:text-2xl font-semibold">
+                <div key={`footer-link-${index}`}>
+                  <h4 className="text-lg 2xl:text-xl font-medium">
                     {link?.title}
                   </h4>
 
-                  <ul className="mt-4">
+                  <ul className="mt-2 md:mt-4 2xl:mt-6">
                     {link?.navLinks?.length &&
                       link?.navLinks?.map((nav, index) => {
                         return (
@@ -114,35 +106,34 @@ export default function Footer() {
                 </div>
               );
             })}
-          <div className="md:col-span-6 lg:col-span-5">
-            <h4 className="text-lg 2xl:text-2xl font-semibold">Subscribe</h4>
-            <h3 className="font-bold 2xl:text-xl mt-4">
-              Get on the Guest List
-            </h3>
-            <p className="w-[70%] md:w-full mt-1 2xl:text-lg">
-              Perks include early access to new product launches, exclusive
-              invites to store openings, and more!
+          <div className="max-w-md">
+            <h4 className="text-lg 2xl:text-xl font-medium">Sign me Up</h4>
+            <p className="md:w-full mt-2 md:mt-4 2xl:mt-6 2xl:text-lg">
+              Unlock early access to launches, special invitations, and
+              exclusive perks made for you.
             </p>
             <SubscribeEmail />
-            <div className="flex gap-5 mt-5 lg:mt-8">
+            <div className="flex gap-5 mt-4">
               {mediaLinks?.map((media, index) => {
                 return (
                   <Link
-                    className="text-2xl"
+                    className="text-2xl flex items-center gap-2 px-4 py-1 bg-[#313C66] rounded-md"
                     key={`social-media-${index}`}
                     href={media?.href}
                     target="_blank"
                   >
                     {media?.icon}
+                    <span className="text-lg">{media?.name}</span>
                   </Link>
                 );
               })}
             </div>
           </div>
         </div>
-        <div className="lg:h-[30vh] 2xl:h-[35vh] md:flex md:justify-end md:items-end mt-10 md:mt-14 lg:mt-0">
-          <div className="flex flex-col flex-wrap md:flex-row 2xl:justify-end gap-2 lg:gap-4 2xl:text-lg">
-            <ul className="md:list-disc">
+
+        <div className="lg:h-[15vh] 2xl:h-[10vh] flex justify-center items-end mt-10 md:mt-14 lg:mt-0">
+          <div className="flex flex-wrap 2xl:justify-end gap-2 lg:gap-4 2xl:text-lg text-center w-full justify-center">
+            <ul className="">
               <li>© {CURRENT_YEAR} Katanoff.com</li>
             </ul>
             <Link href="/terms-and-conditions" className="hover:underline">
@@ -158,8 +149,8 @@ export default function Footer() {
         </div>
       </div>
       <CustomImg
-        srcAttr={footerBGShape}
-        className="hidden lg:block absolute bottom-0 left-0 w-[45%] 2xl:w-[40%]"
+        srcAttr={footerDiamondShape}
+        className="hidden lg:block absolute bottom-0 left-0 w-[20%] 2xl:w-[15%]"
         altAttr=""
         titleAttr=""
       />

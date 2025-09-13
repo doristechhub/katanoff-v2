@@ -8,7 +8,7 @@ const CommonBgHeading = ({
   allSelected = false,
   titleClassName = "",
   countMobileText = "",
-  onSelectAllChange = () => {},
+  onSelectAllChange = () => { },
 }) => {
   return (
     <div className="relative w-full">
@@ -16,13 +16,12 @@ const CommonBgHeading = ({
         {breadcrumb && <Breadcrumb currentPage={title} />}
       </div>
       <div
-        className={`px-4 container w-full relative flex flex-col gap-6 sm:flex-row pt-8 justify-center sm:items-center ${
-          breadcrumb ? "sm:pt-4" : "sm:pt-0"
-        }`}
+        className={`px-4 container w-full relative flex flex-col gap-6 sm:flex-row pt-8 justify-center sm:items-center ${breadcrumb ? "sm:pt-4" : "sm:pt-0"
+          }`}
       >
         <h1
           className={`justify-center flex mx-auto text-center
-                   text-2xl xl:text-3xl font-medium font-castoro text-baseblack ${titleClassName}`}
+                   text-2xl xl:text-3xl font-medium font-gelasio text-baseblack ${titleClassName}`}
         >
           {title}
         </h1>
@@ -45,7 +44,7 @@ const CommonBgHeading = ({
         )}
         {/* Right Text */}
         {rightText && (
-          <p className="sm:absolute sm:right-5 text-baseblack font-castoro text-base lg:text-lg 2xl:text-xl hidden xs:block">
+          <p className="sm:absolute sm:right-5 text-baseblack font-gelasio text-base lg:text-lg 2xl:text-xl hidden xs:block">
             {rightText}
           </p>
         )}

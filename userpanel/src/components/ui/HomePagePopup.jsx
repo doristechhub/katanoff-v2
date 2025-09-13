@@ -66,7 +66,7 @@ export default function HomePagePopup() {
         </button>
 
         <div className="w-full md:w-1/2 px-6 flex flex-col justify-center pt-8 sm:pt-10 md:pt-0 md:pl-10">
-          <h2 className="text-2xl md:text-4xl xl:text-5xl font-medium italic font-castoro text-[#202A4E] mb-1 md:mb-3">
+          <h2 className="text-2xl md:text-4xl xl:text-5xl font-medium italic font-gelasio text-[#202A4E] mb-1 md:mb-3">
             GET 10% OFF
           </h2>
           <p className="text-sm md:text-base xl:text-lg text-[#202A4E] mb-2 md:mb-4">

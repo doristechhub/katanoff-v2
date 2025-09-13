@@ -16,7 +16,11 @@ import {
   setSearchedProductList,
 } from "@/store/slices/productSlice";
 import { helperFunctions } from "@/_helper";
-import { ProductNotFound, ProgressiveImg } from "@/components/dynamiComponents";
+import {
+  ProductNotFound,
+  ProgressiveImg,
+  SimpleProductGrid,
+} from "@/components/dynamiComponents";
 import Link from "next/link";
 import { HeaderLinkButton } from "./button";
 import { IoCloseOutline } from "react-icons/io5";
@@ -44,41 +48,6 @@ const SearchResultItem = memo(({ product, onClick }) => (
 ));
 
 SearchResultItem.displayName = "SearchResultItem";
-
-// Optimized version of the ProductGrid specifically for search results
-const SimpleProductGrid = memo(({ products }) => {
-  const dispatch = useDispatch();
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-5 lg:gap-4">
-      {products.map((product) => (
-        <Link
-          href={`/products/${helperFunctions.stringReplacedWithUnderScore(
-            product?.productName
-          )}`}
-          onClick={() => {
-            dispatch(setIsShowingResults(false));
-            dispatch(setIsMobileSearchOpen(false));
-            dispatch(setSearchQuery(""));
-            dispatch(setSearchedProductList([]));
-          }}
-          key={product.id}
-        >
-          <div className="p-2 aspect-square mb-2 border border-[#80808021]">
-            <ProgressiveImg
-              src={product?.yellowGoldThumbnailImage}
-              alt={product?.productName}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <p className="text-sm font-medium truncate">{product?.productName}</p>
-          <p className="text-xs text-gray-500">${product?.baseSellingPrice}</p>
-        </Link>
-      ))}
-    </div>
-  );
-});
-
-SimpleProductGrid.displayName = "SimpleProductGrid";
 
 // Improved debounce hook with proper cleanup
 const useDebounce = (value, delay) => {
@@ -375,7 +344,7 @@ export default function SearchBar({
       </div>
 
       {/* Mobile Search */}
-      {isMobile && (
+      {/* {isMobile && (
         <div className="lg:hidden  border-t border-gray-200 shadow-[0_5px_5px_0_rgba(0,0,0,0.21)]">
           <form onSubmit={handleSearchSubmit} className="flex flex-col">
             <div className="flex items-center container relative h-7  my-4">
@@ -416,7 +385,7 @@ export default function SearchBar({
             {renderMobileSearchResults()}
           </form>
         </div>
-      )}
+      )} */}
 
       {/* Desktop Search Results */}
       {isShowingResults && !isMobile && (
@@ -425,7 +394,7 @@ export default function SearchBar({
           className={`${
             lastScrollY > 50
               ? "top-[54px] h-[calc(100vh-54px)]"
-              : "top-[162px] h-[calc(100vh-162px)] opacity-0 translate-y-6 animate-enter"
+              : "top-[140px] h-[calc(100vh-140px)] opacity-0 translate-y-6 animate-enter"
           }
           fixed left-0 w-full bg-white shadow-lg overflow-y-auto z-40
           hidden lg:block
@@ -460,7 +429,7 @@ export default function SearchBar({
                 <div className="text-center mt-6">
                   <HeaderLinkButton
                     onClick={handleSearchSubmit}
-                    className="capitalize hover:underline"
+                    className="capitalize underline"
                   >
                     See {searchedProductList.length} more results for :{" "}
                     {searchQuery}

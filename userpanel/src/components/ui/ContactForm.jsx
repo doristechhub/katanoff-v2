@@ -79,7 +79,7 @@ const ContactForm = () => {
       <div className="container">
         <div className="max-w-3xl mx-auto">
           <div className="text-center text-baseblack mt-12 md:mt-12 lg:mt-12 2xl:mt-24">
-            <p className="text-base sm:text-lg font-Figtree text-baseblack">
+            <p className="text-base sm:text-lg font-Poppins text-baseblack">
               Our customer service agents are available every day 9:00am to
               10:00pm ET.
               <br />
@@ -88,7 +88,7 @@ const ContactForm = () => {
           </div>
           <div className="flex flex-col md:flex-row justify-center items-center xl:gap-4 gap-2 text-baseblack font-normal py-12">
             <div className="px-2 py-4 flex-1 text-center md:text-left">
-              <h3 className="text-lg lg:text-xl 2xl:text-2xl font-castoro mb-2">
+              <h3 className="text-lg lg:text-xl 2xl:text-2xl font-gelasio mb-2">
                 Call:
               </h3>
               <p>{display}</p>
@@ -99,7 +99,7 @@ const ContactForm = () => {
             </div>
 
             <div className="px-2 py-4 flex-1 text-center md:text-left">
-              <h3 className="text-lg lg:text-xl 2xl:text-2xl font-castoro mb-2">
+              <h3 className="text-lg lg:text-xl 2xl:text-2xl font-gelasio mb-2">
                 Email:
               </h3>
               <p>{companyEmail}</p>
@@ -110,14 +110,14 @@ const ContactForm = () => {
             </div>
 
             <div className="px-6 py-4 flex-1 text-center md:text-left">
-              <h3 className="text-lg lg:text-xl 2xl:text-2xl font-castoro mb-2">
+              <h3 className="text-lg lg:text-xl 2xl:text-2xl font-gelasio mb-2">
                 Address:
               </h3>
               <p>{companyAddress}</p>
             </div>
           </div>
           <form onSubmit={handleSubmit}>
-            <h3 className="font-castoro font-normal text-[40px] xxs:mt-12 leading-[46px] tracking-[0.8px] text-left text-baseblack mb-4">
+            <h3 className="font-gelasio font-normal text-[40px] xxs:mt-12 leading-[46px] tracking-[0.8px] text-left text-baseblack mb-4">
               Send a message
             </h3>
             <div>
@@ -134,11 +134,10 @@ const ContactForm = () => {
                     name="firstName"
                     id="firstName"
                     placeholder="First name"
-                    className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${
-                      touched?.lastName && errors?.lastName
-                        ? "border-red-500 border"
-                        : ""
-                    }`}
+                    className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${touched?.lastName && errors?.lastName
+                      ? "border-red-500 border"
+                      : ""
+                      }`}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     value={values?.firstName}
@@ -160,11 +159,10 @@ const ContactForm = () => {
                     name="lastName"
                     id="lastName"
                     placeholder="Last name"
-                    className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${
-                      touched?.lastName && errors?.lastName
-                        ? "border-red-500 border"
-                        : ""
-                    }`}
+                    className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${touched?.lastName && errors?.lastName
+                      ? "border-red-500 border"
+                      : ""
+                      }`}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     value={values.lastName}
@@ -187,11 +185,10 @@ const ContactForm = () => {
                     name="email"
                     id="email"
                     placeholder="Your Email"
-                    className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${
-                      touched?.email && errors?.email
-                        ? "border-red-500 border"
-                        : ""
-                    }`}
+                    className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${touched?.email && errors?.email
+                      ? "border-red-500 border"
+                      : ""
+                      }`}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     value={values.email}
@@ -213,11 +210,10 @@ const ContactForm = () => {
                     name="mobile"
                     id="mobile"
                     placeholder="Phone number"
-                    className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${
-                      touched?.mobile && errors?.mobile
-                        ? "border-red-500 border"
-                        : ""
-                    }`}
+                    className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${touched?.mobile && errors?.mobile
+                      ? "border-red-500 border"
+                      : ""
+                      }`}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     value={values.mobile}
@@ -240,11 +236,10 @@ const ContactForm = () => {
                   id="requirement"
                   placeholder="Type your Message"
                   rows={4}
-                  className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${
-                    touched.requirement && errors.requirement
-                      ? "border-red-500 border"
-                      : ""
-                  }`}
+                  className={`custom-input 2xl:p-4 bg-transparent border border-grayborder rounded ${touched.requirement && errors.requirement
+                    ? "border-red-500 border"
+                    : ""
+                    }`}
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.requirement}
@@ -269,7 +264,7 @@ const ContactForm = () => {
                 </LoadingPrimaryButton>
               </div>
               {contactMessage?.message &&
-              contactMessage?.type != messageType.SUCCESS ? (
+                contactMessage?.type != messageType.SUCCESS ? (
                 <ErrorMessage message={contactMessage?.message} />
               ) : null}
               {contactMessage?.type == messageType?.SUCCESS ? (

@@ -26,7 +26,10 @@ import { setAdminWisePermisisons } from '../../store/slices/adminSlice';
 // ----------------------------------------------------------------------
 
 const validationSchema = Yup.object().shape({
-  email: Yup.string().email('Invalid email address').required('Email is required'),
+  email: Yup.string()
+    .transform((value) => value?.trim())
+    .email('Invalid email address')
+    .required('Email is required'),
   password: Yup.string()
     .min(8, 'Password must be at least 8 characters long')
     .required('Password is required'),
@@ -68,7 +71,7 @@ export default function LoginView() {
     async (fields, { setStatus }) => {
       setStatus();
       const payload = {
-        email: fields.email,
+        email: fields.email?.trim(),
         password: fields.password,
       };
       if (!abortControllerRef.current) {

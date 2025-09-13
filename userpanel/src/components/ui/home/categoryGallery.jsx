@@ -14,7 +14,7 @@ import { ProgressiveImg } from "@/components/dynamiComponents";
 export default function CategoryGallery({ categories = [] }) {
   return (
     <section>
-      <h2 className="text-center text-2xl md:text-2xl xl:text-3xl 2xl:text-4xl font-semibold uppercase font-castoro">
+      <h2 className="text-center text-2xl md:text-2xl xl:text-3xl 2xl:text-4xl font-semibold uppercase font-gelasio">
         OUR SELECTIONS
       </h2>
 
@@ -34,20 +34,20 @@ export default function CategoryGallery({ categories = [] }) {
           }}
           spaceBetween={20}
           breakpoints={{
-            0: { slidesPerView: 1 },
-            768: { slidesPerView: 2 },
+            0: { slidesPerView: 2 },
+            768: { slidesPerView: 3 },
             1024: { slidesPerView: 3 },
             1240: { slidesPerView: 4 },
           }}
-          className="!mx-8"
+        // className="!mx-8"
         >
           {categories.map((category, index) => {
             const href =
               category.title === "Bangle"
                 ? "/collections/categories/Jewelry"
                 : `/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-                    category.title
-                  )}`;
+                  category.title
+                )}`;
 
             return (
               <SwiperSlide key={`category-${index}`}>
@@ -61,7 +61,7 @@ export default function CategoryGallery({ categories = [] }) {
                         className="w-full h-full"
                       />
                     </div>
-                    <p className="uppercase text-sm lg:text-base 6xl:text-lg font-medium text-baseblack">
+                    <p className="uppercase text-[10px] xss:text-[12px] md:text-base lg:text-base 6xl:text-lg font-medium text-baseblack text-center">
                       {category.title}
                     </p>
                   </div>

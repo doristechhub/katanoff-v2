@@ -75,6 +75,106 @@
   font-display: swap;
 }
 
+
+@font-face {
+  font-family: "Gelasio";
+  src: url("/fonts/Gelasio/Gelasio-Italic.ttf") format("woff2"),
+    url("/fonts/Gelasio/Gelasio-Italic.ttf") format("woff");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gelasio";
+  src: url("/fonts/Gelasio/Gelasio-Regular.ttf") format("woff2"),
+    url("/fonts/Gelasio/Gelasio-Regular.ttf") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gelasio";
+  src: url("/fonts/Gelasio/Gelasio-Medium.ttf") format("woff2"),
+    url("/fonts/Gelasio/Gelasio-Medium.ttf") format("woff");
+  font-weight: 500;
+  font-style: medium;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gelasio";
+  src: url("/fonts/Gelasio/Gelasio-SemiBold.ttf") format("woff2"),
+    url("/fonts/Gelasio/Gelasio-SemiBold.ttf") format("woff");
+  font-weight: 600;
+  font-style: semi-bold;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gelasio";
+  src: url("/fonts/Gelasio/Gelasio-Bold.ttf") format("woff2"),
+    url("/fonts/Gelasio/Gelasio-Bold.ttf") format("woff");
+  font-weight: 700;
+  font-style: bold;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins/Poppins-Italic.ttf") format("woff2"),
+    url("/fonts/Poppins/Poppins-Italic.ttf") format("woff");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins/Poppins-Regular.ttf") format("woff2"),
+    url("/fonts/Poppins/Poppins-Regular.ttf") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins/Poppins-Medium.ttf") format("woff2"),
+    url("/fonts/Poppins/Poppins-Medium.ttf") format("woff");
+  font-weight: 500;
+  font-style: medium;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins/Poppins-SemiBold.ttf") format("woff2"),
+    url("/fonts/Poppins/Poppins-SemiBold.ttf") format("woff");
+  font-weight: 600;
+  font-style: semi-bold;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins/Poppins-Bold.ttf") format("woff2"),
+    url("/fonts/Poppins/Poppins-Bold.ttf") format("woff");
+  font-weight: 700;
+  font-style: bold;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins/Poppins-Black.ttf") format("woff2"),
+    url("/fonts/Poppins/Poppins-Black.ttf") format("woff");
+  font-weight: 900;
+  font-style: black;
+  font-display: swap;
+}
+
 :root {
   --primary: #202a4e;
   --offwhite: #fafaf8;
@@ -110,7 +210,7 @@ body {
   font-size: 16px;
   color: var(--baseblack);
   background-color: var(--offwhite);
-  font-family: "Figtree", sans-serif;
+  font-family: "Poppins", sans-serif;
   height: 100%;
   scroll-behavior: smooth;
 }
@@ -353,8 +453,8 @@ ul {
   margin-left: 0;
 }
 
-.no-gutters > .col,
-.no-gutters > [class*="col-"] {
+.no-gutters>.col,
+.no-gutters>[class*="col-"] {
   padding-right: 0;
   padding-left: 0;
 }
@@ -425,6 +525,7 @@ ul {
 }
 
 @media (max-width: 767px) {
+
   .container,
   .container1400,
   .container1300 {
@@ -499,12 +600,12 @@ ul {
     transform: scale(1) !important;
   }
 
-  .custom-slick-slider .slick-center + .slick-slide,
+  .custom-slick-slider .slick-center+.slick-slide,
   .custom-slick-slider .slick-active:not(.slick-center):not(.slick-cloned) {
     transform: scale(0.5) !important;
   }
 
-  .custom-slick-slider .slick-center + .slick-slide + .slick-slide {
+  .custom-slick-slider .slick-center+.slick-slide+.slick-slide {
     transform: scale(0.4) !important;
   }
 }

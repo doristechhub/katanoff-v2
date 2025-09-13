@@ -13,9 +13,9 @@ const RingSettingCenterStone = () => {
           {/* Left Content */}
           <CommonSectionContent
             image={ringSetting}
-            title="Ring Setting"
-            description="Elevate your love story with our exquisite collection of engagement ring designs"
-            buttonText="Start With Setting"
+            title="Choose Your Setting"
+            description="Design your perfect ring starting with a setting crafted to reflect your style."
+            buttonText="Explore Settings"
             href="/customize/select-diamond"
           />
 
@@ -37,9 +37,9 @@ const RingSettingCenterStone = () => {
           {/* Right Content */}
           <CommonSectionContent
             image={centerStone}
-            title="Center Stone"
-            description="Explore our stunning diamond collection and discover the brilliance in every choice."
-            buttonText="Start With Stone"
+            title="Select Your Diamond"
+            description="Discover our curated diamond selection and find the centerpiece that tells your story."
+            buttonText="Explore Diamonds"
             href="/customize/select-diamond"
           />
         </div>
@@ -66,17 +66,17 @@ const RingSettingCenterStone = () => {
             altAttr="Center Stone"
             className=""
           />
-          <h2 className="text-3xl sm:text-4xl font-semibold font-castoro uppercase text-black w-[80%]">
-            Design Your Ring
+          <h2 className="text-3xl sm:text-4xl font-semibold font-gelasio uppercase text-black w-[80%]">
+            Personalize Your Ring
           </h2>
-          <p>Build Your Ring in 3 Steps</p>
+          <p>Create a ring that tells your story — crafted in 3 simple steps.</p>
           <div className="flex justify-center">
             <PrimaryLinkButton
               variant="blackHover"
               className="!uppercase !rounded-none"
               href={"/customize/select-diamond"}
             >
-              start With Diamond
+              Start Designing
             </PrimaryLinkButton>
           </div>
           <div className="h-[400px] xss:h-[500px] xs:h-[600px] w-full flex justify-center">

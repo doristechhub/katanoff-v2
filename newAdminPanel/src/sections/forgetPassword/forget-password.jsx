@@ -24,7 +24,10 @@ import { adminService, toast } from '../../_services';
 // ----------------------------------------------------------------------
 
 const validationSchema = Yup.object().shape({
-  email: Yup.string().email('Invalid email address').required('Email is required'),
+  email: Yup.string()
+    .transform((value) => value?.trim())
+    .email('Invalid email address')
+    .required('Email is required'),
   password: Yup.string()
     .min(8, 'Password must be at least 8 characters long')
     .required('Password is required'),

@@ -8,6 +8,7 @@ import {
   ProfileDropdown,
   NavigationHeader,
   SearchBar,
+  MobileSearchBar,
 } from "@/components/dynamiComponents";
 import {
   setIsMenuOpen,
@@ -126,11 +127,6 @@ export default function Header() {
 
   return (
     <>
-      <div className="bg-primary py-2 text-white text-xs flex justify-between items-center px-6 lg:px-8">
-        <div></div>
-        <p className="font-castoro">FREE Shipping and FREE Returns.</p>
-        <CustomImg srcAttr={flagUs} className="rounded-full w-6" />
-      </div>
       <header
         className={`w-full z-50 transition-all duration-700 ease-in-out 
     ${
@@ -213,8 +209,9 @@ export default function Header() {
               className={"hidden lg:block"}
               uniqueId={"desktop-header-profile"}
             />
-            <div className="pe-3.5 lg:pe-0 inline-flex">
+            <div className="pe-3.5 lg:pe-0  flex gap-4">
               {!hideCartPopup ? <CartPopup /> : <CartIconInCheckout />}
+              <MobileSearchBar mobileSearchInputRef={mobileSearchInputRef} />
             </div>
           </div>
         </div>

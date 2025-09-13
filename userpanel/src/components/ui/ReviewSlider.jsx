@@ -26,7 +26,7 @@ export default function ReviewSlider({ reviews = [], totalCount = 0 }) {
         <h3 className="text-base md:text-lg font-bold text-[#BE944B] uppercase">
           Testimonials
         </h3>
-        <h2 className="text-2xl md:text-3xl lg:text-4xl italic font-medium mt-3 font-castoro">
+        <h2 className="text-2xl md:text-3xl lg:text-4xl italic font-medium mt-3 font-gelasio">
           WHAT CLIENTS SAY ABOUT OUR WORK
         </h2>
         <p className="mt-3 text-sm text-gray-500">Our 100+ People Trust Us</p>
@@ -90,9 +90,8 @@ export default function ReviewSlider({ reviews = [], totalCount = 0 }) {
               swiperRef.current?.slideTo(i * perPage);
               setCurrentPage(i);
             }}
-            className={`w-3 h-3 rounded-full ${
-              currentPage === i ? "bg-primary" : "bg-gray-300"
-            } transition-all duration-300`}
+            className={`w-3 h-3 rounded-full ${currentPage === i ? "bg-primary" : "bg-gray-300"
+              } transition-all duration-300`}
           />
         ))}
       </div>

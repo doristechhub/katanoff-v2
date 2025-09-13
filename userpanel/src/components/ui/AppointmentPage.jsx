@@ -19,7 +19,7 @@ export default function AppointmentPage() {
       </div>
       <div className="pt-10">
         <section className="container  p-8 md:p-8 lg:p-12 2xl:p-20">
-          <div className="space-y-10 max-w-3xl mx-auto font-Figtree">
+          <div className="space-y-10 max-w-3xl mx-auto font-Poppins">
             <div className="flex items-start gap-4">
               <div className="flex items-center justify-center px-4 py-2 rounded-md bg-primary text-white font-medium">
                 1

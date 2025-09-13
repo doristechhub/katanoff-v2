@@ -190,7 +190,7 @@ export default function ProductCard({
         >
           {title}
         </Link>
-        <div className="flex items-center gap-2 font-castoro text-base font-bold leading-4 pb-[10px]">
+        <div className="flex items-center gap-2 font-gelasio text-base font-bold leading-4 pb-[10px]">
           <p>${price}</p>
           {!isDiamondSettingPage && discount ? (
             <p className="text-gray-500 line-through">${basePrice}</p>

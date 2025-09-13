@@ -35,7 +35,7 @@ export default function HomePagePopupWithLogin() {
           <CustomImg src={HomePopupLoginImg} alt="Offer Rings" />
         </div>
         <div className="w-full px-6 flex flex-col text-center justify-center pt-6 pb-6 sm:pb-10 xl:pb-12">
-          <h2 className="text-xl md:text-3xl xl:text-4xl font-semibold italic font-castoro text-center text-[#202A4E] mb-2 md:mb-3 uppercase">
+          <h2 className="text-xl md:text-3xl xl:text-4xl font-semibold italic font-gelasio text-center text-[#202A4E] mb-2 md:mb-3 uppercase">
             You’ve unlocked 10% OFF
           </h2>
           <p className="text-base  md:text-xl 2xl:text-2xl text-[#202A4E] font-semibold border border-[#B89A89] rounded-md w-fit mx-auto bg-[#F3E4DB] md:px-12 px-6 py-2 md:py-4">

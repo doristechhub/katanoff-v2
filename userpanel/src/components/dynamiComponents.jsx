@@ -311,6 +311,13 @@ export const SearchBar = dynamic(() => import("./ui/SearchBar.jsx"), {
   ssr: false,
 });
 
+export const MobileSearchBar = dynamic(
+  () => import("./ui/MobileSearchBar.jsx"),
+  {
+    ssr: false,
+  }
+);
+
 export const ProductDetailPageImage = dynamic(
   () => import("./ui/ProductDetailPageImage.jsx"),
   {
@@ -345,9 +352,7 @@ export const ProfileDetailPage = dynamic(
 
 export const CenterFocusSlider = dynamic(
   () => import("./ui/CenterFocusSlider.jsx"),
-  {
-    ssr: false,
-  }
+  { ssr: false }
 );
 
 export const RingSettingCenterStone = dynamic(
@@ -439,6 +444,13 @@ export const Spinner = dynamic(() => import("./ui/spinner.jsx"), {
 
 export const NetworkLostOverlay = dynamic(
   () => import("./ui/NetworkLostOverlay.jsx"),
+  {
+    ssr: false,
+  }
+);
+
+export const SimpleProductGrid = dynamic(
+  () => import("./SimpleProductGrid.jsx"),
   {
     ssr: false,
   }

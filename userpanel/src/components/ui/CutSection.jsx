@@ -49,7 +49,7 @@ const CutSection = () => {
       <div className="text-center mb-16 max-w-6xl mx-auto">
         <div className="flex items-center justify-center mb-8">
           <div className="border-t border-gray-200 w-1/5 sm:w-1/4"></div>
-          <h2 className="text-center text-2xl xss:text-3xl sm:text-4xl font-castoro text-baseblack px-6 sm:px-12">
+          <h2 className="text-center text-2xl xss:text-3xl sm:text-4xl font-gelasio text-baseblack px-6 sm:px-12">
             Cut
           </h2>
           <div className="border-t border-gray-200 w-1/5 sm:w-1/4"></div>
@@ -82,12 +82,11 @@ const CutSection = () => {
               className={`
           aspect-[6/4] sm:aspect-[5/4] md:aspect-square w-full flex flex-col items-center justify-center cursor-pointer
           transition-all duration-300 ease-in-out transform
-          font-castoro font-medium text-sm xss:text-base sm:text-lg md:text-[17px] text-center min-h-[60px] border border-primary
-          ${
-            selectedCut === grade
-              ? "bg-primary text-white z-20"
-              : "text-black  hover:z-10 hover:bg-primary hover:text-white"
-          }
+          font-gelasio font-medium text-sm xss:text-base sm:text-lg md:text-[17px] text-center min-h-[60px] border border-primary
+          ${selectedCut === grade
+                  ? "bg-primary text-white z-20"
+                  : "text-black  hover:z-10 hover:bg-primary hover:text-white"
+                }
           ${index !== cutGrades.length - 1 ? "border-r" : ""}
           ${index >= 4 ? "border-t" : ""}
         `}
@@ -101,7 +100,7 @@ const CutSection = () => {
       <div className="w-full flex justify-center">
         <div className="w-full max-w-[1100px] flex flex-col md:flex-row gap-10 md:gap-16 lg:gap-20 items-start md:items-center px-2 xss:px-4 sm:px-6">
           <div className="w-full md:w-1/2 sm:py-4 md:py-6 lg:py-10">
-            <h3 className="text-xl sm:text-2xl md:text-2xl lg:text-3xl font-castoro mb-4">
+            <h3 className="text-xl sm:text-2xl md:text-2xl lg:text-3xl font-gelasio mb-4">
               {cutInfo.title}
             </h3>
             <p className="text-baseblack text-sm xss:text-base md:text-[17px] leading-relaxed font-medium">

@@ -47,6 +47,7 @@ export const HeaderLinkButton = ({
   href = "#",
   className = "",
   activeItem,
+  variant = "",
   ...rest
 }) => {
   const pathname = usePathname();
@@ -54,12 +55,15 @@ export const HeaderLinkButton = ({
     pathname === href || activeItem
       ? "text-primary font-semibold"
       : "!font-normal";
-
+  const variantClass =
+    variant === "primaryHover"
+      ? "capitalize !text-white mt-2 !py-2 hover:!text-primary bg-primary hover:!bg-white border hover:border-primary transition-all duration-300"
+      : "";
   return (
     <Link
       href={href}
       rel="noopener noreferrer"
-      className={`uppercase text-[15px] lg:text-[14px] 2xl:text-base leading-[1em] font-extralight text-[#2B2B2B] px-6  2xl:px-8 hover:text-primary transition-all duration-300 ${isActive} ${className}`}
+      className={`uppercase text-[15px] lg:text-[14px] 2xl:text-base leading-[1em] font-extralight text-[#2B2B2B] px-6  2xl:px-8 hover:text-primary transition-all duration-300 ${isActive} ${className} ${variantClass}`}
       {...rest}
     >
       {rest.children}
@@ -124,6 +128,10 @@ export const PrimaryLinkButton = ({
       ? "!bg-white !h-12 lg:!h-[2.8rem] 2xl:!h-[3.5rem] font-semibold !tracking-wider !text-baseblack !border !border-baseblack px-6 py-2 !rounded-[8px] hover:!bg-black hover:!text-white"
       : variant === "transparentHover"
       ? "!bg-transparent py-3 px-4 font-semibold !tracking-wider !text-white !border !border-white !rounded-[4px] hover:!bg-white hover:!text-black"
+      : variant === "offWhiteHover"
+      ? "!bg-[#FFFFFF99] py-3 px-4 font-semibold rounded-none border-none !tracking-wider !text-primary hover:!bg-white hover:!text-primary !h-9 xs:h-12 lg:!h-[3rem] 4xl:!min-w-[140px] lg:!px-1"
+      : variant === "primaryHover"
+      ? " py-3 px-4 font-semibold !tracking-wider !text-white hover:!text-primary bg-primary hover:!bg-white border hover:border-primary"
       : containedPrimaryBtn;
   return (
     <LinkButton
