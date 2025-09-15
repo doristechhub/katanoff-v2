@@ -54,7 +54,7 @@ export async function generateMetadata({ params }) {
     if ([CATEGORIES, SUB_CATEGORIES].includes(collectionType)) {
       metaTitle = `Shop ${collectionTitleWithSpace} | Lab Grown Diamond Jewelry | Katanoff`;
       metaDesc = `Explore ${collectionTitleWithSpace} at Katanoff – luxury lab grown diamond jewelry crafted for everyday elegance, special occasions, and lasting beauty.`;
-      metaKeyword = `Shop ${collectionTitleWithSpace}, Buy ${collectionTitleWithSpace}, Lab Grown Diamond ${collectionTitleWithSpace}, Ethical Diamond Jewelry, Katanoff`;
+      metaKeyword = `Shop ${collectionTitleWithSpace}, Buy ${collectionTitleWithSpace}, Lab Grown Diamond ${collectionTitleWithSpace}, Ethical Diamond Jewelry, Katanoff, Diamond Jewelry in New York City, New York City, US, United States, Shop Diamond ${collectionTitleWithSpace}, Buy Diamond ${collectionTitleWithSpace}`;
     } else if (collectionType === PRODUCT_TYPES) {
       if (parentCategory === "Men’s Jewelry") {
         metaTitle = `Shop Men's ${collectionTitleWithSpace} | Lab Grown Diamond Jewelry | Katanoff`;
@@ -74,9 +74,9 @@ export async function generateMetadata({ params }) {
         metaKeyword = `${collectionTitleWithSpace} ${parentCategory}, diamond ${collectionTitleWithSpace} ${parentCategory}, lab grown ${collectionTitleWithSpace} ${parentCategory}, sustainable ${collectionTitleWithSpace} jewelry`;
       }
     } else if ([COLLECTION, GENERAL].includes(collectionType)) {
-      metaTitle = `${collectionTitleWithSpace} | Lab Grown Diamond Jewelry | Katanoff`;
+      metaTitle = `${collectionTitleWithSpace} | Lab Grown Diamond Jewelry Deals | Katanoff`;
       metaDesc = `Discover ${collectionTitleWithSpace} collection at Katanoff. Featuring lab grown diamond jewelry with timeless design, expert craftsmanship, and exceptional value.`;
-      metaKeyword = `${collectionTitleWithSpace}, Lab Grown Diamond Jewelry, Fine Jewelry, Katanoff Jewelry`;
+      metaKeyword = `${collectionTitleWithSpace}, Lab Grown Diamond Jewelry, Fine Jewelry, Katanoff Jewelry, Diamond Jewelry in New York City, New York City, US, United States,`;
     }
 
     /** ----------- BANNER HANDLING ----------- **/

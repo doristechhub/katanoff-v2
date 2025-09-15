@@ -92,13 +92,12 @@ export async function generateMetadata({ params }) {
     const canonicalUrl = `${WebsiteUrl}/${productNameWithUnderscore}${
       searchParams.toString() ? `?${searchParams.toString()}` : ""
     }`;
-
     const customMeta = {
       title: `${productDetail.productName} with ${diamondShape} Diamonds | Katanoff Fine Jewelry`,
       description:
         `Shop ${productDetail.productName} featuring brilliant ${diamondShape} diamonds at Katanoff. Elegant craftsmanship and timeless fine jewelry.` ||
         "Explore the latest jewelry designs with Katanoff. High-quality, beautifully crafted pendants and more.",
-      keywords: `${productDetail.productName}, ${diamondShape} Diamond ${subCategory}, Diamond Jewelry, Fine Jewelry, Katanoff`,
+      keywords: `${productDetail.productName}, ${diamondShape} Diamond ${subCategory}, Diamond Jewelry, Fine Jewelry, Katanoff, Diamond Jewelry in New York City, New York City, US, United States, Shop ${productDetail.productTypeNames[0].title}, Buy Diamond ${productDetail.productTypeNames[0].title}`,
       openGraphImage: ogImage,
       url: canonicalUrl,
     };
