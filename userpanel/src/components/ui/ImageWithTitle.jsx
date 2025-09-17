@@ -15,7 +15,8 @@ const ImageWithTitle = ({ imageSrc }) => {
         <div className="w-full mt-4 mb-4 sm:mb-2 md:mb-4 xl:mb-6 2xl:mb-8">
           <img
             src={imageSrc}
-            alt="Carat"
+            altAttr="lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff"
+            titleAttr="Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York"
             className="w-full h-auto object-cover block"
           />
         </div>

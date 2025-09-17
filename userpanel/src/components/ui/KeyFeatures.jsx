@@ -9,42 +9,50 @@ import freeResizing from "@/assets/icons/freeResizing.svg";
 import lifeWarranty from "@/assets/icons/lifeWarranty.svg";
 import elegantPacking from "@/assets/icons/elegantPacking.svg";
 import competitivePricing from "@/assets/icons/competitivePricing.svg";
+import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
+import { PAGE_CONSTANTS } from "@/_helper";
 
 const features = [
   {
     icon: thirtyDaysReturn,
-    altAttr: "",
-    titleAttr: "",
+    altAttr:
+      "lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff",
+    titleAttr: "Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York",
     title: "15 Days Free Returns",
   },
   {
     icon: elegantPacking,
-    altAttr: "",
-    titleAttr: "",
+    altAttr:
+      "lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff",
+    titleAttr: "Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York",
     title: "Elegant Packing",
   },
   {
     icon: freeResizing,
-    altAttr: "",
-    titleAttr: "",
+    altAttr:
+      "lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff",
+    titleAttr: "Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York",
     title: "Free Resizing",
   },
   {
     icon: competitivePricing,
-    altAttr: "",
-    titleAttr: "",
+    altAttr:
+      "lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff",
+    titleAttr: "Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York",
     title: "Competitive Pricing",
   },
   {
     icon: freeShipping,
-    altAttr: "",
-    titleAttr: "",
+    altAttr:
+      "lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff",
+    titleAttr: "Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York",
     title: "Free Shipping",
   },
   {
     icon: lifeWarranty,
-    altAttr: "",
-    titleAttr: "",
+    altAttr:
+      "lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff",
+    titleAttr: "Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York",
     title: "Lifetime Warranty",
   },
 ];
@@ -59,7 +67,8 @@ export default function KeyFeatures() {
         >
           <CustomImg
             srcAttr={feature.icon}
-            altAttr={feature.title}
+            altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].alt}
+            titleAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].title}
             className="w-8 h-8 md:w-12 md:h-12 mb-4"
           />
           <h3 className="text-sm lg:text-base xl:text-lg font-light text-baseblack">

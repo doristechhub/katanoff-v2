@@ -27,7 +27,12 @@ const FourCsSection = () => {
               and sparkle.
             </p>
           </div>
-          <CustomImg srcAttr={frame1} className="order-1 md:order-1" />
+          <CustomImg
+            srcAttr={frame1}
+            altAttr="lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff"
+            titleAttr="Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York"
+            className="order-1 md:order-1"
+          />
 
           {/* Clarity Section */}
           <div className="order-1 md:order-2 text-center md:text-left">
@@ -39,7 +44,12 @@ const FourCsSection = () => {
               clarity and rarity.
             </p>
           </div>
-          <CustomImg srcAttr={frame3} className="order-2 md:order-2" />
+          <CustomImg
+            srcAttr={frame3}
+            altAttr="lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff"
+            titleAttr="Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York"
+            className="order-2 md:order-2"
+          />
         </div>
 
         {/* Second Group */}
@@ -54,7 +64,12 @@ const FourCsSection = () => {
               valuable and radiant.
             </p>
           </div>
-          <CustomImg srcAttr={frame2} className="order-1 md:order-1" />
+          <CustomImg
+            srcAttr={frame2}
+            altAttr="lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff"
+            titleAttr="Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York"
+            className="order-1 md:order-1"
+          />
 
           {/* Carat Section */}
           <div className="order-1 md:order-2 text-center md:text-left">
@@ -66,7 +81,16 @@ const FourCsSection = () => {
               role in value.
             </p>
           </div>
-          <CustomImg srcAttr={frame4} className="order-2 lg:order-2" />
+          <CustomImg
+            srcAttr={frame4}
+            altAttr={
+              "lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff"
+            }
+            titleAttr={
+              "Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York"
+            }
+            className="order-2 lg:order-2"
+          />
         </div>
       </div>
     </section>

@@ -4,6 +4,8 @@ import centerStoneVideo from "@/assets/images/home/center-stone-video.gif";
 import centerStoneCombine from "@/assets/images/home/center-stone-combine.webp";
 import { CustomImg } from "../dynamiComponents";
 import { PrimaryLinkButton } from "./button";
+import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
+import { PAGE_CONSTANTS } from "@/_helper";
 
 const RingSettingCenterStone = () => {
   return (
@@ -13,6 +15,8 @@ const RingSettingCenterStone = () => {
           {/* Left Content */}
           <CommonSectionContent
             image={ringSetting}
+            altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].alt}
+            titleAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].title}
             title="Choose Your Setting"
             description="Design your perfect ring starting with a setting crafted to reflect your style."
             buttonText="Explore Settings"
@@ -37,6 +41,8 @@ const RingSettingCenterStone = () => {
           {/* Right Content */}
           <CommonSectionContent
             image={centerStone}
+            altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].alt}
+            titleAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].title}
             title="Select Your Diamond"
             description="Discover our curated diamond selection and find the centerpiece that tells your story."
             buttonText="Explore Diamonds"
@@ -98,6 +104,8 @@ export default RingSettingCenterStone;
 
 const CommonSectionContent = ({
   image,
+  altAttr,
+  titleAttr,
   title,
   description,
   buttonText,
@@ -106,7 +114,7 @@ const CommonSectionContent = ({
   return (
     <>
       <div className="flex flex-col items-center justify-center gap-4 2xl:gap-6">
-        <CustomImg srcAttr={image} altAttr="Center Stone" className="" />
+        <CustomImg srcAttr={image} altAttr={altAttr} titleAttr={titleAttr} />
         <div className="flex flex-col gap-4 justify-center items-center text-center pt-2 xl:pt-4">
           <p className="text-2xl lg:text-3xl font-bold uppercase text-black">
             {title}

@@ -17,14 +17,30 @@ import {
   setSelectedSubCategories,
   setVisibleItemCount,
 } from "@/store/slices/productSlice";
-import { PRODUCT_TYPE_KEY, SETTING_STYLE_KEY, SUB_CATEGORIES_KEY } from "@/_helper";
+import {
+  PRODUCT_TYPE_KEY,
+  SETTING_STYLE_KEY,
+  SUB_CATEGORIES_KEY,
+} from "@/_helper";
 import { ITEMS_PER_PAGE } from "@/_utils/common";
 
 const FILTER_STATE_MAP = {
-  [SETTING_STYLE_KEY]: { stateKey: "selectedSettingStyles", action: setSelectedSettingStyles },
-  [PRODUCT_TYPE_KEY]: { stateKey: "selectedProductTypes", action: setSelectedProductTypes },
-  [SUB_CATEGORIES_KEY]: { stateKey: "selectedSubCategories", action: setSelectedSubCategories },
-  default: { stateKey: "selectedSettingStyles", action: setSelectedSettingStyles },
+  [SETTING_STYLE_KEY]: {
+    stateKey: "selectedSettingStyles",
+    action: setSelectedSettingStyles,
+  },
+  [PRODUCT_TYPE_KEY]: {
+    stateKey: "selectedProductTypes",
+    action: setSelectedProductTypes,
+  },
+  [SUB_CATEGORIES_KEY]: {
+    stateKey: "selectedSubCategories",
+    action: setSelectedSubCategories,
+  },
+  default: {
+    stateKey: "selectedSettingStyles",
+    action: setSelectedSettingStyles,
+  },
 };
 
 export default function SettingStyleCategorySwiper({
@@ -41,7 +57,8 @@ export default function SettingStyleCategorySwiper({
   const [showNavigationButtons, setShowNavigationButtons] = useState(false);
 
   // Get stateKey and action dynamically
-  const { stateKey, action } = FILTER_STATE_MAP[filterType] || FILTER_STATE_MAP.default;
+  const { stateKey, action } =
+    FILTER_STATE_MAP[filterType] || FILTER_STATE_MAP.default;
   const selectedFilters = useSelector(({ product }) => product[stateKey]) || [];
 
   const handleSwiperInit = (swiper) => {
@@ -76,7 +93,9 @@ export default function SettingStyleCategorySwiper({
 
     let updatedFilters;
     if (selectedFilters?.some((filter) => filter?.value === value)) {
-      updatedFilters = selectedFilters.filter((filter) => filter.value !== value);
+      updatedFilters = selectedFilters.filter(
+        (filter) => filter.value !== value
+      );
     } else {
       updatedFilters = [...selectedFilters, { value, title }];
     }
@@ -93,17 +112,24 @@ export default function SettingStyleCategorySwiper({
         >
           {Array.from({ length: diamondColumnCount }).map((_, index) => (
             <div key={index} className="flex flex-col items-center">
-              <SkeletonLoader width="max-w-[170px]" height="w-full aspect-square" />
+              <SkeletonLoader
+                width="max-w-[170px]"
+                height="w-full aspect-square"
+              />
               <SkeletonLoader width="w-[50%]" height="h-5" className="mt-2" />
             </div>
           ))}
         </div>
       ) : settingStyleCategories?.length ? (
-        <div className={`pt-10 md:pt-10 lg:pt-18 2xl:pt-20 mx-8 lg:mx-20 2xl:mx-28 ${className}`}>
+        <div
+          className={`pt-10 md:pt-10 lg:pt-18 2xl:pt-20 mx-8 lg:mx-20 2xl:mx-28 ${className}`}
+        >
           <div className="relative">
             {showNavigationButtons && (
               <button
-                className={`absolute top-1/2 left-0 -translate-x-8 lg:-translate-x-10 -translate-y-1/2 ${isBeginning ? "opacity-50 cursor-not-allowed" : ""}`}
+                className={`absolute top-1/2 left-0 -translate-x-8 lg:-translate-x-10 -translate-y-1/2 ${
+                  isBeginning ? "opacity-50 cursor-not-allowed" : ""
+                }`}
                 onClick={() => swiperRef.current?.slidePrev()}
                 disabled={isBeginning}
               >
@@ -112,7 +138,9 @@ export default function SettingStyleCategorySwiper({
             )}
             {showNavigationButtons && (
               <button
-                className={`absolute top-1/2 -right-8 lg:-right-10 -translate-y-1/2 ${isEnd ? "opacity-50 cursor-not-allowed" : ""}`}
+                className={`absolute top-1/2 -right-8 lg:-right-10 -translate-y-1/2 ${
+                  isEnd ? "opacity-50 cursor-not-allowed" : ""
+                }`}
                 onClick={() => swiperRef.current?.slideNext()}
                 disabled={isEnd}
               >
@@ -136,7 +164,9 @@ export default function SettingStyleCategorySwiper({
               onSlideChange={handleSlideChange}
             >
               {settingStyleCategories?.map((item) => {
-                const isSelected = selectedFilters?.some((filter) => filter?.value === item?.value);
+                const isSelected = selectedFilters?.some(
+                  (filter) => filter?.value === item?.value
+                );
                 return (
                   <SwiperSlide key={`filter-key-${item.value}`}>
                     <div
@@ -145,7 +175,9 @@ export default function SettingStyleCategorySwiper({
                     >
                       {item?.image?.trim() ? (
                         <ProgressiveImg
-                          className={`max-w-[170px] w-full aspect-square object-cover !transition-none border-2 border-transparent ${isSelected ? "border-2 !border-primary" : ""}`}
+                          className={`max-w-[170px] w-full aspect-square object-cover !transition-none border-2 border-transparent ${
+                            isSelected ? "border-2 !border-primary" : ""
+                          }`}
                           src={item?.image}
                           alt={item?.title}
                           title={item?.title}
@@ -157,10 +189,12 @@ export default function SettingStyleCategorySwiper({
                           srcAttr={defaultSettingStyle}
                           altAttr=""
                           titleAttr=""
-                          className={`max-w-[170px] w-full aspect-square object-cover !transition-none border-2 border-transparent ${isSelected ? "border-2 !border-primary" : ""}`}
+                          className={`max-w-[170px] w-full aspect-square object-cover !transition-none border-2 border-transparent ${
+                            isSelected ? "border-2 !border-primary" : ""
+                          }`}
                         />
                       )}
-                      <h2 className="text-sm lg:text-[15px] leading-4 font-normal mt-2">
+                      <h2 className="text-sm lg:text-[15px] font-normal mt-2">
                         {item?.title}
                       </h2>
                     </div>

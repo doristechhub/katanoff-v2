@@ -14,6 +14,8 @@ import { AccordionTabs, CustomImg } from "@/components/dynamiComponents";
 import { LinkButton } from "@/components/ui/button";
 import breadCrumb from "@/assets/icons/breadCrumbBigArrow.svg";
 import Link from "next/link";
+import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
+import { PAGE_CONSTANTS } from "@/_helper";
 
 const accordianContent = [
   {
@@ -107,21 +109,23 @@ const CustomJewelryDetailPage = () => {
     <>
       <section ref={sectionRef} className="relative">
         <CustomImg
-          src={bannerMobile}
-          alt="Custom Jewelry"
+          srcAttr={bannerMobile}
+          altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY].alt}
+          titleAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY].title}
           className="w-full h-full lg:hidden"
         />
         <CustomImg
-          src={bannerDesktop}
-          alt="Custom Jewelry"
+          srcAttr={bannerDesktop}
+          altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY].alt}
+          titleAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY].title}
           className="w-full h-full lg:block hidden"
         />
 
         <div className="top-[5%] absolute w-full h-full flex items-center justify-start px-6 md:px-16">
           <div className="text-baseblack flex flex-col gap-2 md:gap-4">
-            <h2 className="text-3xl md:text-5xl xl:text-[80px] 4xl:text-7xl font-great-vibes">
+            <h1 className="text-3xl md:text-5xl xl:text-[80px] 4xl:text-7xl font-great-vibes">
               Custom jewelry
-            </h2>
+            </h1>
             <p className="text-sm lg:text-base 2xl:text-lg font-semibold tracking-wide w-[70%] md:w-[80%]">
               Where imagination meets timeless custom jewelry design
             </p>
@@ -155,8 +159,10 @@ const CustomJewelryDetailPage = () => {
               <CustomImg
                 srcAttr={breadCrumb}
                 className="w-24"
-                altAttr=""
-                titleAttr=""
+                altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY].alt}
+                titleAttr={
+                  PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY].title
+                }
               />
               <div className="flex gap-1.5 items-center">
                 <span className="text-4xl 2xl:text-5xl text-gray-66 font-semibold">
@@ -169,8 +175,10 @@ const CustomJewelryDetailPage = () => {
               <CustomImg
                 srcAttr={breadCrumb}
                 className="w-24"
-                altAttr=""
-                titleAttr=""
+                altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY].alt}
+                titleAttr={
+                  PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY].title
+                }
               />
               <div className="flex gap-1.5 items-center">
                 <span className="text-4xl 2xl:text-5xl text-gray-66 font-semibold">
@@ -224,7 +232,13 @@ const CustomJewelryDetailPage = () => {
                     >
                       <CustomImg
                         srcAttr={item.image}
-                        altAttr={item.alt}
+                        altAttr={
+                          PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY].alt
+                        }
+                        titleAttr={
+                          PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY]
+                            .title
+                        }
                         className="object-contain w-full h-full p-1 lg:p-4"
                       />
                     </div>
@@ -240,7 +254,10 @@ const CustomJewelryDetailPage = () => {
             <div className="relative z-10">
               <CustomImg
                 srcAttr={customJewelry16}
-                altAttr="Ring"
+                altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY].alt}
+                titleAttr={
+                  PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY].title
+                }
                 className="w-96 h-auto mx-auto"
               />
             </div>
@@ -249,7 +266,10 @@ const CustomJewelryDetailPage = () => {
           <div className="hidden sm:block">
             <CustomImg
               srcAttr={customJewelry16}
-              altAttr="Ring"
+              altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY].alt}
+              titleAttr={
+                PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY].title
+              }
               className="w-[320px] md:h-[350px] lg:w-[350px] lg:h-[400px] xl:h-[450px] 2xl:w-[454px] 2xl:h-[544px] mx-auto"
             />
           </div>
@@ -288,13 +308,19 @@ const CustomJewelryDetailPage = () => {
           </div>
           <div className="relative">
             <CustomImg
-              src={customJewelry19}
-              alt="Custom Jewelry Step"
+              srcAttr={customJewelry19}
+              altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY].alt}
+              titleAttr={
+                PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY].title
+              }
               className="hidden sm:block w-full h-auto"
             />
             <CustomImg
-              src={customJewelry20}
-              alt="Custom Jewelry Step Mobile"
+              srcAttr={customJewelry20}
+              altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY].alt}
+              titleAttr={
+                PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY].title
+              }
               className="block sm:hidden w-full h-auto"
             />
           </div>
@@ -326,8 +352,9 @@ const CustomJewelryDetailPage = () => {
         </div>
         <div className="flex justify-center pt-6">
           <CustomImg
-            src={customJewelry21}
-            alt="Custom Jewelry Step Three"
+            srcAttr={customJewelry21}
+            altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY].alt}
+            titleAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.CUSTOM_JEWELRY].title}
             className="w-full h-full object-contain"
           />
         </div>

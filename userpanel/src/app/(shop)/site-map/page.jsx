@@ -119,7 +119,7 @@ export default function SiteMapPage() {
       links: [
         { title: "Flash Deals", href: "/collections/collection/Flash_Deals" },
         { title: "Special buys", href: "/collections/collection/Special_Buys" },
-        { title: "New Arrival", href: "/collections/collection/New_Arrival" },
+        { title: "New Arrival", href: "/collections/general/New_Arrival" },
         { title: "Tennis", href: "/collections/collection/Tennis" },
         { title: "Fashion", href: "/collections/collection/Fashion" },
         {
@@ -129,22 +129,6 @@ export default function SiteMapPage() {
         {
           title: "Quick Ship Gifts",
           href: "/collections/collection/Quick_Ship_Gifts",
-        },
-        {
-          title: "Gifts For Her",
-          href: "/collections/collection/Gifts_For_Her",
-        },
-        {
-          title: "Gifts For Him",
-          href: "/collections/collection/Gifts_For_Him",
-        },
-        {
-          title: "Anniversary Gifts",
-          href: "/collections/collection/Anniversary_Gifts",
-        },
-        {
-          title: "Gifts Under $1000",
-          href: "/collections/collection/Gifts_Under_$1000",
         },
       ],
     },

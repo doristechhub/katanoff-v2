@@ -6,7 +6,15 @@ import {
   customizationUrl,
   sanitizeObject,
 } from "../_helper";
-import { GENERAL, GIFTS_FOR_HER, GIFTS_FOR_HIM, GIFTS_UNDER_1000, GOLD_COLOR, GOLD_TYPES } from "../_helper/constants";
+import {
+  GENERAL,
+  GIFTS_FOR_HER,
+  GIFTS_FOR_HIM,
+  GIFTS_UNDER_1000,
+  GOLD_COLOR,
+  GOLD_TYPES,
+  NEW_ARRIVAL,
+} from "../_helper/constants";
 import { collectionService } from "./collection.service";
 import { customizeService } from "./customize.service";
 import { diamondShapeService } from "./diamondShape.service";
@@ -44,43 +52,43 @@ const getAllActiveProducts = () => {
 
           diamondFilters: product.isDiamondFilter
             ? {
-              ...product?.diamondFilters,
-              diamondShapes: product?.diamondFilters.diamondShapeIds?.map(
-                (shapeId) => {
-                  const foundedShape = diamondShapeList?.find(
-                    (shape) => shape?.id === shapeId
-                  );
-                  return {
-                    title: foundedShape?.title,
-                    image: foundedShape?.image,
-                    id: foundedShape?.id,
-                  };
-                }
-              ),
-            }
+                ...product?.diamondFilters,
+                diamondShapes: product?.diamondFilters.diamondShapeIds?.map(
+                  (shapeId) => {
+                    const foundedShape = diamondShapeList?.find(
+                      (shape) => shape?.id === shapeId
+                    );
+                    return {
+                      title: foundedShape?.title,
+                      image: foundedShape?.image,
+                      id: foundedShape?.id,
+                    };
+                  }
+                ),
+              }
             : product?.diamondFilters,
-          categoryName: menuData.categories.find(
-            (category) => category.id === product.categoryId
-          )?.title || "",
-          subCategoryNames: subCategoryIds?.map((id) => {
-            const subCategory = menuData?.subCategories?.find(
-              (subCategory) => subCategory?.id === id
-            );
-            return subCategory
-              ? subCategory
-              : null;
-          }).filter(Boolean)
-            || [],
+          categoryName:
+            menuData.categories.find(
+              (category) => category.id === product.categoryId
+            )?.title || "",
+          subCategoryNames:
+            subCategoryIds
+              ?.map((id) => {
+                const subCategory = menuData?.subCategories?.find(
+                  (subCategory) => subCategory?.id === id
+                );
+                return subCategory ? subCategory : null;
+              })
+              .filter(Boolean) || [],
 
           productTypeNames:
-            product.productTypeIds?.map((id) => {
-              const productType = menuData?.productTypes?.find(
-                (productType) => productType?.id === id
-              );
-              return productType
-                ? productType
-                : null;
-            })
+            product.productTypeIds
+              ?.map((id) => {
+                const productType = menuData?.productTypes?.find(
+                  (productType) => productType?.id === id
+                );
+                return productType ? productType : null;
+              })
               .filter(Boolean) || [],
 
           variations: helperFunctions.getVariationsArray(
@@ -116,31 +124,31 @@ const getActiveProductsByIds = (productIds) => {
         .map((product) => {
           const diamondShapes = product.isDiamondFilter
             ? product?.diamondFilters?.diamondShapeIds?.map((shapeId) => {
-              const foundedShape = diamondShapeList?.find(
-                (shape) => shape?.id === shapeId
-              );
-              if (!foundedShape) {
+                const foundedShape = diamondShapeList?.find(
+                  (shape) => shape?.id === shapeId
+                );
+                if (!foundedShape) {
+                  return {
+                    title: "Unknown Shape",
+                    image: null,
+                    id: shapeId,
+                  };
+                }
                 return {
-                  title: "Unknown Shape",
-                  image: null,
-                  id: shapeId,
+                  title: foundedShape?.title,
+                  image: foundedShape?.image,
+                  id: foundedShape?.id,
                 };
-              }
-              return {
-                title: foundedShape?.title,
-                image: foundedShape?.image,
-                id: foundedShape?.id,
-              };
-            }) || []
+              }) || []
             : [];
 
           return {
             ...product,
             diamondFilters: product.isDiamondFilter
               ? {
-                ...product?.diamondFilters,
-                diamondShapes,
-              }
+                  ...product?.diamondFilters,
+                  diamondShapes,
+                }
               : product?.diamondFilters || {},
           };
         });
@@ -186,6 +194,9 @@ const getLatestProducts = (length = 8) => {
               (x) =>
                 x?.variationName?.toLowerCase() === GOLD_COLOR?.toLowerCase()
             )?.variationTypes,
+            gender: product?.gender,
+            productTypeNames: product?.productTypeNames,
+            variations: product?.variations,
           };
         });
       resolve(latestProduct);
@@ -212,6 +223,99 @@ const getAllCustomizations = () => {
       reject(e);
     }
   });
+};
+
+const getDailyRotatedProducts = (products) => {
+  const PRODUCT_LIMIT = 5;
+  const sorted = products.sort(
+    (a, b) => new Date(b.createdDate) - new Date(a.createdDate)
+  );
+  if (sorted.length <= PRODUCT_LIMIT) return sorted;
+
+  const now = new Date();
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+  const dayOfYear = Math.floor((now - startOfYear) / (1000 * 60 * 60 * 24));
+  const numChunks = Math.ceil(sorted.length / PRODUCT_LIMIT);
+  const chunkIndex = dayOfYear % numChunks;
+  const start = chunkIndex * PRODUCT_LIMIT;
+  const end = Math.min(start + PRODUCT_LIMIT, sorted.length);
+  return sorted.slice(start, end);
+};
+
+const getNewArrivalProducts = async (allActiveProductsData) => {
+  try {
+    // Get unique categories
+    const categories = [
+      ...new Set(allActiveProductsData.map((item) => item?.categoryName)),
+    ];
+    let filteredData = [];
+
+    // Iterate through each category
+    for (const category of categories) {
+      // Get subcategories for this category
+      const subCategories = [
+        ...new Set(
+          allActiveProductsData
+            .filter((item) => item?.categoryName === category)
+            .flatMap(
+              (item) => item?.subCategoryNames?.map((sub) => sub?.title) || []
+            )
+        ),
+      ];
+
+      // For each category, include its products with daily rotation
+      const categoryProducts = allActiveProductsData.filter(
+        (item) => item?.categoryName === category
+      );
+      filteredData.push(...getDailyRotatedProducts(categoryProducts));
+
+      // Iterate through each subcategory
+      for (const subCategory of subCategories) {
+        // Get product types for this subcategory
+        const productTypes = [
+          ...new Set(
+            allActiveProductsData
+              .filter(
+                (item) =>
+                  item?.categoryName === category &&
+                  item?.subCategoryNames?.some(
+                    (sub) => sub?.title === subCategory
+                  )
+              )
+              .flatMap(
+                (item) => item?.productTypeNames?.map((pt) => pt.title) || []
+              )
+          ),
+        ];
+
+        // For each subcategory, include its products with daily rotation
+        const subCategoryProducts = allActiveProductsData.filter(
+          (item) =>
+            item?.categoryName === category &&
+            item?.subCategoryNames?.some((sub) => sub?.title === subCategory)
+        );
+        filteredData.push(...getDailyRotatedProducts(subCategoryProducts));
+
+        // For each product type in this subcategory
+        for (const productType of productTypes) {
+          const productTypeProducts = allActiveProductsData.filter(
+            (item) =>
+              item?.categoryName === category &&
+              item?.subCategoryNames?.some(
+                (sub) => sub?.title === subCategory
+              ) &&
+              item?.productTypeNames?.some((pt) => pt?.title === productType)
+          );
+          filteredData.push(...getDailyRotatedProducts(productTypeProducts));
+        }
+      }
+    }
+
+    // Remove duplicates by product ID
+    return [...new Map(filteredData.map((item) => [item.id, item])).values()];
+  } catch (e) {
+    throw e;
+  }
 };
 
 const getCollectionsTypeWiseProduct = (
@@ -241,15 +345,13 @@ const getCollectionsTypeWiseProduct = (
             item?.categoryName?.toLowerCase() === collectionTitle?.toLowerCase()
         );
       } else if (collectionType === "subCategories") {
-        // Filter by subcategory name
         let subCategoryFilter = allActiveProductsData.filter((item) =>
           item?.subCategoryNames?.some(
             (subCategory) =>
-              subCategory?.title?.toLowerCase() === collectionTitle?.toLowerCase()
+              subCategory?.title?.toLowerCase() ===
+              collectionTitle?.toLowerCase()
           )
         );
-
-        // If parentMainCategory is provided, further filter by category
         if (parentMainCategory) {
           subCategoryFilter = subCategoryFilter.filter(
             (item) =>
@@ -257,29 +359,25 @@ const getCollectionsTypeWiseProduct = (
               parentMainCategory?.toLowerCase()
           );
         }
-
         filteredData = subCategoryFilter;
       } else if (collectionType === "productTypes") {
-        // First filter by product type
         let productTypeFilter = allActiveProductsData.filter(
           (item) =>
             item?.productTypeNames?.length &&
             item?.productTypeNames?.some(
-              (name) => name?.title?.toLowerCase() === collectionTitle?.toLowerCase()
+              (name) =>
+                name?.title?.toLowerCase() === collectionTitle?.toLowerCase()
             )
         );
-
-        // If parentCategory (subcategory) is provided, further filter by subcategory
         if (parentCategory) {
           productTypeFilter = productTypeFilter.filter((item) =>
             item?.subCategoryNames?.some(
               (subCategory) =>
-                subCategory?.title?.toLowerCase() === parentCategory?.toLowerCase()
+                subCategory?.title?.toLowerCase() ===
+                parentCategory?.toLowerCase()
             )
           );
         }
-
-        // If parentMainCategory (main category) is provided, further filter by category
         if (parentMainCategory) {
           productTypeFilter = productTypeFilter.filter(
             (item) =>
@@ -287,7 +385,6 @@ const getCollectionsTypeWiseProduct = (
               parentMainCategory?.toLowerCase()
           );
         }
-
         filteredData = productTypeFilter;
       } else if (collectionType === "collection") {
         filteredData = allActiveProductsData.filter(
@@ -300,23 +397,22 @@ const getCollectionsTypeWiseProduct = (
       } else if (collectionType === GENERAL) {
         if (collectionTitle === GIFTS_FOR_HIM) {
           filteredData = allActiveProductsData.filter(
-            (item) =>
-              item?.gender?.toLowerCase() === "male"
+            (item) => item?.gender?.toLowerCase() === "male"
           );
-        }
-        else if (collectionTitle === GIFTS_FOR_HER) {
+        } else if (collectionTitle === GIFTS_FOR_HER) {
           filteredData = allActiveProductsData.filter(
-            (item) =>
-              item?.gender?.toLowerCase() === "female"
+            (item) => item?.gender?.toLowerCase() === "female"
           );
-        }
-        else if (collectionTitle === GIFTS_UNDER_1000) {
+        } else if (collectionTitle === GIFTS_UNDER_1000) {
           filteredData = allActiveProductsData.filter((item) => {
-            const prices = item?.variComboWithQuantity?.map(v => v.price) || [];
+            const prices =
+              item?.variComboWithQuantity?.map((v) => v.price) || [];
             if (!prices.length) return false;
             const minPrice = Math.min(...prices);
             return minPrice <= 1000;
           });
+        } else if (collectionTitle === NEW_ARRIVAL) {
+          filteredData = await getNewArrivalProducts(allActiveProductsData);
         }
       }
 
@@ -354,7 +450,6 @@ const getCollectionsTypeWiseProduct = (
                 x?.variationName?.toLowerCase() === GOLD_COLOR?.toLowerCase()
             )?.variationTypes,
             settingStyleNamesWithImg: product?.settingStyleNamesWithImg,
-            // Add category and subcategory info for debugging/reference
             categoryName: product.categoryName,
             categoryId: product.categoryId,
             subCategoryNames: product.subCategoryNames,
@@ -407,9 +502,13 @@ const fetchCollectionBanners = async ({
   }
 
   if (
-    !["categories", "subcategories", "producttypes", "collection", GENERAL].includes(
-      category
-    )
+    ![
+      "categories",
+      "subcategories",
+      "producttypes",
+      "collection",
+      GENERAL,
+    ].includes(category)
   ) {
     throw new Error(`Invalid collection category: ${category}`);
   }
@@ -543,15 +642,13 @@ const getProcessProducts = async (singleProductData) => {
 
     convertedProductData.subCategoryNames = subCategoryIds.length
       ? subCategoryIds
-        .map((id) => {
-          const subCategory = menuData.subCategories.find(
-            (subCategory) => subCategory.id === id
-          );
-          return subCategory
-            ? subCategory
-            : null;
-        })
-        .filter(Boolean)
+          .map((id) => {
+            const subCategory = menuData.subCategories.find(
+              (subCategory) => subCategory.id === id
+            );
+            return subCategory ? subCategory : null;
+          })
+          .filter(Boolean)
       : [];
 
     if (convertedProductData?.productTypeIds?.length) {
@@ -561,9 +658,7 @@ const getProcessProducts = async (singleProductData) => {
             const productType = menuData.productTypes.find(
               (productType) => productType?.id === id
             );
-            return productType
-              ? productType
-              : null;
+            return productType ? productType : null;
           })
           .filter(Boolean);
     }
@@ -585,10 +680,10 @@ const getProcessProducts = async (singleProductData) => {
             );
             return foundShape
               ? {
-                title: foundShape?.title,
-                image: foundShape?.image,
-                id: foundShape?.id,
-              }
+                  title: foundShape?.title,
+                  image: foundShape?.image,
+                  id: foundShape?.id,
+                }
               : null;
           })
           .filter(Boolean),
@@ -817,15 +912,17 @@ const getFilteredDiamondProducts = (params) => {
           // Filter by product type
           const isProductTypeValid = selectedProductTypes?.length
             ? selectedProductTypes.some((type) =>
-              product?.productTypeNames.some((pt) => pt?.title === type?.value)
-            )
+                product?.productTypeNames.some(
+                  (pt) => pt?.title === type?.value
+                )
+              )
             : true;
 
           // Filter by collection
           const isCollectionValid = selectedCollections?.length
             ? selectedCollections.some((collection) =>
-              product?.collectionNames?.includes(collection?.value)
-            )
+                product?.collectionNames?.includes(collection?.value)
+              )
             : true;
 
           // Filter by setting style
@@ -834,32 +931,32 @@ const getFilteredDiamondProducts = (params) => {
           );
           const isSettingStyleValid = selectedSettingStyles?.length
             ? selectedSettingStyles.some((style) =>
-              settingStyleNames?.includes(style?.value)
-            )
+                settingStyleNames?.includes(style?.value)
+              )
             : true;
 
           // Filter by variations
           const isVariationValid = selectedVariations?.length
             ? selectedVariations.every((selectedVariation) => {
-              const productVariation = product?.variations?.find(
-                (v) =>
-                  v?.variationName?.toLowerCase() ===
-                  selectedVariation?.title?.toLowerCase()
-              );
+                const productVariation = product?.variations?.find(
+                  (v) =>
+                    v?.variationName?.toLowerCase() ===
+                    selectedVariation?.title?.toLowerCase()
+                );
 
-              if (!productVariation) return false;
+                if (!productVariation) return false;
 
-              // Check if any selected value matches the product's variation types
-              return selectedVariation.selectedValues.length
-                ? selectedVariation.selectedValues.some((selectedValue) =>
-                  productVariation.variationTypes.some(
-                    (variationType) =>
-                      variationType?.variationTypeName?.toLowerCase() ===
-                      selectedValue?.value?.toLowerCase()
-                  )
-                )
-                : true;
-            })
+                // Check if any selected value matches the product's variation types
+                return selectedVariation.selectedValues.length
+                  ? selectedVariation.selectedValues.some((selectedValue) =>
+                      productVariation.variationTypes.some(
+                        (variationType) =>
+                          variationType?.variationTypeName?.toLowerCase() ===
+                          selectedValue?.value?.toLowerCase()
+                      )
+                    )
+                  : true;
+              })
             : true;
 
           // Filter by price range
@@ -868,10 +965,10 @@ const getFilteredDiamondProducts = (params) => {
           );
           const isPriceValid = priceRangeValues?.length
             ? productPrices.some(
-              (price) =>
-                price >= (priceRangeValues[0] || 0) &&
-                price <= (priceRangeValues[1] || Infinity)
-            )
+                (price) =>
+                  price >= (priceRangeValues[0] || 0) &&
+                  price <= (priceRangeValues[1] || Infinity)
+              )
             : true;
 
           return (
@@ -884,33 +981,37 @@ const getFilteredDiamondProducts = (params) => {
           );
         });
 
-      const processedDiamondProducts = filteredDiamondProducts.map((product) => {
-        const { price = 0 } = helperFunctions.getMinPriceVariCombo(
-          product.variComboWithQuantity
-        );
-        return {
-          productName: product.productName,
-          whiteGoldImages: product?.whiteGoldImages,
-          yellowGoldImages: product?.yellowGoldImages,
-          roseGoldImages: product?.roseGoldImages,
-          whiteGoldThumbnailImage: product?.whiteGoldThumbnailImage,
-          yellowGoldThumbnailImage: product?.yellowGoldThumbnailImage,
-          roseGoldThumbnailImage: product?.roseGoldThumbnailImage,
-          id: product.id,
-          basePrice: helperFunctions?.roundOffPrice(price),
-          baseSellingPrice: helperFunctions.getSellingPrice({
-            price,
+      const processedDiamondProducts = filteredDiamondProducts.map(
+        (product) => {
+          const { price = 0 } = helperFunctions.getMinPriceVariCombo(
+            product.variComboWithQuantity
+          );
+          return {
+            productName: product.productName,
+            whiteGoldImages: product?.whiteGoldImages,
+            yellowGoldImages: product?.yellowGoldImages,
+            roseGoldImages: product?.roseGoldImages,
+            whiteGoldThumbnailImage: product?.whiteGoldThumbnailImage,
+            yellowGoldThumbnailImage: product?.yellowGoldThumbnailImage,
+            roseGoldThumbnailImage: product?.roseGoldThumbnailImage,
+            id: product.id,
+            basePrice: helperFunctions?.roundOffPrice(price),
+            baseSellingPrice: helperFunctions.getSellingPrice({
+              price,
+              discount: product.discount,
+            }),
             discount: product.discount,
-          }),
-          discount: product.discount,
-          goldTypeVariations: product?.variations?.find(
-            (x) => x?.variationName?.toLowerCase() === GOLD_TYPES?.toLowerCase()
-          )?.variationTypes,
-          goldColorVariations: product?.variations?.find(
-            (x) => x?.variationName?.toLowerCase() === GOLD_COLOR?.toLowerCase()
-          )?.variationTypes,
-        };
-      });
+            goldTypeVariations: product?.variations?.find(
+              (x) =>
+                x?.variationName?.toLowerCase() === GOLD_TYPES?.toLowerCase()
+            )?.variationTypes,
+            goldColorVariations: product?.variations?.find(
+              (x) =>
+                x?.variationName?.toLowerCase() === GOLD_COLOR?.toLowerCase()
+            )?.variationTypes,
+          };
+        }
+      );
       // Get the minimum and maximum price for the availablePriceRange
       const minPrice = tempPriceRange.length ? Math.min(...tempPriceRange) : 0;
       const maxPrice = tempPriceRange.length ? Math.max(...tempPriceRange) : 0;

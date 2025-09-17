@@ -11,6 +11,7 @@ import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import SkeletonLoader from "../ui/skeletonLoader";
 import { useWindowSize } from "@/_helper/hooks";
 import ProductCard from "./productCard";
+import { DIAMOND_SHAPE } from "@/_helper";
 
 export default function ProductSwiper({
   productList,
@@ -29,7 +30,13 @@ export default function ProductSwiper({
     const basePath = `/customize/start-with-setting/${product?.id}`;
     return `${basePath}`;
   };
+  const getProductDiamondShape = (product) => {
+    const diamondVariations = product?.variations?.find(
+      (v) => v?.variationName === DIAMOND_SHAPE
+    );
 
+    return diamondVariations?.variationTypes[0]?.variationTypeName;
+  };
   return (
     <div>
       <div className="flex justify-between items-center mb-5 2xl:mb-8">
@@ -126,6 +133,9 @@ export default function ProductSwiper({
                     product,
                   })}
                   productId={product?.id}
+                  gender={product?.gender}
+                  productType={product?.productTypeNames[0]?.title}
+                  diamondShape={getProductDiamondShape(product) || ""}
                 />
               </SwiperSlide>
             ))}

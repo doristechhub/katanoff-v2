@@ -27,12 +27,14 @@ import {
   EMERALD,
   HEART,
   MARQUISE,
+  PAGE_CONSTANTS,
   OVAL,
   PEAR,
   PRINCESS,
   RADIANT,
   ROUND,
 } from "@/_helper";
+import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
 
 const ringData = [
   {
@@ -163,7 +165,8 @@ export default function CenterFocusSlider() {
                 >
                   <CustomImg
                     srcAttr={item.img}
-                    altAttr={item.title}
+                    altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].alt}
+                    titleAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].title}
                     className="w-full max-w-[120px] sm:max-w-[160px] md:max-w-[180px] lg:max-w-[200px] xl:max-w-[240px] mx-auto"
                   />
                 </div>

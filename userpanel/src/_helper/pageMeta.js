@@ -1,10 +1,10 @@
 import { META_CONSTANTS, WebsiteUrl } from "@/_helper";
 
 export const DEFAULT_META = {
-    title: "Katanoff Fine Jewelry",
+    title: "Lab Grown Diamond Jewelry NYC | Katanoff",
     description:
-        "Discover fine jewelry, engagement rings, custom designs, and more at Katanoff.",
-    keywords: "Katanoff jewelry, fine jewelry, engagement rings",
+        "Shop ethical lab grown diamond rings, bracelets, necklaces & fine jewelry in New York.",
+    keywords: "lab grown diamond jewelry, custom jewelry, fine jewelry, New York",
     url: WebsiteUrl,
     openGraphImage: `${WebsiteUrl}/opengraph-image.png`,
     siteName: "Katanoff",
@@ -65,20 +65,20 @@ export const PAGE_META = {
     },
 
     [META_CONSTANTS.CONTACT_US]: {
-        title: "Contact Katanoff Jewelry",
+        title: "Contact Katanoff | Lab Diamonds",
         description:
-            "Have questions? Contact Katanoff for assistance with jewelry, orders, or custom designs.",
+            "Get in touch with Katanoff for lab grown diamond jewelry in New York.",
         keywords:
-            "contact Katanoff, jewelry support, jewelry help",
+            "contact Katanoff, lab grown diamond jewelry, NYC",
         url: `${WebsiteUrl}/contact-us`
     },
 
     [META_CONSTANTS.CUSTOM_JEWELRY]: {
-        title: "Custom Jewelry by Katanoff",
+        title: "Custom Diamond Jewelry NYC | Katanoff",
         description:
-            "Design custom jewelry with expert craftsmanship and unique diamond settings.",
+            "Design custom lab grown diamond engagement and wedding jewelry in NYC.",
         keywords:
-            "custom jewelry, jewelry design, personalized jewelry",
+            "custom jewelry, lab grown diamonds, engagement rings",
         url: `${WebsiteUrl}/custom-jewelry`
     },
 
@@ -92,38 +92,38 @@ export const PAGE_META = {
     },
 
     [META_CONSTANTS.PAYMENT_FINANCING]: {
-        title: "Jewelry Financing – Katanoff",
+        title: "Payment & Financing | Katanoff",
         description:
-            "Explore flexible payment and financing options for your jewelry purchase.",
+            "Flexible financing options for lab grown diamond jewelry at Katanoff NYC.",
         keywords:
-            "jewelry financing, payment plans, Katanoff payment",
+            "financing, payment options, diamond jewelry",
         url: `${WebsiteUrl}/payment-financing`,
     },
 
     [META_CONSTANTS.BOOK_APPOINTMENT]: {
-        title: "Book an Appointment – Katanoff",
+        title: "Book Jewelry Appointment | Katanoff",
         description:
-            "Schedule an appointment to explore Katanoff jewelry and custom designs.",
+            "Schedule your consultation for custom lab grown diamond engagement and wedding jewelry.",
         keywords:
-            "book appointment, jewelry appointment, Katanoff visit",
+            "book appointment, jewelry consultation, custom diamonds",
         url: `${WebsiteUrl}/book-appointment`
     },
 
     [META_CONSTANTS.PRIVACY_POLICY]: {
-        title: "Privacy Policy – Katanoff",
+        title: "Privacy Policy | Katanoff Jewelry",
         description:
-            "Learn how Katanoff protects your privacy and personal data.",
+            "Read Katanoff’s privacy policy for lab grown diamond jewelry buyers.",
         keywords:
-            "privacy policy, Katanoff privacy, jewelry data",
+            "privacy policy, Katanoff, lab grown jewelry",
         url: `${WebsiteUrl}/privacy-policy`,
     },
 
     [META_CONSTANTS.RETURN_POLICY]: {
-        title: "Return Policy – Katanoff",
+        title: "Return Policy | Katanoff Jewelry",
         description:
-            "Review Katanoff’s return policy for jewelry and custom pieces.",
+            "Review our return policy for lab grown diamond jewelry in New York.",
         keywords:
-            "return policy, jewelry returns, Katanoff refund",
+            "return policy, diamond jewelry, Katanoff",
         url: `${WebsiteUrl}/return-policy`,
     },
 
@@ -137,47 +137,56 @@ export const PAGE_META = {
     },
 
     [META_CONSTANTS.SHIPPING_POLICY]: {
-        title: "Shipping Policy – Katanoff",
+        title: "Shipping Policy | Katanoff Jewelry",
         description:
-            "Learn about Katanoff’s shipping process, delivery times, and charges.",
+            "Shipping policy for Katanoff lab grown diamond jewelry orders in NYC.",
         keywords:
-            "shipping policy, jewelry shipping, Katanoff delivery",
+            "shipping policy, lab grown jewelry, Katanoff",
         url: `${WebsiteUrl}/shipping-policy`,
     },
 
-    [META_CONSTANTS.TERMS_AND_CONDITIONS]: {
-        title: "Terms & Conditions – Katanoff",
+    [META_CONSTANTS.SITE_MAP]: {
+        title: "Site Map | Katanoff Jewelry",
         description:
-            "Review Katanoff’s terms and conditions before making a jewelry purchase.",
+            "Browse the site map for Katanoff lab grown diamond jewelry online.",
         keywords:
-            "terms and conditions, jewelry terms, Katanoff terms",
+            "site map, Katanoff, lab grown jewelry",
+        url: `${WebsiteUrl}/site-map`,
+    },
+
+    [META_CONSTANTS.TERMS_AND_CONDITIONS]: {
+        title: "Terms & Conditions | Katanoff",
+        description:
+            "Review Katanoff jewelry’s terms and conditions for diamond purchases.",
+        keywords:
+            "terms and conditions, Katanoff, lab grown jewelry",
         url: `${WebsiteUrl}/terms-and-conditions`,
     },
 
     [META_CONSTANTS.TRACK_YOUR_RETURN]: {
-        title: "Track Return – Katanoff",
+        title: "Track Your Return | Katanoff",
         description:
-            "Easily track the status of your return with Katanoff’s online tool.",
+            "Track your lab grown diamond jewelry return with Katanoff online.",
         keywords:
-            "track return, jewelry return, refund status",
+            "track return, Katanoff, diamond jewelry",
         url: `${WebsiteUrl}/track-your-return`,
     },
 
     [META_CONSTANTS.TRACK_YOUR_ORDER]: {
-        title: "Track Order – Katanoff",
+        title: "Track Your Order | Katanoff",
         description:
-            "Enter your details to track your jewelry order with Katanoff.",
+            "Track your lab grown diamond jewelry order online at Katanoff NYC.",
         keywords:
-            "track order, jewelry tracking, Katanoff order",
+            "track order, Katanoff, lab grown diamond",
         url: `${WebsiteUrl}/track-your-order`,
     },
 
     [META_CONSTANTS.WARRANTY]: {
-        title: "Jewelry Warranty – Katanoff",
+        title: "Warranty | Katanoff Jewelry",
         description:
-            "Explore Katanoff’s jewelry warranty for guaranteed quality and peace of mind.",
+            "View warranty details for Katanoff’s lab grown diamond fine jewelry.",
         keywords:
-            "jewelry warranty, diamond warranty, Katanoff guarantee",
+            "warranty, lab grown jewelry, Katanoff",
         url: `${WebsiteUrl}/warranty`,
     },
 
@@ -209,11 +218,11 @@ export const PAGE_META = {
     },
 
     [META_CONSTANTS.SELECT_DIAMOND]: {
-        title: "Choose a Diamond – Katanoff",
+        title: "Select Diamonds | Lab Grown",
         description:
-            "Browse certified diamonds and create your dream engagement ring.",
+            "Choose lab grown diamonds in all shapes for custom jewelry in NYC.",
         keywords:
-            "select diamond, buy diamond, engagement diamond",
+            "lab grown diamonds, select diamonds, custom jewelry",
         url: `${WebsiteUrl}/customize/select-diamond`
     },
 
@@ -236,20 +245,20 @@ export const PAGE_META = {
     },
 
     [META_CONSTANTS.ABOUT_US]: {
-        title: "About Katanoff Jewelry",
+        title: "About Katanoff | Lab Grown Diamonds",
         description:
-            "Discover Katanoff’s story, craftsmanship, and passion for fine jewelry.",
+            "Learn about Katanoff’s ethical lab grown diamonds and fine jewelry expertise in NYC.",
         keywords:
-            "about Katanoff, jewelry brand, fine jewelry story",
+            "about Katanoff, ethical diamonds, lab grown jewelry, NYC",
         url: `${WebsiteUrl}/about-us`
     },
 
     [META_CONSTANTS.EDUCATION]: {
-        title: "Jewelry Education – Katanoff",
+        title: "Diamond Education | Lab Grown Guide",
         description:
-            "Learn about diamonds, rings, and fine jewelry with Katanoff’s education center.",
+            "Learn about lab grown diamonds, the 4Cs, and ethical fine jewelry.",
         keywords:
-            "jewelry education, diamond guide, jewelry learning",
+            "diamond education, lab grown guide, diamond 4Cs",
         url: `${WebsiteUrl}/education`
     },
 };

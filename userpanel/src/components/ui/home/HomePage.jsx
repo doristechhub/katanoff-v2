@@ -33,6 +33,8 @@ import {
   GIFTS_UNDER_1000,
   helperFunctions,
   messageType,
+  NEW_ARRIVAL,
+  PAGE_CONSTANTS,
   SLIDER_GRID,
   THREE_GRID,
   TWO_GRID,
@@ -48,6 +50,7 @@ import { fetchCollectionsByTypes } from "@/_actions/collection.action";
 import HomePageSliderSkeleton from "../HomePageSliderSkeleton";
 import TwoGridSkeleton from "../TwoGridSkeleton";
 import CollectionHighlights from "./CollectionHighlights";
+import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
 // import ThreeGridSkeleton from "../ThreeGridSkeleton";
 
 const faqData = [
@@ -156,30 +159,29 @@ const mockReviews = [
     author: "Mira V.",
   },
 ];
-
-const staticThreeGridData = [
-  {
-    title: GIFTS_FOR_HER,
-    image: threeGrid1,
-    link: `/collections/${GENERAL}/${helperFunctions?.stringReplacedWithUnderScore(
-      GIFTS_FOR_HER
-    )}`,
-  },
-  {
-    title: GIFTS_UNDER_1000,
-    image: threeGrid3,
-    link: `/collections/${GENERAL}/${helperFunctions?.stringReplacedWithUnderScore(
-      GIFTS_UNDER_1000
-    )}`,
-  },
-  {
-    title: GIFTS_FOR_HIM,
-    image: threeGrid2,
-    link: `/collections/${GENERAL}/${helperFunctions?.stringReplacedWithUnderScore(
-      GIFTS_FOR_HIM
-    )}`,
-  },
-];
+// const staticThreeGridData = [
+//   {
+//     title: GIFTS_FOR_HER,
+//     image: threeGrid1,
+//     link: `/collections/${GENERAL}/${helperFunctions?.stringReplacedWithUnderScore(
+//       GIFTS_FOR_HER
+//     )}`,
+//   },
+//   {
+//     title: GIFTS_UNDER_1000,
+//     image: threeGrid3,
+//     link: `/collections/${GENERAL}/${helperFunctions?.stringReplacedWithUnderScore(
+//       GIFTS_UNDER_1000
+//     )}`,
+//   },
+//   {
+//     title: GIFTS_FOR_HIM,
+//     image: threeGrid2,
+//     link: `/collections/${GENERAL}/${helperFunctions?.stringReplacedWithUnderScore(
+//       GIFTS_FOR_HIM
+//     )}`,
+//   },
+// ];
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -208,8 +210,8 @@ const Home = () => {
     dispatch(fetchCollectionsByTypes([TWO_GRID, THREE_GRID, SLIDER_GRID]));
   }, [dispatch]);
 
-  const twoGridData =
-    collectionsData.find((item) => item.type === TWO_GRID)?.data || [];
+  // const twoGridData =
+  //   collectionsData.find((item) => item.type === TWO_GRID)?.data || [];
   // const threeGridData =
   //   collectionsData.find((item) => item.type === THREE_GRID)?.data || [];
   const sliderData =
@@ -228,11 +230,13 @@ const Home = () => {
       <ResponsiveImageAndContent
         desktopImage={newArrivalBannerDesktop}
         mobileImage={newArrivalBannerMobile}
+        altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].alt}
+        titleAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].title}
         title="New Arrivals"
         subtitle="New Designer Collection"
         linkText="Explore Collection"
-        linkHref={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
-          "New Arrival"
+        linkHref={`/collections/${GENERAL}/${helperFunctions?.stringReplacedWithUnderScore(
+          NEW_ARRIVAL
         )}`}
       />
       {collectionsLoading ? (

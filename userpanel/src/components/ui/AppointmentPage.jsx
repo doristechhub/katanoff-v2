@@ -2,6 +2,8 @@ import KeyFeatures from "@/components/ui/KeyFeatures";
 import bookAppointmentDesktop from "@/assets/images/appointment/book-appointment-desktop.webp";
 import bookAppointmentMobile from "@/assets/images/appointment/book-appointment-mobile.webp";
 import { AppointmentForm, HeroBanner } from "@/components/dynamiComponents";
+import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
+import { PAGE_CONSTANTS } from "@/_helper";
 
 export default function AppointmentPage() {
   return (
@@ -13,8 +15,8 @@ export default function AppointmentPage() {
           title=""
           description=""
           isStaticBanner={true}
-          altAttr=""
-          titleAttr=""
+          altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.BOOK_APPOINTMENT].alt}
+          titleAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.BOOK_APPOINTMENT].title}
         />
       </div>
       <div className="pt-10">

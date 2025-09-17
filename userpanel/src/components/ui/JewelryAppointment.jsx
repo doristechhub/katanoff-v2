@@ -5,13 +5,17 @@ import bookAppointment from "@/assets/images/home/book-appointment-home.webp";
 import bookAppointmentMobile from "@/assets/images/home/book-appointment-home-mobile.webp";
 
 import { PrimaryLinkButton } from "./button";
+import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
+import { PAGE_CONSTANTS } from "@/_helper";
+
 export default function JewelryAppointment() {
   return (
     <>
       <section className="hidden lg:block relative w-full h-[60vh] sm:h-[70vh] overflow-hidden">
         <CustomImg
           srcAttr={bookAppointment}
-          altAttr="New Arrivals Banner"
+          altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].alt}
+          titleAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].title}
           className="absolute inset-0 w-full h-full object-cover"
         />
 
@@ -21,7 +25,9 @@ export default function JewelryAppointment() {
               Expert Help, Just for You
             </h1>
             <p className="text-baseblack mb-6 max-w-lg mx-auto md:mx-0">
-              Book a complimentary virtual appointment and let our experts guide you through every detail, making your jewelry journey simple and personalized.
+              Book a complimentary virtual appointment and let our experts guide
+              you through every detail, making your jewelry journey simple and
+              personalized.
             </p>
             <div className="flex mt-2 lg:mt-6">
               <PrimaryLinkButton
@@ -42,7 +48,9 @@ export default function JewelryAppointment() {
               Expert Help, Just for You
             </h1>
             <p className="text-sm md:text-base text-baseblack pt-2 sm:pt-4 max-w-lg">
-              Book a complimentary virtual appointment and let our experts guide you through every detail, making your jewelry journey simple and personalized.
+              Book a complimentary virtual appointment and let our experts guide
+              you through every detail, making your jewelry journey simple and
+              personalized.
             </p>
             <div className="flex mt-4 sm:mt-6 justify-center">
               <PrimaryLinkButton
@@ -57,7 +65,8 @@ export default function JewelryAppointment() {
         </div>
         <CustomImg
           srcAttr={bookAppointmentMobile}
-          altAttr="New Arrivals Banner"
+          altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].alt}
+          titleAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].title}
           className="w-full h-full"
         />
       </section>

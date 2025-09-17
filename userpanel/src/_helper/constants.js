@@ -44,18 +44,23 @@ export const WEDDING = "Wedding";
 export const WEDDING_RINGS = "Wedding Rings";
 export const ENGAGEMENT_RINGS = "Engagement Rings";
 export const Start_WITH_SETTING = "Start With Setting";
-export const SIX = '6'
-export const SIX_WITH_DECIMAL = '6.00'
+export const SIX = "6";
+export const SIX_WITH_DECIMAL = "6.00";
 
-export const DIAMOND_WEIGHT = "Diamond Weight"
-export const DIAMOND_CLARITY = "Diamond Clarity"
-export const DIAMOND_COLOR = "Diamond Color"
-export const DIAMOND_SHAPE_KEY = "diamondShape"
-export const DIAMOND_WEIGHT_KEY = "diamondWeight"
-export const DIAMOND_CLARITY_KEY = "diamondClarity"
-export const DIAMOND_COLOR_KEY = "diamondColor"
+export const DIAMOND_WEIGHT = "Diamond Weight";
+export const DIAMOND_CLARITY = "Diamond Clarity";
+export const DIAMOND_COLOR = "Diamond Color";
+export const DIAMOND_SHAPE_KEY = "diamondShape";
+export const DIAMOND_WEIGHT_KEY = "diamondWeight";
+export const DIAMOND_CLARITY_KEY = "diamondClarity";
+export const DIAMOND_COLOR_KEY = "diamondColor";
 
-export const allowedVariationListForThreeSteps = [GOLD_COLOR, RING_SIZE, GOLD_TYPES, LENGTH];
+export const allowedVariationListForThreeSteps = [
+  GOLD_COLOR,
+  RING_SIZE,
+  GOLD_TYPES,
+  LENGTH,
+];
 
 export const sortByList = [
   { value: "date_new_to_old", title: "New to Old" },
@@ -148,6 +153,7 @@ export const META_CONSTANTS = {
   TRACK_YOUR_ORDER: "track-your-order",
   TERMS_AND_CONDITIONS: "terms-and-conditions",
   SHIPPING_POLICY: "shipping-policy",
+  SITE_MAP: "site-map",
   SHIPPING: "shipping",
   SEARCH: "search",
   RETURN_POLICY: "return-policy",
@@ -172,12 +178,31 @@ export const META_CONSTANTS = {
   RETURN_HISTORY: "returnHistory",
 };
 
+export const PAGE_CONSTANTS = {
+  HOME: "home",
+  ABOUT_US: "about-us",
+  BOOK_APPOINTMENT: "book-appointment",
+  CONTACT_US: "contact-us",
+  SELECT_DIAMOND: "select-diamond",
+  CUSTOM_JEWELRY: "custom-jewelry",
+  EDUCATION: "education",
+  PAYMENT_FINANCING: "payment-financing",
+  PRIVACY_POLICY: "privacy-policy",
+  RETURN_POLICY: "return-policy",
+  SHIPPING_POLICY: "shipping-policy",
+  SITE_MAP: "site-map",
+  TERMS_AND_CONDITIONS: "terms-and-conditions",
+  TRACK_YOUR_ORDER: "track-your-order",
+  TRACK_YOUR_RETURN: "track-your-return",
+  WARRANTY: "warranty",
+};
+
 export const GIFTS_FOR_HIM = "Gifts For Him";
 export const GIFTS_FOR_HER = "Gifts For Her";
 export const GIFTS_UNDER_1000 = "Gifts Under $1000";
+export const NEW_ARRIVAL = "New Arrival";
 export const GENERAL = "general";
 export const DEFAULT = "default";
-
 
 export const FILTER_CONFIG = [
   {
@@ -198,6 +223,7 @@ export const FILTER_CONFIG = [
       { title: GIFTS_FOR_HER, filter: SUB_CATEGORIES_KEY },
       { title: GIFTS_FOR_HIM, filter: PRODUCT_TYPE_KEY },
       { title: GIFTS_UNDER_1000, filter: SUB_CATEGORIES_KEY },
+      { title: NEW_ARRIVAL, filter: SETTING_STYLE_KEY },
     ],
     defaultFilter: SETTING_STYLE_KEY,
   },
@@ -207,10 +233,9 @@ export const FILTER_CONFIG = [
   },
 ];
 
-
 export const FILTER_TO_OPTIONS_MAP = {
   [SETTING_STYLE_KEY]: "uniqueSettingStyles",
   [PRODUCT_TYPE_KEY]: "uniqueProductTypes",
   [SUB_CATEGORIES_KEY]: "uniqueSubCategories",
-  [DEFAULT]: "uniqueSettingStyles"
+  [DEFAULT]: "uniqueSettingStyles",
 };

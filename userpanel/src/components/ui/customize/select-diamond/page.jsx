@@ -1,8 +1,6 @@
 "use client";
 
-import {
-  messageType,
-} from "@/_helper/constants";
+import { messageType } from "@/_helper/constants";
 import { AccordionTabs, ProgressiveImg } from "@/components/dynamiComponents";
 import React, { useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -119,10 +117,11 @@ export default function SelectDiamondPage() {
     // }
   }, [customProductDetails]);
 
-
   const allowedClarityOptions = useMemo(() => {
     const validValues =
-      customizeProductSettings?.diamondClarities?.flatMap((c) => c.compatibleOptions) || [];
+      customizeProductSettings?.diamondClarities?.flatMap(
+        (c) => c.compatibleOptions
+      ) || [];
 
     return validValues.map((val) => ({
       title: val,
@@ -130,10 +129,11 @@ export default function SelectDiamondPage() {
     }));
   }, [customizeProductSettings]);
 
-
   const allowedColorOptions = useMemo(() => {
     const validValues =
-      customizeProductSettings?.diamondColors?.flatMap((c) => c.compatibleOptions) || [];
+      customizeProductSettings?.diamondColors?.flatMap(
+        (c) => c.compatibleOptions
+      ) || [];
 
     return validValues.map((val) => ({
       title: val,
@@ -256,10 +256,10 @@ export default function SelectDiamondPage() {
   };
 
   const caratOptions = useMemo(
-    () => helperFunctions?.generateCaratValues({ minCarat, maxCarat, step: 0.5 }),
+    () =>
+      helperFunctions?.generateCaratValues({ minCarat, maxCarat, step: 0.5 }),
     [minCarat, maxCarat]
   );
-
 
   const accordianContent = [
     {
@@ -295,6 +295,45 @@ export default function SelectDiamondPage() {
       ),
     },
   ];
+
+  const diamondSEO = {
+    Cushion: {
+      title: "Katanoff | Cushion Cut Lab Grown Diamonds Custom Jewelry",
+      alt: "cushion cut lab grown diamond, custom engagement rings, diamond selection, fine jewelry, ethical diamond jewelry, New York, USA, Katanoff",
+    },
+    Emerald: {
+      title: "Katanoff | Emerald Cut Lab Grown Diamonds Custom Jewelry",
+      alt: "emerald cut lab grown diamond, custom jewelry design, engagement rings, wedding rings, fine jewelry, New York, USA, Katanoff",
+    },
+    Heart: {
+      title: "Katanoff | Heart Shape Lab Grown Diamonds Custom Jewelry",
+      alt: "heart shape lab grown diamond, diamond engagement rings, solitaire jewelry, fine jewelry, ethical jewelry, New York, USA, Katanoff",
+    },
+    Marquise: {
+      title: "Katanoff | Marquise Cut Lab Grown Diamonds Custom Jewelry",
+      alt: "marquise cut lab grown diamond, custom rings, engagement rings, wedding jewelry, fine jewelry, sustainable diamonds, New York, USA, Katanoff",
+    },
+    Oval: {
+      title: "Katanoff | Oval Lab Grown Diamonds Custom Jewelry",
+      alt: "oval lab grown diamond, engagement rings, solitaire oval ring, custom fine jewelry, ethical diamonds, New York, USA, Katanoff",
+    },
+    Pear: {
+      title: "Katanoff | Pear Shape Lab Grown Diamonds Custom Jewelry",
+      alt: "pear shape lab grown diamond, engagement rings, wedding jewelry, solitaire pear diamond, fine jewelry, ethical diamond jewelry, New York, USA, Katanoff",
+    },
+    Princess: {
+      title: "Katanoff | Princess Cut Lab Grown Diamonds Custom Jewelry",
+      alt: "princess cut lab grown diamond, engagement rings, wedding rings, solitaire diamond ring, fine jewelry, custom jewelry, New York, USA, Katanoff",
+    },
+    Radiant: {
+      title: "Katanoff | Radiant Cut Lab Grown Diamonds Custom Jewelry",
+      alt: "radiant cut lab grown diamond, engagement rings, wedding rings, solitaire radiant diamond, fine jewelry, sustainable diamonds, New York, USA, Katanoff",
+    },
+    Round: {
+      title: "Katanoff | Round Lab Grown Diamonds Custom Jewelry",
+      alt: "round lab grown diamond, diamond engagement rings, solitaire round ring, wedding rings, fine jewelry, ethical diamond jewelry, New York, USA, Katanoff",
+    },
+  };
 
   return (
     <>
@@ -342,10 +381,11 @@ export default function SelectDiamondPage() {
                         key={`diamond-shape-${index}`}
                       >
                         <div
-                          className={`group flex flex-col justify-between items-center w-[70px] h-[76px] py-2 px-2 rounded-md cursor-pointer border  ${diamondSelection.shape?.id === item.id
-                            ? "border-[1.5px] border-baseblack bg-opacity-10"
-                            : "border-transparent hover:border-primary"
-                            } transition-all duration-300`}
+                          className={`group flex flex-col justify-between items-center w-[70px] h-[76px] py-2 px-2 rounded-md cursor-pointer border  ${
+                            diamondSelection.shape?.id === item.id
+                              ? "border-[1.5px] border-baseblack bg-opacity-10"
+                              : "border-transparent hover:border-primary"
+                          } transition-all duration-300`}
                           onClick={() => {
                             dispatch(setDiamondSelection({ shape: item }));
                             if (diamondMessage?.type === messageType.ERROR) {
@@ -353,17 +393,21 @@ export default function SelectDiamondPage() {
                             }
                           }}
                         >
+                          {console.log(diamondSEO[item?.title])}
                           <ProgressiveImg
                             src={item?.image}
-                            alt={item?.name}
+                            // alt={item?.name}
+                            alt={diamondSEO[item?.title]?.alt || item?.title}
+                            title={diamondSEO[item?.title]?.title || item?.title}
                             className="w-8 h-8 mb-2"
                           />
                           {/* Reserve space for label, even when not selected */}
                           <span
-                            className={`text-xs uppercase transition-all duration-300 ${diamondSelection.shape?.id === item?.id
-                              ? "text-baseblack font-semibold"
-                              : "text-transparent group-hover:text-baseblack"
-                              }`}
+                            className={`text-xs uppercase transition-all duration-300 ${
+                              diamondSelection.shape?.id === item?.id
+                                ? "text-baseblack font-semibold"
+                                : "text-transparent group-hover:text-baseblack"
+                            }`}
                           >
                             {item?.title}
                           </span>
@@ -390,10 +434,11 @@ export default function SelectDiamondPage() {
                       <div
                         key={`carat-option-${index}`}
                         className={`w-[50px] flex justify-center items-center px-2 py-1.5 cursor-pointer transition-all duration-100
-                            rounded-[3px] border ${isSelected
-                            ? "text-baseblack border-baseblack"
-                            : "border-transparent hover:border-baseblack"
-                          }`}
+                            rounded-[3px] border ${
+                              isSelected
+                                ? "text-baseblack border-baseblack"
+                                : "border-transparent hover:border-baseblack"
+                            }`}
                         onClick={() => {
                           dispatch(setDiamondSelection({ caratWeight: value }));
                           if (diamondMessage?.type === messageType.ERROR) {
@@ -432,10 +477,11 @@ export default function SelectDiamondPage() {
                         <div
                           key={`diamond-clarity-${index}`}
                           title={item?.title}
-                          className={`hover:border !w-[60px] flex justify-center items-center px-2 py-1 2xl:py-1.5 cursor-pointer transition-all duration-100 ${diamondSelection.clarity?.value === item.value
-                            ? "text-baseblack  border-baseblack rounded-[3px] border"
-                            : "border-approxgray text-baseblack hover:border-baseblack hover:rounded-[3px]"
-                            }`}
+                          className={`hover:border !w-[60px] flex justify-center items-center px-2 py-1 2xl:py-1.5 cursor-pointer transition-all duration-100 ${
+                            diamondSelection.clarity?.value === item.value
+                              ? "text-baseblack  border-baseblack rounded-[3px] border"
+                              : "border-approxgray text-baseblack hover:border-baseblack hover:rounded-[3px]"
+                          }`}
                           onClick={() => {
                             dispatch(setDiamondSelection({ clarity: item }));
                             if (diamondMessage?.type === messageType.ERROR) {
@@ -473,10 +519,11 @@ export default function SelectDiamondPage() {
                         <div
                           key={`diamond-color-${index}`}
                           title={item?.title}
-                          className={`hover:border !w-10 px-2 flex justify-center items-center py-1 2xl:py-1.5 cursor-pointer transition-all duration-100 ${diamondSelection.color?.value === item.value
-                            ? "text-baseblack  border-baseblack rounded-[3px] border"
-                            : "border-approxgray text-baseblack  hover:border-baseblack hover:rounded-[3px]"
-                            }`}
+                          className={`hover:border !w-10 px-2 flex justify-center items-center py-1 2xl:py-1.5 cursor-pointer transition-all duration-100 ${
+                            diamondSelection.color?.value === item.value
+                              ? "text-baseblack  border-baseblack rounded-[3px] border"
+                              : "border-approxgray text-baseblack  hover:border-baseblack hover:rounded-[3px]"
+                          }`}
                           onClick={() => {
                             dispatch(setDiamondSelection({ color: item }));
                             if (diamondMessage?.type === messageType.ERROR) {

@@ -143,9 +143,9 @@ const SignUpForm = () => {
 
   return (
     <div className="w-full 2xl:w-[100%] flex flex-col items-center justify-center h-full py-20 md:py-20 2xl:py-28">
-      <h2 className="text-3xl md:text-3xl 2xl:text-4xl text-baseblack font-gelasio">
+      <h1 className="text-3xl md:text-3xl 2xl:text-4xl text-baseblack font-gelasio">
         Create Your Account
-      </h2>
+      </h1>
       <p className="text-sm sm:text-base 2xl:text-lg text-basegray mt-2 font-Poppins">
         Sign up for your new account
       </p>

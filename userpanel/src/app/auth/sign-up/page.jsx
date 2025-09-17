@@ -15,7 +15,12 @@ const SignUp = () => {
       <div className="w-full h-full lg:w-1/2 flex items-center lg:justify-center px-4 py-12 md:px-32 md:py-52 lg:p-[60px_80px_20px_22px] 2xl:p-[75px_100px_75px_22px]">
         <div className="flex flex-col justify-center gap-10 md:gap-28  lg:gap-8 lg:justify-center w-full lg:h-full">
           <Link href={"/"} className="flex justify-center">
-            <CustomImg srcAttr={textLogo} className="w-40 md:w-52 lg:w-62" />
+            <CustomImg
+              srcAttr={textLogo}
+              altAttr="lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff"
+              titleAttr="Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York"
+              className="w-40 md:w-52 lg:w-62"
+            />
           </Link>
           <SignUpForm />
         </div>

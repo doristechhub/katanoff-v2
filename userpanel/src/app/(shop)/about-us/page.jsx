@@ -15,14 +15,15 @@ import {
   HeroBanner,
 } from "@/components/dynamiComponents";
 import Link from "next/link";
-import { FLASH_DEALS, helperFunctions } from "@/_helper";
+import { FLASH_DEALS, helperFunctions, PAGE_CONSTANTS } from "@/_helper";
+import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
 
 const aboutUsContent = [
   {
     img: about1,
-    titleAttr: "",
+    altAttr: PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.ABOUT_US].alt,
+    titleAttr: PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.ABOUT_US].title,
     direction: "RTF",
-    altAttr: "",
     title: "Luxury with Integrity",
     description: [
       "At Katanoff, we believe true luxury should be as responsible as it is beautiful. Our promise begins with how we source and continues through every stage of craftsmanship. Each piece is crafted using lab-grown diamonds that are chemically and visually identical to mined ones, yet have a significantly lighter environmental impact. By choosing sustainable and conscious materials, we embrace a vision of beauty that honors not only the wearer but also the world we share.",
@@ -31,20 +32,19 @@ const aboutUsContent = [
   },
   {
     img: ringImage,
-    titleAttr: "",
     direction: "LTR",
-    altAttr: "",
+    altAttr: PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.ABOUT_US].alt,
+    titleAttr: PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.ABOUT_US].title,
     title: "Our Beginning",
     description: [
       "Katanoff began with a simple belief: luxury can be both beautiful and responsible. Frustrated by the compromises often found in traditional fine jewelry, we set out to create a brand where ethics and elegance go hand in hand. Inspired by the possibilities of lab-grown diamonds, we envisioned a new kind of luxury one that aligns with modern values without sacrificing quality or style.",
-
       "What started as a vision has grown into a collection of timeless pieces made for those who care about what they wear and how it's made. Every Katanoff design is a reflection of our journey rooted in craftsmanship, shaped by innovation, and driven by purpose. We’re proud to offer jewelry that feels as good as it looks because doing good is always in style.",
     ],
   },
   {
     img: diamondImage,
-    titleAttr: "",
-    altAttr: "",
+    altAttr: PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.ABOUT_US].alt,
+    titleAttr: PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.ABOUT_US].title,
     direction: "RTL",
     title: "Our Value",
     points: [
@@ -81,7 +81,8 @@ const shopSections = [
   {
     href: "/collections/categories/Jewelry",
     src: about9,
-    alt: "Shop Jewelry",
+    alt: "lab grown diamond jewelry, custom fine jewelry, ethical diamonds, New York jewelry store, Katanoff about us",
+    title: "Katanoff | Ethical Lab Grown Diamond Jewelry – About Us",
     label: "SHOP JEWELRY",
   },
   {
@@ -89,7 +90,8 @@ const shopSections = [
       FLASH_DEALS
     )}`,
     src: about10,
-    alt: "Shop Collections",
+    alt: "custom lab grown diamond jewelry, fine jewelry craftsmanship, sustainable diamonds, New York USA, Katanoff",
+    title: "Katanoff | Custom Lab Grown Diamond Jewelry in New York",
     label: "SHOP COLLECTIONS",
   },
 ];
@@ -103,32 +105,36 @@ const missionPillars = [
   {
     title: "Pure Intent",
     img: tranperencyImg,
-    altAttr: "",
-    titleAttr: "",
+    altAttr:
+      "lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff",
+    titleAttr: "Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York",
     description:
       "Every piece begins with a purpose crafted to reflect values, not just beauty.",
   },
   {
     title: "Mindful Making",
     img: SustainImg,
-    altAttr: "",
-    titleAttr: "",
+    altAttr:
+      "lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff",
+    titleAttr: "Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York",
     description:
       "From lab-grown diamonds to lasting design, we create with care for people and planet.",
   },
   {
     title: "Elevated Standards",
     img: Compassion,
-    altAttr: "",
-    titleAttr: "",
+    altAttr:
+      "lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff",
+    titleAttr: "Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York",
     description:
       "We hold ourselves to the highest level of quality, ethics, and precision.",
   },
   {
     title: "Lasting Connection",
     img: Inclusion,
-    altAttr: "",
-    titleAttr: "",
+    altAttr:
+      "lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff",
+    titleAttr: "Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York",
     description:
       "Our jewelry is made to mean something pieces that stay with you, always.",
   },
@@ -141,8 +147,8 @@ export default function AboutPage() {
         staticSrcMobile={aboutUsMobile}
         staticSrcDesktop={aboutUsDesktop}
         isStaticBanner={true}
-        altAttr=""
-        titleAttr=""
+        altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.ABOUT_US].alt}
+        titleAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.ABOUT_US].title}
         textAlignment="left"
         customClass="text-!left !justify-left !pl-12"
       />
@@ -220,7 +226,7 @@ export default function AboutPage() {
 
       <section className="pt-12 lg:pt-20 container">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl mx-auto px-4">
-          {shopSections.map(({ href, src, alt, label }, index) => (
+          {shopSections.map(({ href, src, alt, title, label }, index) => (
             <Link
               key={index}
               href={href}
@@ -229,6 +235,7 @@ export default function AboutPage() {
               <CustomImg
                 src={src}
                 alt={alt}
+                title={title}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
               <div className="absolute bottom-6 left-6 text-white text-lg tracking-wide font-bold">

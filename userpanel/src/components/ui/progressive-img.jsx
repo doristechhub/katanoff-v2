@@ -7,6 +7,7 @@ const ProgressiveImg = ({
   progressiveImgClassName = "",
   src,
   alt = "",
+  title = "",
   className,
   width = 200, // default width
   height = 200, // default height
@@ -31,6 +32,7 @@ const ProgressiveImg = ({
     <Image
       src={imgSrc}
       alt={alt}
+      title={title}
       width={width}
       height={height}
       className={`object-contain image-rendering-optimize ${customClass} ${className}`}

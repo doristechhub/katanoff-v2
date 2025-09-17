@@ -1,11 +1,11 @@
 "use client";
 import React, { useState } from "react";
-import Image from "next/image";
 import clarityFL from "@/assets/images/education/flawless.webp";
 import clarityVVS from "@/assets/images/education/vvs.webp";
 import clarityVS from "@/assets/images/education/vs.webp";
 import claritySI from "@/assets/images/education/s.webp";
 import clarityI from "@/assets/images/education/included.webp";
+import CustomImg from "./custom-img";
 
 const clarityData = {
   FL: {
@@ -108,9 +108,10 @@ const ClaritySection = () => {
             </p>
           </div>
           <div className="w-full md:w-1/2 flex justify-center md:justify-end">
-            <Image
-              src={info.img}
-              alt={info.title}
+            <CustomImg
+              srcAttr={info.img}
+              altAttr="lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff"
+              titleAttr="Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York"
               width={300}
               height={300}
               className="w-full max-w-[280px] sm:max-w-[300px] md:max-w-[400px] lg:max-w-[500px] h-auto object-contain"

@@ -78,7 +78,12 @@ export default function Footer() {
     <footer className={`${footerMarginClass} bg-primary relative`}>
       <div className="pt-6 md:pt-10 pb-10 xl:pt-10 2xl:pb-14 text-white px-6 md:px-14 2xl:px-20">
         <div className="flex justify-center">
-          <CustomImg srcAttr={footerLogo} className="w-44 md:w-56 2xl:w-64" />
+          <CustomImg
+            srcAttr={footerLogo}
+            altAttr="lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff"
+            titleAttr="Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York"
+            className="w-44 md:w-56 2xl:w-64"
+          />
         </div>
         <div className="container z-10 pt-8 md:pt-10 xl:pt-6 relative grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10">
           {footerLinks?.length &&
@@ -151,8 +156,8 @@ export default function Footer() {
       <CustomImg
         srcAttr={footerDiamondShape}
         className="hidden lg:block absolute bottom-0 left-0 w-[20%] 2xl:w-[15%]"
-        altAttr=""
-        titleAttr=""
+        altAttr="lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff"
+        titleAttr="Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York"
       />
     </footer>
   );

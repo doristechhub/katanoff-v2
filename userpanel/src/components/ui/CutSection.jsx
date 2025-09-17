@@ -6,6 +6,8 @@ import veryGood from "@/assets/images/education/verygood.webp";
 import good from "@/assets/images/education/good.webp";
 import fair from "@/assets/images/education/fair.webp";
 import { CustomImg } from "../dynamiComponents";
+import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
+import { PAGE_CONSTANTS } from "@/_helper";
 
 const cutData = {
   excellent: {
@@ -13,28 +15,24 @@ const cutData = {
     description:
       "Reflects nearly all light that enters. Maximum brilliance, fire, and sparkle only 3% of diamonds achieve this superior grade.",
     img: excellent,
-    alt: "Excellent Cut",
   },
   veryGood: {
     title: "Very Good",
     description:
       "Reflects most light well with minimal loss. Delivers impressive sparkle, ideal for those who want high beauty with balanced value.",
     img: veryGood,
-    alt: "Very Good Cut",
   },
   good: {
     title: "Good",
     description:
       "Reflects light reasonably well. Some brilliance is lost, but still offers a nice appearance at a more affordable price.",
     img: good,
-    alt: "Good Cut",
   },
   poor: {
     title: "Fair",
     description:
       "Limited light return. Noticeable dullness or darkness in the stone. Generally not recommended for fine jewelry due to low brilliance.",
     img: fair,
-    alt: "Fair Cut",
   },
 };
 
@@ -83,10 +81,11 @@ const CutSection = () => {
           aspect-[6/4] sm:aspect-[5/4] md:aspect-square w-full flex flex-col items-center justify-center cursor-pointer
           transition-all duration-300 ease-in-out transform
           font-gelasio font-medium text-sm xss:text-base sm:text-lg md:text-[17px] text-center min-h-[60px] border border-primary
-          ${selectedCut === grade
-                  ? "bg-primary text-white z-20"
-                  : "text-black  hover:z-10 hover:bg-primary hover:text-white"
-                }
+          ${
+            selectedCut === grade
+              ? "bg-primary text-white z-20"
+              : "text-black  hover:z-10 hover:bg-primary hover:text-white"
+          }
           ${index !== cutGrades.length - 1 ? "border-r" : ""}
           ${index >= 4 ? "border-t" : ""}
         `}
@@ -110,7 +109,8 @@ const CutSection = () => {
           <div className="w-full md:w-1/2 sm:py-4 md:py-6 lg:py-10">
             <CustomImg
               srcAttr={cutInfo.img}
-              altAttr={cutInfo.alt}
+              altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.EDUCATION].alt}
+              titleAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.EDUCATION].title}
               width={500}
               height={350}
               className=" shadow-lg w-full object-cover max-w-[500px] mx-auto"
