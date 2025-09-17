@@ -8,7 +8,7 @@ import {
   RING_SIZE,
   SALES_TAX_PERCENTAGE,
 } from "@/_helper";
-import { CustomImg, ProgressiveImg } from "../../dynamiComponents";
+import { ProgressiveImg } from "../../dynamiComponents";
 import { fetchCart } from "@/_actions/cart.action";
 import { setIsNewYorkState } from "@/store/slices/checkoutSlice";
 import { HiChevronUp, HiChevronDown } from "react-icons/hi";

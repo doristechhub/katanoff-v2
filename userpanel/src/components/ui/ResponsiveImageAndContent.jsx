@@ -1,5 +1,5 @@
-import { CustomImg } from "../dynamiComponents";
 import { LinkButton, PrimaryLinkButton } from "./button";
+import CustomImg from "./custom-img";
 
 const ResponsiveImageAndContent = ({
   desktopImage,

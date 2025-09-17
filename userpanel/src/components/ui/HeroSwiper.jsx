@@ -4,7 +4,7 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
-import { CustomImg } from "../dynamiComponents";
+import CustomImg from "./custom-img";
 
 export default function HeroSwiper({ slides }) {
   return (

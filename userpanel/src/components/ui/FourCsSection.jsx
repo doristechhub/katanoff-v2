@@ -2,7 +2,7 @@ import frame1 from "@/assets/images/education/Frame1.webp";
 import frame2 from "@/assets/images/education/Frame2.webp";
 import frame3 from "@/assets/images/education/Frame3.webp";
 import frame4 from "@/assets/images/education/Frame4.webp";
-import { CustomImg } from "../dynamiComponents";
+import CustomImg from "./custom-img";
 
 const FourCsSection = () => {
   return (

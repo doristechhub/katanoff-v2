@@ -1,4 +1,3 @@
-import { CustomImg } from "../dynamiComponents";
 import pricing from "@/assets/icons/pricing.svg";
 import warranty from "@/assets/icons/warranty.svg";
 import returns from "@/assets/icons/returns.svg";
@@ -11,6 +10,7 @@ import elegantPacking from "@/assets/icons/elegantPacking.svg";
 import competitivePricing from "@/assets/icons/competitivePricing.svg";
 import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
 import { PAGE_CONSTANTS } from "@/_helper";
+import CustomImg from "./custom-img";
 
 const features = [
   {

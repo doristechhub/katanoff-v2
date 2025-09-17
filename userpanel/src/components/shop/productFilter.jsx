@@ -21,7 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter, useSearchParams } from "next/navigation";
 import filterIcon from "@/assets/icons/filter.svg";
 import settingsSlidersIcon from "@/assets/icons/settings-sliders.svg";
-import { CustomImg, ProgressiveImg, RangeSlider } from "../dynamiComponents";
+import { ProgressiveImg, RangeSlider } from "../dynamiComponents";
 import {
   DIAMOND_SHAPE,
   GOLD_COLOR,
@@ -42,6 +42,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { SlArrowLeft, SlArrowRight } from "react-icons/sl";
 import { ITEMS_PER_PAGE } from "@/_utils/common";
+import CustomImg from "../ui/custom-img";
 
 const filterHeadingClass =
   "text-[14px] lg:text-base leading-4 font-semibold pb-[15px]";

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { FaPause, FaPlay } from "react-icons/fa6";
-import { CustomImg } from "../dynamiComponents";
+import CustomImg from "./custom-img";
 export default function CustomVideo({ videoSrc, thumbnail }) {
   const videoRef = useRef(null);
   const sectionRef = useRef(null);

@@ -22,8 +22,8 @@ import FixedAlert from "../ui/FixedAlert";
 import { messageType } from "@/_helper/constants";
 import openEye from "@/assets/icons/open-eye.svg";
 import closeEye from "@/assets/icons/close-eye.svg";
-import { CustomImg } from "../dynamiComponents";
 import ErrorMessage from "../ui/ErrorMessage";
+import CustomImg from "../ui/custom-img";
 
 // ----------------------------------------------------------------------
 

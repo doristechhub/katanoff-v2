@@ -15,7 +15,7 @@ import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { CustomImg, ProgressiveImg } from "@/components/dynamiComponents";
+import {  ProgressiveImg } from "@/components/dynamiComponents";
 import {
   ESTIMATE_AMOUNT_NOTE,
   helperFunctions,
@@ -35,6 +35,7 @@ import CommonBgHeading from "../CommonBgHeading";
 import FixedAlert from "../FixedAlert";
 import SkeletonLoader from "../skeletonLoader";
 import CommonNotFound from "../CommonNotFound";
+import CustomImg from "../custom-img";
 
 const validationSchema = Yup.object().shape({
   returnRequestReason: Yup.string().required("Reason is required"),

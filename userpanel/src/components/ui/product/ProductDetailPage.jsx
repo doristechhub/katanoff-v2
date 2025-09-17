@@ -13,7 +13,6 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import VariationsList from "@/components/ui/VariationsList";
 import {
-  CustomImg,
   ProductNotFound,
   ProductDetailPageImage,
   AccordionTabs,
@@ -63,6 +62,7 @@ import warrantyIcon from "@/assets/icons/warranty.svg";
 import Link from "next/link";
 import { fetchCustomizeProductSettings } from "@/_actions/customize.action";
 import CommonNotFound from "../CommonNotFound";
+import CustomImg from "../custom-img";
 export const minProductQuantity = 1;
 export const maxProductQuantity = 5;
 

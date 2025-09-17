@@ -1,10 +1,10 @@
 "use client";
-import { CustomImg } from "@/components/dynamiComponents";
 import Link from "next/link";
 import getToKnowUs1 from "@/assets/images/home/getToKnowUs-1.webp";
 import getToKnowUs2 from "@/assets/images/home/getToKnowUs-2.webp";
 import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
 import { PAGE_CONSTANTS } from "@/_helper";
+import CustomImg from "../custom-img";
 
 const CARD_DATA = [
   {

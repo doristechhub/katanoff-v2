@@ -1,6 +1,7 @@
-import { CustomImg } from "@/components/dynamiComponents";
 import breadCrumb from "@/assets/icons/breadCrumbBigArrow.svg";
 import Link from "next/link";
+import CustomImg from "../custom-img";
+
 const StepsGrid = ({ steps = [], currentStep, titleText }) => {
   return (
     <>
@@ -12,15 +13,17 @@ const StepsGrid = ({ steps = [], currentStep, titleText }) => {
           >
             <div className="flex flex-col items-start gap-0.5">
               <span
-                className={`block xss:hidden text-sm font-bold ${currentStep === step.id ? "text-baseblack" : "text-gray-500"
-                  }`}
+                className={`block xss:hidden text-sm font-bold ${
+                  currentStep === step.id ? "text-baseblack" : "text-gray-500"
+                }`}
               >
                 {step?.labelDetail}
               </span>
               {/* 👇 Shown on screens smaller than `sm` */}
               <span
-                className={`hidden xss:block sm:hidden text-sm font-bold ${currentStep === step.id ? "text-baseblack" : "text-gray-500"
-                  }`}
+                className={`hidden xss:block sm:hidden text-sm font-bold ${
+                  currentStep === step.id ? "text-baseblack" : "text-gray-500"
+                }`}
               >
                 {step?.label}
                 <br />
@@ -29,27 +32,30 @@ const StepsGrid = ({ steps = [], currentStep, titleText }) => {
 
               <div className="hidden sm:grid grid-cols-[auto_1fr] gap-x-2 text-sm md:text-base">
                 <span
-                  className={`row-span-2 ${currentStep === step.id
+                  className={`row-span-2 ${
+                    currentStep === step.id
                       ? "font-bold text-baseblack"
                       : "text-gray-500"
-                    } text-lg md:text-xl lg:text-2xl 2xl:text-3xl 4xl:text-4xl leading-none pt-1`}
+                  } text-lg md:text-xl lg:text-2xl 2xl:text-3xl 4xl:text-4xl leading-none pt-1`}
                 >
                   {step.id}
                 </span>
                 <span
-                  className={`${currentStep === step?.id
+                  className={`${
+                    currentStep === step?.id
                       ? "text-baseblack"
                       : "text-gray-500"
-                    } !text-base`}
+                  } !text-base`}
                 >
                   {step.label}
                 </span>
                 <div className="flex flex-wrap items-center gap-2">
                   <span
-                    className={`${currentStep === step?.id
+                    className={`${
+                      currentStep === step?.id
                         ? "font-bold text-baseblack"
                         : "text-gray-500"
-                      }`}
+                    }`}
                   >
                     {step.labelDetail}
                   </span>

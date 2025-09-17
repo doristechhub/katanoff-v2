@@ -4,10 +4,11 @@ import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import ZoomImage from "./ZoomImage";
-import { CustomImg, ProgressiveImg, ProgressiveVed } from "../dynamiComponents";
-import { GOLD_COLOR, helperFunctions } from "@/_helper";
+import { ProgressiveImg, ProgressiveVed } from "../dynamiComponents";
+import { DIAMOND_SHAPE, GOLD_COLOR, helperFunctions } from "@/_helper";
 import leftArrow from "@/assets/icons/leftArrow.svg";
 import rightArrow from "@/assets/icons/rightArrow.svg";
+import CustomImg from "./custom-img";
 
 const toCamelCase = (str) => {
   if (!str) return "";
@@ -31,7 +32,7 @@ const useDebounce = (callback, delay) => {
   );
 };
 
-const MemoizedSlide = memo(({ src, alt, isVideo, videoType }) => (
+const MemoizedSlide = memo(({ src, title, alt, isVideo, videoType }) => (
   <div className="flex items-center w-full h-full relative">
     {isVideo ? (
       <ProgressiveVed
@@ -41,7 +42,7 @@ const MemoizedSlide = memo(({ src, alt, isVideo, videoType }) => (
         style={{ aspectRatio: "4/4", objectFit: "cover" }}
       />
     ) : (
-      <ZoomImage src={src} alt={alt} />
+      <ZoomImage src={src} alt={alt} title={title} />
     )}
   </div>
 ));
@@ -88,6 +89,20 @@ const ProductDetailPageImage = memo(
     );
 
     const debouncedSetActiveColorKey = useDebounce(setActiveColorKey, 100);
+    const getProductDiamondShape = () => {
+      const diamondVariations = productDetail?.variations?.find(
+        (v) => v?.variationName === DIAMOND_SHAPE
+      );
+
+      return diamondVariations?.variationTypes[0]?.variationTypeName;
+    };
+
+    const { titleAttr, altAttr } = helperFunctions.generateProductImgAltTitle({
+      gender: productDetail.gender,
+      productType: productDetail?.productTypeNames[0]?.title,
+      diamondShape: getProductDiamondShape() || "",
+      metalColor: selectedColor,
+    });
 
     useEffect(() => {
       if (
@@ -260,9 +275,8 @@ const ProductDetailPageImage = memo(
             >
               <MemoizedSlide
                 src={slide.src}
-                alt={
-                  slide.isVideo ? "Product Video" : `Product Image ${index + 1}`
-                }
+                title={titleAttr}
+                alt={altAttr}
                 isVideo={slide.isVideo}
                 videoType={
                   slide.isVideo

@@ -5,9 +5,9 @@ import excellent from "@/assets/images/education/excellent.webp";
 import veryGood from "@/assets/images/education/verygood.webp";
 import good from "@/assets/images/education/good.webp";
 import fair from "@/assets/images/education/fair.webp";
-import { CustomImg } from "../dynamiComponents";
 import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
 import { PAGE_CONSTANTS } from "@/_helper";
+import CustomImg from "./custom-img";
 
 const cutData = {
   excellent: {

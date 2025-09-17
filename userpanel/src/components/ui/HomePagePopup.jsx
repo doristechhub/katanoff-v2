@@ -10,7 +10,6 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import HomePopupImg from "@/assets/images/home/home-page-popup.webp";
 import HomePopupImgMobile from "@/assets/images/home/home-page-popup-mobile.webp";
-import { CustomImg } from "../dynamiComponents";
 import { LoadingPrimaryButton } from "./button";
 import { useRouter } from "next/navigation";
 import * as Yup from "yup";
@@ -18,6 +17,7 @@ import { useFormik } from "formik";
 import ErrorMessage from "./ErrorMessage";
 import { fetchCart } from "@/_actions/cart.action";
 import Cookies from "js-cookie";
+import CustomImg from "./custom-img";
 
 export default function HomePagePopup() {
   const dispatch = useDispatch();

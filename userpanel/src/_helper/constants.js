@@ -186,15 +186,6 @@ export const PAGE_CONSTANTS = {
   SELECT_DIAMOND: "select-diamond",
   CUSTOM_JEWELRY: "custom-jewelry",
   EDUCATION: "education",
-  PAYMENT_FINANCING: "payment-financing",
-  PRIVACY_POLICY: "privacy-policy",
-  RETURN_POLICY: "return-policy",
-  SHIPPING_POLICY: "shipping-policy",
-  SITE_MAP: "site-map",
-  TERMS_AND_CONDITIONS: "terms-and-conditions",
-  TRACK_YOUR_ORDER: "track-your-order",
-  TRACK_YOUR_RETURN: "track-your-return",
-  WARRANTY: "warranty",
 };
 
 export const GIFTS_FOR_HIM = "Gifts For Him";

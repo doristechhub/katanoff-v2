@@ -3,7 +3,7 @@ import React, { useRef, useState } from "react";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
-import { CustomImg, ProgressiveImg } from "../dynamiComponents";
+import { ProgressiveImg } from "../dynamiComponents";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import SkeletonLoader from "./skeletonLoader";
@@ -23,6 +23,7 @@ import {
   SUB_CATEGORIES_KEY,
 } from "@/_helper";
 import { ITEMS_PER_PAGE } from "@/_utils/common";
+import CustomImg from "./custom-img";
 
 const FILTER_STATE_MAP = {
   [SETTING_STYLE_KEY]: {

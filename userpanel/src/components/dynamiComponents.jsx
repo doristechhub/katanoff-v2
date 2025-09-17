@@ -26,8 +26,6 @@ export const ProgressiveImg = dynamic(() => import("./ui/progressive-img"), {
   ssr: false,
 });
 
-export const CustomImg = dynamic(() => import("./ui/custom-img"));
-
 export const StoreProvider = dynamic(() => import("@/store/provider"), {
   ssr: false,
 });

@@ -11,12 +11,12 @@ import Compassion from "@/assets/images/about-us/compassion.webp";
 import Inclusion from "@/assets/images/about-us/inclusion.webp";
 import {
   AnimatedSection,
-  CustomImg,
   HeroBanner,
 } from "@/components/dynamiComponents";
 import Link from "next/link";
 import { FLASH_DEALS, helperFunctions, PAGE_CONSTANTS } from "@/_helper";
 import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
+import CustomImg from "@/components/ui/custom-img";
 
 const aboutUsContent = [
   {

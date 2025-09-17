@@ -1,12 +1,12 @@
 "use client";
 import orderSuccess from "@/assets/images/order-complete/order-submitted.svg";
-import { CustomImg } from "@/components/dynamiComponents";
 import { PrimaryLinkButton } from "../button";
 import { useParams } from "next/navigation";
 import { helperFunctions } from "../../../_helper/helperFunctions";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setCartList } from "@/store/slices/cartSlice";
+import CustomImg from "../custom-img";
 
 const OrderSuccessfulPage = () => {
   const params = useParams();

@@ -32,8 +32,9 @@ import {
   setPaymentIntentMessage,
   setPaypalPaymentMessage,
 } from "@/store/slices/paymentSlice";
-import { CustomImg } from "@/components/dynamiComponents";
 import { verifyCouponCode } from "@/_actions/coupon.action";
+import CustomImg from "../custom-img";
+
 const paymentOptions = [
   {
     value: STRIPE,

@@ -1,8 +1,8 @@
 import { usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
-import { CustomImg } from "@/components/dynamiComponents";
 import { helperFunctions, SALES_TAX_PERCENTAGE_VALUE } from "@/_helper";
 import { useMemo } from "react";
+import CustomImg from "../custom-img";
 
 export default function CheckoutCommonSummary({
   isMobile = false,

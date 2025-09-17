@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { ProgressiveImg } from "../dynamiComponents";
 
-export default function ZoomImage({ src, alt }) {
+export default function ZoomImage({ src, alt, title }) {
   const [lensPosition, setLensPosition] = useState({ x: 0, y: 0 });
   const [isZoomed, setIsZoomed] = useState(false);
   const [imageDimensions, setImageDimensions] = useState({
@@ -96,6 +96,7 @@ export default function ZoomImage({ src, alt }) {
         className="w-full h-full !object-cover"
         style={{ aspectRatio: "4/4", display: "block" }}
         alt={alt}
+        title={title}
       />
 
       {isZoomed && imageWidth > 0 && imageHeight > 0 && (

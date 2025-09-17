@@ -8,8 +8,8 @@ import testimonialProfile from "@/assets/icons/TestimonialProfile.svg";
 import testimonialMapBg from "@/assets/images/home/testimonial-map-bg.webp";
 import rightSide from "@/assets/icons/rightSide.svg";
 import leftSide from "@/assets/icons/leftSide.svg";
-import { CustomImg } from "../dynamiComponents";
 import { useEffect, useRef } from "react";
+import CustomImg from "./custom-img";
 
 export default function TestimonialSlider({ testimonials }) {
   const prevRef = useRef(null);

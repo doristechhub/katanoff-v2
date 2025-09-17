@@ -2,10 +2,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
-import { CustomImg, ProgressiveImg } from "../dynamiComponents";
+import { ProgressiveImg } from "../dynamiComponents";
 import { PrimaryLinkButton } from "./button";
 import progressiveMobile from "@/assets/images/progressive-mobile.webp";
 import progressiveDesktop from "@/assets/images/progressive-desktop.webp";
+import CustomImg from "./custom-img";
 
 const dropdownItems = [
   { title: "Build Your Own", href: `/customize/select-diamond` },

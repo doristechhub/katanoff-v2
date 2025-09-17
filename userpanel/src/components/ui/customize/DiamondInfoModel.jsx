@@ -15,7 +15,7 @@ import princess from "@/assets/icons/princess.svg";
 import diamondDiagram from "@/assets/images/customize/diamond-diagram.webp";
 import clarityDiagram from "@/assets/images/customize/clarity-diagram.webp";
 import diamondColorDiagram from "@/assets/images/customize/diamond-color-diagram.webp";
-import { CustomImg } from "@/components/dynamiComponents";
+import CustomImg from "../custom-img";
 
 // Base Modal Component
 function DiamondInfoModal({ isOpen, title, children, className = "" }) {

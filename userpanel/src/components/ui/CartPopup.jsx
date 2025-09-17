@@ -19,7 +19,7 @@ import {
   setOpenDiamondDetailDrawer,
 } from "@/store/slices/commonSlice";
 import SkeletonLoader from "@/components/ui/skeletonLoader";
-import { CartNotFound, CustomImg, ProgressiveImg } from "../dynamiComponents";
+import { CartNotFound,  ProgressiveImg } from "../dynamiComponents";
 import ErrorMessage from "./ErrorMessage";
 import DiamondDetailDrawer from "./customize/DiamondDetailDrawer";
 import { paymentOptions } from "@/_utils/paymentOptions";
@@ -28,6 +28,7 @@ import {
   setDeleteLoader,
   setRemoveCartErrorMessage,
 } from "@/store/slices/cartSlice";
+import CustomImg from "./custom-img";
 
 const maxQuantity = 5;
 const minQuantity = 1;
