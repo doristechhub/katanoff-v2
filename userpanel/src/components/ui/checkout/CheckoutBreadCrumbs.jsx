@@ -1,6 +1,6 @@
 const steps = ["Delivery", "Shipping", "Payment", "Order Success"];
 import breadCrumb from "@/assets/icons/breadCrumb.svg";
-import { CustomImg } from "@/components/dynamiComponents";
+import CustomImg from "../custom-img";
 
 const CheckoutBreadCrumbs = ({ currentStep }) => {
   return (

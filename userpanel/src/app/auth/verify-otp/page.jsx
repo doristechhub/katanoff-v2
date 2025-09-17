@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { CustomImg, VerifyOTPForm } from "@/components/dynamiComponents";
+import {  VerifyOTPForm } from "@/components/dynamiComponents";
 import verifyOtp from "@/assets/images/auth/verify-otp.webp";
 import textLogo from "@/assets/images/logo-text.webp";
+import CustomImg from "@/components/ui/custom-img";
 
 const VeriftOTP = () => {
   return (

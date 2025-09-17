@@ -2,7 +2,7 @@ import ethical from "@/assets/images/education/ethical.webp";
 import sustainable from "@/assets/images/education/sustainable.webp";
 import costEffective from "@/assets/images/education/cost-effective.webp";
 import indistinguishable from "@/assets/images/education/indistinguishable.webp";
-import { CustomImg } from "../dynamiComponents";
+import CustomImg from "./custom-img";
 
 const features = [
   {

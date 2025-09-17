@@ -7,7 +7,6 @@ import { useDispatch, useSelector } from "react-redux";
 import miniLogo from "@/assets/images/mini-logo.webp";
 import {
   CartPopup,
-  CustomImg,
   HeaderLinkButton,
   ProfileDropdown,
 } from "../../dynamiComponents";
@@ -17,6 +16,7 @@ import { fetchCart } from "@/_actions/cart.action";
 import { useRouter } from "next/navigation";
 import { helperFunctions } from "@/_helper";
 import { setIsMenuOpen } from "@/store/slices/commonSlice";
+import CustomImg from "@/components/ui/custom-img";
 
 export default function NavigationHeader() {
   const dispatch = useDispatch();

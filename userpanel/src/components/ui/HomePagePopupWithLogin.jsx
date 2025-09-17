@@ -4,10 +4,10 @@ import { X } from "lucide-react";
 import { setOpenHomePagePopup } from "@/store/slices/commonSlice";
 import { useDispatch, useSelector } from "react-redux";
 import HomePopupLoginImg from "@/assets/images/home/home-page-popup-login.webp";
-import { CustomImg } from "../dynamiComponents";
 import { LinkButton } from "./button";
 import { SHINE10 } from "@/_helper";
 import { useEffect } from "react";
+import CustomImg from "./custom-img";
 
 export default function HomePagePopupWithLogin() {
   const { openHomePagePopup } = useSelector(({ common }) => common);

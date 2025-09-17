@@ -1,12 +1,12 @@
 // components/JewelryAppointment.tsx
 "use client";
-import { CustomImg } from "../dynamiComponents";
 import bookAppointment from "@/assets/images/home/book-appointment-home.webp";
 import bookAppointmentMobile from "@/assets/images/home/book-appointment-home-mobile.webp";
 
 import { PrimaryLinkButton } from "./button";
 import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
 import { PAGE_CONSTANTS } from "@/_helper";
+import CustomImg from "./custom-img";
 
 export default function JewelryAppointment() {
   return (

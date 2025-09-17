@@ -8,8 +8,8 @@ import {
   leftToRightAnimation,
   rightToLeftAnimation,
 } from "@/_utils/common";
-import { CustomImg } from "../dynamiComponents";
 import Link from "next/link";
+import CustomImg from "./custom-img";
 
 const AnimatedSection = ({
   description = [],

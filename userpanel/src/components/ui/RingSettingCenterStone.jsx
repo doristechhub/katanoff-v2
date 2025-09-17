@@ -2,10 +2,10 @@ import centerStone from "@/assets/images/home/center-stone.webp";
 import ringSetting from "@/assets/images/home/ring-setting.webp";
 import centerStoneVideo from "@/assets/images/home/center-stone-video.gif";
 import centerStoneCombine from "@/assets/images/home/center-stone-combine.webp";
-import { CustomImg } from "../dynamiComponents";
 import { PrimaryLinkButton } from "./button";
 import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
 import { PAGE_CONSTANTS } from "@/_helper";
+import CustomImg from "./custom-img";
 
 const RingSettingCenterStone = () => {
   return (

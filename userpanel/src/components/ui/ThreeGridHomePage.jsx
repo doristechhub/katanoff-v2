@@ -1,5 +1,5 @@
-import { CustomImg } from "../dynamiComponents";
 import Link from "next/link";
+import CustomImg from "./custom-img";
 
 export default function ThreeGridHomePage({ gridItems = [], className = "" }) {
   return (

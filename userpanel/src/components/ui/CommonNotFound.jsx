@@ -1,6 +1,6 @@
 import noDataImg from "@/assets/images/no-data.webp";
 import { PrimaryLinkButton } from "../ui/button";
-import { CustomImg } from "../dynamiComponents";
+import CustomImg from "./custom-img";
 
 export default function CommonNotFound({
   message = "Sorry, No product Found",

@@ -10,12 +10,13 @@ import customJewelry16 from "@/assets/images/custom-jewelry/custom-jewelry-16.we
 import customJewelry19 from "@/assets/images/custom-jewelry/custom-jewelry-19.webp";
 import customJewelry20 from "@/assets/images/custom-jewelry/custom-jewelry-20.webp";
 import customJewelry21 from "@/assets/images/custom-jewelry/custom-jewelry-21.webp";
-import { AccordionTabs, CustomImg } from "@/components/dynamiComponents";
+import { AccordionTabs } from "@/components/dynamiComponents";
 import { LinkButton } from "@/components/ui/button";
 import breadCrumb from "@/assets/icons/breadCrumbBigArrow.svg";
 import Link from "next/link";
 import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
 import { PAGE_CONSTANTS } from "@/_helper";
+import CustomImg from "./custom-img";
 
 const accordianContent = [
   {

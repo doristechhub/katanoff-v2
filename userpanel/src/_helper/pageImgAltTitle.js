@@ -42,49 +42,4 @@ export const PAGE_IMG_ALT_TITLE = {
         title: "Katanoff | Diamond Education Lab Grown Diamond Guide",
         alt: "diamond education, lab grown diamond guide, diamond 4Cs, diamond clarity, diamond cut, ethical diamonds, fine jewelry knowledge, New York, USA, Katanoff",
     },
-
-    [PAGE_CONSTANTS.PAYMENT_FINANCING]: {
-        title: "Katanoff | Payment & Financing Lab Grown Diamond Jewelry",
-        alt: "jewelry payment options, financing diamond jewelry, lab grown diamond rings, custom jewelry, fine jewelry New York, USA, Katanoff",
-    },
-
-    [PAGE_CONSTANTS.PRIVACY_POLICY]: {
-        title: "Katanoff | Privacy Policy Katanoff Jewelry",
-        alt: "privacy policy, Katanoff jewelry, lab grown diamond jewelry, custom jewelry, fine jewelry New York, USA",
-    },
-
-    [PAGE_CONSTANTS.RETURN_POLICY]: {
-        title: "Katanoff | Return Policy Katanoff Jewelry",
-        alt: "return policy, Katanoff jewelry, lab grown diamond jewelry, custom jewelry, fine jewelry, New York, USA",
-    },
-
-    [PAGE_CONSTANTS.SHIPPING_POLICY]: {
-        title: "Katanoff | Shipping Policy Katanoff Jewelry",
-        alt: "shipping policy, Katanoff jewelry, lab grown diamond jewelry, custom jewelry, fine jewelry, New York, USA",
-    },
-
-    [PAGE_CONSTANTS.SITE_MAP]: {
-        title: "Katanoff | Site Map Lab Grown Diamond Jewelry",
-        alt: "site map, Katanoff jewelry, lab grown diamond jewelry, fine jewelry, custom jewelry, New York, USA",
-    },
-
-    [PAGE_CONSTANTS.TERMS_AND_CONDITIONS]: {
-        title: "Katanoff | Terms & Conditions Katanoff Jewelry",
-        alt: "terms and conditions, Katanoff jewelry, lab grown diamond jewelry, custom jewelry, fine jewelry, New York, USA",
-    },
-
-    [PAGE_CONSTANTS.TRACK_YOUR_ORDER]: {
-        title: "Katanoff | Track Your Order Katanoff Jewelry",
-        alt: "track your order, Katanoff jewelry, lab grown diamond jewelry, custom jewelry, fine jewelry, New York, USA",
-    },
-
-    [PAGE_CONSTANTS.TRACK_YOUR_RETURN]: {
-        title: "Katanoff | Track Your Return Katanoff Jewelry",
-        alt: "track your return, Katanoff jewelry, lab grown diamond jewelry, custom jewelry, fine jewelry, New York, USA",
-    },
-
-    [PAGE_CONSTANTS.WARRANTY]: {
-        title: "Katanoff | Warranty Katanoff Jewelry",
-        alt: "warranty, Katanoff jewelry, lab grown diamond jewelry, custom jewelry, fine jewelry, New York, USA",
-    },
 };

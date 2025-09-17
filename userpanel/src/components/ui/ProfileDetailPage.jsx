@@ -5,11 +5,12 @@ import { Pencil, Save, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import profile from "@/assets/images/profile/profile.webp";
-import { CustomImg } from "@/components/dynamiComponents";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import SkeletonLoader from "./skeletonLoader";
+import CustomImg from "./custom-img";
+
 export default function ProfileDetailPage() {
   const dispatch = useDispatch();
   const { userProfile, userProfileMessage, userLoading } = useSelector(
@@ -178,8 +179,9 @@ export default function ProfileDetailPage() {
       </div>
 
       <div
-        className={`${editMode ? "h-[50vh] md:h-[45vh] xl:h-[50vh]" : "h-[40vh]"
-          }`}
+        className={`${
+          editMode ? "h-[50vh] md:h-[45vh] xl:h-[50vh]" : "h-[40vh]"
+        }`}
       />
     </>
   );

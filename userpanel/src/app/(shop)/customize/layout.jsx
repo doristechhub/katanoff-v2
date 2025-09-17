@@ -1,8 +1,6 @@
-import { PAGE_CONSTANTS } from "@/_helper";
-import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
 import desktopRingBanner from "@/assets/images/customize/desktop-ring-banner.webp";
 import mobileRingBanner from "@/assets/images/customize/mobile-ring-banner.webp";
-import { CustomImg } from "@/components/dynamiComponents";
+import CustomImg from "@/components/ui/custom-img";
 export default function MainLayout({ children }) {
   return (
     <>

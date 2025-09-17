@@ -1,9 +1,9 @@
-import { CustomImg } from "@/components/dynamiComponents";
 import downloadIcon from "@/assets/icons/download.svg";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback } from "react";
 import { downloadReturnInvoice } from "@/_actions/return.action";
 import { downloadOrderInvoice } from "@/_actions/order.action";
+import CustomImg from "../custom-img";
 
 export default function DownloadInvoice({
   orderId,

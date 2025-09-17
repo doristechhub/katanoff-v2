@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { CustomImg, LoginForm } from "@/components/dynamiComponents";
+import { LoginForm } from "@/components/dynamiComponents";
 import login from "@/assets/images/auth/login.webp";
 import textLogo from "@/assets/images/logo-text.webp";
+import CustomImg from "@/components/ui/custom-img";
 
 const Login = () => {
   return (

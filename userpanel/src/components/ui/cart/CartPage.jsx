@@ -6,7 +6,6 @@ import couponCodeRight from "@/assets/icons/couponCodeRight.svg";
 import couponCodeWrong from "@/assets/icons/couponCodeWrong.svg";
 import {
   CartNotFound,
-  CustomImg,
   ProgressiveImg,
 } from "@/components/dynamiComponents";
 import SkeletonLoader from "@/components/ui/skeletonLoader";
@@ -41,6 +40,7 @@ import DiamondDetailDrawer from "../customize/DiamondDetailDrawer";
 import { paymentOptions } from "@/_utils/paymentOptions";
 import { setCouponCode, setCouponMessage } from "@/store/slices/couponSlice";
 import { verifyCouponCode, removeCouponCode } from "@/_actions/coupon.action";
+import CustomImg from "../custom-img";
 const maxQuantity = 5;
 const minQuantity = 1;
 

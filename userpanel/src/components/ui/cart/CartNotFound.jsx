@@ -1,9 +1,9 @@
 "use client";
 import cartImage from "@/assets/images/cart/cart.webp";
-import { CustomImg } from "@/components/dynamiComponents";
 import { setIsCartOpen } from "@/store/slices/commonSlice";
 import { useDispatch } from "react-redux";
 import { PrimaryLinkButton } from "../button";
+import CustomImg from "../custom-img";
 
 const CartNotFound = ({ textClassName = "" }) => {
   const dispatch = useDispatch();

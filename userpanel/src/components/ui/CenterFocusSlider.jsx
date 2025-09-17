@@ -2,7 +2,6 @@
 
 import "swiper/css";
 import "swiper/css/navigation";
-import CustomImg from "./custom-img";
 import centerFocusSliderLeftArrow from "@/assets/icons/centerFocusSliderLeftArrow.svg";
 import centerFocusSliderRightArrow from "@/assets/icons/centerFocusSliderRightArrow.svg";
 
@@ -35,6 +34,7 @@ import {
   ROUND,
 } from "@/_helper";
 import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
+import CustomImg from "./custom-img";
 
 const ringData = [
   {

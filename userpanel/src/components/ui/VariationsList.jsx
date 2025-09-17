@@ -1,6 +1,6 @@
 "use client";
 import { memo, useCallback, useRef, useMemo, useEffect } from "react";
-import { CustomImg, ProgressiveImg } from "../dynamiComponents";
+import { ProgressiveImg } from "../dynamiComponents";
 import dropdownArrow from "@/assets/icons/dropdownArrow.svg";
 import {
   DIAMOND_CLARITY,
@@ -21,6 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setCustomProductDetails } from "@/store/slices/commonSlice";
 import { setSelectedVariations } from "@/store/slices/productSlice";
 import { useRouter, useSearchParams } from "next/navigation";
+import CustomImg from "./custom-img";
 
 const useDebounce = (callback, delay) => {
   const timeoutRef = useRef(null);

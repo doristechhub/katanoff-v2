@@ -23,7 +23,6 @@ import { setShowModal } from "@/store/slices/commonSlice";
 import FixedAlert from "@/components/ui/FixedAlert";
 import { useAlertTimeout } from "@/hooks/use-alert-timeout";
 import returnRequestSvg from "@/assets/icons/returnRequest.svg";
-import { CustomImg } from "@/components/dynamiComponents";
 import threeDots from "@/assets/icons/3dots.svg";
 import eye from "@/assets/icons/eye.svg";
 
@@ -45,6 +44,7 @@ import CommonNotFound from "@/components/ui/CommonNotFound";
 import { RxCross2 } from "react-icons/rx";
 import CancelOrderModal from "@/components/ui/order-history/OrderCancelModel";
 import Spinner from "@/components/ui/spinner";
+import CustomImg from "../custom-img";
 
 export default function OrderHistoryPage() {
   // In your main file (above the return)

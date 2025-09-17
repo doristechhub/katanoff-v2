@@ -1,7 +1,7 @@
 "use client";
 
 import { fetchTrackReturnByOrderNumberAndEmail } from "@/_actions/return.action";
-import { CustomImg, ReturnDetails } from "@/components/dynamiComponents";
+import { ReturnDetails } from "@/components/dynamiComponents";
 import { LoadingPrimaryButton } from "@/components/ui/button";
 import returnArrow from "@/assets/icons/returnArrow.svg";
 import CommonBgHeading from "@/components/ui/CommonBgHeading";
@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 import { helperFunctions } from "@/_helper";
+import CustomImg from "../custom-img";
 
 const ReturnAccordion = ({
   returnItem,
@@ -42,8 +43,9 @@ const ReturnAccordion = ({
   return (
     <div className="border !bg-none border-gray-200 mb-4 rounded-md">
       <div
-        className={`flex justify-between items-center  p-4 cursor-pointer hover:bg-gray-200 transition-colors ${isExpanded ? "border-b  border-gray-200" : ""
-          } `}
+        className={`flex justify-between items-center  p-4 cursor-pointer hover:bg-gray-200 transition-colors ${
+          isExpanded ? "border-b  border-gray-200" : ""
+        } `}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         tabIndex={0}
@@ -67,8 +69,9 @@ const ReturnAccordion = ({
             srcAttr={returnArrow}
             altAttr="Arrow"
             titleAttr="Arrow"
-            className={`w-5 h-5 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""
-              }`}
+            className={`w-5 h-5 transition-transform duration-200 ${
+              isExpanded ? "rotate-180" : ""
+            }`}
             style={{ filter }}
           />
         </div>

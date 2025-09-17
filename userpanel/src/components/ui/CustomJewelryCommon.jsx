@@ -1,4 +1,4 @@
-import { CustomImg } from "../dynamiComponents";
+import CustomImg from "./custom-img";
 
 const CustomJewelryCommon = ({
   imageSrc,

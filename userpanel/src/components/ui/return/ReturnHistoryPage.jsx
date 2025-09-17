@@ -20,7 +20,6 @@ import {
   setReturnMessage,
   setReturnOrder,
 } from "@/store/slices/returnSlice";
-import { CustomImg } from "@/components/dynamiComponents";
 import threeDots from "@/assets/icons/3dots.svg";
 import eye from "@/assets/icons/eye.svg";
 
@@ -43,6 +42,7 @@ import { RxCross2 } from "react-icons/rx";
 import CancelReturnRequestModel from "./CancelReturnRequestModel";
 import DownloadInvoice from "../order-history/downloadInvoice";
 import Spinner from "../spinner";
+import CustomImg from "../custom-img";
 
 export default function ReturnHistoryPage() {
   const [openId, setOpenId] = useState(null);
