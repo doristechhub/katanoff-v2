@@ -6,10 +6,11 @@ import "swiper/css";
 import "swiper/css/navigation";
 import CustomImg from "../custom-img";
 import Link from "next/link";
-import { helperFunctions } from "@/_helper";
+import { helperFunctions, PAGE_CONSTANTS } from "@/_helper";
 import leftArrow from "@/assets/icons/centerFocusSliderLeftArrow.svg";
 import rightArrow from "@/assets/icons/centerFocusSliderRightArrow.svg";
 import { ProgressiveImg } from "@/components/dynamiComponents";
+import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
 
 export default function CategoryGallery({ categories = [] }) {
   return (
@@ -39,15 +40,15 @@ export default function CategoryGallery({ categories = [] }) {
             1024: { slidesPerView: 3 },
             1240: { slidesPerView: 4 },
           }}
-        // className="!mx-8"
+          // className="!mx-8"
         >
           {categories.map((category, index) => {
             const href =
               category.title === "Bangle"
                 ? "/collections/categories/Jewelry"
                 : `/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-                  category.title
-                )}`;
+                    category.title
+                  )}`;
 
             return (
               <SwiperSlide key={`category-${index}`}>
@@ -57,7 +58,9 @@ export default function CategoryGallery({ categories = [] }) {
                       {" "}
                       <ProgressiveImg
                         src={category?.image}
-                        alt={category?.alt || "Category"}
+                        // alt={category?.alt || "Category"}
+                        alt={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].alt}
+                        title={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].title}
                         className="w-full h-full"
                       />
                     </div>

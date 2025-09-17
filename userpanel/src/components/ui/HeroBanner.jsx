@@ -203,9 +203,9 @@ const HeroBanner = (props) => {
         <div className="md:absolute md:inset-0 flex justify-center md:justify-normal items-start md:items-center w-full md:my-6 h-[30vh] md:h-auto">
           {/* <div className="md:w-[60%] lg:w-[45%] 2xl:w-[100%] text-baseblack md:text-white text-center"> */}
           <div className="w-full text-baseblack md:text-white text-center mt-4 md:mt-0">
-            <h2 className="text-2xl lg:text-3xl 2xl:text-4xl font-medium leading-tight font-gelasio">
+            <h1 className="text-2xl lg:text-3xl 2xl:text-4xl font-medium leading-tight font-gelasio">
               Diamonds That Celebrate <br /> Your Unique Style.
-            </h2>
+            </h1>
 
             {/* Desktop Dropdown */}
             <div className="hidden md:flex mt-4 flex-col md:flex-row items-center md:justify-center gap-2.5 md:gap-4">

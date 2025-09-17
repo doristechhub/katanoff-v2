@@ -20,6 +20,9 @@ export default function ProductCard({
   hoveredRoseGoldImage,
   productId,
   selectedFilterGoldColor = [],
+  gender,
+  productType,
+  diamondShape,
 }) {
   // State for selected and hovered gold color
   const [selectedGoldColor, setSelectedGoldColor] = useState(null);
@@ -32,6 +35,12 @@ export default function ProductCard({
     .map((item) => item.variationTypeName)
     .join(",");
 
+  const { titleAttr, altAttr } = helperFunctions.generateProductImgAltTitle({
+    gender,
+    productType,
+    diamondShape,
+    metalColor: selectedGoldColor,
+  });
   // Map gold color variation names to their thumbnail and hovered images
   const goldColorImageMap = useMemo(
     () => ({
@@ -169,8 +178,8 @@ export default function ProductCard({
         <ProgressiveImg
           className="max-w-full h-auto"
           src={imageSrc}
-          alt={title}
-          title={title}
+          alt={altAttr}
+          title={titleAttr}
           width={700}
           height={700}
           key={imageSrc} // Force re-render on imageSrc change

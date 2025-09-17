@@ -70,9 +70,9 @@ export default function ProfileDetailPage() {
               <div
                 className={`bg-white md:rounded-lg shadow-md px-6 pt-12 pb-10 lg:pb-12 xl:pb-20`}
               >
-                <h2 className="text-center text-2xl 3xl:text-3xl text-baseblack font-gelasio">
+                <h1 className="text-center text-2xl 3xl:text-3xl text-baseblack font-gelasio">
                   Profile
-                </h2>
+                </h1>
                 <div className="px-6 lg:px-10 pt-6">
                   <form onSubmit={formik.handleSubmit}>
                     <div className="flex justify-between items-start">

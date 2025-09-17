@@ -10,6 +10,8 @@ import CutSection from "@/components/ui/CutSection";
 import ClaritySection from "@/components/ui/ClaritySection";
 import DiamondColorChartSection from "@/components/ui/ColorSection";
 import { HeroBanner } from "@/components/dynamiComponents";
+import { PAGE_CONSTANTS } from "@/_helper";
+import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
 
 const EducationPage = () => {
   return (
@@ -18,8 +20,8 @@ const EducationPage = () => {
         staticSrcDesktop={bannerDesktop}
         staticSrcMobile={bannerMobile}
         isStaticBanner={true}
-        altAttr=""
-        titleAttr=""
+        altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.EDUCATION].alt}
+        titleAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.EDUCATION].title}
       />
       <DiamondInspirationSection />
       <LabGrownDiamondCare />

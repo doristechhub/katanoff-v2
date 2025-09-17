@@ -40,7 +40,6 @@ import {
 } from "@/_actions/product.actions";
 import { helperFunctions } from "@/_helper";
 import { HiOutlineShoppingBag } from "react-icons/hi2";
-import calendarIcon from "@/assets/icons/calendar.svg";
 import CustomImg from "../ui/custom-img";
 
 const headingClass =
@@ -1523,9 +1522,9 @@ export default function NavigationHeader() {
                         {item.image ? (
                           <CustomImg
                             srcAttr={item.image}
-                            titleAttr=""
                             className="w-6"
-                            altAttr=""
+                            altAttr="lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff"
+                            titleAttr="Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York"
                           />
                         ) : item.icon ? (
                           item.icon

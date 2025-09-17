@@ -1118,6 +1118,23 @@ const scrollToRefWithExtraSpacing = ({
   });
 };
 
+const generateProductImgAltTitle = ({
+  productType = "",
+  diamondShape = "",
+  metalColor = "",
+  gender = "",
+}) => {
+  const metal = metalColor?.trim().toLowerCase() || "gold";
+
+  const titleAttr = `Diamond ${productType} in ${metal} | Lab Grown Diamond Jewelry | Buy Online in New York, USA`;
+
+  const altAttr = `${productType}, lab grown diamond, ${diamondShape ? `${diamondShape.toLowerCase()} diamond jewelry,` : ""
+    } ${metal} diamond jewelry, fine jewelry, custom jewelry, ethical diamond jewelry, ${gender.toLowerCase()} ${productType.toLowerCase()} diamond jewelry, New York, USA, Katanoff`;
+
+  return { titleAttr, altAttr };
+};
+
+
 
 export const helperFunctions = {
   debounce,
@@ -1172,5 +1189,6 @@ export const helperFunctions = {
   addNamesToVariationsArray,
   generateCaratValues,
   getFilterTypeForPage,
-  scrollToRefWithExtraSpacing
+  scrollToRefWithExtraSpacing,
+  generateProductImgAltTitle
 };

@@ -3,6 +3,8 @@ import { CustomImg } from "@/components/dynamiComponents";
 import Link from "next/link";
 import getToKnowUs1 from "@/assets/images/home/getToKnowUs-1.webp";
 import getToKnowUs2 from "@/assets/images/home/getToKnowUs-2.webp";
+import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
+import { PAGE_CONSTANTS } from "@/_helper";
 
 const CARD_DATA = [
   {
@@ -41,7 +43,8 @@ export default function GetToKnowUsSection() {
               <div>
                 <CustomImg
                   srcAttr={card.image}
-                  altAttr={card.title}
+                  altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].alt}
+                  titleAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].title}
                   className="group-hover:scale-105 transition-transform duration-500"
                 />
               </div>

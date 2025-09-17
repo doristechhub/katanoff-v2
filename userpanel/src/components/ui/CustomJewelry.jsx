@@ -10,8 +10,8 @@ export default function CustomJewelry() {
           title="Custom Jewelry"
           description="  We're here to help – reach out anytime!"
           isStaticBanner={true}
-          altAttr=""
-          titleAttr=""
+          altAttr={""}
+          titleAttr={""}
         />
       </div>
       <section className="container pt-4 md:pt-8 lg:pt-12 2xl:pt-20">

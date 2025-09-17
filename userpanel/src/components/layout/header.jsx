@@ -127,6 +127,11 @@ export default function Header() {
 
   return (
     <>
+      {/* <div className="bg-primary py-2 text-white text-xs flex justify-between items-center px-6 lg:px-8">
+        <div></div>
+        <p className="font-castoro">FREE Shipping and FREE Returns.</p>
+        <CustomImg srcAttr={flagUs} className="rounded-full w-6" />
+      </div> */}
       <header
         className={`w-full z-50 transition-all duration-700 ease-in-out 
     ${
@@ -146,8 +151,8 @@ export default function Header() {
               <CustomImg
                 srcAttr={diamondIcon}
                 className="w-6"
-                altAttr=""
-                titleAttr=""
+                altAttr="lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff"
+                titleAttr="Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York"
               />
               <h3 className="uppercase">CONTACT US</h3>
             </Link>
@@ -158,8 +163,8 @@ export default function Header() {
               <CustomImg
                 className="w-6"
                 srcAttr={calendarIcon}
-                altAttr=""
-                titleAttr=""
+                altAttr="lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff"
+                titleAttr="Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York"
               />
               <h3 className="uppercase">Book Appointment</h3>
             </Link>
@@ -189,6 +194,8 @@ export default function Header() {
               srcAttr={textLogo}
               // className="hidden lg:block w-32 xs:w-48 lg:w-52 2xl:w-64"
               className="w-[75px] md:w-24 lg:w-36 2xl:w-40"
+              altAttr="lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff"
+              titleAttr="Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York"
             />
             {/* <CustomImg srcAttr={miniLogo} className="lg:hidden w-12 2xl:w-12" /> */}
           </Link>

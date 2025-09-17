@@ -66,6 +66,9 @@ const getAllRecentlyViewedWithProduct = () => {
             goldColorVariations: foundProduct?.variations?.find(
               (x) => x?.variationName.toLowerCase() === GOLD_COLOR.toLowerCase()
             )?.variationTypes,
+            gender: foundProduct?.gender,
+            productTypeNames: foundProduct?.productTypeNames,
+            variations: foundProduct?.variations
           };
         })
         .filter((item) => item !== null);

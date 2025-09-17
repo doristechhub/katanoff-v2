@@ -3,8 +3,9 @@ import featuredPicks from "@/assets/images/home/featured-picks.webp";
 import markTheMoment from "@/assets/images/home/mark-the-moment.webp";
 import CustomImg from "../custom-img";
 import { PrimaryLinkButton } from "../button";
-import { helperFunctions } from "@/_helper";
+import { helperFunctions, PAGE_CONSTANTS } from "@/_helper";
 import Link from "next/link";
+import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
 
 const collections = [
   {
@@ -35,6 +36,8 @@ export default function CollectionHighlights() {
             <div key={idx} className={`relative ${item.span ? item.span : ""}`}>
               <CustomImg
                 srcAttr={item.image}
+                altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].alt}
+                titleAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].title}
                 className="w-full h-full object-cover"
               />
               <div className="absolute bottom-9 left-1/2 -translate-x-1/2 text-center w-full  text-white">

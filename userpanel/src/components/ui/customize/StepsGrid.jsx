@@ -104,9 +104,9 @@ const StepsGrid = ({ steps = [], currentStep, titleText }) => {
         ))}
       </div>
       <div className="pt-6 lg:pt-8 2xl:pt-10 text-center flex justify-center">
-        <p className="font-gelasio text-lg xss::text-xl xs:text-2xl lg:text-3xl 2xl:text-4xl xs:w-[70%] lg:w-[45%] 2xl:w-[40%] 4xl:w-[35%]">
+        <h1 className="font-gelasio text-lg xss::text-xl xs:text-2xl lg:text-3xl 2xl:text-4xl xs:w-[70%] lg:w-[45%] 2xl:w-[40%] 4xl:w-[35%]">
           {titleText}
-        </p>
+        </h1>
       </div>
     </>
   );

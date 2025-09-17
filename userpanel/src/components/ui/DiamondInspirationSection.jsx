@@ -7,22 +7,18 @@ import { CustomImg } from "../dynamiComponents";
 const features = [
   {
     img: ethical,
-    alt: "Ethical and Conflict-Free",
     label: "Ethically Sourced",
   },
   {
     img: sustainable,
-    alt: "Sustainable and Eco-Friendly",
     label: "Environment Friendly",
   },
   {
     img: costEffective,
-    alt: "Cost-Effective Lab Diamond",
     label: "Exceptional Quality",
   },
   {
     img: indistinguishable,
-    alt: "Indistinguishable from Natural Diamonds",
     label: "Better Value",
   },
 ];
@@ -31,11 +27,11 @@ export default function DiamondInspirationSection() {
   return (
     <section className="container py-12 lg:py-20 2xl:py-20 ">
       <div className="flex flex-col lg:flex-row justify-between items-start gap-y-0 lg:gap-y-0 mb-10">
-        <h2 className="text-4xl md:text-6xl 2xl:text-7xl leading-tight font-gelasio mb-2 lg:mb-0">
+        <h1 className="text-4xl md:text-6xl 2xl:text-7xl leading-tight font-gelasio mb-2 lg:mb-0">
           Understanding Lab-Grown
           <br />
           Diamonds
-        </h2>
+        </h1>
 
         <div className="max-w-xl mt-1 lg:mt-8">
           <div className="w-90 h-[1px] bg-[#DFDEDB] mb-2"></div>
@@ -52,7 +48,8 @@ export default function DiamondInspirationSection() {
             <div className="relative overflow-hidden shadow hover:shadow-lg transition-shadow">
               <CustomImg
                 srcAttr={item?.img}
-                altAttr={item?.alt}
+                altAttr="lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff"
+                titleAttr="Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York"
                 className="w-full object-cover"
                 layout="responsive"
               />

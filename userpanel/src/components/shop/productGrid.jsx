@@ -12,7 +12,7 @@ import SkeletonLoader from "../ui/skeletonLoader";
 import ProductNotFound from "./productNotFound";
 import { ITEMS_PER_PAGE } from "@/_utils/common";
 import { HeaderLinkButton } from "../ui/button";
-import { GOLD_COLOR } from "@/_helper";
+import { DIAMOND_SHAPE, GOLD_COLOR } from "@/_helper";
 
 const ProductGrid = memo(
   ({
@@ -56,7 +56,13 @@ const ProductGrid = memo(
     //   selectedGenders,
     //   dispatch,
     // ]);
+    const getProductDiamondShape = (product) => {
+      const diamondVariations = product?.variations?.find(
+        (v) => v?.variationName === DIAMOND_SHAPE
+      );
 
+      return diamondVariations?.variationTypes[0]?.variationTypeName;
+    };
     return (
       <>
         {/* Product Grid */}
@@ -81,46 +87,49 @@ const ProductGrid = memo(
             >
               {currentProducts.length
                 ? currentProducts.map((product) => (
-                  <ProductCard
-                    isDiamondSettingPage={isDiamondSettingPage}
-                    key={`product-key-${product?.id}`}
-                    title={product?.productName}
-                    discount={product?.discount}
-                    basePrice={product?.basePrice}
-                    price={product?.baseSellingPrice}
-                    goldColorVariations={product?.goldColorVariations}
-                    goldTypeVariations={product?.goldTypeVariations}
-                    whiteGoldThumbnailImage={product?.whiteGoldThumbnailImage}
-                    yellowGoldThumbnailImage={
-                      product?.yellowGoldThumbnailImage
-                    }
-                    roseGoldThumbnailImage={product?.roseGoldThumbnailImage}
-                    hoveredWhiteGoldImage={
-                      product?.whiteGoldImages?.length
-                        ? product?.whiteGoldImages[0]?.image
-                        : null
-                    }
-                    hoveredYellowGoldImage={
-                      product?.yellowGoldImages?.length
-                        ? product?.yellowGoldImages[0]?.image
-                        : null
-                    }
-                    hoveredRoseGoldImage={
-                      product?.roseGoldImages?.length
-                        ? product?.roseGoldImages[0]?.image
-                        : null
-                    }
-                    productLink={getProductLink({
-                      queryParams,
-                      isDiamondSettingPage,
-                      product,
-                    })}
-                    productId={product?.id}
-                    selectedFilterGoldColor={
-                      selectedFilterVariations?.[GOLD_COLOR] ?? []
-                    }
-                  />
-                ))
+                    <ProductCard
+                      isDiamondSettingPage={isDiamondSettingPage}
+                      key={`product-key-${product?.id}`}
+                      title={product?.productName}
+                      discount={product?.discount}
+                      basePrice={product?.basePrice}
+                      price={product?.baseSellingPrice}
+                      goldColorVariations={product?.goldColorVariations}
+                      goldTypeVariations={product?.goldTypeVariations}
+                      whiteGoldThumbnailImage={product?.whiteGoldThumbnailImage}
+                      yellowGoldThumbnailImage={
+                        product?.yellowGoldThumbnailImage
+                      }
+                      roseGoldThumbnailImage={product?.roseGoldThumbnailImage}
+                      hoveredWhiteGoldImage={
+                        product?.whiteGoldImages?.length
+                          ? product?.whiteGoldImages[0]?.image
+                          : null
+                      }
+                      hoveredYellowGoldImage={
+                        product?.yellowGoldImages?.length
+                          ? product?.yellowGoldImages[0]?.image
+                          : null
+                      }
+                      hoveredRoseGoldImage={
+                        product?.roseGoldImages?.length
+                          ? product?.roseGoldImages[0]?.image
+                          : null
+                      }
+                      productLink={getProductLink({
+                        queryParams,
+                        isDiamondSettingPage,
+                        product,
+                      })}
+                      productId={product?.id}
+                      selectedFilterGoldColor={
+                        selectedFilterVariations?.[GOLD_COLOR] ?? []
+                      }
+                      gender={product?.gender}
+                      productType={product?.productTypeNames[0]?.title}
+                      diamondShape={getProductDiamondShape(product) || ""}
+                    />
+                  ))
                 : null}
             </div>
           </div>

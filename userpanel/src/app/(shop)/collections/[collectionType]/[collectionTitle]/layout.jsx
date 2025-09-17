@@ -9,6 +9,7 @@ import {
   GIFTS_FOR_HER,
   GIFTS_FOR_HIM,
   GIFTS_UNDER_1000,
+  NEW_ARRIVAL,
 } from "@/_helper";
 import { DEFAULT_META } from "@/_helper/pageMeta";
 import { productService } from "@/_services";
@@ -18,6 +19,7 @@ import { headers } from "next/headers";
 const giftsForHimMobile = "/images/giftsForHimMobile.webp";
 const giftsForHerMobile = "/images/giftsForHerMobile.webp";
 const giftsUnder1000Mobile = "/images/giftsUnder1000Mobile.webp";
+const newArrivalMobile = "/images/newArrivalMobile.webp";
 
 export async function generateMetadata({ params }) {
   try {
@@ -48,6 +50,7 @@ export async function generateMetadata({ params }) {
       [GIFTS_FOR_HER]: giftsForHerMobile,
       [GIFTS_FOR_HIM]: giftsForHimMobile,
       [GIFTS_UNDER_1000]: giftsUnder1000Mobile,
+      [NEW_ARRIVAL]: newArrivalMobile,
     };
 
     /** ----------- META TITLE / DESC / KEYWORDS ----------- **/

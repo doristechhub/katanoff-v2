@@ -4,6 +4,8 @@ import { LinkButton, PrimaryLinkButton } from "./button";
 const ResponsiveImageAndContent = ({
   desktopImage,
   mobileImage,
+  altAttr,
+  titleAttr,
   title = "New Arrivals",
   subtitle = "New Designer Collection",
   linkText = "Explore Collection",
@@ -14,8 +16,9 @@ const ResponsiveImageAndContent = ({
       {/* Desktop View */}
       <section className="relative hidden sm:block">
         <CustomImg
-          src={desktopImage}
-          alt={`${title} Banner`}
+          srcAttr={desktopImage}
+          altAttr={altAttr}
+          titleAttr={titleAttr}
           className="w-full"
         />
         <div className="absolute top-0 left-[6%] container mx-auto h-full flex items-end xs:items-center pb-10 xs:pb-0">
@@ -30,7 +33,11 @@ const ResponsiveImageAndContent = ({
 
       {/* Mobile & Tablet View */}
       <section className="sm:hidden relative">
-        <CustomImg src={mobileImage} alt={`${title} Banner`} className="" />
+        <CustomImg
+          srcAttr={mobileImage}
+          altAttr={altAttr}
+          titleAttr={altAttr}
+        />
         <div className="absolute container mx-auto h-full flex justify-center items-end  bottom-6 sm:bottom-10">
           <BannerContent
             title={title}
