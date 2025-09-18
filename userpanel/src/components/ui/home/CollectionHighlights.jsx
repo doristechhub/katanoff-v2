@@ -2,7 +2,6 @@ import readyToShip from "@/assets/images/home/ready-to-ship.webp";
 import featuredPicks from "@/assets/images/home/featured-picks.webp";
 import markTheMoment from "@/assets/images/home/mark-the-moment.webp";
 import CustomImg from "../custom-img";
-import { PrimaryLinkButton } from "../button";
 import { helperFunctions, PAGE_CONSTANTS } from "@/_helper";
 import Link from "next/link";
 import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
