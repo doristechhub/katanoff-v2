@@ -1,6 +1,5 @@
 import { uid } from 'uid';
 import {
-  customizationSubTypeUrl,
   customizationUrl,
   fetchWrapperService,
   ordersUrl,
@@ -30,6 +29,10 @@ import { customizationTypeService } from './customizationType.service';
 import { customizationSubTypeService } from './customizationSubType.service';
 import { menuCategoryService } from './menuCategory.service';
 import { settingsService } from './settings.service';
+import { collectionService } from './collection.service';
+import { settingStyleService } from './settingStyle.service';
+import { diamondShapeService } from './diamondShape.service';
+import { homeService } from './home.service';
 
 export const validateProductName = (productName) => {
   // Check if the length is higher than 60 characters
@@ -884,6 +887,85 @@ const getAllActiveProducts = () => {
   });
 };
 
+const getAllProcessedProducts = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+
+      const tempActiveProductData = await getAllActiveProducts();
+      const customizations = await getAllCustomizations();
+      const collectionData = await collectionService.getAllCollection();
+      const settingStyleData = await settingStyleService.getAllSettingStyle();
+      const diamondShapeList = await diamondShapeService.getAllDiamondShape();
+      const menuData = await homeService.getAllMenuData();
+
+      const activeProductData = tempActiveProductData?.map((product) => {
+        const subCategoryIds = product?.subCategoryIds || [];
+
+        return {
+          ...product,
+          collectionNames: product?.collectionIds?.map(
+            (id) =>
+              collectionData.find((collection) => collection?.id === id)?.title
+          ),
+          settingStyleNamesWithImg:
+            product?.settingStyleIds?.map((id) =>
+              settingStyleData.find((style) => style?.id === id)
+            ) || [],
+
+          diamondFilters: product.isDiamondFilter
+            ? {
+              ...product?.diamondFilters,
+              diamondShapes: product?.diamondFilters.diamondShapeIds?.map(
+                (shapeId) => {
+                  const foundedShape = diamondShapeList?.find(
+                    (shape) => shape?.id === shapeId
+                  );
+                  return {
+                    title: foundedShape?.title,
+                    image: foundedShape?.image,
+                    id: foundedShape?.id,
+                  };
+                }
+              ),
+            }
+            : product?.diamondFilters,
+          categoryName:
+            menuData.categories.find(
+              (category) => category.id === product.categoryId
+            )?.title || "",
+          subCategoryNames:
+            subCategoryIds
+              ?.map((id) => {
+                const subCategory = menuData?.subCategories?.find(
+                  (subCategory) => subCategory?.id === id
+                );
+                return subCategory ? subCategory : null;
+              })
+              .filter(Boolean) || [],
+
+          productTypeNames:
+            product.productTypeIds
+              ?.map((id) => {
+                const productType = menuData?.productTypes?.find(
+                  (productType) => productType?.id === id
+                );
+                return productType ? productType : null;
+              })
+              .filter(Boolean) || [],
+
+          variations: helperFunctions.getVariationsArray(
+            product.variations,
+            customizations
+          ),
+        };
+      });
+      resolve(activeProductData);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 const deleteProduct = (productId) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -1445,8 +1527,7 @@ const updateYellowGoldMedia = (params) => {
             if (!validFileType) {
               reject(
                 new Error(
-                  `Invalid file for ${name}! (Only ${
-                    type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
+                  `Invalid file for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
                   } files are allowed!)`
                 )
               );
@@ -1456,8 +1537,7 @@ const updateYellowGoldMedia = (params) => {
             if (!validFileSize) {
               reject(
                 new Error(
-                  `Invalid file size for ${name}! (Only ${
-                    type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
+                  `Invalid file size for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
                   } are allowed!)`
                 )
               );
@@ -1694,8 +1774,7 @@ const updateWhiteGoldMedia = (params) => {
             if (!validFileType) {
               reject(
                 new Error(
-                  `Invalid file for ${name}! (Only ${
-                    type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
+                  `Invalid file for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
                   } files are allowed!)`
                 )
               );
@@ -1705,8 +1784,7 @@ const updateWhiteGoldMedia = (params) => {
             if (!validFileSize) {
               reject(
                 new Error(
-                  `Invalid file size for ${name}! (Only ${
-                    type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
+                  `Invalid file size for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
                   } are allowed!)`
                 )
               );
@@ -1889,8 +1967,8 @@ const updateProduct = (params) => {
               : productData?.grossWeight;
           centerDiamondWeight =
             !isNaN(centerDiamondWeight) &&
-            centerDiamondWeight !== '' &&
-            centerDiamondWeight !== null
+              centerDiamondWeight !== '' &&
+              centerDiamondWeight !== null
               ? Math.round(parseFloat(centerDiamondWeight) * 100) / 100
               : 0;
           totalCaratWeight =
@@ -2371,7 +2449,7 @@ const updateProduct = (params) => {
           variComboWithQuantity = Array.isArray(variComboWithQuantity) ? variComboWithQuantity : [];
           let variComboWithQuantityArray =
             variComboWithQuantity.length &&
-            !isInValidVariComboWithQuantityArray(variComboWithQuantity)
+              !isInValidVariComboWithQuantityArray(variComboWithQuantity)
               ? getVariComboWithQuantityArray(variComboWithQuantity)
               : productData.variComboWithQuantity;
 
@@ -3020,4 +3098,5 @@ export const productService = {
   processBulkProductsWithApi,
   updateSingleProductPrice,
   getProductsByIds,
+  getAllProcessedProducts
 };

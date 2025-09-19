@@ -7,11 +7,22 @@ import { PrimaryLinkButton } from "./button";
 import progressiveMobile from "@/assets/images/progressive-mobile.webp";
 import progressiveDesktop from "@/assets/images/progressive-desktop.webp";
 import CustomImg from "./custom-img";
-
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import { Autoplay } from "swiper/modules";
+import slide1 from "@/assets/images/home/slide-1.webp";
+import slide2 from "@/assets/images/home/slide-2.webp";
+import slide3 from "@/assets/images/home/slide-3.webp";
+import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
+import { PAGE_CONSTANTS } from "@/_helper";
 const dropdownItems = [
   { title: "Build Your Own", href: `/customize/select-diamond` },
   { title: "Pre Designed", href: `/collections/collection/Engagement_Rings` },
 ];
+
+const sliderImages = [{ src: slide1 }, { src: slide2 }, { src: slide3 }];
 
 /* -------------------- Dropdown Menu Component -------------------- */
 const DropdownMenu = ({
@@ -183,33 +194,39 @@ const HeroBanner = (props) => {
       }`}
     >
       {isHomePage ? (
-        <div className="w-full xl:h-[90vh] 2xl:h-[100vh] text-center">
-          <video
-            muted
-            preload="auto"
-            playsInline
-            autoPlay
+        <div className="relative w-full h-[70vh] md:h-screen">
+          {/* Swiper Slider */}
+          <Swiper
+            modules={[Autoplay]}
+            navigation
+            pagination={{ clickable: true }}
+            autoplay={{ delay: 5000 }}
             loop
-            className="w-full h-full object-cover"
+            className="w-full h-full"
           >
-            <source src="/videos/home-page-video.mp4" type="video/mp4" />
-          </video>
-          <div className="hidden md:block absolute inset-0 bg-black bg-opacity-60"></div>
-        </div>
-      ) : (
-        <BannerImage {...props} />
-      )}
+            {sliderImages.map((img, index) => (
+              <SwiperSlide key={index}>
+                <CustomImg
+                  srcAttr={img?.src}
+                  altAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].alt}
+                  titleAttr={PAGE_IMG_ALT_TITLE[PAGE_CONSTANTS.HOME].title}
+                  className="w-full h-full object-cover"
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
 
-      {isHomePage ? (
-        <div className="md:absolute md:inset-0 flex justify-center md:justify-normal items-start md:items-center w-full md:my-6 h-[30vh] md:h-auto">
-          {/* <div className="md:w-[60%] lg:w-[45%] 2xl:w-[100%] text-baseblack md:text-white text-center"> */}
-          <div className="w-full text-baseblack md:text-white text-center mt-4 md:mt-0">
-            <h1 className="text-2xl lg:text-3xl 2xl:text-4xl font-medium leading-tight font-gelasio">
+          {/* Dark Overlay Layer (above slider, below content) */}
+          <div className="absolute inset-0 bg-black/30 z-20"></div>
+
+          {/* Overlay Content */}
+          <div className="absolute inset-0 flex flex-col justify-center items-center lg:items-start text-center z-20 px-4 md:px-20">
+            <h1 className="text-2xl lg:text-3xl 2xl:text-4xl font-medium leading-tight font-gelasio text-white">
               Diamonds That Celebrate <br /> Your Unique Style.
             </h1>
 
             {/* Desktop Dropdown */}
-            <div className="hidden md:flex mt-4 flex-col md:flex-row items-center md:justify-center gap-2.5 md:gap-4">
+            <div className="hidden md:flex mt-4 flex-col md:flex-row items-center md:justify-start gap-2.5 md:gap-4">
               <DropdownMenu
                 isOpen={isDropdownOpen}
                 toggle={toggleDropdown}
@@ -230,13 +247,13 @@ const HeroBanner = (props) => {
                 isOpen={isDropdownOpen}
                 toggle={toggleDropdown}
                 items={dropdownItems}
-                variant="blackHover"
+                // variant="blackHover"
                 fullWidth
               />
               <PrimaryLinkButton
                 href="/collections/categories/Jewelry"
-                variant="blackHover"
-                className="!rounded-none !text-sm "
+                variant="transparentHover"
+                className="!rounded-none !text-sm"
               >
                 Explore Jewelry
               </PrimaryLinkButton>
@@ -244,23 +261,23 @@ const HeroBanner = (props) => {
           </div>
         </div>
       ) : (
-        <div
-          className={`absolute inset-0 flex items-center p-4 ${customClass}`}
-        >
-          <div
-            className={`flex flex-col items-${textAlignment} w-full max-w-[90%] sm:max-w-[70%] lg:max-w-[60%] text-${textAlignment} md:gap-3`}
-          >
-            {title && description && (
-              <>
-                <h1 className="text-3xl md:text-5xl 2xl:text-6xl text-white font-gelasio capitalize">
-                  {title}
-                </h1>
-                <p className="text-base md:text-lg text-white">{description}</p>
-              </>
-            )}
-          </div>
-        </div>
+        <BannerImage {...props} />
       )}
+
+      <div className={`absolute inset-0 flex items-center p-4 ${customClass}`}>
+        <div
+          className={`flex flex-col items-${textAlignment} w-full max-w-[90%] sm:max-w-[70%] lg:max-w-[60%] text-${textAlignment} md:gap-3`}
+        >
+          {title && description && (
+            <>
+              <h1 className="text-3xl md:text-5xl 2xl:text-6xl text-white font-gelasio capitalize">
+                {title}
+              </h1>
+              <p className="text-base md:text-lg text-white">{description}</p>
+            </>
+          )}
+        </div>
+      </div>
     </section>
   );
 };
