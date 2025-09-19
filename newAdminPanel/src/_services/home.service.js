@@ -1,10 +1,7 @@
-import {
-  fetchWrapperService,
-  helperFunctions,
-  sanitizeObject,
-} from "../_helper";
-import { GOLD_COLOR, GOLD_TYPES } from "../_helper/constants";
+import { fetchWrapperService, helperFunctions, sanitizeObject } from "src/_helpers";
+
 import { productService } from "./product.service";
+import { GOLD_COLOR, GOLD_TYPE } from "src/_helpers/constants";
 
 const menuBaseUrl = process.env.REACT_APP_MENU;
 
@@ -115,7 +112,7 @@ const getAllSearchListingByValue = (params) => {
             ),
             discount: product.discount,
             goldTypeVariations: product?.variations?.find(
-              (x) => x?.variationName.toLowerCase() === GOLD_TYPES.toLowerCase()
+              (x) => x?.variationName.toLowerCase() === GOLD_TYPE.toLowerCase()
             )?.variationTypes,
             goldColorVariations: product?.variations?.find(
               (x) => x?.variationName.toLowerCase() === GOLD_COLOR.toLowerCase()

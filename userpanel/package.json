@@ -42,7 +42,7 @@
     "react-slick": "^0.30.3",
     "react-slider": "^2.0.6",
     "slick-carousel": "^1.8.1",
-    "swiper": "^11.2.6",
+    "swiper": "^11.2.10",
     "uid": "^2.0.2",
     "yup": "^1.6.1"
   },

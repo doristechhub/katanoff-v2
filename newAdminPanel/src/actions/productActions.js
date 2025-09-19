@@ -18,6 +18,8 @@ import {
   setCustomizationTypesList,
   setCustomizationSubTypesList,
   productInitDetails,
+  setProcessedProductLoading,
+  setProcessedProductList,
 } from 'src/store/slices/productSlice';
 import { helperFunctions } from 'src/_helpers';
 
@@ -36,6 +38,23 @@ export const getProducts = () => async (dispatch) => {
     return false;
   } finally {
     dispatch(setProductLoading(false));
+  }
+};
+
+
+export const getAllProcessedProducts = () => async (dispatch) => {
+  try {
+    dispatch(setProcessedProductLoading(true));
+    const res = await productService.getAllProcessedProducts();
+    const sortedProducts = helperFunctions.sortByField(res) || [];
+
+    await dispatch(setProcessedProductList(sortedProducts));
+    return sortedProducts;
+  } catch (e) {
+    toastError(e);
+    return false;
+  } finally {
+    dispatch(setProcessedProductLoading(false));
   }
 };
 

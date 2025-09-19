@@ -28,9 +28,10 @@ import {
   getCustomizationTypeList,
   getCustomizationSubTypeList,
   getSettingStyleList,
+  getAllProcessedProducts,
 } from 'src/actions';
 import { Button, LoadingButton } from 'src/components/button';
-import { GENDER_LIST, perPageCountOptions, productStatusOptions, } from 'src/_helpers/constants';
+import { GENDER_LIST, perPageCountOptions, productStatusOptions } from 'src/_helpers/constants';
 import { getCollectionList } from 'src/actions/collectionActions';
 import {
   setCrudProductLoading,
@@ -49,8 +50,8 @@ const genderOptions = [
     title: 'All',
     value: 'all',
   },
-  ...GENDER_LIST
-]
+  ...GENDER_LIST,
+];
 
 // ----------------------------------------------------------------------
 
@@ -239,7 +240,14 @@ export default function ProductsView() {
 
   const onExport = useCallback(async () => {
     dispatch(setExportExcelLoading(true));
-    const tempArry = filteredList?.map((pItem) => ({
+
+    const processedProducts = await dispatch(getAllProcessedProducts());
+
+    const filteredIds = new Set(filteredList.map((item) => item.id));
+
+    const matchedList = processedProducts?.filter((item) => filteredIds.has(item.id));
+
+    const tempArry = matchedList?.map((pItem) => ({
       'Product Name': pItem.productName || '',
       SKU: pItem.sku || '',
       'Salt SKU': pItem.saltSKU || '',
@@ -249,9 +257,49 @@ export default function ProductsView() {
       'Side Dia Wt (ctw)': pItem?.sideDiamondWeight || '',
       'Total Carat Wt (ctw)': pItem?.totalCaratWeight || '',
       'Discount (%)': pItem?.discount || '',
-      Status: pItem?.active ? 'Active' : 'In-Active',
+
+      // Category & Collection
+      'Category Name': pItem?.categoryName || '',
+      'Sub Categories': pItem?.subCategoryNames?.map((s) => s.title).join(', ') || '',
+      'Product Types': pItem?.productTypeNames?.map((t) => t.title).join(', ') || '',
+      Collections: pItem?.collectionNames?.join(', ') || '',
+
+      Gender: pItem?.gender || '',
+      Length: pItem?.Length || '',
+      'Length Unit': pItem?.lengthUnit || '',
+      Width: pItem?.width || '',
+      'Width Unit': pItem?.widthUnit || '',
+      'Short Description': pItem?.shortDescription || '',
+      Description: pItem?.description || '',
+
+      // Variations simplified for readability
+      Variations:
+        pItem?.variations
+          ?.map((v) => {
+            const types = v.variationTypes.map((t) => t.variationTypeName).join('/');
+            return `${v.variationName}: ${types}`;
+          })
+          .join(' | ') || '',
+
+      Specifications: JSON.stringify(pItem?.specifications),
+
+      Status: pItem?.active ? 'Active' : 'Inactive',
+      'Created Date': pItem?.createdDate ? new Date(pItem.createdDate).toLocaleString() : '',
+      'Updated Date': pItem?.updatedDate ? new Date(pItem.updatedDate).toLocaleString() : '',
+
+      // Media fields
+      'Rose Gold Thumbnail': pItem?.roseGoldThumbnailImage || '',
+      'Rose Gold Images': pItem?.roseGoldImages?.map((i) => i.image).join(', ') || '',
+      'Rose Gold Video': pItem?.roseGoldVideo || '',
+      'Yellow Gold Thumbnail': pItem?.yellowGoldThumbnailImage || '',
+      'Yellow Gold Images': pItem?.yellowGoldImages?.map((i) => i.image).join(', ') || '',
+      'Yellow Gold Video': pItem?.yellowGoldVideo || '',
+      'White Gold Thumbnail': pItem?.whiteGoldThumbnailImage || '',
+      'White Gold Images': pItem?.whiteGoldImages?.map((i) => i.image).join(', ') || '',
+      'White Gold Video': pItem?.whiteGoldVideo || '',
     }));
-    await generateExcel(tempArry, 'Product List');
+
+    await generateExcel(tempArry, 'Product_List');
     dispatch(setExportExcelLoading(false));
   }, [filteredList, dispatch]);
 

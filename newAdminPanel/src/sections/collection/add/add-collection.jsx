@@ -94,6 +94,7 @@ const AddCollectionPage = () => {
   const { productLoading, productList } = useSelector(({ product }) => product);
   const [browseDialog, setBrowseDialog] = useState(false);
   const [confirmSelectProductDialog, setConfirmSelectProductDialog] = useState(false);
+  const [selectedGender, setSelectedGender] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const deferredQuery = useDeferredValue(searchQuery);
   const [filteredList, setFilteredList] = useState([]);
@@ -106,6 +107,11 @@ const AddCollectionPage = () => {
     mobileBanner: false,
     thumbnail: false,
   });
+
+  const uniqueGenders = useMemo(() => {
+    const genders = productList.map((p) => p.gender).filter(Boolean);
+    return [...new Set(genders.map((g) => g.toLowerCase()))]; // unique + lowercase normalize
+  }, [productList]);
 
   const loadData = useCallback(async () => {
     try {
@@ -136,23 +142,29 @@ const AddCollectionPage = () => {
   }, [dispatch, collectionId, loadData]);
 
   useEffect(() => {
-    setProductPage(0);
     const filtered =
       productList?.filter((item) => {
         const searchValue = deferredQuery?.toLowerCase()?.trim() || '';
-        return (
+
+        const matchesSearch =
           item?.productName?.toLowerCase()?.includes(searchValue) ||
-          item?.sku?.toLowerCase()?.includes(searchValue) ||
-          item?.gender?.toLowerCase()?.includes(searchValue) ||
-          (item?.baseSellingPrice !== undefined &&
-            item.baseSellingPrice.toString().toLowerCase().includes(searchValue))
-        );
+          item?.sku?.toLowerCase()?.includes(searchValue);
+
+        const matchesGender =
+          !selectedGender || item?.gender?.toLowerCase() === selectedGender.toLowerCase();
+
+        return matchesSearch && matchesGender;
       }) || [];
 
     setFilteredList(filtered);
     setIsAllSelected(filtered.length > 0 && filtered.every((x) => x?.selected));
-    setSelectedProductCount(filtered.filter((x) => x.selected).length);
-  }, [productList, deferredQuery]);
+    setSelectedProductCount(productList.filter((x) => x.selected).length);
+  }, [productList, deferredQuery, selectedGender]);
+
+  // Effect to reset page only when query changes
+  useEffect(() => {
+    setProductPage(0);
+  }, [deferredQuery]);
 
   const paginatedItems = useMemo(() => {
     return filteredList.slice(productPage * rowsPerPage, productPage * rowsPerPage + rowsPerPage);
@@ -517,24 +529,41 @@ const AddCollectionPage = () => {
               {selectedProductCount} product(s) selected
             </Typography>
           </Typography>
-          <TextField
-            fullWidth
-            size="small"
-            type="search"
-            placeholder="Search by Title, Gender or SKU"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Iconify
-                    icon="eva:search-fill"
-                    sx={{ ml: 1, width: 20, height: 20, color: 'text.disabled' }}
-                  />
-                </InputAdornment>
-              ),
-            }}
-          />
+          <Stack direction="row" spacing={2}>
+            <TextField
+              fullWidth
+              size="small"
+              type="search"
+              placeholder="Search by Title or SKU"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Iconify
+                      icon="eva:search-fill"
+                      sx={{ ml: 1, width: 20, height: 20, color: 'text.disabled' }}
+                    />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              select
+              size="small"
+              label="Filter by Gender"
+              value={selectedGender}
+              onChange={(e) => setSelectedGender(e.target.value)}
+              sx={{ minWidth: 180 }}
+            >
+              <MenuItem value="">All</MenuItem>
+              {uniqueGenders.map((gender) => (
+                <MenuItem key={gender} value={gender}>
+                  {gender.charAt(0).toUpperCase() + gender.slice(1)}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Stack>
         </Box>
         <Scrollbar>
           <TableContainer sx={{ maxHeight: 400 }}>

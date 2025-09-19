@@ -110,9 +110,11 @@ const initialState = {
   subCategoriesList: [],
   activeProductList: [],
   crudProductLoading: false,
+  processedProductLoading: false,
   duplicateProductLoading: false,
   customizationTypesList: [],
   customizationSubTypesList: [],
+  processedProductList: [],
   selectedProduct: productInitDetails,
   isDuplicateProduct: false,
   combinations: combinationInitDetails,
@@ -148,6 +150,12 @@ const productSlice = createSlice({
     },
     setProductLoading: (state, action) => {
       state.productLoading = action.payload;
+    },
+    setProcessedProductLoading: (state, action) => {
+      state.processedProductLoading = action.payload;
+    },
+    setProcessedProductList: (state, action) => {
+      state.processedProductList = action.payload;
     },
     setSelectedProduct: (state, action) => {
       state.selectedProduct = action.payload;
@@ -203,6 +211,8 @@ export const {
   setProductList,
   setPerPageCount,
   setProductLoading,
+  setProcessedProductLoading,
+  setProcessedProductList,
   setCategoriesList,
   setSelectedProduct,
   setIsDuplicateProduct,
