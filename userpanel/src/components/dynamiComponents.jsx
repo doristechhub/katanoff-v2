@@ -447,6 +447,10 @@ export const NetworkLostOverlay = dynamic(
   }
 );
 
+export const TawkToWidget = dynamic(() => import("./ui/TawkToWidget.jsx"), {
+  ssr: false,
+});
+
 export const SimpleProductGrid = dynamic(
   () => import("./SimpleProductGrid.jsx"),
   {

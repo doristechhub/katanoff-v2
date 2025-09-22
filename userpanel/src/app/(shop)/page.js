@@ -26,6 +26,7 @@ const Home = () => {
     ]
   };
   return <>
+    <h1 className="hidden">Diamonds That Celebrate Your Unique Style.</h1>
     <HomePage />
     <Script
       id="jewelry-schema"

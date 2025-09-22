@@ -7,6 +7,8 @@ import { ContactForm, HeroBanner } from "@/components/dynamiComponents";
 export default function ContactPage() {
   return (
     <>
+      <h1 className="hidden">Contact Us</h1>
+
       <div className="relative w-full">
         <HeroBanner
           staticSrcMobile={contactUsMobile}

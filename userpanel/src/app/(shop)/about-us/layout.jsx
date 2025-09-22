@@ -18,6 +18,8 @@ const jsonLd = {
 export default function AboutLayout({ children }) {
   return (
     <div>
+      <h1 className="hidden">About Us</h1>
+
       {children}
       <Script
         id="jewelry-schema"

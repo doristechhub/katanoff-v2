@@ -1,7 +1,13 @@
 import { ProfileDetailPage } from "@/components/dynamiComponents";
 
 const Profilepage = () => {
-  return <ProfileDetailPage />;
+  return (
+    <>
+      <h1 className="hidden">Profile</h1>
+
+      <ProfileDetailPage />
+    </>
+  );
 };
 
 export default Profilepage;

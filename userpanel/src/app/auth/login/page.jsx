@@ -7,6 +7,8 @@ import CustomImg from "@/components/ui/custom-img";
 const Login = () => {
   return (
     <div className="flex lg:flex-row h-screen">
+      <h1 className="hidden">Login</h1>
+
       {/* Left Side */}
       <div className="lg:block hidden w-full lg:w-3/5 h-screen">
         <CustomImg srcAttr={login} className="w-full h-full" priority />

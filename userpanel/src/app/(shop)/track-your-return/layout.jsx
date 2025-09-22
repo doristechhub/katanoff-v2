@@ -6,5 +6,10 @@ export const metadata = generateMetadata({
 });
 
 export default function TrackYourReturnLayout({ children }) {
-  return children;
+  return (
+    <>
+      <h1 className="hidden">Return Tracking</h1>
+      {children}
+    </>
+  );
 }
