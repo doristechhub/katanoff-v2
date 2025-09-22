@@ -1,5 +1,5 @@
 import Link from "next/link";
-import {  VerifyOTPForm } from "@/components/dynamiComponents";
+import { VerifyOTPForm } from "@/components/dynamiComponents";
 import verifyOtp from "@/assets/images/auth/verify-otp.webp";
 import textLogo from "@/assets/images/logo-text.webp";
 import CustomImg from "@/components/ui/custom-img";
@@ -7,6 +7,8 @@ import CustomImg from "@/components/ui/custom-img";
 const VeriftOTP = () => {
   return (
     <div className="flex lg:flex-row h-screen">
+      <h1 className="hidden">Verify OTP</h1>
+
       {/* Left Side */}
       <div className="lg:block hidden w-full lg:w-3/5 h-screen">
         <CustomImg srcAttr={verifyOtp} className="w-full h-full" priority />

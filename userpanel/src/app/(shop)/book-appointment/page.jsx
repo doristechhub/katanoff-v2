@@ -1,5 +1,10 @@
 import AppointmentPage from "@/components/ui/AppointmentPage";
 
 export default function BookAppointment() {
-  return <AppointmentPage />;
+  return (
+    <>
+      <h1 className="hidden">Book Appointment</h1>
+      <AppointmentPage />
+    </>
+  );
 }

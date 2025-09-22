@@ -123,6 +123,17 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export default function CollectionLayout({ children }) {
-  return children;
+export default function CollectionLayout({ children, params }) {
+  const { collectionTitle } = params;
+
+  const collectionTitleWithSpace = decodeURIComponent(
+    collectionTitle?.replace(/_/g, " ")
+  );
+
+  return (
+    <>
+      <h1 className="hidden">{collectionTitleWithSpace}</h1>
+      {children}
+    </>
+  );
 }

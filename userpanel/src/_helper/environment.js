@@ -77,3 +77,6 @@ export const paypalAppSecret = process.env.NEXT_PUBLIC_PAYPAL_APP_SECRET;
 export const googleAnalyticsId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
 export const googleSiteVerificationId =
   process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION_ID;
+
+// Tawk.to Configuration
+export const tawkToUrl = process.env.NEXT_PUBLIC_TAWK_TO_URL;
