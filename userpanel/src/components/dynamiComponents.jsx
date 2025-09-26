@@ -457,3 +457,10 @@ export const SimpleProductGrid = dynamic(
     ssr: false,
   }
 );
+
+export const AboutUsCollectionToggle = dynamic(
+  () => import("./ui/AboutUsCollectionToggle.jsx"),
+  {
+    ssr: false,
+  }
+);

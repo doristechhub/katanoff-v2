@@ -133,48 +133,6 @@ export default function SiteMapPage() {
       ],
     },
     {
-      title: "Lab Grown Diamond Jewelry",
-      href: "/customize/select-diamond",
-      links: [
-        {
-          title: "Round Lab Grown Diamond Jewelry",
-          href: "/customize/select-diamond?shape=round",
-        },
-        {
-          title: "Princess Lab Grown Diamond Jewelry",
-          href: "/customize/select-diamond?shape=princess",
-        },
-        {
-          title: "Cushion Lab Grown Diamond Jewelry",
-          href: "/customize/select-diamond?shape=cushion",
-        },
-        {
-          title: "Heart Lab Grown Diamond Jewelry",
-          href: "/customize/select-diamond?shape=heart",
-        },
-        {
-          title: "Emerald Lab Grown Diamond Jewelry",
-          href: "/customize/select-diamond?shape=emerald",
-        },
-        {
-          title: "Pear Lab Grown Diamond Jewelry",
-          href: "/customize/select-diamond?shape=pear",
-        },
-        {
-          title: "Oval Lab Grown Diamond Jewelry",
-          href: "/customize/select-diamond?shape=oval",
-        },
-        {
-          title: "Radiant Lab Grown Diamond Jewelry",
-          href: "/customize/select-diamond?shape=radiant",
-        },
-        {
-          title: "Marquise Lab Grown Diamond Jewelry",
-          href: "/customize/select-diamond?shape=marquise",
-        },
-      ],
-    },
-    {
       title: "Customer Service",
       links: [
         { title: "Contact us", href: "/contact-us" },

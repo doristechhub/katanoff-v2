@@ -65,23 +65,10 @@ const validationSchema = Yup.object().shape({
       ['setting_style', 'sub_categories', 'product_types'],
       'Invalid filter type. Must be Setting Style, Sub Categories, or Product Types'
     ),
-  thumbnailPreviewImage: Yup.array().test('thumbnail-required-if-type', function (value) {
-    const { type, thumbnailPreviewImage } = this.parent;
-    if (!type || type === '' || type === 'default') {
-      return thumbnailPreviewImage?.length
-        ? this.createError({
-            message: 'Thumbnail image is not required when a type is default',
-            path: 'thumbnailPreviewImage',
-          })
-        : true;
-    }
-    return value && value.length > 0
-      ? true
-      : this.createError({
-          message: 'Thumbnail image is required when a valid collection type is selected',
-          path: 'thumbnailPreviewImage',
-        });
-  }),
+
+  thumbnailPreviewImage: Yup.array()
+    .min(1, "Thumbnail image is required")
+    .required("Thumbnail image is required"),
 });
 
 // Component

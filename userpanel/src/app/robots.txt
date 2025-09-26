@@ -4,6 +4,7 @@ Allow: /
  
 # Disallow
 Disallow: /*.vercel.app/
+Disallow: /*.firebaseio.com/
 
 # Host
 Host: https://www.katanoff.com

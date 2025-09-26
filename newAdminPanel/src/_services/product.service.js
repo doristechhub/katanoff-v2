@@ -17,11 +17,15 @@ import { deleteFile, uploadFile } from '../_helpers/fileUploads';
 import { isValidFileSize, isValidFileType } from '../_helpers/fileValidation';
 import { helperFunctions, roundOffPrice } from '../_helpers/helperFunctions';
 import {
+  ADD,
   ALLOW_MAX_CARAT_WEIGHT,
   ALLOW_MIN_CARAT_WEIGHT,
+  DELETE,
   GOLD_COLOR,
   GOLD_TYPE,
   PRICE_CALCULATION_MODES,
+  PRODUCT,
+  UPDATE,
 } from 'src/_helpers/constants';
 import { isBoolean } from 'lodash';
 import axios from 'axios';
@@ -33,6 +37,7 @@ import { collectionService } from './collection.service';
 import { settingStyleService } from './settingStyle.service';
 import { diamondShapeService } from './diamondShape.service';
 import { homeService } from './home.service';
+import { adminController } from 'src/_controller';
 
 export const validateProductName = (productName) => {
   // Check if the length is higher than 60 characters
@@ -254,6 +259,27 @@ const insertProduct = (params) => {
       priceCalculationMode = priceCalculationMode
         ? priceCalculationMode.trim()
         : PRICE_CALCULATION_MODES.AUTOMATIC;
+
+      // Check if the current admin has permission to insert products, and reject if not
+      const currentUser = helperFunctions.getCurrentUser()
+      if (!currentUser) {
+        return reject(new Error("You must be logged in with appropriate permissions to add a product."));
+      }
+      const payload = {
+        adminId: currentUser?.id,
+      };
+      const permissionData = await adminController.getPermissionsByAdminId(payload)
+      const productPermissions = permissionData.find(
+        (perm) => perm.pageId === PRODUCT
+      );
+
+      const canInsert = productPermissions?.actions?.some(
+        (action) => action.actionId === ADD
+      );
+
+      if (!canInsert) {
+        return reject(new Error("You do not have permission to add this product."));
+      }
 
       // Validate inputs
       if (
@@ -969,6 +995,28 @@ const getAllProcessedProducts = () => {
 const deleteProduct = (productId) => {
   return new Promise(async (resolve, reject) => {
     try {
+
+      // Check if the current admin has permission to delete products, and reject if not
+      const currentUser = helperFunctions.getCurrentUser()
+      if (!currentUser) {
+        return reject(new Error("You must be logged in with appropriate permissions to delete a product."));
+      }
+      const payload = {
+        adminId: currentUser?.id,
+      };
+      const permissionData = await adminController.getPermissionsByAdminId(payload)
+      const productPermissions = permissionData.find(
+        (perm) => perm.pageId === PRODUCT
+      );
+
+      const canDelete = productPermissions?.actions?.some(
+        (action) => action.actionId === DELETE
+      );
+
+      if (!canDelete) {
+        return reject(new Error("You do not have permission to delete this product."));
+      }
+
       // Sanitize and validate productId
       productId = sanitizeValue(productId) ? productId.trim() : null;
       if (!productId) {
@@ -1946,6 +1994,27 @@ const updateProduct = (params) => {
         diamondFilters,
         priceCalculationMode,
       } = sanitizeObject(params);
+
+      // Check if the current admin has permission to update products, and reject if not
+      const currentUser = helperFunctions.getCurrentUser()
+      if (!currentUser) {
+        return reject(new Error("You must be logged in with appropriate permissions to update a product."));
+      }
+      const payload = {
+        adminId: currentUser?.id,
+      };
+      const permissionData = await adminController.getPermissionsByAdminId(payload)
+      const productPermissions = permissionData.find(
+        (perm) => perm.pageId === PRODUCT
+      );
+
+      const canUpdate = productPermissions?.actions?.some(
+        (action) => action.actionId === UPDATE
+      );
+
+      if (!canUpdate) {
+        return reject(new Error("You do not have permission to update this product."));
+      }
 
       if (productId) {
         const productData = await fetchWrapperService.findOne(productsUrl, {

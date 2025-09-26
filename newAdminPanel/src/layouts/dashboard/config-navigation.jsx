@@ -32,6 +32,7 @@ const navConfig = [
     path: '/',
     icon: icon('ic_analytics'),
     children: [],
+    actions: [],
   },
   {
     title: 'product',
@@ -39,6 +40,12 @@ const navConfig = [
     path: '/product',
     icon: icon('ic_cart'),
     children: ['/product', '/product/add'],
+    actions: [
+      { label: 'Add Product', value: 'add' },
+      { label: 'Update Product', value: 'update' },
+      { label: 'Delete Product', value: 'delete' },
+      { label: 'Export Product', value: 'export' },
+    ],
   },
   // {
   //   title: 'brand',
@@ -53,6 +60,7 @@ const navConfig = [
     path: '/menu',
     icon: <SummarizeTwoToneIcon />,
     children: ['/menu/category', '/menu/subcategory', '/menu/productType'],
+    actions: [],
   },
   {
     title: 'collection',
@@ -60,6 +68,7 @@ const navConfig = [
     path: '/collection',
     icon: <AppsTwoToneIcon />,
     children: ['/collection', '/collection/add'],
+    actions: [],
   },
   {
     title: 'Setting Style',
@@ -67,6 +76,7 @@ const navConfig = [
     path: '/settingStyle',
     icon: <Inventory2TwoToneIcon />,
     children: [],
+    actions: [],
   },
   {
     title: 'Diamond Shape',
@@ -74,6 +84,7 @@ const navConfig = [
     path: '/diamondShape',
     icon: <PentagonTwoToneIcon />,
     children: [],
+    actions: [],
   },
   {
     title: 'customization',
@@ -81,6 +92,7 @@ const navConfig = [
     path: '/customization',
     icon: <AutoAwesomeTwoToneIcon />,
     children: ['/customization', '/customization/type', '/customization/subtype'],
+    actions: [],
   },
   {
     title: 'Discounts',
@@ -88,6 +100,7 @@ const navConfig = [
     path: '/discounts',
     icon: <DiscountIcon />,
     children: ['/discounts', '/discounts/add'],
+    actions: [],
   },
   // {
   //   title: 'showcase banner',
@@ -102,6 +115,7 @@ const navConfig = [
     path: '/settings',
     icon: <SettingsIcon />,
     children: ['/settings'],
+    actions: [],
   },
   {
     title: 'order',
@@ -109,6 +123,7 @@ const navConfig = [
     path: '/orders',
     icon: <LocalMallTwoToneIcon />,
     children: ['/orders', '/orders/list', '/orders/refund'],
+    actions: [],
   },
   {
     title: 'returns',
@@ -116,6 +131,7 @@ const navConfig = [
     path: '/returns',
     icon: <Iconify icon="ic:twotone-assignment-return" width={25} />,
     children: ['/returns', '/returns/list', '/returns/refund', '/returns/return-detail'],
+    actions: [],
   },
   {
     title: 'appointment',
@@ -123,6 +139,7 @@ const navConfig = [
     path: '/appointment',
     icon: <BookOnlineTwoToneIcon />,
     children: [],
+    actions: [],
   },
   {
     title: 'custom jewelry',
@@ -130,6 +147,7 @@ const navConfig = [
     path: '/custom-jewelry',
     icon: <DiamondTwoToneIcon />,
     children: [],
+    actions: [],
   },
   {
     title: 'review',
@@ -137,6 +155,7 @@ const navConfig = [
     path: '/review',
     icon: <RateReviewTwoToneIcon />,
     children: [],
+    actions: [],
   },
   {
     title: 'user',
@@ -144,6 +163,7 @@ const navConfig = [
     path: '/user',
     icon: <InsertEmoticonTwoToneIcon />,
     children: [],
+    actions: [],
   },
   {
     title: 'subscribers',
@@ -151,6 +171,7 @@ const navConfig = [
     path: '/subscribers',
     icon: <Diversity3TwoToneIcon />,
     children: [],
+    actions: [],
   },
   {
     title: 'contacts',
@@ -158,6 +179,7 @@ const navConfig = [
     path: '/contacts',
     icon: <Iconify icon="ic:twotone-contact-page" width={25} />,
     children: [],
+    actions: [],
   },
   {
     title: 'permissions',
@@ -165,6 +187,7 @@ const navConfig = [
     path: '/permissions',
     icon: icon('ic_lock'),
     children: [],
+    actions: [],
   },
   {
     title: 'report & analysis',
@@ -172,6 +195,7 @@ const navConfig = [
     path: '/report-analysis',
     icon: <AssessmentTwoToneIcon />,
     children: [],
+    actions: [],
   },
   {
     title: 'Website Analytics',
@@ -179,6 +203,7 @@ const navConfig = [
     path: '/website-analytics',
     icon: <InsightsTwoToneIcon />,
     children: [],
+    actions: [],
   },
 ];
 

@@ -25,9 +25,10 @@ export const getAdminsList = () => async (dispatch) => {
 
       let permissionAdminwise = {};
       list.forEach((admin) => {
-        permissionAdminwise[admin?.id] = admin?.permissions?.map(
-          (permission) => permission?.pageId
-        );
+        permissionAdminwise[admin?.id] = admin?.permissions?.map((permission) => ({
+          pageId: permission?.pageId,
+          actions: permission?.actions || [],
+        }));
       });
 
       dispatch(setPermissionsOfAllAdmins(permissionAdminwise));

@@ -1,3 +1,4 @@
+import { SLIDER_GRID, THREE_GRID, THUMBNAIL, TWO_GRID } from "src/_helpers/constants";
 import fileSettings from "./fileSettings";
 
 const fileTypeWiseFileMimeType = (fileType) => {
@@ -25,4 +26,20 @@ const fileTypeWiseFileSize = (fileType) => {
   }
 };
 
-export { fileTypeWiseFileMimeType, fileTypeWiseFileSize };
+const getReadableType = (type) => {
+  switch (type) {
+    case "slider_grid":
+      return SLIDER_GRID;
+    case "two_grid":
+      return TWO_GRID;
+    case "three_grid":
+      return THREE_GRID;
+    case "default":
+      return THUMBNAIL;
+    default:
+      return THUMBNAIL;
+  }
+};
+
+
+export { fileTypeWiseFileMimeType, fileTypeWiseFileSize, getReadableType };

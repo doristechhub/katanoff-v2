@@ -5,6 +5,7 @@ import {
 } from "@/_actions/product.actions";
 import {
   COLLECTION,
+  COLLECTION_SLIDER,
   FILTER_TO_OPTIONS_MAP,
   GENERAL,
   GIFTS_FOR_HER,
@@ -19,6 +20,7 @@ import {
   ProductFilter,
   ProductGrid,
 } from "@/components/dynamiComponents";
+
 import { useParams, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -33,8 +35,13 @@ import giftsUnder1000Desktop from "@/assets/images/collections/giftsUnder1000Des
 import giftsUnder1000Mobile from "@/assets/images/collections/giftsUnder1000Mobile.webp";
 import newArrivalDesktop from "@/assets/images/collections/newArrivalDesktop.webp";
 import newArrivalMobile from "@/assets/images/collections/newArrivalMobile.webp";
-import { fetchCollectionByTitle } from "@/_actions/collection.action";
+import {
+  fetchAllCollections,
+  fetchCollectionByTitle,
+} from "@/_actions/collection.action";
 import { setActiveFilterType } from "@/store/slices/productSlice";
+import HomePageSliderSkeleton from "./HomePageSliderSkeleton";
+import CategoryGallery from "./home/categoryGallery";
 
 export default function CollectionPage() {
   const params = useParams();
@@ -48,8 +55,12 @@ export default function CollectionPage() {
     filteredProducts,
     bannerLoading,
     banners,
+    filterProductLoading,
     activeFilterType,
   } = useSelector(({ product }) => product);
+  const { collectionsListLoading, collectionsList } = useSelector(
+    ({ collection }) => collection
+  );
 
   let { collectionType, collectionTitle } = params;
   const parentCategory = searchParams.get("parentCategory");
@@ -105,6 +116,10 @@ export default function CollectionPage() {
     }
   }, [collectionType, collectionTitle, loadData]);
 
+  useEffect(() => {
+    dispatch(fetchAllCollections());
+  }, [dispatch]);
+
   const STATIC_PROPS = {
     [GIFTS_FOR_HER]: { desktop: giftsForHerDesktop, mobile: giftsForHerMobile },
     [GIFTS_FOR_HIM]: { desktop: giftsForHimDesktop, mobile: giftsForHimMobile },
@@ -131,6 +146,7 @@ export default function CollectionPage() {
 
   const bannerTitleAttr = `${collectionTitle} | Katanoff Lab Grown Diamond Jewelry`;
   const bannerAltAttr = `Discover the ${collectionTitle} collection at Katanoff, featuring stunning lab grown diamond rings, earrings, necklaces, bracelets, and fine jewelry, crafted ethically in New York.`;
+
   return (
     <>
       {/* Swiper Section */}
@@ -179,6 +195,7 @@ export default function CollectionPage() {
       <section className="container pt-6 lg:pt-10 2xl:pt-12">
         <ProductGrid
           productsList={filteredProducts}
+          filterProductLoading={filterProductLoading}
           pagination={true}
           isLoading={productLoading}
         />
@@ -186,6 +203,14 @@ export default function CollectionPage() {
       <section className="container pt-16 lg:pt-20 2xl:pt-20">
         <KeyFeatures />
       </section>
+
+      {/* {collectionsListLoading ? (
+        <HomePageSliderSkeleton />
+      ) : collectionsList?.length ? (
+        <section className="container pt-12 lg:pt-16 2xl:pt-24">
+          <CategoryGallery categories={collectionsList} type={COLLECTION_SLIDER} title="Our Collections" />
+        </section>
+      ) : null} */}
     </>
   );
 }

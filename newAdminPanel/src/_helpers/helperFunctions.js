@@ -215,6 +215,7 @@ const sortByField = (array, key = 'createdDate') => {
 const getAllPagesList = () => {
   return navConfig?.map((item) => ({
     pageId: item.pageId,
+    actions: item?.actions,
     title: item.title,
   }));
 };

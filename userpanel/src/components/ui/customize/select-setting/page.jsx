@@ -16,6 +16,7 @@ export default function StartWithSettingPage() {
     customizeProductLoading,
     uniqueFilterOptions,
     filteredProducts,
+    filterProductLoading,
   } = useSelector(({ product }) => product);
   const router = useRouter();
   const dispatch = useDispatch();
@@ -141,6 +142,7 @@ export default function StartWithSettingPage() {
             pagination={true}
             isDiamondSettingPage={true}
             isLoading={customizeProductLoading}
+            filterProductLoading={filterProductLoading}
           />
         </div>
       </section>

@@ -14,6 +14,7 @@ import {
 import fileSettings from 'src/_utils/fileSettings';
 import { productService } from './product.service';
 import { IMAGE_RESOLUTIONS } from 'src/_helpers/constants';
+import { getReadableType } from 'src/_utils/selectedTypeAndSize';
 
 const getAllCollection = () => {
   return new Promise(async (resolve, reject) => {
@@ -272,20 +273,17 @@ const insertCollection = (params) => {
 
       await validateFiles(desktopBannerFile, 'IMAGE_FILE_NAME', 'desktop');
       await validateFiles(mobileBannerFile, 'IMAGE_FILE_NAME', 'mobile');
-      if (type) {
-        if (!thumbnailFile?.length) {
-          return reject(
-            new Error(
-              `Thumbnail image is required for ${type === 'slider_grid' ? 'slider grid' : type === 'two_grid' ? 'two grid' : 'three grid'}`
-            )
-          );
-        }
-        await validateFiles(
-          thumbnailFile,
-          'IMAGE_FILE_NAME',
-          type === 'slider_grid' ? 'SLIDER_GRID' : type === 'two_grid' ? 'TWO_GRID' : 'THREE_GRID'
-        );
+      if (!thumbnailFile?.length) {
+        return reject(new Error("Thumbnail image is required"));
       }
+      const readableType = getReadableType(type);
+
+      await validateFiles(
+        thumbnailFile,
+        "IMAGE_FILE_NAME",
+        readableType
+      );
+
 
       const filesPayload = [...desktopBannerFile, ...mobileBannerFile, ...thumbnailFile];
       const { desktopBannerUrl, mobileBannerUrl, thumbnailUrl } = await uploadFiles(
@@ -307,7 +305,7 @@ const insertCollection = (params) => {
         updatedDate: Date.now(),
         desktopBannerImage: desktopBannerUrl,
         mobileBannerImage: mobileBannerUrl,
-        thumbnailImage: type ? thumbnailUrl : null,
+        thumbnailImage: thumbnailUrl,
       };
 
       const createPattern = {
@@ -402,38 +400,33 @@ const updateCollection = (params) => {
       }
 
       // ===== Thumbnail Validation Start =====
-      if (type) {
-        const readableType =
-          type === 'slider_grid' ? 'slider grid' : type === 'two_grid' ? 'two grid' : 'three grid';
+      const readableType = getReadableType(type);
 
-        const resolution = IMAGE_RESOLUTIONS[type.toUpperCase()];
-        const typeChanged = type !== collectionData.type;
+      const resolution = IMAGE_RESOLUTIONS[readableType.toUpperCase()];
+      const typeChanged = type !== collectionData.type;
 
-        const hasNewThumbnail = thumbnailFile?.length > 0;
-        const hasExistingThumbnail = !!thumbnailImage;
+      const hasNewThumbnail = thumbnailFile?.length > 0;
+      const hasExistingThumbnail = !!thumbnailImage;
 
-        if (!hasNewThumbnail && !hasExistingThumbnail) {
-          return reject(new Error(`Thumbnail image is required for ${readableType}`));
-        }
+      if (!hasNewThumbnail && !hasExistingThumbnail) {
+        return reject(new Error(`Thumbnail image is required`));
+      }
 
-        if (hasNewThumbnail) {
-          await validateFiles(thumbnailFile, 'IMAGE_FILE_NAME', type.toUpperCase());
-        } else if (typeChanged && hasExistingThumbnail) {
-          const isValid = await validateImageResolution(
-            thumbnailImage,
-            resolution.width,
-            resolution.height
+      if (hasNewThumbnail) {
+        await validateFiles(thumbnailFile, 'IMAGE_FILE_NAME', readableType.toUpperCase());
+      } else if (typeChanged && hasExistingThumbnail) {
+        const isValid = await validateImageResolution(
+          thumbnailImage,
+          resolution.width,
+          resolution.height
+        );
+        if (!isValid) {
+          return reject(
+            new Error(
+              `Existing thumbnail must match ${readableType} resolution: ${resolution.width}x${resolution.height}`
+            )
           );
-          if (!isValid) {
-            return reject(
-              new Error(
-                `Existing thumbnail must match ${readableType} resolution: ${resolution.width}x${resolution.height}`
-              )
-            );
-          }
         }
-      } else {
-        thumbnailImage = null; // type is null → thumbnail is not required
       }
       // ===== Thumbnail Validation End =====
 
@@ -462,7 +455,7 @@ const updateCollection = (params) => {
         position: position ? position : collectionData?.position,
         desktopBannerImage: desktopBannerUrl || desktopBannerImage,
         mobileBannerImage: mobileBannerUrl || mobileBannerImage,
-        thumbnailImage: type ? thumbnailUrl || thumbnailImage : null,
+        thumbnailImage: thumbnailUrl || thumbnailImage,
         updatedDate: Date.now(),
       };
       const updatePattern = {
@@ -483,17 +476,10 @@ const updateCollection = (params) => {
         await updateProductCollections(productsToRemove, collectionId, false);
       }
 
-      let removeThumbnailImage = deletedThumbnailImage;
-      if (
-        type !== collectionData.type &&
-        !['slider_grid', 'two_grid', 'three_grid'].includes(type)
-      ) {
-        removeThumbnailImage = collectionData.thumbnailImage;
-      }
       await deleteFiles([
         deletedDesktopBannerImage,
         deletedMobileBannerImage,
-        removeThumbnailImage,
+        deletedThumbnailImage,
       ]);
 
       resolve(payload);

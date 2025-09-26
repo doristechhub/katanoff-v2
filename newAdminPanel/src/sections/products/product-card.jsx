@@ -19,6 +19,7 @@ import DuplicateProductDialog from './add/duplicate-product-dialog';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedProduct } from 'src/store/slices/productSlice';
 import ProgressiveImg from 'src/components/progressive-img';
+import { ADD, DELETE, PRODUCT } from 'src/_helpers/constants';
 
 // ----------------------------------------------------------------------
 
@@ -36,6 +37,18 @@ export default function ProductCard({
   const navigate = useNavigate();
   const [duplicateDialog, setDuplicateDialog] = useState(false);
   const { duplicateProductLoading } = useSelector(({ product }) => product);
+
+  const user = helperFunctions.getCurrentUser();
+
+  const canEditProduct = user.permissions.some(
+    (perm) => perm.pageId === PRODUCT && perm.actions.some((action) => action.actionId === ADD)
+  );
+
+  const canDeleteProduct = user.permissions.some(
+    (perm) =>
+      perm.pageId === PRODUCT && perm.actions.some((action) => action.actionId === DELETE)
+  );
+
   const renderStatus = (
     <Label
       variant="filled"
@@ -172,12 +185,16 @@ export default function ProductCard({
           />
         </Tooltip>
         {isEdit ? (
-          <Tooltip title="Edit">
+          <Tooltip title={canEditProduct ? 'Edit' : 'No permission'}>
             <Iconify
               width={28}
               icon="flowbite:edit-solid"
               onClick={() => navigate(`/product/add?productId=${productId || product?.id}`)}
-              className="hover:text-white text-slate-300 duration-200 transition-all ease-in-out cursor-pointer w-fit !mt-0"
+              className={`duration-200 transition-all ease-in-out w-fit !mt-0 ${
+                canEditProduct
+                  ? 'hover:text-white text-slate-300 cursor-pointer'
+                  : 'text-gray-400 cursor-not-allowed opacity-50'
+              }`}
             />
           </Tooltip>
         ) : null}
@@ -191,15 +208,21 @@ export default function ProductCard({
             />
           </Tooltip>
         ) : null}
-        <Tooltip title="Delete">
+        <Tooltip title={canDeleteProduct ? 'Delete' : 'No permission'}>
           <Iconify
             width={28}
             onClick={() => {
-              setOpenDialog(true);
-              setActiveProduct(product);
+              if (canDeleteProduct) {
+                setOpenDialog(true);
+                setActiveProduct(product);
+              }
             }}
             icon="icon-park-solid:delete-five"
-            className="hover:text-white text-slate-300 duration-200 transition-all ease-in-out cursor-pointer !mt-0"
+            className={`duration-200 transition-all ease-in-out w-fit !mt-0 ${
+              canDeleteProduct
+                ? 'hover:text-white text-slate-300 cursor-pointer'
+                : 'text-gray-400 cursor-not-allowed opacity-50'
+            }`}
           />
         </Tooltip>
       </Stack>

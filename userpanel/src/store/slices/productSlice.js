@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 export const defaultsmOpenFilter = ["shape", "metal", "settingStyle", "price", "productType", "subCategory"];
 const initialState = {
-  productLoading: false,
+  productLoading: true,
   recentlyProductLoading: false,
   latestProductList: [],
   recentlyViewProductList: [],
@@ -34,13 +34,14 @@ const initialState = {
   hasSearched: false,
   productsPerPage: 8,
   filteredProducts: [],
-  visibleItemCount: 10,
+  visibleItemCount: 12,
   bannerLoading: false,
   banners: {
     desktop: "",
     mobile: "",
   },
   activeFilterType: "",
+  filterProductLoading: true,
 };
 
 const productSlice = createSlice({
@@ -184,6 +185,9 @@ const productSlice = createSlice({
     setActiveFilterType: (state, action) => {
       state.activeFilterType = action.payload;
     },
+    setFilterProductLoading: (state, action) => {
+      state.filterProductLoading = action.payload;
+    },
   },
 });
 
@@ -226,7 +230,8 @@ export const {
   setBanners,
   setSelectedProductTypes,
   setSelectedSubCategories,
-  setActiveFilterType
+  setActiveFilterType,
+  setFilterProductLoading
 } = productSlice.actions;
 
 export default productSlice.reducer;

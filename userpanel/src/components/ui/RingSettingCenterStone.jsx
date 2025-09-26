@@ -1,3 +1,4 @@
+"use client";
 import centerStone from "@/assets/images/home/center-stone.webp";
 import ringSetting from "@/assets/images/home/ring-setting.webp";
 import centerStoneVideo from "@/assets/images/home/center-stone-video.gif";
