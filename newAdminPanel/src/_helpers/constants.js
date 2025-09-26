@@ -69,14 +69,12 @@ export const INIT_GOLD_TYPE_SUB_TYPES_LIST = [
 ];
 
 export const INIT_DIAMOND_QUALITY_SUB_TYPES_LIST = [
-  { title: "Good-F, VS2", type: 'default' },
-  { title: "Best-D, VVS", type: 'default' },
-  { title: "Better-E, VS1", type: 'default' }
-]
+  { title: 'Good - F,VS2', type: 'default' },
+  { title: 'Better - E, VS1', type: 'default' },
+  { title: 'Best - D, VVS', type: 'default' },
+];
 
-export const INIT_DIAMOND_SHAPE_SUB_TYPES_LIST = [
-  { title: "", type: 'default' },
-]
+export const INIT_DIAMOND_SHAPE_SUB_TYPES_LIST = [{ title: '', type: 'default' }];
 // Object map for gold color to thumbnail field
 export const GOLD_COLOR_MAP = {
   'rose gold': 'roseGoldThumbnailImage',
@@ -262,13 +260,13 @@ export const messageType = {
 };
 
 export const initMessageObj = { message: '', type: '', status: '' };
-export const PRODUCT = "product"
-export const ADD = "add"
-export const DELETE = "delete"
-export const UPDATE = "update"
-export const EXPORT = "export"
+export const PRODUCT = 'product';
+export const ADD = 'add';
+export const DELETE = 'delete';
+export const UPDATE = 'update';
+export const EXPORT = 'export';
 
-export const SLIDER_GRID = "SLIDER_GRID";
-export const TWO_GRID = "TWO_GRID";
-export const THREE_GRID = "THREE_GRID";
-export const THUMBNAIL = "THUMBNAIL";
+export const SLIDER_GRID = 'SLIDER_GRID';
+export const TWO_GRID = 'TWO_GRID';
+export const THREE_GRID = 'THREE_GRID';
+export const THUMBNAIL = 'THUMBNAIL';
