@@ -15,6 +15,7 @@ import {
   setSelectedProductTypes,
   setSelectedSubCategories,
   setVisibleItemCount,
+  setFilterProductLoading,
 } from "@/store/slices/productSlice";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -289,7 +290,7 @@ export default function ProductFilter({
     }),
     validateOnChange: true,
     validateOnBlur: true,
-    onSubmit: () => {}, // Not needed for onChange usage
+    onSubmit: () => { }, // Not needed for onChange usage
   });
   const { values, setFieldValue, errors, touched } = formik;
 
@@ -345,9 +346,8 @@ export default function ProductFilter({
     <div
       {...props}
       key={state.index}
-      className={`absolute top-0 bottom-0 rounded-md ${
-        [0, 2].includes(state.index) ? "bg-gray-200" : "bg-primary"
-      }`}
+      className={`absolute top-0 bottom-0 rounded-md ${[0, 2].includes(state.index) ? "bg-gray-200" : "bg-primary"
+        }`}
     />
   );
   const handleInputChange = (e, index) => {
@@ -363,6 +363,7 @@ export default function ProductFilter({
   const handleFilteredProductsChange = (filtered) => {
     dispatch(setFilteredProducts(filtered));
     dispatch(setCurrentPage(0));
+    dispatch(setFilterProductLoading(false));
     dispatch(setProductLoading(false));
   };
 
@@ -800,7 +801,7 @@ export default function ProductFilter({
       if (!selectedSortByValue) return 0; // Default case if no sort value
       try {
         switch (
-          helperFunctions?.stringReplacedWithUnderScore(selectedSortByValue)
+        helperFunctions?.stringReplacedWithUnderScore(selectedSortByValue)
         ) {
           case "alphabetically_a_to_z":
             return (a.productName || "").localeCompare(b.productName || "");
@@ -1122,11 +1123,10 @@ export default function ProductFilter({
         //     ? "fixed top-[110px] lg:top-[60px] clear-both w-full pt-6 bg-white shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] animate-slideDown animate-duration-900 animate-ease-in-out"
         //     : "top-0 border-b-2 border-primary bg-transparent "
         // }`}
-        className={`z-30 transition-all duration-700 ease-in-out ${
-          isFilterFixed
-            ? "fixed top-[39px] lg:top-[50px] clear-both w-full pt-6 bg-white shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] animate-slideDown animate-duration-900 animate-ease-in-out"
-            : "top-0  bg-transparent border-b-2 "
-        }`}
+        className={`z-30 transition-all duration-700 ease-in-out ${isFilterFixed
+          ? "fixed top-[39px] lg:top-[50px] clear-both w-full pt-6 bg-white shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] animate-slideDown animate-duration-900 animate-ease-in-out"
+          : "top-0  bg-transparent border-b-2 "
+          }`}
       >
         <div className="container">
           <div className="gap-2 flex flex-col lg:flex-row lg:items-center lg:justify-between lg:h-[45px] relative pb-4">
@@ -1197,19 +1197,18 @@ export default function ProductFilter({
                   <ul className="text-[14px] leading-[17px] font-semibold text-baseblack">
                     {sortByList?.length
                       ? sortByList.map((item) => (
-                          <li
-                            key={item?.value}
-                            style={{ textTransform: "capitalize" }}
-                            className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${
-                              selectedSortByValue === item?.value
-                                ? "bg-gray-200 font-bold"
-                                : ""
+                        <li
+                          key={item?.value}
+                          style={{ textTransform: "capitalize" }}
+                          className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${selectedSortByValue === item?.value
+                            ? "bg-gray-200 font-bold"
+                            : ""
                             }`}
-                            onClick={() => onSelectSortBy(item?.value)}
-                          >
-                            {item.title}
-                          </li>
-                        ))
+                          onClick={() => onSelectSortBy(item?.value)}
+                        >
+                          {item.title}
+                        </li>
+                      ))
                       : null}
                   </ul>
                 </div>
@@ -1251,7 +1250,7 @@ export default function ProductFilter({
                     {/* Mobile Dropdowns */}
                     <div className="lg:hidden flex flex-col w-full">
                       {!isDiamondSettingPage &&
-                      haveUniqueDiamondShapeOptions ? (
+                        haveUniqueDiamondShapeOptions ? (
                         // <div className="border-b border-baseblack ">
                         <div>
                           <button
@@ -1271,11 +1270,10 @@ export default function ProductFilter({
                             <div className="p-3 relative">
                               {showNavigationButtons && (
                                 <button
-                                  className={`absolute top-1/2 left-[25px] -translate-x-8 -translate-y-1/2 ${
-                                    isBeginning
-                                      ? "opacity-50 cursor-not-allowed"
-                                      : ""
-                                  }`}
+                                  className={`absolute top-1/2 left-[25px] -translate-x-8 -translate-y-1/2 ${isBeginning
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
+                                    }`}
                                   onClick={() => swiperRef.current?.slidePrev()}
                                   disabled={isBeginning}
                                 >
@@ -1284,9 +1282,8 @@ export default function ProductFilter({
                               )}
                               {showNavigationButtons && (
                                 <button
-                                  className={`absolute top-1/2 -right-[8px]  -translate-y-1/2 ${
-                                    isEnd ? "opacity-50 cursor-not-allowed" : ""
-                                  }`}
+                                  className={`absolute top-1/2 -right-[8px]  -translate-y-1/2 ${isEnd ? "opacity-50 cursor-not-allowed" : ""
+                                    }`}
                                   onClick={() => swiperRef.current?.slideNext()}
                                   disabled={isEnd}
                                 >
@@ -1329,7 +1326,7 @@ export default function ProductFilter({
                                       (item, index) => {
                                         const selectedDiamondShape =
                                           selectedFilterVariations[
-                                            DIAMOND_SHAPE
+                                          DIAMOND_SHAPE
                                           ] || [];
                                         const isSelected =
                                           selectedDiamondShape.includes(
@@ -1340,11 +1337,10 @@ export default function ProductFilter({
                                             key={`filter-diamond-shape-${index}`}
                                           >
                                             <div
-                                              className={`flex flex-col items-center gap-2 group cursor-pointer p-1 rounded border ${
-                                                isSelected
-                                                  ? "border-baseblack bg-gray-50"
-                                                  : "border-gray-200 hover:border-baseblack"
-                                              }`}
+                                              className={`flex flex-col items-center gap-2 group cursor-pointer p-1 rounded border ${isSelected
+                                                ? "border-baseblack bg-gray-50"
+                                                : "border-gray-200 hover:border-baseblack"
+                                                }`}
                                               onClick={() =>
                                                 onSelectVariant(
                                                   DIAMOND_SHAPE,
@@ -1367,11 +1363,10 @@ export default function ProductFilter({
                                                 />
                                               </span>
                                               <span
-                                                className={`text-[14px] font-light ${
-                                                  isSelected
-                                                    ? "font-semibold"
-                                                    : ""
-                                                }`}
+                                                className={`text-[14px] font-light ${isSelected
+                                                  ? "font-semibold"
+                                                  : ""
+                                                  }`}
                                               >
                                                 {helperFunctions?.stringReplacedWithSpace(
                                                   item?.variationTypeName
@@ -1408,58 +1403,56 @@ export default function ProductFilter({
                               (variation) =>
                                 variation.variationName === GOLD_COLOR
                                   ? variation.variationTypes.map(
-                                      (item, index) => {
-                                        const selectedGoldColors =
-                                          selectedFilterVariations[
-                                            GOLD_COLOR
-                                          ] || [];
-                                        const isSelected =
-                                          selectedGoldColors.includes(
-                                            item.variationTypeName
-                                          );
-                                        return (
-                                          <div
-                                            className={`gap-1.5 flex items-center cursor-pointer p-1`}
-                                            key={`filter-variation-${index}2`}
-                                            onClick={() =>
-                                              onSelectVariant(
-                                                GOLD_COLOR,
-                                                item.variationTypeName
-                                              )
-                                            }
-                                          >
-                                            <input
-                                              type="checkbox"
-                                              checked={isSelected}
-                                              readOnly
-                                              className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
-                                            />
-                                            <div
-                                              className={`rounded-full w-5 h-5 border ${
-                                                isSelected
-                                                  ? "border-primary"
-                                                  : "border-black"
-                                              }`}
-                                              style={{
-                                                background:
-                                                  item?.variationTypeHexCode,
-                                              }}
-                                            ></div>
-                                            <span
-                                              className={`text-[14px] font-light ${
-                                                isSelected
-                                                  ? "font-semibold"
-                                                  : ""
-                                              }`}
-                                            >
-                                              {helperFunctions?.stringReplacedWithSpace(
-                                                item?.variationTypeName
-                                              )}
-                                            </span>
-                                          </div>
+                                    (item, index) => {
+                                      const selectedGoldColors =
+                                        selectedFilterVariations[
+                                        GOLD_COLOR
+                                        ] || [];
+                                      const isSelected =
+                                        selectedGoldColors.includes(
+                                          item.variationTypeName
                                         );
-                                      }
-                                    )
+                                      return (
+                                        <div
+                                          className={`gap-1.5 flex items-center cursor-pointer p-1`}
+                                          key={`filter-variation-${index}2`}
+                                          onClick={() =>
+                                            onSelectVariant(
+                                              GOLD_COLOR,
+                                              item.variationTypeName
+                                            )
+                                          }
+                                        >
+                                          <input
+                                            type="checkbox"
+                                            checked={isSelected}
+                                            readOnly
+                                            className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
+                                          />
+                                          <div
+                                            className={`rounded-full w-5 h-5 border ${isSelected
+                                              ? "border-primary"
+                                              : "border-black"
+                                              }`}
+                                            style={{
+                                              background:
+                                                item?.variationTypeHexCode,
+                                            }}
+                                          ></div>
+                                          <span
+                                            className={`text-[14px] font-light ${isSelected
+                                              ? "font-semibold"
+                                              : ""
+                                              }`}
+                                          >
+                                            {helperFunctions?.stringReplacedWithSpace(
+                                              item?.variationTypeName
+                                            )}
+                                          </span>
+                                        </div>
+                                      );
+                                    }
+                                  )
                                   : null
                             )}
                           </div>
@@ -1492,9 +1485,8 @@ export default function ProductFilter({
                                   return (
                                     <span
                                       key={`filter-variation-${index}4`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
-                                        isSelected ? "font-semibold" : ""
-                                      }`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
+                                        }`}
                                       onClick={() => onSelectSettingStyle(item)}
                                     >
                                       <input
@@ -1608,9 +1600,8 @@ export default function ProductFilter({
                                   return (
                                     <span
                                       key={`filter-gender-${index}`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
-                                        isSelected ? "font-semibold" : ""
-                                      }`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
+                                        }`}
                                       onClick={() =>
                                         onSelectGender(normalizedGender)
                                       }
@@ -1632,7 +1623,7 @@ export default function ProductFilter({
                       ) : null}
                       {/* PRODUCT TYPE FILTER */}
                       {activeFilterType === PRODUCT_TYPE_KEY &&
-                      uniqueFilterOptions?.uniqueProductTypes?.length ? (
+                        uniqueFilterOptions?.uniqueProductTypes?.length ? (
                         <div className="border-b border-baseblack">
                           <button
                             className="w-full flex justify-between items-center py-3 font-medium text-base"
@@ -1658,9 +1649,8 @@ export default function ProductFilter({
                                   return (
                                     <span
                                       key={`filter-productType-${index}`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
-                                        isSelected ? "font-semibold" : ""
-                                      }`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
+                                        }`}
                                       onClick={() => onSelectProductType(item)}
                                     >
                                       <input
@@ -1681,7 +1671,7 @@ export default function ProductFilter({
 
                       {/* SUB CATEGORY FILTER */}
                       {activeFilterType === SUB_CATEGORIES_KEY &&
-                      uniqueFilterOptions?.uniqueSubCategories?.length > 0 ? (
+                        uniqueFilterOptions?.uniqueSubCategories?.length > 0 ? (
                         <div className="border-b border-baseblack">
                           <button
                             className="w-full flex justify-between items-center py-3 font-medium text-base"
@@ -1708,9 +1698,8 @@ export default function ProductFilter({
                                   return (
                                     <span
                                       key={`filter-subCategory-${index}`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
-                                        isSelected ? "font-semibold" : ""
-                                      }`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
+                                        }`}
                                       onClick={() => onSelectSubCategory(item)}
                                     >
                                       <input
@@ -1732,7 +1721,7 @@ export default function ProductFilter({
                     {/* Desktop Layout */}
                     <div className="hidden lg:flex justify-between w-full gap-[30px]">
                       {!isDiamondSettingPage &&
-                      haveUniqueDiamondShapeOptions ? (
+                        haveUniqueDiamondShapeOptions ? (
                         <div className="w-[30%]">
                           <h5 className={filterHeadingClass}>Shape</h5>
                           <div className="grid grid-cols-2 gap-[10px]">
@@ -1762,11 +1751,10 @@ export default function ProductFilter({
                                       }
                                     >
                                       <span
-                                        className={`flex items-center justify-center w-full flex-[0_0_36px] max-w-[36px] h-[36px] border ${
-                                          isSelected
-                                            ? "border-baseblack"
-                                            : "border-transparent group-hover:border-baseblack"
-                                        } rounded-full overflow-hidden`}
+                                        className={`flex items-center justify-center w-full flex-[0_0_36px] max-w-[36px] h-[36px] border ${isSelected
+                                          ? "border-baseblack"
+                                          : "border-transparent group-hover:border-baseblack"
+                                          } rounded-full overflow-hidden`}
                                       >
                                         <ProgressiveImg
                                           className={`w-[25px] h-[25px] !transition-none`}
@@ -1778,9 +1766,8 @@ export default function ProductFilter({
                                         />
                                       </span>
                                       <span
-                                        className={`text-[15px] font-light ${
-                                          isSelected ? "font-semibold" : ""
-                                        }`}
+                                        className={`text-[15px] font-light ${isSelected ? "font-semibold" : ""
+                                          }`}
                                       >
                                         {helperFunctions?.stringReplacedWithSpace(
                                           item?.variationTypeName
@@ -1803,55 +1790,53 @@ export default function ProductFilter({
                             >
                               {variation.variationName === GOLD_COLOR
                                 ? variation.variationTypes.map(
-                                    (item, index) => {
-                                      const selectedGoldColors =
-                                        selectedFilterVariations[GOLD_COLOR] ||
-                                        [];
-                                      const isSelected =
-                                        selectedGoldColors.includes(
-                                          item.variationTypeName
-                                        );
-                                      return (
-                                        <div
-                                          className={`gap-1.5 flex items-center cursor-pointer p-1`}
-                                          key={`filter-variation-${index}2`}
-                                          onClick={() =>
-                                            onSelectVariant(
-                                              GOLD_COLOR,
-                                              item.variationTypeName
-                                            )
-                                          }
-                                        >
-                                          <input
-                                            type="checkbox"
-                                            checked={isSelected}
-                                            readOnly
-                                            className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
-                                          />
-                                          <div
-                                            className={`rounded-full w-5 h-5 border ${
-                                              isSelected
-                                                ? "border-primary"
-                                                : "border-black"
-                                            }`}
-                                            style={{
-                                              background:
-                                                item?.variationTypeHexCode,
-                                            }}
-                                          ></div>
-                                          <span
-                                            className={`text-[14px] font-light ${
-                                              isSelected ? "font-semibold" : ""
-                                            }`}
-                                          >
-                                            {helperFunctions?.stringReplacedWithSpace(
-                                              item?.variationTypeName
-                                            )}
-                                          </span>
-                                        </div>
+                                  (item, index) => {
+                                    const selectedGoldColors =
+                                      selectedFilterVariations[GOLD_COLOR] ||
+                                      [];
+                                    const isSelected =
+                                      selectedGoldColors.includes(
+                                        item.variationTypeName
                                       );
-                                    }
-                                  )
+                                    return (
+                                      <div
+                                        className={`gap-1.5 flex items-center cursor-pointer p-1`}
+                                        key={`filter-variation-${index}2`}
+                                        onClick={() =>
+                                          onSelectVariant(
+                                            GOLD_COLOR,
+                                            item.variationTypeName
+                                          )
+                                        }
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          checked={isSelected}
+                                          readOnly
+                                          className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
+                                        />
+                                        <div
+                                          className={`rounded-full w-5 h-5 border ${isSelected
+                                            ? "border-primary"
+                                            : "border-black"
+                                            }`}
+                                          style={{
+                                            background:
+                                              item?.variationTypeHexCode,
+                                          }}
+                                        ></div>
+                                        <span
+                                          className={`text-[14px] font-light ${isSelected ? "font-semibold" : ""
+                                            }`}
+                                        >
+                                          {helperFunctions?.stringReplacedWithSpace(
+                                            item?.variationTypeName
+                                          )}
+                                        </span>
+                                      </div>
+                                    );
+                                  }
+                                )
                                 : null}
                             </div>
                           )
@@ -1874,9 +1859,8 @@ export default function ProductFilter({
                                   return (
                                     <span
                                       key={`filter-variation-${index}4`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
-                                        isSelected ? "font-semibold" : ""
-                                      }`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
+                                        }`}
                                       onClick={() => onSelectSettingStyle(item)}
                                     >
                                       <input
@@ -1965,9 +1949,8 @@ export default function ProductFilter({
                                   return (
                                     <span
                                       key={`filter-gender-${index}`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
-                                        isSelected ? "font-semibold" : ""
-                                      }`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
+                                        }`}
                                       onClick={() =>
                                         onSelectGender(normalizedGender)
                                       }
@@ -1988,7 +1971,7 @@ export default function ProductFilter({
                         ) : null}
 
                         {activeFilterType === PRODUCT_TYPE_KEY &&
-                        uniqueFilterOptions?.uniqueProductTypes?.length ? (
+                          uniqueFilterOptions?.uniqueProductTypes?.length ? (
                           <div>
                             <h5 className={filterHeadingClass}>Product Type</h5>
                             <div className="flex gap-6">
@@ -2000,9 +1983,8 @@ export default function ProductFilter({
                                   return (
                                     <span
                                       key={`filter-productType-${index}`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
-                                        isSelected ? "font-semibold" : ""
-                                      }`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
+                                        }`}
                                       onClick={() => onSelectProductType(item)}
                                     >
                                       <input
@@ -2021,7 +2003,7 @@ export default function ProductFilter({
                         ) : null}
 
                         {activeFilterType === SUB_CATEGORIES_KEY &&
-                        uniqueFilterOptions?.uniqueSubCategories?.length ? (
+                          uniqueFilterOptions?.uniqueSubCategories?.length ? (
                           <div>
                             <h5 className={filterHeadingClass}>Sub Category</h5>
                             <div className="grid grid-cols-3 gap-3">
@@ -2034,9 +2016,8 @@ export default function ProductFilter({
                                   return (
                                     <span
                                       key={`filter-subCategory-${index}`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
-                                        isSelected ? "font-semibold" : ""
-                                      }`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
+                                        }`}
                                       onClick={() => onSelectSubCategory(item)}
                                     >
                                       <input

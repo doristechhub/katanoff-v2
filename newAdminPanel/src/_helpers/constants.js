@@ -47,6 +47,10 @@ export const GOLD_COLOR = { title: 'Gold Color' };
 
 export const RING_SIZE = { title: 'Ring Size' };
 
+export const DIAMOND_QUALITY = { title: 'Diamond Quality' };
+
+export const DIAMOND_SHAPE = { title: 'Diamond Shape' };
+
 export const GOLD_TYPE_SUB_TYPES_LIST = [
   { title: '10K', type: 'default' },
   { title: '14K', type: 'default' },
@@ -64,6 +68,15 @@ export const INIT_GOLD_TYPE_SUB_TYPES_LIST = [
   { title: '14K', type: 'default' },
 ];
 
+export const INIT_DIAMOND_QUALITY_SUB_TYPES_LIST = [
+  { title: "Good-F, VS2", type: 'default' },
+  { title: "Best-D, VVS", type: 'default' },
+  { title: "Better-E, VS1", type: 'default' }
+]
+
+export const INIT_DIAMOND_SHAPE_SUB_TYPES_LIST = [
+  { title: "", type: 'default' },
+]
 // Object map for gold color to thumbnail field
 export const GOLD_COLOR_MAP = {
   'rose gold': 'roseGoldThumbnailImage',
@@ -95,6 +108,7 @@ export const IMAGE_RESOLUTIONS = {
   SLIDER_GRID: { width: 402, height: 502 },
   TWO_GRID: { width: 825, height: 784 },
   THREE_GRID: { width: 544, height: 472 },
+  THUMBNAIL: { width: 402, height: 502 },
 };
 
 export const DEFAULT_QTY = 10;
@@ -177,7 +191,7 @@ export const DISCOUNT_DETAILS_TYPES = [
 ];
 
 export const COLLECTION_TYPES = {
-  default: { value: 'default', label: 'Default', thumbnailDimensions: 'Default' },
+  default: { value: 'default', label: 'Default', thumbnailDimensions: '402x502' },
   slider_grid: { value: 'slider_grid', label: 'Slider Grid', thumbnailDimensions: '402x502' },
   two_grid: { value: 'two_grid', label: 'Two Grid', thumbnailDimensions: '825x784' },
   three_grid: { value: 'three_grid', label: 'Three Grid', thumbnailDimensions: '544x472' },
@@ -248,3 +262,13 @@ export const messageType = {
 };
 
 export const initMessageObj = { message: '', type: '', status: '' };
+export const PRODUCT = "product"
+export const ADD = "add"
+export const DELETE = "delete"
+export const UPDATE = "update"
+export const EXPORT = "export"
+
+export const SLIDER_GRID = "SLIDER_GRID";
+export const TWO_GRID = "TWO_GRID";
+export const THREE_GRID = "THREE_GRID";
+export const THUMBNAIL = "THUMBNAIL";

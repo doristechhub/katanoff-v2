@@ -2,6 +2,7 @@ import { customizeService, productService } from "@/_services";
 import {
   setCustomizeProductList,
   setCustomizeProductLoading,
+  setFilterProductLoading,
   setUniqueFilterOptions,
 } from "@/store/slices/productSlice";
 import { getUniqueFilterOptions } from "./product.actions";
@@ -18,19 +19,27 @@ export const fetchCustomizeProducts = (params) => {
   return async (dispatch) => {
     try {
       dispatch(setCustomizeProductList([]));
+      dispatch(setFilterProductLoading(true));
       dispatch(setCustomizeProductLoading(true));
       const customizProductList = await productService.getCustomizeProduct(
         params
       );
-      if (customizProductList) {
-        const tempUniqueFilterOptions =
-          getUniqueFilterOptions({ productList: customizProductList });
-        dispatch(setUniqueFilterOptions(tempUniqueFilterOptions));
-      }
+      if (Array.isArray(customizProductList) && customizProductList.length > 0) {
+        if (customizProductList) {
+          const tempUniqueFilterOptions =
+            getUniqueFilterOptions({ productList: customizProductList });
+          dispatch(setUniqueFilterOptions(tempUniqueFilterOptions));
+        }
 
-      dispatch(setCustomizeProductList(customizProductList));
+        dispatch(setCustomizeProductList(customizProductList));
+      }
+      else {
+        dispatch(setCustomizeProductList([]));
+        dispatch(setFilterProductLoading(false));
+      }
     } catch (e) {
       dispatch(setCustomizeProductList([]));
+      dispatch(setFilterProductLoading(false));
     } finally {
       dispatch(setCustomizeProductLoading(false));
     }

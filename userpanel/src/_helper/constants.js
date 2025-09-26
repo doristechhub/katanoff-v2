@@ -54,6 +54,7 @@ export const DIAMOND_SHAPE_KEY = "diamondShape";
 export const DIAMOND_WEIGHT_KEY = "diamondWeight";
 export const DIAMOND_CLARITY_KEY = "diamondClarity";
 export const DIAMOND_COLOR_KEY = "diamondColor";
+export const COLLECTION_SLIDER = "collectionSlider";
 
 export const allowedVariationListForThreeSteps = [
   GOLD_COLOR,
@@ -214,7 +215,7 @@ export const FILTER_CONFIG = [
       { title: GIFTS_FOR_HER, filter: SUB_CATEGORIES_KEY },
       { title: GIFTS_FOR_HIM, filter: PRODUCT_TYPE_KEY },
       { title: GIFTS_UNDER_1000, filter: SUB_CATEGORIES_KEY },
-      { title: NEW_ARRIVAL, filter: SETTING_STYLE_KEY },
+      { title: NEW_ARRIVAL, filter: SUB_CATEGORIES_KEY },
     ],
     defaultFilter: SETTING_STYLE_KEY,
   },

@@ -1,8 +1,6 @@
 import aboutUsDesktop from "@/assets/images/about-us/about-us-desktop.webp";
 import aboutUsMobile from "@/assets/images/about-us/about-us-mobile.webp";
 import about1 from "@/assets/images/about-us/about-1.webp";
-import about9 from "@/assets/images/about-us/about-9.webp";
-import about10 from "@/assets/images/about-us/about-10.webp";
 import ringImage from "@/assets/images/about-us/ringImage.webp";
 import diamondImage from "@/assets/images/about-us/diamondImage.webp";
 import tranperencyImg from "@/assets/images/about-us/transperency.webp";
@@ -10,11 +8,11 @@ import SustainImg from "@/assets/images/about-us/sustainability.webp";
 import Compassion from "@/assets/images/about-us/compassion.webp";
 import Inclusion from "@/assets/images/about-us/inclusion.webp";
 import {
+  AboutUsCollectionToggle,
   AnimatedSection,
   HeroBanner,
 } from "@/components/dynamiComponents";
-import Link from "next/link";
-import { FLASH_DEALS, helperFunctions, PAGE_CONSTANTS } from "@/_helper";
+import { PAGE_CONSTANTS } from "@/_helper";
 import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
 import CustomImg from "@/components/ui/custom-img";
 
@@ -75,30 +73,6 @@ const aboutUsContent = [
       },
     ],
   },
-];
-
-const shopSections = [
-  {
-    href: "/collections/categories/Jewelry",
-    src: about9,
-    alt: "lab grown diamond jewelry, custom fine jewelry, ethical diamonds, New York jewelry store, Katanoff about us",
-    title: "Katanoff | Ethical Lab Grown Diamond Jewelry – About Us",
-    label: "SHOP JEWELRY",
-  },
-  {
-    href: `/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-      FLASH_DEALS
-    )}`,
-    src: about10,
-    alt: "custom lab grown diamond jewelry, fine jewelry craftsmanship, sustainable diamonds, New York USA, Katanoff",
-    title: "Katanoff | Custom Lab Grown Diamond Jewelry in New York",
-    label: "SHOP COLLECTIONS",
-  },
-];
-const sustainabilityFeatures = [
-  "Carbon-Neutral <br /> Diamond Labs",
-  "Fully-Recyclable <br /> Packaging",
-  "Recycled <br /> Gold",
 ];
 
 const missionPillars = [
@@ -224,27 +198,9 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="pt-12 lg:pt-20 container">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl mx-auto px-4">
-          {shopSections.map(({ href, src, alt, title, label }, index) => (
-            <Link
-              key={index}
-              href={href}
-              className="relative group block overflow-hidden"
-            >
-              <CustomImg
-                src={src}
-                alt={alt}
-                title={title}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              <div className="absolute bottom-6 left-6 text-white text-lg tracking-wide font-bold">
-                {label}
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+      {/* <section className="pt-12 lg:pt-20">
+        <AboutUsCollectionToggle />
+      </section> */}
     </>
   );
 }

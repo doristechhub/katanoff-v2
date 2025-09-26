@@ -64,16 +64,23 @@ import CombinationDialog from './combination-dialog';
 import DiamondFilters from './diamond-filters';
 import DuplicateProductDialog from './duplicate-product-dialog';
 import {
+  ADD,
   ALLOW_MAX_CARAT_WEIGHT,
   ALLOW_MIN_CARAT_WEIGHT,
+  DIAMOND_QUALITY,
+  DIAMOND_SHAPE,
   DIMENSION_UNITS,
   GENDER_LIST,
   GOLD_COLOR,
   GOLD_COLOR_SUB_TYPES_LIST,
   GOLD_TYPE,
+  INIT_DIAMOND_QUALITY_SUB_TYPES_LIST,
+  INIT_DIAMOND_SHAPE_SUB_TYPES_LIST,
   INIT_GOLD_TYPE_SUB_TYPES_LIST,
   PRICE_CALCULATION_MODES,
+  PRODUCT,
   RING_SIZE,
+  UPDATE,
 } from 'src/_helpers/constants';
 import ClearIcon from '@mui/icons-material/Clear';
 import GroupBySection from './GroupBySection';
@@ -344,6 +351,8 @@ export default function AddProductPage() {
       const goldType = findCustomization(GOLD_TYPE.title);
       const goldColor = findCustomization(GOLD_COLOR.title);
       const ringSize = findCustomization(RING_SIZE.title);
+      const diamondQuality = findCustomization(DIAMOND_QUALITY.title);
+      const diamondShape = findCustomization(DIAMOND_SHAPE.title);
 
       const newVariations = [];
 
@@ -369,6 +378,24 @@ export default function AddProductPage() {
         newVariations.push(createVariation(ringSize.id, ringSizeSubTypes, sortedRingSizes));
       }
 
+      if (diamondQuality) {
+        const diamondQualitySubTypes = findSubTypesByTypeName(DIAMOND_QUALITY.title);
+        const matchedDiamondQualitySubTypes = mapSubTypesFromList(
+          INIT_DIAMOND_QUALITY_SUB_TYPES_LIST
+        );
+        newVariations.push(
+          createVariation(diamondQuality.id, diamondQualitySubTypes, matchedDiamondQualitySubTypes)
+        );
+      }
+
+      if (diamondShape) {
+        const diamondShapeSubTypes = findSubTypesByTypeName(DIAMOND_SHAPE.title);
+
+        newVariations.push(
+          createVariation(diamondShape.id, diamondShapeSubTypes, INIT_DIAMOND_SHAPE_SUB_TYPES_LIST)
+        );
+      }
+      
       const newPayload = {
         ...selectedProduct,
         variations: newVariations,
@@ -475,6 +502,20 @@ export default function AddProductPage() {
     },
     [customizationSubTypesList, priceMultiplier, PRICE_CALCULATION_MODES]
   );
+
+  const user = helperFunctions.getCurrentUser();
+
+  const canAddProduct = user.permissions.some(
+    (perm) => perm.pageId === PRODUCT && perm.actions.some((action) => action.actionId === ADD)
+  );
+
+  const canEditProduct = user.permissions.some(
+    (perm) => perm.pageId === PRODUCT && perm.actions.some((action) => action.actionId === UPDATE)
+  );
+  // If no permission → redirect
+  if (!canAddProduct || !canEditProduct) {
+    window.location.href = '/unauthorized'; // or your desired URL
+  }
 
   return (
     <>

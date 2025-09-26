@@ -61,6 +61,7 @@ import { email, helperFunctions } from 'src/_helpers';
 import { Button, LoadingButton } from 'src/components/button';
 import navConfig from 'src/layouts/dashboard/config-navigation';
 import ConfirmationDialog from 'src/components/confirmation-dialog';
+import { Masonry } from '@mui/lab';
 
 // ----------------------------------------------------------------------
 
@@ -180,12 +181,15 @@ const Permissions = () => {
     let admin = adminList?.find((x) => x?.id === selectedPermissionsId);
     admin = {
       ...admin,
-      permissions: admin?.permissions?.map((x) => x?.pageId),
+      permissions:
+        admin?.permissions?.map((p) => ({
+          pageId: p.pageId,
+          actions: p?.actions || [],
+        })) || [],
     };
-    if (admin) {
-      dispatch(setSelectedAdmin(admin));
-      setOpenPermissionsDialog(true);
-    }
+
+    dispatch(setSelectedAdmin(admin));
+    setOpenPermissionsDialog(true);
   }, [selectedPermissionsId, adminList]);
 
   const handleDelete = useCallback(async () => {
@@ -204,31 +208,39 @@ const Permissions = () => {
     }
   }, [selectedPermissionsId]);
 
-  const onSubmit = useCallback(async (val, { resetForm }) => {
-    const payload = {
-      email: val?.email,
-      mobile: val?.mobile,
-      lastName: val?.lastName,
-      password: val?.password,
-      firstName: val?.firstName,
-      permissions: val?.permissions?.map((x) => ({ pageId: x })),
-      confirmPassword: val?.id ? val?.password : val?.confirmPassword,
-    };
-    let res;
-    if (val?.id) {
-      payload.adminId = val?.id;
-      res = await dispatch(updateAdmin(payload));
-    } else {
-      res = await dispatch(insertAdmin(payload));
-    }
-    if (res) {
-      loadData();
-      resetForm();
-      setOpen(null);
-      setOpenPermissionsDialog(false);
-      dispatch(setSelectedAdmin(initAdmin));
-    }
-  }, []);
+  const onSubmit = useCallback(
+    async (val, { resetForm }) => {
+      const payload = {
+        email: val?.email,
+        mobile: val?.mobile,
+        lastName: val?.lastName,
+        firstName: val?.firstName,
+        password: val?.password,
+        confirmPassword: val?.id ? val?.password : val?.confirmPassword,
+        permissions: val?.permissions?.map((p) => ({
+          pageId: p.pageId,
+          actions: p.actions?.map((a) => ({ actionId: a.actionId })) || [],
+        })),
+      };
+
+      let res;
+      if (val?.id) {
+        payload.adminId = val?.id;
+        res = await dispatch(updateAdmin(payload));
+      } else {
+        res = await dispatch(insertAdmin(payload));
+      }
+
+      if (res) {
+        loadData();
+        resetForm();
+        setOpenPermissionsDialog(false);
+        setOpen(null);
+        dispatch(setSelectedAdmin(initAdmin));
+      }
+    },
+    [loadData, dispatch]
+  );
 
   const { values, errors, touched, handleChange, handleBlur, handleSubmit, resetForm } = useFormik({
     onSubmit,
@@ -256,22 +268,27 @@ const Permissions = () => {
         toast.error('Any action prohibited for superadmins.');
         return;
       }
-      const permissionsToUpdate = permissionsOfAllAdmins?.[selectedPermissionsId] || [];
+
+      const permissionsToUpdate = permissionsOfAllAdmins[selectedPermissionsId] || [];
+
+      // Include actions
       const payload = {
-        permissions: permissionsToUpdate?.map((x) => ({
-          pageId: x,
-        })),
         adminId: selectedPermissionsId,
+        permissions: permissionsToUpdate.map((p) => ({
+          pageId: p.pageId,
+          actions: p.actions?.map((a) => ({ actionId: a.actionId })) || [],
+        })),
       };
+
       const res = await dispatch(updateAdminPermission(payload));
       if (res) {
         loadData();
         setOpen(null);
-        setSelectedPermissionsId();
+        setSelectedPermissionsId(null);
         dispatch(setSelectedAdmin(initAdmin));
       }
     },
-    [selectedPermissionsId, permissionsOfAllAdmins]
+    [selectedPermissionsId, permissionsOfAllAdmins, dispatch, loadData]
   );
 
   const renderPopup = useMemo(() => {
@@ -500,23 +517,145 @@ const Permissions = () => {
             </Grid>
           )}
 
-          <FormControl sx={{ mt: '10px', width: '100%' }}>
+          <FormControl sx={{ mt: 2, width: '100%' }}>
             <InputLabel id="permissions">Permissions</InputLabel>
             <Select
               multiple
-              name="permissions"
               labelId="permissions"
-              MenuProps={MenuProps}
-              onChange={handleChange}
-              value={values?.permissions}
+              value={values?.permissions || []}
               input={<OutlinedInput label="Permissions" />}
-              renderValue={(selected) => selected?.join(', ')}
+              renderValue={
+                (selected) =>
+                  selected
+                    .map((p) => {
+                      const page = navConfig.find((page) => page.pageId === p.pageId);
+                      if (!page) return p.pageId;
+                      if (!p.actions || p.actions.length === 0) return page.title; // no actions
+                      return `${page.title} (${p.actions.map((a) => a.actionId).join(', ')})`;
+                    })
+                    .filter(Boolean) // remove null/undefined
+                    .join(', ') // only adds '; ' between items
+              }
+              MenuProps={MenuProps}
             >
-              {navConfig?.map((x) => (
-                <MenuItem key={`permission-key-${x?.pageId}`} value={x?.pageId}>
-                  <ListItemText primary={helperFunctions.capitalWords(x?.title)} />
-                </MenuItem>
-              ))}
+              {navConfig?.map((page) => {
+                // check if this page is already selected
+                const pagePermission = values.permissions?.find(
+                  (p) => p.pageId === page.pageId
+                ) || { pageId: page.pageId, actions: [] };
+
+                const pageChecked =
+                  (page.actions?.length > 0 &&
+                    pagePermission.actions?.length === page.actions?.length) ||
+                  (page.actions?.length === 0 &&
+                    values.permissions?.some((p) => p.pageId === page.pageId));
+
+                const indeterminate =
+                  pagePermission.actions?.length > 0 &&
+                  pagePermission.actions?.length < page.actions?.length;
+
+                return (
+                  <MenuItem key={page?.pageId} value={page.pageId} sx={{ display: 'block' }}>
+                    {/* Page checkbox */}
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={pageChecked}
+                          indeterminate={indeterminate}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            let updatedPermissions = [...values.permissions];
+                            // Page checkbox
+                            if (checked) {
+                              updatedPermissions = updatedPermissions.filter(
+                                (p) => p.pageId !== page.pageId
+                              );
+
+                              updatedPermissions.push({
+                                pageId: page.pageId,
+                                actions:
+                                  page.actions?.length > 0
+                                    ? page.actions.map((a) => ({ actionId: a.value }))
+                                    : [],
+                              });
+                            } else {
+                              updatedPermissions = updatedPermissions.filter(
+                                (p) => p.pageId !== page.pageId
+                              );
+                            }
+                            handleChange({
+                              target: { name: 'permissions', value: updatedPermissions },
+                            });
+                          }}
+                        />
+                      }
+                      label={helperFunctions.capitalWords(page.title)}
+                    />
+
+                    {/* Actions under page */}
+                    <Box sx={{ pl: 3, display: 'flex', flexDirection: 'column' }}>
+                      {page.actions?.map((action) => {
+                        const actionChecked = pagePermission.actions?.some(
+                          (a) => a.actionId === action.value
+                        );
+
+                        return (
+                          <FormControlLabel
+                            key={action.value}
+                            control={
+                              <Checkbox
+                                checked={actionChecked}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  // Create a new permissions array
+                                  let updatedPermissions =
+                                    values.permissions?.map((p) => ({ ...p })) || [];
+
+                                  // Find or create page
+                                  let pagePerm = updatedPermissions.find(
+                                    (p) => p.pageId === page.pageId
+                                  );
+                                  if (!pagePerm) {
+                                    pagePerm = { pageId: page.pageId, actions: [] };
+                                    updatedPermissions.push(pagePerm);
+                                  } else {
+                                    // clone actions to avoid mutation
+                                    pagePerm.actions = [...pagePerm.actions];
+                                  }
+
+                                  if (checked) {
+                                    // Add action if not exists
+                                    if (
+                                      !pagePerm.actions.some((a) => a.actionId === action.value)
+                                    ) {
+                                      pagePerm.actions.push({ actionId: action.value });
+                                    }
+                                  } else {
+                                    // Remove action
+                                    pagePerm.actions = pagePerm.actions.filter(
+                                      (a) => a.actionId !== action.value
+                                    );
+                                  }
+
+                                  // Remove empty pages
+                                  updatedPermissions = updatedPermissions.filter(
+                                    (p) => p.actions.length > 0 || page.actions?.length === 0
+                                  );
+
+                                  handleChange({
+                                    target: { name: 'permissions', value: updatedPermissions },
+                                  });
+                                }}
+                              />
+                            }
+                            label={helperFunctions.capitalWords(action.label)}
+                          />
+                        );
+                      })}
+                    </Box>
+                  </MenuItem>
+                );
+              })}
             </Select>
           </FormControl>
         </StyledDialogContent>
@@ -679,12 +818,34 @@ const Row = memo(({ row, setOpen, setSelectedPermissionsId, index }) => {
   const { permissionsOfAllAdmins, collapseList } = useSelector(({ permissions }) => permissions);
   const isCollapsed = collapseList?.[index]?.isCollapsed;
 
-  const handleCheck = useCallback(
-    (adminId, pageId) => {
-      const adminPermisisons = permissionsOfAllAdmins?.[adminId] || [];
-      const updatedPermissions = adminPermisisons?.includes(pageId)
-        ? adminPermisisons?.filter((id) => id !== pageId)
-        : [...adminPermisisons, pageId];
+  const handleCheckPage = useCallback(
+    (adminId, page) => {
+      const adminPermissions = permissionsOfAllAdmins?.[adminId] || [];
+      let updatedPermissions = [...adminPermissions];
+
+      const pageIndex = updatedPermissions.findIndex((p) => p.pageId === page.pageId);
+
+      if (pageIndex > -1) {
+        const pagePerm = updatedPermissions[pageIndex];
+        const allActionsChecked = pagePerm.actions.length === page.actions.length;
+
+        if (allActionsChecked) {
+          // If all actions are already checked, uncheck all
+          updatedPermissions = updatedPermissions.filter((p) => p.pageId !== page.pageId);
+        } else {
+          // If some actions are checked (indeterminate), check all actions
+          updatedPermissions[pageIndex] = {
+            pageId: page.pageId,
+            actions: page.actions?.map((a) => ({ actionId: a.value })) || [],
+          };
+        }
+      } else {
+        // Page doesn't exist, add it with all actions checked
+        updatedPermissions.push({
+          pageId: page.pageId,
+          actions: page.actions?.map((a) => ({ actionId: a.value })) || [],
+        });
+      }
 
       dispatch(
         setPermissionsOfAllAdmins({
@@ -695,39 +856,75 @@ const Row = memo(({ row, setOpen, setSelectedPermissionsId, index }) => {
     },
     [permissionsOfAllAdmins, dispatch]
   );
+
+  const handleCheckAction = useCallback(
+    (adminId, page, actionId) => {
+      const adminPermissions = permissionsOfAllAdmins?.[adminId] || [];
+      let updatedPermissions = adminPermissions.map((p) => ({
+        pageId: p.pageId,
+        actions: [...p.actions],
+      }));
+
+      let pagePerm = updatedPermissions.find((p) => p.pageId === page.pageId);
+
+      if (!pagePerm) {
+        pagePerm = { pageId: page.pageId, actions: [] };
+        updatedPermissions.push(pagePerm);
+      }
+
+      const actionExists = pagePerm.actions.some((a) => a.actionId === actionId);
+
+      if (actionExists) {
+        pagePerm.actions = pagePerm.actions.filter((a) => a.actionId !== actionId);
+      } else {
+        pagePerm.actions.push({ actionId });
+      }
+
+      // Remove page if it originally had actions but now empty
+      if (page.actions?.length > 0 && pagePerm.actions.length === 0) {
+        updatedPermissions = updatedPermissions.filter((p) => p.pageId !== page.pageId);
+      }
+
+      dispatch(
+        setPermissionsOfAllAdmins({
+          ...permissionsOfAllAdmins,
+          [adminId]: updatedPermissions,
+        })
+      );
+    },
+    [permissionsOfAllAdmins, dispatch]
+  );
+
+  const adminPermissions = permissionsOfAllAdmins?.[row?.id] || [];
+
   return (
-    <React.Fragment key={row?.id}>
+    <>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-        <TableCell sx={{ width: '50px' }}>
+        <TableCell sx={{ width: 50 }}>
           <IconButton
-            aria-label="expand row"
             size="small"
             onClick={() => {
-              let list = [...collapseList];
+              const list = [...collapseList];
               list[index] = { isCollapsed: !isCollapsed };
               dispatch(setCollapseList(list));
             }}
           >
-            {isCollapsed ? (
-              <Iconify icon="iconamoon:arrow-up-2" />
-            ) : (
-              <Iconify icon="iconamoon:arrow-down-2" />
-            )}
+            <Iconify icon={isCollapsed ? 'iconamoon:arrow-up-2' : 'iconamoon:arrow-down-2'} />
           </IconButton>
         </TableCell>
-        <TableCell sx={{ width: '60px' }}>{row?.srNo}</TableCell>
+        <TableCell sx={{ width: 60 }}>{row?.srNo}</TableCell>
         <TableCell>
           {helperFunctions.capitalWords(row?.firstName)}{' '}
           {helperFunctions.capitalWords(row?.lastName)}
         </TableCell>
         <TableCell>{row?.email}</TableCell>
         <TableCell>{row?.mobile}</TableCell>
-        <TableCell sx={{ minWidth: '180px' }}>
+        <TableCell sx={{ minWidth: 180 }}>
           {moment(row?.createdDate)?.format('MM-DD-YYYY hh:mm a')}
         </TableCell>
-        <TableCell sx={{ width: '50px' }}>
+        <TableCell sx={{ width: 50 }}>
           <Iconify
-            className={'cursor-pointer'}
+            className="cursor-pointer"
             icon="iconamoon:menu-kebab-vertical-bold"
             onClick={(e) => {
               setOpen(e.currentTarget);
@@ -736,28 +933,70 @@ const Row = memo(({ row, setOpen, setSelectedPermissionsId, index }) => {
           />
         </TableCell>
       </TableRow>
+
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0, width: '100%' }} colSpan={12}>
-          <Collapse in={isCollapsed} timeout={2} sx={{ width: '100%' }}>
-            {navConfig?.map((x, i) => {
-              const isChecked = permissionsOfAllAdmins?.[row?.id]?.includes(x?.pageId);
-              return (
-                <FormControlLabel
-                  sx={{ flexGrow: 1, m: 0 }}
-                  key={`admin-permissions-${i}`}
-                  label={helperFunctions.capitalWords(x?.title)}
-                  control={
-                    <Checkbox
-                      checked={isChecked}
-                      onChange={() => handleCheck(row?.id, x?.pageId)}
+        <TableCell colSpan={12} style={{ paddingBottom: 0, paddingTop: 0 }}>
+          <Collapse in={isCollapsed} timeout={200}>
+            <Masonry
+              columns={{ xs: 1, sm: 2, md: 3, lg: 4 }}
+              spacing={1.5}
+              style={{ marginTop: 10 }}
+            >
+              {navConfig?.map((page, i) => {
+                const pagePerm = adminPermissions.find((p) => p.pageId === page.pageId);
+                const isPageChecked = !!pagePerm;
+                const isIndeterminate =
+                  pagePerm?.actions?.length > 0 && pagePerm?.actions?.length < page.actions?.length;
+
+                return (
+                  <Box
+                    key={`admin-permissions-${i}`}
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      border: '1px solid #eee',
+                      borderRadius: 1,
+                      p: 1,
+                      backgroundColor: '#fff',
+                    }}
+                  >
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={isPageChecked}
+                          indeterminate={isIndeterminate}
+                          onChange={() => handleCheckPage(row?.id, page)}
+                        />
+                      }
+                      label={helperFunctions.capitalWords(page.title)}
                     />
-                  }
-                />
-              );
-            })}
+                    <Box sx={{ pl: 2, display: 'flex', flexDirection: 'column' }}>
+                      {page.actions?.map((action) => {
+                        const isActionChecked = pagePerm?.actions?.some(
+                          (a) => a.actionId === action.value
+                        );
+
+                        return (
+                          <FormControlLabel
+                            key={action.value}
+                            control={
+                              <Checkbox
+                                checked={isActionChecked}
+                                onChange={() => handleCheckAction(row?.id, page, action.value)}
+                              />
+                            }
+                            label={helperFunctions.capitalWords(action.label)}
+                          />
+                        );
+                      })}
+                    </Box>
+                  </Box>
+                );
+              })}
+            </Masonry>
           </Collapse>
         </TableCell>
       </TableRow>
-    </React.Fragment>
+    </>
   );
 });

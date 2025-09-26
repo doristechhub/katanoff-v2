@@ -29,9 +29,10 @@ import {
   getCustomizationSubTypeList,
   getSettingStyleList,
   getAllProcessedProducts,
+  toastError,
 } from 'src/actions';
 import { Button, LoadingButton } from 'src/components/button';
-import { GENDER_LIST, perPageCountOptions, productStatusOptions } from 'src/_helpers/constants';
+import { EXPORT, GENDER_LIST, perPageCountOptions, PRODUCT, productStatusOptions } from 'src/_helpers/constants';
 import { getCollectionList } from 'src/actions/collectionActions';
 import {
   setCrudProductLoading,
@@ -44,6 +45,8 @@ import {
 
 import ProductCard from '../product-card';
 import { generateExcel } from 'src/_helpers/generateExcel';
+import { helperFunctions } from 'src/_helpers';
+import { adminController } from 'src/_controller';
 
 const genderOptions = [
   {
@@ -241,6 +244,21 @@ export default function ProductsView() {
   const onExport = useCallback(async () => {
     dispatch(setExportExcelLoading(true));
 
+    // Check if the current admin has permission to export products, and reject if not
+    const currentUser = helperFunctions.getCurrentUser();
+    const payload = {
+      adminId: currentUser?.id,
+    };
+    const permissionData = await adminController.getPermissionsByAdminId(payload);
+    const productPermissions = permissionData.find((perm) => perm.pageId === PRODUCT);
+
+    const canExport = productPermissions?.actions?.some((action) => action.actionId === EXPORT);
+    if (!canExport) {
+      toastError({ message: 'You do not have permission to export this product.' });
+      dispatch(setExportExcelLoading(false));
+      return;
+    }
+
     const processedProducts = await dispatch(getAllProcessedProducts());
 
     const filteredIds = new Set(filteredList.map((item) => item.id));
@@ -308,6 +326,16 @@ export default function ProductsView() {
     navigate('/product/add');
   }, [dispatch, navigate]);
 
+  const user = helperFunctions.getCurrentUser();
+
+  const canExport = user.permissions.some(
+    (perm) =>
+      perm.pageId === 'product' && perm.actions.some((action) => action.actionId === 'export')
+  );
+  const canAddProduct = user.permissions.some(
+    (perm) => perm.pageId === 'product' && perm.actions.some((action) => action.actionId === 'add')
+  );
+
   return (
     <Container sx={{ height: '100%' }}>
       <Box
@@ -345,13 +373,19 @@ export default function ProductsView() {
             variant="contained"
             color="success"
             onClick={onExport}
+            disabled={!canExport}
             loading={exportExcelLoading}
             startIcon={<Iconify icon={'file-icons:microsoft-excel'} width={25} />}
           >
             Export
           </LoadingButton>
 
-          <Button variant="contained" startIcon={<AddIcon />} onClick={newProduct}>
+          <Button
+            disabled={!canAddProduct}
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={newProduct}
+          >
             New Product
           </Button>
         </Box>

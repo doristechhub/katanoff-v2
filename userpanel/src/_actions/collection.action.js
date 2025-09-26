@@ -2,6 +2,8 @@ const {
   setCollectionsData,
   setCollectionsLoading,
   setCollectionMessage,
+  setCollectionsListLoading,
+  setCollectionsList,
 } = require("@/store/slices/collectionSlice");
 const { collectionService } = require("@/_services");
 const { messageType, TWO_GRID, THREE_GRID, SLIDER_GRID } = require("@/_helper");
@@ -50,6 +52,34 @@ const fetchCollectionsByTypes = (types) => {
   };
 };
 
+const fetchAllCollections = () => {
+  return async (dispatch) => {
+    try {
+      dispatch(setCollectionsListLoading(true));
+
+      const collections = await collectionService?.getAllCollection();
+
+      const formattedCollections = collections
+        .map((collection) => ({
+          ...collection,
+          image: collection.thumbnailImage,
+        }))
+        .sort((a, b) => a.position - b.position);
+      dispatch(setCollectionsList(formattedCollections));
+      return formattedCollections;
+    } catch (e) {
+      dispatch(
+        setCollectionMessage({
+          message: e?.message || "Something went wrong",
+          type: messageType.ERROR,
+        })
+      );
+    } finally {
+      dispatch(setCollectionsListLoading(false));
+    }
+  };
+};
+
 const fetchCollectionByTitle = (title) => {
   return async (dispatch) => {
     try {
@@ -87,5 +117,6 @@ const fetchCollectionByTitle = (title) => {
 
 module.exports = {
   fetchCollectionsByTypes,
-  fetchCollectionByTitle
+  fetchCollectionByTitle,
+  fetchAllCollections,
 };

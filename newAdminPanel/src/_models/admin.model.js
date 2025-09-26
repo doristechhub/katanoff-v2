@@ -1,32 +1,39 @@
 export const adminModel = {
-    createdDate:Date,
-    updatedDate:Date,
-    id:{
-        type:String,
-        unique:true
+    createdDate: Date,
+    updatedDate: Date,
+    id: {
+        type: String,
+        unique: true
     },
     firstName: {
-        type:String
+        type: String
     },
     lastName: {
-        type:String
+        type: String
     },
-    email : {
-        type:String,
-        unique:true
+    email: {
+        type: String,
+        unique: true
     },
-    mobile : {
-        type:Number
+    mobile: {
+        type: Number
     },
-    password : {
-        type:String
+    password: {
+        type: String
     },
     permissions: {
         type: [
             {
                 pageId: {
-                    type:String
-                }
+                    type: String
+                },
+                actions: [
+                    {
+                        actionId: {
+                            type: String,
+                        }
+                    }
+                ]
             }
         ],
     }

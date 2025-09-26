@@ -10,6 +10,7 @@ import {
   setSelectedPrices,
   setBannerLoading,
   setBanners,
+  setFilterProductLoading,
 } from "@/store/slices/productSlice";
 import { productService, recentlyViewedService } from "@/_services";
 import {
@@ -112,6 +113,7 @@ const resetAllInit = (dispatch) => {
   dispatch(setSelectedPrices(uniqueFilterOptions?.availablePriceRange ?? []));
   dispatch(setCollectionTypeProductList([]));
   dispatch(setProductLoading(false));
+  dispatch(setFilterProductLoading(false));
 };
 
 /**
@@ -132,11 +134,13 @@ export const fetchCollectionsTypeWiseProduct = (
     // Input validation
     if (!collectionType || !collectionTitle) {
       dispatch(setProductLoading(false));
+      dispatch(setFilterProductLoading(false));
       throw new Error("Collection type and title are required");
     }
 
     try {
       dispatch(setProductLoading(true));
+      dispatch(setFilterProductLoading(true));
       const products = await productService.getCollectionsTypeWiseProduct(
         collectionType,
         collectionTitle,

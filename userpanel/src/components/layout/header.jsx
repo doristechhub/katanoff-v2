@@ -30,7 +30,7 @@ import diamondIcon from "@/assets/icons/diamond.svg";
 import calendarIcon from "@/assets/icons/calendar.svg";
 import { usePathname } from "next/navigation";
 import { getMenuList } from "@/_actions/home.action";
-import { helperFunctions } from "@/_helper";
+import { GENERAL, helperFunctions, NEW_ARRIVAL } from "@/_helper";
 import miniLogo from "@/assets/images/mini-logo.webp";
 import CustomImg from "../ui/custom-img";
 
@@ -127,11 +127,15 @@ export default function Header() {
 
   return (
     <>
-      {/* <div className="bg-primary py-2 text-white text-xs flex justify-between items-center px-6 lg:px-8">
-        <div></div>
-        <p className="font-castoro">FREE Shipping and FREE Returns.</p>
-        <CustomImg srcAttr={flagUs} className="rounded-full w-6" />
-      </div> */}
+      <div className="bg-primary py-2 lg:py-3 text-white text-xs flex gap-2 text-center justify-center items-center px-6 lg:px-8 lg:text-base">
+
+        <p className="font-castoro">Discover What’s New - </p>
+        <Link href={`/collections/${GENERAL}/${helperFunctions?.stringReplacedWithUnderScore(
+          NEW_ARRIVAL
+        )}`}>
+          <p className="font-castoro hover:underline"> Shop now</p>
+        </Link>
+      </div>
       <header
         className={`w-full z-50 transition-all duration-700 ease-in-out 
     ${

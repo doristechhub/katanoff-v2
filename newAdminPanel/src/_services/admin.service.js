@@ -32,6 +32,7 @@ const getAllAdmins = async () => {
           return {
             ...permissionItem,
             title: findedItem?.title,
+            actions: permissionItem?.actions || [],
           };
         })
       );
@@ -60,9 +61,12 @@ const adminLogin = async (payload, abortController) => {
         const allPageList = helperFunctions.getAllPagesList();
         const payload = {
           adminId: adminData.id,
-          permissions: adminData.permissions?.filter((x) =>
-            allPageList?.some((y) => y?.pageId === x?.pageId)
-          ),
+          permissions: adminData.permissions
+            ?.filter((x) => allPageList?.some((y) => y?.pageId === x?.pageId))
+            .map((x) => ({
+              pageId: x.pageId,
+              actions: x?.actions || [],
+            })),
         };
         const updatePermissionRes = await updateAdminPermission(payload);
         if (updatePermissionRes) {
@@ -120,10 +124,23 @@ const createAdmin = (params) => {
                 return;
               }
               const pagesList = helperFunctions.getAllPagesList();
-              matchedPermissionsPageIds = permissions.filter((permission) =>
-                pagesList.some((page) => page.pageId === permission.pageId)
-              );
+              matchedPermissionsPageIds = permissions
+                .map((permission) => {
+                  const matchedPage = pagesList.find((page) => page.pageId === permission.pageId);
+                  if (!matchedPage) return null; // skip if page not found
+
+                  const validActions = (permission.actions || []).filter((action) =>
+                    matchedPage.actions.some((pageAction) => pageAction.value === action.actionId)
+                  );
+
+                  return {
+                    pageId: matchedPage.pageId,
+                    actions: validActions.map((action) => ({ actionId: action.actionId })),
+                  };
+                })
+                .filter(Boolean);
             }
+
             const hash = bcrypt.hashSync(password, 12);
             const insertPattern = {
               id: uuid,
@@ -189,19 +206,23 @@ const updateAdmin = (params) => {
             lastName = lastName ? lastName.trim() : adminData.lastName;
             mobile = mobile ? Number(mobile) : adminData.mobile;
             permissions = Array.isArray(permissions) ? permissions : adminData.permissions;
-            let matchedPermissionsPageIds = [];
+            const pagesList = helperFunctions.getAllPagesList();
 
-            if (permissions.length) {
-              const isPermissionsValidKey = helperFunctions.isValidKeyName(permissions, 'pageId');
-              if (!isPermissionsValidKey) {
-                reject(new Error('permissions data not valid'));
-                return;
-              }
-              const pagesList = helperFunctions.getAllPagesList();
-              matchedPermissionsPageIds = permissions.filter((permission) =>
-                pagesList.some((page) => page.pageId === permission.pageId)
-              );
-            }
+            const matchedPermissionsPageIds = permissions
+              .map((permission) => {
+                const matchedPage = pagesList.find((page) => page.pageId === permission.pageId);
+                if (!matchedPage) return null;
+
+                const validActions = (permission.actions || []).filter((action) =>
+                  matchedPage.actions.some((pageAction) => pageAction.value === action.actionId)
+                );
+
+                return {
+                  pageId: matchedPage.pageId,
+                  actions: validActions.map((action) => ({ actionId: action.actionId })),
+                };
+              })
+              .filter(Boolean);
 
             const payload = {
               email,
@@ -242,49 +263,37 @@ const updateAdminPermission = (params) => {
     try {
       let { adminId, permissions } = sanitizeObject(params);
 
-      if (adminId) {
-        const adminData = await fetchWrapperService.findOne(adminUrl, {
-          id: adminId,
-        });
-        if (adminData) {
-          permissions = Array.isArray(permissions) ? permissions : adminData.permissions;
+      if (!adminId) return reject(new Error('Invalid Data'));
 
-          let matchedPermissionsPageIds = [];
+      const adminData = await fetchWrapperService.findOne(adminUrl, { id: adminId });
+      if (!adminData) return reject(new Error('Admin not found!'));
 
-          if (permissions.length) {
-            const isPermissionsValidKey = helperFunctions.isValidKeyName(permissions, 'pageId');
-            if (!isPermissionsValidKey) {
-              reject(new Error('permissions data not valid'));
-              return;
-            }
-            const pagesList = helperFunctions.getAllPagesList();
-            matchedPermissionsPageIds = permissions.filter((permission) =>
-              pagesList.some((page) => page.pageId === permission.pageId)
+      permissions = Array.isArray(permissions) ? permissions : [];
+
+      const pagesList = helperFunctions.getAllPagesList();
+
+      const matchedPermissionsPageIds = permissions?.length
+        ? permissions
+          .map((permission) => {
+            const matchedPage = pagesList.find((page) => page.pageId === permission.pageId);
+            if (!matchedPage) return null;
+
+            const validActions = (permission.actions || []).filter((action) =>
+              matchedPage.actions.some((pageAction) => pageAction.value === action.actionId)
             );
-          }
-          const payload = {
-            permissions: matchedPermissionsPageIds,
-          };
 
-          const updatePattern = {
-            url: `${adminUrl}/${adminId}`,
-            payload: payload,
-          };
-          fetchWrapperService
-            ._update(updatePattern)
-            .then((response) => {
-              resolve(true);
-              return true;
-            })
-            .catch((e) => {
-              reject(new Error('An error occurred during update admin permission.'));
-            });
-        } else {
-          reject(new Error('admin not found!'));
-        }
-      } else {
-        reject(new Error('Invalid Data'));
-      }
+            return {
+              pageId: matchedPage.pageId,
+              actions: validActions.map((action) => ({ actionId: action.actionId })),
+            };
+          })
+          .filter(Boolean)
+        : [];
+
+      const payload = { permissions: matchedPermissionsPageIds };
+
+      await fetchWrapperService._update({ url: `${adminUrl}/${adminId}`, payload });
+      resolve(true);
     } catch (e) {
       reject(e);
     }
@@ -367,12 +376,21 @@ const createSuperAdmin = async () => {
     const adminData = await fetchWrapperService.findOne(adminUrl, {
       email: email,
     });
+    const pagesList = helperFunctions.getAllPagesList();
     if (adminData) {
       let currentUser = helperFunctions.getCurrentUser();
       if (currentUser?.email === email) {
+
+        const permissionsArr = pagesList.map((page) => ({
+          pageId: page.pageId,
+          actions:
+            page.actions.map((action) => ({ actionId: action.value }))
+            || [],
+        }));
+
         const updatePermissionPayload = {
           adminId: adminData.id,
-          permissions: helperFunctions.getAllPagesList().map((x) => ({ pageId: x.pageId })),
+          permissions: permissionsArr,
         };
         const res = await updateAdminPermission(updatePermissionPayload);
         if (res) {
@@ -382,6 +400,14 @@ const createSuperAdmin = async () => {
       }
       return;
     }
+
+    const permissionsArr = pagesList.map((page) => ({
+      pageId: page.pageId,
+      actions:
+        page?.actions?.map((action) => ({ actionId: action.value }))
+        || [],
+    }));
+
     const payload = {
       firstName: firstName,
       lastName: lastName,
@@ -389,7 +415,7 @@ const createSuperAdmin = async () => {
       mobile: mobile,
       password: password,
       confirmPassword: confirmPassword,
-      permissions: helperFunctions.getAllPagesList().map((x) => ({ pageId: x.pageId })),
+      permissions: permissionsArr,
     };
     await createAdmin(payload);
   } catch (error) {
@@ -404,6 +430,13 @@ export const getPermissionsDataByAdminId = (payload) => async (dispatch) => {
     const permissionsData = await adminController.getPermissionsByAdminId(payload);
     if (permissionsData) {
       dispatch(setAdminWisePermisisons(permissionsData));
+
+      let currentUser = helperFunctions.getCurrentUser();
+      if (currentUser && currentUser?.email !== email) {
+        currentUser.permissions = permissionsData;
+        localStorage.setItem('adminCurrentUser', JSON.stringify(currentUser));
+      }
+
       return permissionsData;
     }
   } catch (err) {
