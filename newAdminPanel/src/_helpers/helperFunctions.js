@@ -702,6 +702,81 @@ const alertseverity = (type) => {
   return severity[type] || severity.INFO;
 };
 
+const convertValueByType = (value, type) => {
+  switch (type) {
+    case 'number':
+      return value ? Number(value) : 0; // Convert to number or default to 0
+    case 'string':
+      return value?.toString().trim() || ''; // Convert to string and trim
+    case 'boolean':
+      return value === 'true' || value === true; // Convert to boolean
+    default:
+      return value; // Return as-is for unknown types
+  }
+};
+
+const splitAndTrim = (input, options = {}) => {
+  const { toObjects = false, keyName = 'value' } = options;
+
+  // Handle undefined, null, or empty input
+  if (!input) return [];
+
+  // Split, trim, and filter out empty strings
+  const items = input
+    .split(',')
+    .map((item) => item?.trim())
+    .filter((item) => item);
+
+  // Return array of objects if toObjects is true
+  if (toObjects) {
+    return items.map((item) => ({
+      [keyName]: item,
+    }));
+  }
+
+  // Return array of strings by default
+  return items;
+};
+
+const checkKeys = (object, keys, parent) => {
+  const errors = [];
+  keys.forEach(({ key, type, allowedValues }) => {
+    if (!object.hasOwnProperty(key) || object[key] === '' || object[key] === ' ') {
+      errors.push(`Missing or empty key '${key}' in ${parent}`);
+    } else if (type === 'string' && typeof object[key] !== 'string') {
+      errors.push(`Key '${key}' in ${parent} should be a string`);
+    } else if (type === 'number' && (typeof object[key] !== 'number' || isNaN(object[key]))) {
+      errors.push(`Key '${key}' in ${parent} should be a number`);
+    } else if (type === 'array' && !Array.isArray(object[key])) {
+      errors.push(`Key '${key}' in ${parent} should be an array`);
+    } else if (type === 'boolean' && typeof object[key] !== 'boolean') {
+      errors.push(`Key '${key}' in ${parent} should be a boolean`);
+    } else if (allowedValues && !allowedValues.includes(object[key])) {
+      if (key === 'diaItem') {
+        errors.push(`Invalid diaItem '${object[key]}' in ${parent}`);
+      } else {
+        errors.push(`Key '${key}' in ${parent} should be one of ${allowedValues.join(', ')}`);
+      }
+    }
+  });
+  return errors;
+};
+
+const findDuplicates = (array, key) => {
+  if (!array?.length || !key) return [];
+  const uniqueItems = new Set();
+  const duplicateKeys = new Set();
+  array.forEach((element) => {
+    const keyValue = element[key];
+    if (uniqueItems.has(keyValue)) {
+      duplicateKeys.add(keyValue);
+    } else {
+      uniqueItems.add(keyValue);
+    }
+  });
+  return Array.from(duplicateKeys);
+};
+
 export const helperFunctions = {
   getCurrentUser,
   getVariationsArray,
@@ -746,4 +821,8 @@ export const helperFunctions = {
   calculateNonCustomizedProductPrice,
   calculateAutomaticPrices,
   alertseverity,
+  convertValueByType,
+  splitAndTrim,
+  checkKeys,
+  findDuplicates,
 };

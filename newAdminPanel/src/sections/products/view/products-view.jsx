@@ -32,7 +32,14 @@ import {
   toastError,
 } from 'src/actions';
 import { Button, LoadingButton } from 'src/components/button';
-import { EXPORT, GENDER_LIST, perPageCountOptions, PRODUCT, productStatusOptions } from 'src/_helpers/constants';
+import {
+  EXPORT,
+  GENDER_LIST,
+  IMPORT_PRODUCTS,
+  perPageCountOptions,
+  PRODUCT,
+  productStatusOptions,
+} from 'src/_helpers/constants';
 import { getCollectionList } from 'src/actions/collectionActions';
 import {
   setCrudProductLoading,
@@ -41,6 +48,10 @@ import {
   setPerPageCount,
   setFilterState,
   clearFilterState,
+  setImportFromExcel,
+  setImportedFilesData,
+  setExcelProductsMappedArr,
+  setImportSampleHeadersData,
 } from 'src/store/slices/productSlice';
 
 import ProductCard from '../product-card';
@@ -281,6 +292,7 @@ export default function ProductsView() {
       'Sub Categories': pItem?.subCategoryNames?.map((s) => s.title).join(', ') || '',
       'Product Types': pItem?.productTypeNames?.map((t) => t.title).join(', ') || '',
       Collections: pItem?.collectionNames?.join(', ') || '',
+      'Setting Styles': pItem?.settingStyleNamesWithImg?.map((t) => t.title).join(', ') || '',
 
       Gender: pItem?.gender || '',
       Length: pItem?.Length || '',
@@ -299,7 +311,9 @@ export default function ProductsView() {
           })
           .join(' | ') || '',
 
-      Specifications: JSON.stringify(pItem?.specifications),
+      Specifications:
+        pItem?.specifications?.map((spec) => `${spec.title}: ${spec.description}`).join(' | ') ||
+        '',
 
       Status: pItem?.active ? 'Active' : 'Inactive',
       'Created Date': pItem?.createdDate ? new Date(pItem.createdDate).toLocaleString() : '',
@@ -329,8 +343,12 @@ export default function ProductsView() {
   const user = helperFunctions.getCurrentUser();
 
   const canExport = user.permissions.some(
+    (perm) => perm.pageId === 'product' && perm.actions.some((action) => action.actionId === EXPORT)
+  );
+  const canImport = user.permissions.some(
     (perm) =>
-      perm.pageId === 'product' && perm.actions.some((action) => action.actionId === 'export')
+      perm.pageId === 'product' &&
+      perm.actions.some((action) => action.actionId === IMPORT_PRODUCTS)
   );
   const canAddProduct = user.permissions.some(
     (perm) => perm.pageId === 'product' && perm.actions.some((action) => action.actionId === 'add')
@@ -369,6 +387,34 @@ export default function ProductsView() {
             }}
           />
 
+          <Button
+            color="success"
+            variant="contained"
+            onClick={async () => {
+              const currentUser = helperFunctions.getCurrentUser();
+              const payload = {
+                adminId: currentUser?.id,
+              };
+              const permissionData = await adminController.getPermissionsByAdminId(payload);
+              const productPermissions = permissionData?.find((perm) => perm.pageId === PRODUCT);
+              const canImport = productPermissions?.actions?.some(
+                (action) => action.actionId === IMPORT_PRODUCTS
+              );
+              if (!canImport) {
+                toastError({ message: 'You do not have permission to import products.' });
+                return;
+              }
+              dispatch(setImportFromExcel([]));
+              dispatch(setImportedFilesData([]));
+              dispatch(setExcelProductsMappedArr([]));
+              dispatch(setImportSampleHeadersData([]));
+              navigate('/product/import-from-excel-first');
+            }}
+            disabled={!canImport}
+            startIcon={<Iconify icon={'vscode-icons:file-type-excel'} width={25} />}
+          >
+            Import
+          </Button>
           <LoadingButton
             variant="contained"
             color="success"
@@ -377,7 +423,7 @@ export default function ProductsView() {
             loading={exportExcelLoading}
             startIcon={<Iconify icon={'file-icons:microsoft-excel'} width={25} />}
           >
-            Export
+            Bulk Export
           </LoadingButton>
 
           <Button

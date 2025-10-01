@@ -39,11 +39,12 @@ const navConfig = [
     pageId: 'product',
     path: '/product',
     icon: icon('ic_cart'),
-    children: ['/product', '/product/add'],
+    children: ['/product', '/product/add', '/product/import-from-excel-first'],
     actions: [
       { label: 'Add Product', value: 'add' },
       { label: 'Update Product', value: 'update' },
       { label: 'Delete Product', value: 'delete' },
+      { label: 'Import Product', value: 'import' },
       { label: 'Export Product', value: 'export' },
     ],
   },
