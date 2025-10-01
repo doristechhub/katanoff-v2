@@ -26,18 +26,21 @@ import {
   PRICE_CALCULATION_MODES,
   PRODUCT,
   UPDATE,
+  RINGS,
+  allowedGenders,
+  DEFAULT_QTY,
 } from 'src/_helpers/constants';
 import { isBoolean } from 'lodash';
 import axios from 'axios';
 import { customizationTypeService } from './customizationType.service';
 import { customizationSubTypeService } from './customizationSubType.service';
-import { menuCategoryService } from './menuCategory.service';
 import { settingsService } from './settings.service';
 import { collectionService } from './collection.service';
 import { settingStyleService } from './settingStyle.service';
 import { diamondShapeService } from './diamondShape.service';
 import { homeService } from './home.service';
 import { adminController } from 'src/_controller';
+import CustomError from 'src/_helpers/customError';
 
 export const validateProductName = (productName) => {
   // Check if the length is higher than 60 characters
@@ -261,24 +264,22 @@ const insertProduct = (params) => {
         : PRICE_CALCULATION_MODES.AUTOMATIC;
 
       // Check if the current admin has permission to insert products, and reject if not
-      const currentUser = helperFunctions.getCurrentUser()
+      const currentUser = helperFunctions.getCurrentUser();
       if (!currentUser) {
-        return reject(new Error("You must be logged in with appropriate permissions to add a product."));
+        return reject(
+          new Error('You must be logged in with appropriate permissions to add a product.')
+        );
       }
       const payload = {
         adminId: currentUser?.id,
       };
-      const permissionData = await adminController.getPermissionsByAdminId(payload)
-      const productPermissions = permissionData.find(
-        (perm) => perm.pageId === PRODUCT
-      );
+      const permissionData = await adminController.getPermissionsByAdminId(payload);
+      const productPermissions = permissionData.find((perm) => perm.pageId === PRODUCT);
 
-      const canInsert = productPermissions?.actions?.some(
-        (action) => action.actionId === ADD
-      );
+      const canInsert = productPermissions?.actions?.some((action) => action.actionId === ADD);
 
       if (!canInsert) {
-        return reject(new Error("You do not have permission to add this product."));
+        return reject(new Error('You do not have permission to add this product.'));
       }
 
       // Validate inputs
@@ -345,6 +346,7 @@ const insertProduct = (params) => {
           const hasInvalidValues = collectionIds.some((id) => !id);
           if (hasInvalidValues) throw new Error('Invalid value found in collectionIds array');
         }
+
         if (settingStyleIds?.length) {
           const hasInvalidValues = settingStyleIds.some((id) => !id);
           if (hasInvalidValues) throw new Error('Invalid value found in settingStyleIds array');
@@ -916,7 +918,6 @@ const getAllActiveProducts = () => {
 const getAllProcessedProducts = () => {
   return new Promise(async (resolve, reject) => {
     try {
-
       const tempActiveProductData = await getAllActiveProducts();
       const customizations = await getAllCustomizations();
       const collectionData = await collectionService.getAllCollection();
@@ -930,8 +931,7 @@ const getAllProcessedProducts = () => {
         return {
           ...product,
           collectionNames: product?.collectionIds?.map(
-            (id) =>
-              collectionData.find((collection) => collection?.id === id)?.title
+            (id) => collectionData.find((collection) => collection?.id === id)?.title
           ),
           settingStyleNamesWithImg:
             product?.settingStyleIds?.map((id) =>
@@ -940,25 +940,19 @@ const getAllProcessedProducts = () => {
 
           diamondFilters: product.isDiamondFilter
             ? {
-              ...product?.diamondFilters,
-              diamondShapes: product?.diamondFilters.diamondShapeIds?.map(
-                (shapeId) => {
-                  const foundedShape = diamondShapeList?.find(
-                    (shape) => shape?.id === shapeId
-                  );
+                ...product?.diamondFilters,
+                diamondShapes: product?.diamondFilters.diamondShapeIds?.map((shapeId) => {
+                  const foundedShape = diamondShapeList?.find((shape) => shape?.id === shapeId);
                   return {
                     title: foundedShape?.title,
                     image: foundedShape?.image,
                     id: foundedShape?.id,
                   };
-                }
-              ),
-            }
+                }),
+              }
             : product?.diamondFilters,
           categoryName:
-            menuData.categories.find(
-              (category) => category.id === product.categoryId
-            )?.title || "",
+            menuData.categories.find((category) => category.id === product.categoryId)?.title || '',
           subCategoryNames:
             subCategoryIds
               ?.map((id) => {
@@ -979,10 +973,7 @@ const getAllProcessedProducts = () => {
               })
               .filter(Boolean) || [],
 
-          variations: helperFunctions.getVariationsArray(
-            product.variations,
-            customizations
-          ),
+          variations: helperFunctions.getVariationsArray(product.variations, customizations),
         };
       });
       resolve(activeProductData);
@@ -995,26 +986,23 @@ const getAllProcessedProducts = () => {
 const deleteProduct = (productId) => {
   return new Promise(async (resolve, reject) => {
     try {
-
       // Check if the current admin has permission to delete products, and reject if not
-      const currentUser = helperFunctions.getCurrentUser()
+      const currentUser = helperFunctions.getCurrentUser();
       if (!currentUser) {
-        return reject(new Error("You must be logged in with appropriate permissions to delete a product."));
+        return reject(
+          new Error('You must be logged in with appropriate permissions to delete a product.')
+        );
       }
       const payload = {
         adminId: currentUser?.id,
       };
-      const permissionData = await adminController.getPermissionsByAdminId(payload)
-      const productPermissions = permissionData.find(
-        (perm) => perm.pageId === PRODUCT
-      );
+      const permissionData = await adminController.getPermissionsByAdminId(payload);
+      const productPermissions = permissionData.find((perm) => perm.pageId === PRODUCT);
 
-      const canDelete = productPermissions?.actions?.some(
-        (action) => action.actionId === DELETE
-      );
+      const canDelete = productPermissions?.actions?.some((action) => action.actionId === DELETE);
 
       if (!canDelete) {
-        return reject(new Error("You do not have permission to delete this product."));
+        return reject(new Error('You do not have permission to delete this product.'));
       }
 
       // Sanitize and validate productId
@@ -1575,7 +1563,8 @@ const updateYellowGoldMedia = (params) => {
             if (!validFileType) {
               reject(
                 new Error(
-                  `Invalid file for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
+                  `Invalid file for ${name}! (Only ${
+                    type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
                   } files are allowed!)`
                 )
               );
@@ -1585,7 +1574,8 @@ const updateYellowGoldMedia = (params) => {
             if (!validFileSize) {
               reject(
                 new Error(
-                  `Invalid file size for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
+                  `Invalid file size for ${name}! (Only ${
+                    type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
                   } are allowed!)`
                 )
               );
@@ -1822,7 +1812,8 @@ const updateWhiteGoldMedia = (params) => {
             if (!validFileType) {
               reject(
                 new Error(
-                  `Invalid file for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
+                  `Invalid file for ${name}! (Only ${
+                    type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
                   } files are allowed!)`
                 )
               );
@@ -1832,7 +1823,8 @@ const updateWhiteGoldMedia = (params) => {
             if (!validFileSize) {
               reject(
                 new Error(
-                  `Invalid file size for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
+                  `Invalid file size for ${name}! (Only ${
+                    type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
                   } are allowed!)`
                 )
               );
@@ -1996,24 +1988,22 @@ const updateProduct = (params) => {
       } = sanitizeObject(params);
 
       // Check if the current admin has permission to update products, and reject if not
-      const currentUser = helperFunctions.getCurrentUser()
+      const currentUser = helperFunctions.getCurrentUser();
       if (!currentUser) {
-        return reject(new Error("You must be logged in with appropriate permissions to update a product."));
+        return reject(
+          new Error('You must be logged in with appropriate permissions to update a product.')
+        );
       }
       const payload = {
         adminId: currentUser?.id,
       };
-      const permissionData = await adminController.getPermissionsByAdminId(payload)
-      const productPermissions = permissionData.find(
-        (perm) => perm.pageId === PRODUCT
-      );
+      const permissionData = await adminController.getPermissionsByAdminId(payload);
+      const productPermissions = permissionData.find((perm) => perm.pageId === PRODUCT);
 
-      const canUpdate = productPermissions?.actions?.some(
-        (action) => action.actionId === UPDATE
-      );
+      const canUpdate = productPermissions?.actions?.some((action) => action.actionId === UPDATE);
 
       if (!canUpdate) {
-        return reject(new Error("You do not have permission to update this product."));
+        return reject(new Error('You do not have permission to update this product.'));
       }
 
       if (productId) {
@@ -2036,8 +2026,8 @@ const updateProduct = (params) => {
               : productData?.grossWeight;
           centerDiamondWeight =
             !isNaN(centerDiamondWeight) &&
-              centerDiamondWeight !== '' &&
-              centerDiamondWeight !== null
+            centerDiamondWeight !== '' &&
+            centerDiamondWeight !== null
               ? Math.round(parseFloat(centerDiamondWeight) * 100) / 100
               : 0;
           totalCaratWeight =
@@ -2518,7 +2508,7 @@ const updateProduct = (params) => {
           variComboWithQuantity = Array.isArray(variComboWithQuantity) ? variComboWithQuantity : [];
           let variComboWithQuantityArray =
             variComboWithQuantity.length &&
-              !isInValidVariComboWithQuantityArray(variComboWithQuantity)
+            !isInValidVariComboWithQuantityArray(variComboWithQuantity)
               ? getVariComboWithQuantityArray(variComboWithQuantity)
               : productData.variComboWithQuantity;
 
@@ -2740,28 +2730,7 @@ const generateSaltSKU = ({ styleNo, saltSKU }) => {
   // const randomNumber = helperFunctions.getRandomNumberLimitedDigits();
   // const lastDigits = saltSKU ? saltSKU?.split('-')?.pop() : randomNumber;
   // return `${prefixSaltSku}-${styleNo}-${lastDigits}`;
-  return `${prefixSaltSku}-${styleNo}`;
-};
-
-const generateSpecification = (item) => {
-  const { length, width, depth, totalDiaWt, grossWt, category } = item || {};
-  const formattedLength = helperFunctions?.formatMeasurement(length);
-  const formattedWidth = helperFunctions?.formatMeasurement(width);
-  const formattedDepth = helperFunctions?.formatMeasurement(depth);
-  const formattedTotalDiaWt = helperFunctions?.formatDecimalNumber(totalDiaWt);
-  const formattedGrossWt = helperFunctions?.formatDecimalNumber(grossWt);
-
-  const dimensionText =
-    category.toUpperCase() === 'RING'
-      ? `${formattedLength} × ${formattedDepth}`
-      : `${formattedLength} × ${formattedWidth} × ${formattedDepth}`;
-  return [
-    { title: 'Gemstones', description: item?.gemStones?.join(', ') || null },
-    { title: 'Metal', description: item?.metal?.join(', ') || null },
-    { title: 'Dimensions', description: dimensionText },
-    { title: 'Total Diamond Weight', description: `${formattedTotalDiaWt} CTW` },
-    { title: 'Gross Weight', description: `${formattedGrossWt} g` },
-  ].filter((entry) => entry.description !== undefined && entry.description !== null); // Remove empty values
+  return `${prefixSaltSku ? `${prefixSaltSku}-` : ''}${styleNo}`;
 };
 
 const getAllCustomizations = () => {
@@ -2781,20 +2750,695 @@ const getAllCustomizations = () => {
   });
 };
 
-const downloadFileAsBlob = async (fileUrl) => {
-  try {
-    const response = await axios.get(fileUrl, { responseType: 'blob' });
-    return response.data; // Blob object
-  } catch (error) {
-    console.error('Error downloading file:', error);
-    return null;
+// ---------------------- start export feature ---------------------------------------
+
+/**
+ * Helper to chunk an array into smaller arrays
+ * @param {Object} params - Parameters
+ * @param {Array} params.array - Array to chunk
+ * @param {number} params.chunkSize - Size of each chunk
+ * @returns {Array<Array>} Array of chunks
+ */
+const chunkArray = ({ array, chunkSize }) => {
+  const chunks = [];
+  for (let i = 0; i < array.length; i += chunkSize) {
+    chunks.push(array.slice(i, i + chunkSize));
   }
+  return chunks;
 };
 
-const findCustomizationByName = (list, name) =>
-  list?.find(
-    (customization) => customization.title === name || customization.customizationTypeName === name
+/**
+ * Validates SKUs for a list of products
+ * @param {Object} params - Parameters
+ * @param {Array} params.data - Array of product objects
+ * @returns {Array<string>} Array of error messages
+ */
+const validateSKUs = ({ data }) => {
+  const errors = [];
+  data.forEach((item, index) => {
+    const keysErrors = helperFunctions.checkKeys(
+      item,
+      [{ key: 'sku', type: 'string' }],
+      `product at index ${index}`
+    );
+    errors.push(...keysErrors);
+  });
+  return errors;
+};
+
+/**
+ * Validates product names for a list of products
+ * @param {Object} params - Parameters
+ * @param {Array} params.data - Array of product objects
+ * @returns {Array<string>} Array of error messages
+ */
+const validateProductNames = ({ data }) => {
+  const errors = [];
+  data.forEach((item, index) => {
+    const keysErrors = helperFunctions.checkKeys(
+      item,
+      [{ key: 'productName', type: 'string' }],
+      `product at index ${index}`
+    );
+    errors.push(...keysErrors);
+  });
+  return errors;
+};
+
+/**
+ * Validates a numeric value to ensure it's positive or non-negative
+ * @param {Object} params - Parameters
+ * @param {*} params.value - Value to validate
+ * @param {string} params.fieldName - Name of the field
+ * @param {number} params.index - Index of the product
+ * @param {string} params.sku - SKU of the product
+ * @param {Object} [params.options] - Additional options
+ * @param {number} [params.options.max] - Maximum allowed value
+ * @param {boolean} [params.options.allowZero=false] - Allow zero value
+ * @returns {string|null} Error message or null if valid
+ */
+const validatePositiveNumber = ({ value, fieldName, index, sku, options = {} }) => {
+  const { max, allowZero = false } = options;
+  if (value === null || value === undefined || value === '') return null;
+
+  if (typeof value === 'string' && /[a-zA-Z]/.test(value)) {
+    return `Product at index ${index} (SKU: ${sku || 'N/A'}): ${fieldName} should be a number without units`;
+  }
+
+  const numericValue = parseFloat(value);
+  if (isNaN(numericValue) || numericValue < 0 || (!allowZero && numericValue <= 0)) {
+    return `Product at index ${index} (SKU: ${sku || 'N/A'}): ${fieldName} must be a ${allowZero ? 'non-negative' : 'positive'} number`;
+  }
+
+  if (max && numericValue > max) {
+    return `Product at index ${index} (SKU: ${sku || 'N/A'}): ${fieldName} cannot exceed ${max}`;
+  }
+
+  return null;
+};
+
+/**
+ * Validates weights for a product
+ * @param {Object} params - Parameters
+ * @param {number} [params.netWeight] - Net weight
+ * @param {number} params.grossWeight - Gross weight
+ * @param {number} [params.centerDiamondWeight] - Center diamond weight
+ * @param {number} params.totalCaratWeight - Total carat weight
+ * @param {number} [params.sideDiamondWeight] - Side diamond weight
+ * @param {number} params.index - Product index
+ * @param {string} params.sku - Product SKU
+ * @param {boolean} params.isDiamondFilter - Whether diamond filter is enabled
+ * @returns {Array<string>} Array of error messages
+ */
+const validateWeights = ({
+  netWeight,
+  grossWeight,
+  centerDiamondWeight,
+  totalCaratWeight,
+  sideDiamondWeight,
+  index,
+  sku,
+  isDiamondFilter,
+}) => {
+  const errors = [];
+
+  // Validate netWeight (optional, must be positive if provided)
+  if (netWeight) {
+    const error = validatePositiveNumber({ value: netWeight, fieldName: 'Net Weight', index, sku });
+    if (error) errors.push(error);
+    if (isDiamondFilter) {
+      const netWeightString = safeRoundNumber({ value: netWeight }).toFixed(2);
+      if (!/^\d+\.\d{2}$/.test(netWeightString)) {
+        errors.push(
+          `Product at index ${index} (SKU: ${sku || 'N/A'}): Net Weight must have exactly two decimal places`
+        );
+      }
+    }
+  } else if (isDiamondFilter) {
+    errors.push(
+      `Product at index ${index} (SKU: ${sku || 'N/A'}): Net Weight is required when diamond filter is enabled`
+    );
+  }
+
+  // Validate grossWeight (required, must be positive)
+  const grossWeightError = validatePositiveNumber({
+    value: grossWeight,
+    fieldName: 'Gross Weight',
+    index,
+    sku,
+  });
+  if (grossWeightError) errors.push(grossWeightError);
+  if (!grossWeight)
+    errors.push(`Product at index ${index} (SKU: ${sku || 'N/A'}): Gross Weight is required`);
+
+  // Validate centerDiamondWeight (optional, must be positive if provided)
+
+  if (centerDiamondWeight) {
+    const error = validatePositiveNumber({
+      value: centerDiamondWeight,
+      fieldName: 'Center Diamond Weight',
+      index,
+      sku,
+    });
+    if (error) errors.push(error);
+  }
+
+  // Validate totalCaratWeight (required, must be positive)
+  const totalCaratWeightError = validatePositiveNumber({
+    value: totalCaratWeight,
+    fieldName: 'Total Carat Weight',
+    index,
+    sku,
+  });
+  if (totalCaratWeightError) errors.push(totalCaratWeightError);
+  if (!totalCaratWeight)
+    errors.push(`Product at index ${index} (SKU: ${sku || 'N/A'}): Total Carat Weight is required`);
+
+  // Validate sideDiamondWeight (optional, must be non-negative if provided)
+  if (sideDiamondWeight) {
+    const error = validatePositiveNumber({
+      value: sideDiamondWeight,
+      fieldName: 'Side Diamond Weight',
+      index,
+      sku,
+      options: { allowZero: true },
+    });
+    if (error) errors.push(error);
+    if (isDiamondFilter) {
+      const sideDiamondWeightString = safeRoundNumber({ value: sideDiamondWeight }).toFixed(2);
+      if (!/^\d+\.\d{2}$/.test(sideDiamondWeightString)) {
+        errors.push(
+          `Product at index ${index} (SKU: ${sku || 'N/A'}): Side Diamond Weight must have exactly two decimal places`
+        );
+      }
+    }
+  }
+
+  return errors;
+};
+
+/**
+ * Validates an array of objects
+ * @param {Object} params - Parameters
+ * @param {Array} params.array - Array to validate
+ * @param {Array} params.requiredKeys - Required keys and types
+ * @param {string} params.fieldName - Name of the field
+ * @param {number} params.index - Product index
+ * @param {string} params.sku - Product SKU
+ * @param {Object} [params.options] - Additional options
+ * @param {number} [params.options.minLength=0] - Minimum array length
+ * @returns {Array<string>} Array of error messages
+ */
+const validateArrayOfObjects = ({ array, requiredKeys, fieldName, index, sku, options = {} }) => {
+  const errors = [];
+  const { minLength = 0 } = options;
+
+  if (!Array.isArray(array)) {
+    errors.push(`Product at index ${index} (SKU: ${sku || 'N/A'}): ${fieldName} must be an array`);
+    return errors;
+  }
+
+  if (array.length < minLength) {
+    errors.push(
+      `Product at index ${index} (SKU: ${sku || 'N/A'}): ${fieldName} must have at least ${minLength} item${minLength > 1 ? 's' : ''}`
+    );
+    return errors;
+  }
+
+  array.forEach((item, itemIndex) => {
+    const itemErrors = helperFunctions.checkKeys(
+      item,
+      requiredKeys,
+      `Item at index ${itemIndex} in ${fieldName} for Product at index ${index} (SKU: ${sku || 'N/A'})`
+    );
+    errors.push(...itemErrors);
+  });
+
+  return errors;
+};
+
+/**
+ * Validates image details
+ * @param {Object} params - Parameters
+ * @param {Array} params.data - Array of image objects
+ * @param {string} params.sku - Product SKU
+ * @param {number} params.index - Product index
+ * @returns {Array<string>} Array of error messages
+ */
+const validateImagesDetail = ({ data, sku, index }) => {
+  const errors = [];
+  const imageRequiredKeys = [{ key: 'image', type: 'string' }];
+  data.forEach((image, imgIndex) => {
+    const imagesErrors = helperFunctions.checkKeys(
+      image,
+      imageRequiredKeys,
+      `Image at index ${imgIndex} in SKU ${sku} for Product at index ${index}`
+    );
+    errors.push(...imagesErrors);
+    if (image?.image && typeof image.image === 'string') {
+      if (!/^https:\/\//i.test(image.image)) {
+        errors.push(
+          `Image at index ${imgIndex} in SKU ${sku} for Product at index ${index}: must be a valid HTTPS URL`
+        );
+      }
+    }
+  });
+  return errors;
+};
+
+/**
+ * Validates a thumbnail URL
+ * @param {Object} params - Parameters
+ * @param {string} params.thumbnail - Thumbnail URL
+ * @param {string} params.color - Color prefix (e.g., 'Rose Gold')
+ * @param {string} params.sku - Product SKU
+ * @param {number} params.index - Product index
+ * @returns {string|null} Error message or null if valid
+ */
+const validateThumbnail = ({ thumbnail, color, sku, index }) => {
+  if (!thumbnail) {
+    return `Product at index ${index} (SKU: ${sku || 'N/A'}): ${color} image is required`;
+  }
+  if (typeof thumbnail !== 'string' || !/^https:\/\//i.test(thumbnail)) {
+    return `Product at index ${index} (SKU: ${sku || 'N/A'}): ${color} image must be a valid HTTPS URL`;
+  }
+  return null;
+};
+
+/**
+ * Validates string length
+ * @param {Object} params - Parameters
+ * @param {string} params.value - String to validate
+ * @param {string} params.fieldName - Name of the field
+ * @param {number} params.index - Product index
+ * @param {string} params.sku - Product SKU
+ * @param {number} [params.minLength=1] - Minimum length
+ * @param {number} [params.maxLength=Infinity] - Maximum length
+ * @returns {string|null} Error message or null if valid
+ */
+const validateStringLength = ({
+  value,
+  minLength = 1,
+  maxLength = Infinity,
+  fieldName,
+  index,
+  sku,
+}) => {
+  if (!value || typeof value !== 'string') return null;
+  if (value.trim().length < minLength) {
+    return `Product at index ${index} (SKU: ${sku || 'N/A'}): ${fieldName} must be at least ${minLength} characters long`;
+  }
+  if (value.trim().length > maxLength) {
+    return `Product at index ${index} (SKU: ${sku || 'N/A'}): ${fieldName} must not exceed ${maxLength} characters`;
+  }
+  return null;
+};
+
+/**
+ * Validates an enum value
+ * @param {Object} params - Parameters
+ * @param {*} params.value - Value to validate
+ * @param {Array} params.allowedValues - Allowed values
+ * @param {string} params.fieldName - Name of the field
+ * @param {number} params.index - Product index
+ * @param {string} params.sku - Product SKU
+ * @returns {string|null} Error message or null if valid
+ */
+const validateEnumValue = ({ value, allowedValues, fieldName, index, sku }) => {
+  if (!allowedValues.includes(value)) {
+    return `Product at index ${index} (SKU: ${sku || 'N/A'}): ${fieldName} must be one of ${allowedValues.join(', ')}`;
+  }
+  return null;
+};
+
+/**
+ * Validates dimension unit
+ * @param {Object} params - Parameters
+ * @param {string} params.value - Unit value
+ * @param {string} params.fieldName - Name of the field
+ * @param {number} params.index - Product index
+ * @param {string} params.sku - Product SKU
+ * @returns {string|null} Error message or null if valid
+ */
+const validateDimensionUnitForExcel = ({ value, fieldName, index, sku }) => {
+  const validUnits = ['mm', 'in'];
+  if (!value || !validUnits.includes(value.trim().toLowerCase())) {
+    return `Product at index ${index} (SKU: ${sku || 'N/A'}): ${fieldName} must be one of ${validUnits.join(', ')}`;
+  }
+  return null;
+};
+
+/**
+ * Validates HTML description
+ * @param {Object} params - Parameters
+ * @param {string} params.description - HTML description
+ * @param {number} params.index - Product index
+ * @param {string} params.sku - Product SKU
+ * @returns {string|null} Error message or null if valid
+ */
+const validateDescriptionHTML = ({ description, index, sku }) => {
+  if (!description) {
+    return `Product at index ${index} (SKU: ${sku || 'N/A'}): Description is required`;
+  }
+  const htmlTagRegex = /<\/?[a-z][\s\S]*>/i;
+  if (!htmlTagRegex.test(description)) {
+    return `Product at index ${index} (SKU: ${sku || 'N/A'}): Description must contain valid HTML tags`;
+  }
+  return null;
+};
+
+/**
+ * Rounds a number safely to two decimal places
+ * @param {Object} params - Parameters
+ * @param {*} params.value - Value to round
+ * @returns {number} Rounded number or 0 if invalid
+ */
+const safeRoundNumber = ({ value }) => {
+  return !isNaN(value) && value !== '' && value !== null
+    ? Math.round(parseFloat(value) * 100) / 100
+    : 0;
+};
+
+/**
+ * Validates an array of IDs for non-empty and valid values
+ * @param {Object} params - Parameters
+ * @param {Array} params.array - Array of IDs to validate
+ * @param {string} params.fieldName - Name of the field for error messaging
+ * @param {number} params.index - Product index
+ * @param {string} params.sku - Product SKU
+ * @param {boolean} [params.allowEmpty=true] - Whether empty arrays are allowed
+ * @returns {string|null} Error message or null if valid
+ */
+const validateArrayIds = ({ array, fieldName, index, sku, allowEmpty = true }) => {
+  if (!Array.isArray(array)) {
+    return `Product at index ${index} (SKU: ${sku || 'N/A'}): ${fieldName} must be an array`;
+  }
+  if (!allowEmpty && array.length === 0) {
+    return `Product at index ${index} (SKU: ${sku || 'N/A'}): ${fieldName} cannot be empty`;
+  }
+  if (array.length && array.some((id) => !id)) {
+    return `Product at index ${index} (SKU: ${sku || 'N/A'}): Invalid value found in ${fieldName} array`;
+  }
+  return null;
+};
+
+/**
+ * Gets or creates a menu category
+ * @param {Object} params - Parameters
+ * @param {string} params.name - Category name
+ * @param {Map} [params.cache=new Map()] - Cache for categories
+ * @returns {Promise<Object>} Category object
+ */
+const getOrCreateMenuCategory = async ({ name, cache = new Map() }) => {
+  if (!name || typeof name !== 'string' || name.trim() === '') {
+    throw new CustomError(`Missing or empty category name`, 400);
+  }
+  const trimmedName = name.trim().toLowerCase();
+  if (cache.has(trimmedName)) {
+    return cache.get(trimmedName);
+  }
+  // const newCategory = await menuCategoryService.create({ name: trimmedName });
+  // cache.set(trimmedName, newCategory);
+  // return newCategory;
+
+  throw new CustomError(`Category "${name}" not found`, 400);
+};
+
+/**
+ * Gets or creates a subcategory
+ * @param {Object} params - Parameters
+ * @param {string} params.name - Subcategory name
+ * @param {string} params.category - Category name
+ * @param {string} params.categoryId - Category ID
+ * @param {Map} params.subCategories - Subcategories map
+ * @param {Map} [params.cache=new Map()] - Cache for subcategories
+ * @returns {Promise<Object>} Subcategory object
+ */
+const getOrCreateSubCategory = async ({
+  name,
+  category,
+  categoryId,
+  subCategories,
+  cache = new Map(),
+}) => {
+  if (!name || typeof name !== 'string' || name.trim() === '') {
+    throw new CustomError(`Missing or invalid subcategory name`, 400);
+  }
+  if (!categoryId) {
+    throw new CustomError(`Missing categoryId`, 400);
+  }
+  if (!(subCategories instanceof Map)) {
+    throw new CustomError(`subCategories must be a Map`, 400);
+  }
+
+  const trimmedName = name.trim().toLowerCase();
+  const cacheKey = `${categoryId}:${trimmedName}`;
+  if (cache.has(cacheKey)) {
+    return cache.get(cacheKey);
+  }
+  if (subCategories.has(cacheKey)) {
+    const subCategory = subCategories.get(cacheKey);
+    cache.set(cacheKey, subCategory);
+    return subCategory;
+  }
+  // try {
+  //   const newSubCategory = await subCategoryService.create({ name: trimmedName, categoryId });
+  //   cache.set(cacheKey, newSubCategory);
+  //   return newSubCategory;
+  // } catch (error) {
+  //   console.error(
+  //     `Error creating subcategory "${trimmedName}" for categoryId "${categoryId}":`,
+  //     error
+  //   );
+  //   throw new CustomError(
+  //     `Subcategory "${trimmedName}" not found or could not be created for categoryId "${categoryId}"`,
+  //     400
+  //   );
+  // }
+  throw new CustomError(`Subcategory "${name}" not found for category "${category}"`, 400);
+};
+
+/**
+ * Gets or creates a product type
+ * @param {Object} params - Parameters
+ * @param {string} params.name - Product type name
+ * @param {string} params.category - Category name
+ * @param {Array<string>} params.subCategorys - Subcategory names
+ * @param {string} params.categoryId - Category ID
+ * @param {Array<string>} params.subCategoryIds - Subcategory IDs
+ * @param {Map} params.productTypes - Product types map
+ * @param {Map} [params.cache=new Map()] - Cache for product types
+ * @returns {Promise<Object>} Product type object
+ */
+const getOrCreateProductType = async ({
+  name,
+  category,
+  subCategorys,
+  categoryId,
+  subCategoryIds,
+  productTypes,
+  cache = new Map(),
+}) => {
+  if (!name || typeof name !== 'string' || name.trim() === '') {
+    throw new CustomError(`Missing or invalid product type name`, 400);
+  }
+  if (!categoryId) {
+    throw new CustomError(`Missing categoryId`, 400);
+  }
+  if (!Array.isArray(subCategoryIds) || subCategoryIds.length === 0) {
+    throw new CustomError(`subCategoryIds must be a non-empty array`, 400);
+  }
+  if (!(productTypes instanceof Map)) {
+    throw new CustomError(`productTypes must be a Map`, 400);
+  }
+
+  const trimmedName = name.trim().toLowerCase();
+  for (const subCategoryId of subCategoryIds) {
+    const cacheKey = `${categoryId}:${subCategoryId}:${trimmedName}`;
+    if (cache.has(cacheKey)) {
+      return cache.get(cacheKey);
+    }
+    if (productTypes.has(cacheKey)) {
+      const productType = productTypes.get(cacheKey);
+      cache.set(cacheKey, productType);
+      return productType;
+    }
+  }
+  // try {
+  //   const newSubCategory = await subCategoryService.create({ name: trimmedName, categoryId });
+  //   cache.set(cacheKey, newSubCategory);
+  //   return newSubCategory;
+  // } catch (error) {
+  //   console.error(
+  //     `Error creating subcategory "${trimmedName}" for categoryId "${categoryId}":`,
+  //     error
+  //   );
+  //   throw new CustomError(
+  //     `Subcategory "${trimmedName}" not found or could not be created for categoryId "${categoryId}"`,
+  //     400
+  //   );
+  // }
+  // Throw error if no product type is found for any subCategoryId
+  throw new CustomError(
+    `Product type "${name}" not found for category "${category}" and any of its subcategories "${subCategorys.join(', ')}"`,
+    400
   );
+};
+
+/**
+ * Gets or creates a collection
+ * @param {Object} params - Parameters
+ * @param {string} params.name - Collection name
+ * @param {Map} [params.cache=new Map()] - Cache for collections
+ * @returns {Promise<Object>} Collection object
+ */
+const getOrCreateCollection = async ({ name, cache = new Map() }) => {
+  if (!name || typeof name !== 'string' || name.trim() === '') {
+    throw new CustomError(`Missing or empty collection name`, 400);
+  }
+  const trimmedName = name.trim().toLowerCase();
+  if (cache.has(trimmedName)) {
+    return cache.get(trimmedName);
+  }
+  throw new CustomError(`Collection "${name}" not found`, 400);
+
+  // try {
+  //   const newCollection = await collectionService.create({ name: trimmedName });
+  //   cache.set(trimmedName, newCollection);
+  //   return newCollection;
+  // } catch (error) {
+  //   console.error(`Error creating collection "${trimmedName}":`, error);
+  //   throw new CustomError(`Collection "${trimmedName}" not found or could not be created`, 400);
+  // }
+};
+
+/**
+ * Gets or creates a setting style
+ * @param {Object} params - Parameters
+ * @param {string} params.name - Setting style name
+ * @param {Map} [params.cache=new Map()] - Cache for setting styles
+ * @returns {Promise<Object>} Setting style object
+ */
+const getOrCreateSettingStyle = async ({ name, cache = new Map() }) => {
+  if (!name || typeof name !== 'string' || name.trim() === '') {
+    throw new CustomError(`Missing or empty setting style name`, 400);
+  }
+  const trimmedName = name.trim().toLowerCase();
+  if (cache.has(trimmedName)) {
+    return cache.get(trimmedName);
+  }
+  throw new CustomError(`Setting style "${name}" not found`, 400);
+
+  // try {
+  //   const newSettingStyle = await settingStyleService.create({ name: trimmedName });
+  //   cache.set(trimmedName, newSettingStyle);
+  //   return newSettingStyle;
+  // } catch (error) {
+  //   console.error(`Error creating setting style "${trimmedName}":`, error);
+  //   throw new CustomError(`Setting style "${trimmedName}" not found or could not be created`, 400);
+  // }
+};
+
+/**
+ * Gets or creates a customization type
+ * @param {Object} params - Parameters
+ * @param {string} params.name - Customization type name
+ * @param {Map} [params.cache=new Map()] - Cache for customization types
+ * @returns {Promise<Object>} Customization type object
+ */
+const getOrCreateCustomizationType = async ({ name, cache = new Map() }) => {
+  if (!name || typeof name !== 'string' || name.trim() === '') {
+    throw new CustomError(`Missing or empty customization type name`, 400);
+  }
+  const trimmedName = name.trim().toLowerCase();
+  if (cache.has(trimmedName)) {
+    return cache.get(trimmedName);
+  }
+  throw new CustomError(`Customization type "${name}" not found`, 400);
+};
+
+/**
+ * Gets or creates a customization subtype
+ * @param {Object} params - Parameters
+ * @param {string} params.name - Customization subtype name
+ * @param {Object} params.customizationType - Customization type object
+ * @param {Map} [params.cache=new Map()] - Cache for customization subtypes
+ * @returns {Promise<Object>} Customization subtype object
+ */
+const getOrCreateCustomizationSubType = async ({ name, customizationType, cache = new Map() }) => {
+  if (!name || typeof name !== 'string' || name.trim() === '') {
+    throw new CustomError(`Missing or invalid customization subtype name`, 400);
+  }
+  if (!customizationType) {
+    throw new CustomError(`Missing customizationType`, 400);
+  }
+  const trimmedName = name.trim().toLowerCase();
+  const cacheKey = `${customizationType?.id}:${trimmedName}`;
+  if (cache.has(cacheKey)) {
+    return cache.get(cacheKey);
+  }
+  throw new CustomError(
+    `Customization subtype "${name}" not found for customization type "${customizationType?.title}"`,
+    400
+  );
+};
+
+// Preload all data into caches
+const preloadAllData = async () => {
+  const caches = {
+    categories: new Map(),
+    subCategories: new Map(),
+    productTypes: new Map(),
+    collections: new Map(),
+    settingStyles: new Map(),
+    customizationTypes: new Map(),
+    customizationSubTypes: new Map(),
+  };
+
+  try {
+    // Fetch categories, subCategories, and productTypes
+    const menuData = await homeService.getAllMenuData();
+
+    menuData.categories.forEach((category) => {
+      caches.categories.set(category.title.toLowerCase(), category);
+    });
+    menuData.subCategories.forEach((subCategory) => {
+      const cacheKey = `${subCategory.categoryId}:${subCategory.title.toLowerCase()}`;
+      caches.subCategories.set(cacheKey, subCategory);
+    });
+    menuData.productTypes.forEach((productType) => {
+      const cacheKey = `${productType.categoryId}:${productType.subCategoryId}:${productType.title.toLowerCase()}`;
+      caches.productTypes.set(cacheKey, productType);
+    });
+
+    // Fetch collections
+    const collections = await collectionService.getAllCollection();
+    collections.forEach((collection) => {
+      caches.collections.set(collection.title.toLowerCase(), collection);
+    });
+
+    // Fetch setting styles
+    const settingStyles = await settingStyleService.getAllSettingStyle();
+    settingStyles.forEach((settingStyle) => {
+      caches.settingStyles.set(settingStyle.title.toLowerCase(), settingStyle);
+    });
+
+    // Fetch customization data
+    const { customizationType, customizationSubType } = await getAllCustomizations();
+    customizationType.forEach((type) => {
+      caches.customizationTypes.set(type.title.toLowerCase(), type);
+    });
+    customizationSubType.forEach((subType) => {
+      const cacheKey = `${subType.customizationTypeId}:${subType.title.toLowerCase()}`;
+      caches.customizationSubTypes.set(cacheKey, subType);
+    });
+
+    return caches;
+  } catch (error) {
+    console.error('Error preloading data:', error);
+    throw new CustomError('Failed to preload data', 500);
+  }
+};
 
 const createVariation = ({ matchedType, matchedSubTypes }) => ({
   variationId: matchedType.id,
@@ -2805,227 +3449,411 @@ const createVariation = ({ matchedType, matchedSubTypes }) => ({
   })),
 });
 
-const setProductVariation = async ({ productItem, customizationTypeList }) => {
-  const { metal, metalColor, category, length, width } = productItem || {};
-  const variations = [];
-
-  const goldType = findCustomizationByName(customizationTypeList, GOLD_TYPE.title);
-  const goldColor = findCustomizationByName(customizationTypeList, GOLD_COLOR.title);
-
-  if (!goldType || !goldColor) return variations;
-
-  const customizationSubTypes = await customizationSubTypeService.getAllCustomizationSubTypes();
-
-  const createNewSubTypes = (items, type) =>
-    items
-      ?.filter(
-        (item) =>
-          !customizationSubTypes.some(
-            (subType) => subType.title.toUpperCase() === item.toUpperCase()
-          )
-      )
-      ?.map((item) => ({ title: item, type }));
-
-  const newGoldTypeSubTypes = createNewSubTypes(metal, 'default');
-  const newGoldColorSubTypes = createNewSubTypes(metalColor, 'color');
-  let newSizeSubtypes = [];
-
-  if (['BRACELET', 'CHAIN', 'EARRING', 'PENDENT'].includes(category)) {
-    const sizeTitle = category === 'PENDENT' ? `${length} * ${width}` : length;
-    if (
-      !customizationSubTypes.some(
-        (subType) => subType.title.toUpperCase() === sizeTitle.toUpperCase()
-      )
-    ) {
-      newSizeSubtypes = [{ title: sizeTitle, type: 'default' }];
-    }
+const generateVariationCombinations = ({ variations }) => {
+  if (!variations || !variations.length) {
+    return [];
   }
 
-  const insertSubTypes = async (subTypes, typeId) => {
-    if (subTypes?.length) {
-      await customizationTypeService.checkAndInsertCustomizationSubTypes(subTypes, typeId);
+  // Generate Cartesian product of variationTypes
+  const combinations = variations.reduce((acc, variation) => {
+    const types = variation.variationTypes.map((type) => ({
+      variationId: variation.variationId,
+      variationTypeId: type.variationTypeId,
+    }));
+    if (!acc.length) {
+      return types.map((type) => [type]);
     }
-  };
+    return acc.flatMap((combo) => types.map((type) => [...combo, type]));
+  }, []);
 
-  await Promise.all([
-    insertSubTypes(newGoldTypeSubTypes, goldType.id),
-    insertSubTypes(newGoldColorSubTypes, goldColor.id),
-  ]);
+  // Map combinations to variComboWithQuantity format
+  return combinations.map((combination) => {
+    let price = 0;
 
-  const latestSubTypes = await customizationSubTypeService.getAllCustomizationSubTypes();
-
-  const matchSubTypes = (items) =>
-    items?.map(
-      (item) =>
-        latestSubTypes.find((subType) => subType.title.toUpperCase() === item.toUpperCase()) || null
-    );
-
-  variations.push(
-    createVariation({ matchedType: goldType, matchedSubTypes: matchSubTypes(metal) })
-  );
-  variations.push(
-    createVariation({ matchedType: goldColor, matchedSubTypes: matchSubTypes(metalColor) })
-  );
-
-  // if (category === 'RING') {
-  //   variations.push(
-  //     createVariation({
-  //       matchedType: sizeType,
-  //       matchedSubTypes: matchSubTypes(SIZE_TYPE_SUB_TYPES_LIST.map((x) => x?.title)),
-  //     })
-  //   );
-  // }
-
-  if (['BRACELET', 'CHAIN', 'EARRING', 'PENDENT'].includes(category)) {
-    const sizeTitle = category === 'PENDENT' ? `${length} * ${width}` : length;
-    const matchedSizeSubType =
-      latestSubTypes.find((subType) => subType.title.toUpperCase() === sizeTitle.toUpperCase()) ||
-      null;
-    if (matchedSizeSubType) {
-      variations.push(
-        createVariation({ matchedType: sizeType, matchedSubTypes: matchSubTypes([sizeTitle]) })
-      );
-    }
-  }
-
-  return variations;
+    return {
+      combination,
+      price,
+      quantity: DEFAULT_QTY, // Default quantity, adjust if specific logic is provided
+    };
+  });
 };
 
-const generateVariComboWithQty = (variationsArray, prices) => {
-  const variComboWithQty = [];
-
-  const generateCombinations = (index, currentCombo) => {
-    if (index === variationsArray.length) {
-      const priceKey = currentCombo.find((item) =>
-        prices.some((price) => price[item.variationTypeName])
-      )?.variationTypeName;
-      let price = prices.find((price) => price[priceKey])?.[priceKey] || '';
-
-      // Remove any non-numeric characters from price
-      price = price.replace(/[^0-9.]/g, '');
-
-      variComboWithQty.push({
-        combination: [...currentCombo],
-        price,
-        quantity: '', // Placeholder for quantity
-      });
-      return;
-    }
-
-    const { variationId, variationTypes } = variationsArray[index];
-    variationTypes.forEach(({ variationTypeId, variationTypeName }) => {
-      generateCombinations(index + 1, [
-        ...currentCombo,
-        { variationId, variationTypeId, variationTypeName },
-      ]);
-    });
-  };
-
-  generateCombinations(0, []);
-
-  return variComboWithQty;
-};
-
-const getOrCreateMenuCategory = async (categoryTitle) => {
-  const menuCategoriesList = await menuCategoryService.getAllMenuCategory();
-  let matchedCategory = menuCategoriesList.find(
-    (cItem) => cItem.title?.toLowerCase() === categoryTitle?.toLowerCase()
-  );
-
-  if (!matchedCategory) {
-    const categoriesResp = await menuCategoryService.insertMenuCategory({
-      title: helperFunctions.capitalizeTitle(categoryTitle),
-    });
-    matchedCategory = categoriesResp;
-  }
-
-  return matchedCategory?.id;
-};
-
-const processBulkProductsWithApi = async () => {
+const downloadFileAsBlob = async (fileUrl) => {
   try {
-    const response = await axios.get(sapphireTreeProductListApiUrl, {
-      headers: {
-        secretKey: sapphireTreeSecretKey, // Replace with the actual secret key
-        authorization: '',
-      },
-    });
+    const response = await axios.get(fileUrl, { responseType: 'blob' });
+    return response.data;
+  } catch (error) {
+    console.error('Error downloading file:', error);
+    return null;
+  }
+};
 
-    const { customizationType } = await getAllCustomizations();
+const uploadMediaToFirebase = async ({ media, folder, type, prefix = '' }) => {
+  try {
+    if (!media) return type === 'imageArray' ? [] : '';
 
-    const products = await Promise.all(
-      response?.data?.data?.map(async (item) => {
-        const uuid = uid();
-        const productName = !validateProductName(item.title) ? item.title : '';
-        const saltSKU = generateSaltSKU({ styleNo: item.styleNo, saltSKU: '' }); // when productUpdate then saltSKU pass in params
-        const shortDescription = !validateShortDescription(item.description)
-          ? item.description
-          : item.description.substring(0, 250);
-        const specifications = generateSpecification(item);
-        const imageFolder = `${productsUrl}/compressed/images`;
-        const videoFolder = `${productsUrl}/compressed/videos`;
-        const uploadedImageUrls = [];
-        const uploadedVideoUrl = '';
-        // // 🔹 Upload Images to Firebase
-        // const uploadedImageUrls = await Promise.all(
-        //   item.compressedImages.map(async (img) => {
-        //     const imageBlob = await downloadFileAsBlob(img.image);
-        //     if (imageBlob) {
-        //       const file = new File([imageBlob], `image_${Date.now()}.png`, { type: 'image/png' });
-        //       const urls = await uploadFile(imageFolder, [file]);
-        //       return { image: urls[0] }; // Store new Firebase URL
-        //     }
-        //     return { image: img.image }; // Fallback to original if upload fails
-        //   })
-        // );
+    if (type === 'imageArray') {
+      return await Promise.all(
+        media.map(async (item, index) => {
+          const url = typeof item === 'object' ? item.image : item;
+          const blob = await downloadFileAsBlob(url);
+          if (blob) {
+            const file = new File([blob], `${prefix}_image_${Date.now()}_${index}.png`, {
+              type: 'image/png',
+            });
+            const urls = await uploadFile(folder, [file]);
+            return { image: urls[0] };
+          }
+          return typeof item === 'object' ? item : { image: url };
+        })
+      );
+    } else {
+      const blob = await downloadFileAsBlob(media);
+      if (blob) {
+        const ext = type === 'video' ? 'mp4' : 'png';
+        const mime = type === 'video' ? 'video/mp4' : 'image/png';
+        const file = new File([blob], `${prefix}_${type}_${Date.now()}.${ext}`, { type: mime });
+        const urls = await uploadFile(folder, [file]);
+        return urls[0];
+      }
+      return media || '';
+    }
+  } catch (error) {
+    console.error(`Error uploading ${type} to Firebase:`, error);
+    return type === 'imageArray' ? media : media || '';
+  }
+};
 
-        // // 🔹 Upload Video to Firebase
-        // let uploadedVideoUrl = '';
-        // if (item.compressedVideo) {
-        //   const videoBlob = await downloadFileAsBlob(item.compressedVideo);
-        //   if (videoBlob) {
-        //     const file = new File([videoBlob], `video_${Date.now()}.mp4`, { type: 'video/mp4' });
-        //     const videoUrls = await uploadFile(videoFolder, [file]);
-        //     uploadedVideoUrl = videoUrls[0]; // Store new Firebase video URL
-        //   } else {
-        //     uploadedVideoUrl = item.compressedVideo; // Fallback to original if upload fails
-        //   }
-        // }
+/**
+ * Adds or updates a single product
+ * @param {Object} params - Parameters
+ * @param {Object} params.product - Product data
+ * @param {Array} params.existingProducts - Existing products
+ * @param {Array} params.customizationSubTypesList - List of customization subtypes
+ * @param {number} params.priceMultiplier - Price multiplier
+ * @returns {Promise<Object>} Product insert/update pattern
+ */
+const addUpdateProduct = async ({
+  product,
+  existingProducts,
+  customizationSubTypesList,
+  priceMultiplier,
+  index = 0,
+}) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const uuid = uid();
+      let {
+        productName,
+        roseGoldThumbnailImage,
+        roseGoldImages,
+        roseGoldVideo,
+        yellowGoldThumbnailImage,
+        yellowGoldImages,
+        yellowGoldVideo,
+        whiteGoldThumbnailImage,
+        whiteGoldImages,
+        whiteGoldVideo,
+        sku,
+        discount,
+        collectionIds,
+        settingStyleIds,
+        categoryId,
+        subCategoryIds,
+        productTypeIds,
+        gender,
+        netWeight,
+        grossWeight,
+        centerDiamondWeight,
+        totalCaratWeight,
+        sideDiamondWeight,
+        Length,
+        width,
+        lengthUnit,
+        widthUnit,
+        shortDescription,
+        description,
+        variations,
+        specifications,
+        variComboWithQuantity,
+        isDiamondFilter = false,
+        diamondFilters,
+        priceCalculationMode,
+      } = sanitizeObject(product);
 
-        const generatedVariations = await setProductVariation({
-          productItem: item,
-          customizationTypeList: customizationType,
-        });
+      // Sanitize inputs
+      productName = productName ? productName.trim() : null;
+      sku = sku ? sku.trim() : null;
+      roseGoldThumbnailImage = roseGoldThumbnailImage ? roseGoldThumbnailImage?.trim() : null;
+      roseGoldImages = Array.isArray(roseGoldImages) ? roseGoldImages : [];
+      roseGoldVideo = roseGoldVideo ? roseGoldVideo?.trim() : null;
+      yellowGoldThumbnailImage = yellowGoldThumbnailImage ? yellowGoldThumbnailImage?.trim() : null;
+      yellowGoldImages = Array.isArray(yellowGoldImages) ? yellowGoldImages : [];
+      yellowGoldVideo = yellowGoldVideo ? yellowGoldVideo?.trim() : null;
+      whiteGoldThumbnailImage = whiteGoldThumbnailImage ? whiteGoldThumbnailImage?.trim() : null;
+      whiteGoldImages = Array.isArray(whiteGoldImages) ? whiteGoldImages : [];
+      whiteGoldVideo = whiteGoldVideo ? whiteGoldVideo?.trim() : null;
+      discount = !isNaN(discount) ? Number(discount) : 0;
+      collectionIds = Array.isArray(collectionIds) ? collectionIds : [];
+      settingStyleIds = Array.isArray(settingStyleIds) ? settingStyleIds : [];
+      categoryId = categoryId ? categoryId.trim() : null;
+      subCategoryIds = Array.isArray(subCategoryIds) ? subCategoryIds : [];
+      productTypeIds = Array.isArray(productTypeIds) ? productTypeIds : [];
+      gender = gender ? gender.trim() : null;
+      netWeight = safeRoundNumber({ value: netWeight });
+      grossWeight = safeRoundNumber({ value: grossWeight });
+      centerDiamondWeight = safeRoundNumber({ value: centerDiamondWeight });
+      totalCaratWeight = safeRoundNumber({ value: totalCaratWeight });
+      sideDiamondWeight = safeRoundNumber({ value: sideDiamondWeight });
+      Length = Length ? safeRoundNumber({ value: Length }) : null;
+      width = width ? safeRoundNumber({ value: width }) : null;
+      lengthUnit = lengthUnit ? lengthUnit.trim() : 'mm';
+      widthUnit = widthUnit ? widthUnit.trim() : 'mm';
+      shortDescription = shortDescription ? shortDescription.trim() : null;
+      description = description ? description.trim() : null;
+      variations = Array.isArray(variations) ? variations : [];
+      specifications = Array.isArray(specifications) ? specifications : [];
+      variComboWithQuantity = Array.isArray(variComboWithQuantity) ? variComboWithQuantity : [];
+      isDiamondFilter = isBoolean(isDiamondFilter) ? isDiamondFilter : false;
+      diamondFilters = typeof diamondFilters === 'object' ? diamondFilters : {};
+      priceCalculationMode = priceCalculationMode
+        ? priceCalculationMode.trim()
+        : PRICE_CALCULATION_MODES.AUTOMATIC;
 
-        const generatedVariComboWithQty = generateVariComboWithQty(
-          generatedVariations,
-          item?.prices
+      // Validate required fields
+      const requiredFields = {
+        productName,
+        roseGoldThumbnailImage,
+        yellowGoldThumbnailImage,
+        whiteGoldThumbnailImage,
+        roseGoldImages,
+        whiteGoldImages,
+        yellowGoldImages,
+        sku,
+        categoryId,
+        description,
+        variations,
+        variComboWithQuantity,
+        priceCalculationMode,
+      };
+      const missingFields = Object.entries(requiredFields)
+        .filter(([key, value]) =>
+          [
+            'variations',
+            'variComboWithQuantity',
+            'roseGoldImages',
+            'whiteGoldImages',
+            'yellowGoldImages',
+          ].includes(key)
+            ? !value.length
+            : !value
+        )
+        .map(([key]) => key);
+      if (
+        missingFields.length ||
+        ![PRICE_CALCULATION_MODES.AUTOMATIC, PRICE_CALCULATION_MODES.MANUAL].includes(
+          priceCalculationMode
+        )
+      ) {
+        reject(
+          new Error(`Invalid Data: Missing or invalid required fields: ${missingFields.join(', ')}`)
         );
+        return;
+      }
 
-        const categoryId = await getOrCreateMenuCategory(item?.category);
+      // Validate array IDs
+      const arrayIdValidations = [
+        { array: collectionIds, fieldName: 'collectionIds' },
+        { array: settingStyleIds, fieldName: 'settingStyleIds' },
+        { array: subCategoryIds, fieldName: 'subCategoryIds' },
+        { array: productTypeIds, fieldName: 'productTypeIds' },
+      ];
+      const arrayIdErrors = arrayIdValidations
+        .map(({ array, fieldName }) =>
+          validateArrayIds({ array, fieldName, index, sku, allowEmpty: true })
+        )
+        .filter(Boolean);
+      if (arrayIdErrors.length) {
+        reject(new Error(arrayIdErrors.join('; ')));
+        return;
+      }
 
-        return {
+      // Validate thumbnails
+      const thumbnailValidations = [
+        { thumbnail: roseGoldThumbnailImage, color: 'Rose Gold thumbnail' },
+        { thumbnail: yellowGoldThumbnailImage, color: 'Yellow Gold thumbnail' },
+        { thumbnail: whiteGoldThumbnailImage, color: 'White Gold thumbnail' },
+      ];
+      const thumbnailErrors = thumbnailValidations
+        .map(({ thumbnail, color }) => validateThumbnail({ thumbnail, color, sku, index }))
+        .filter(Boolean);
+
+      if (thumbnailErrors.length) {
+        reject(new Error(thumbnailErrors.join('; ')));
+        return;
+      }
+
+      // Validate image arrays
+      const imageArrays = [
+        { data: roseGoldImages, name: 'Rose Gold images' },
+        { data: yellowGoldImages, name: 'Yellow Gold images' },
+        { data: whiteGoldImages, name: 'White Gold images' },
+      ];
+      const imagesErrors = imageArrays
+        .map(({ data, name }) => {
+          if (data?.length) {
+            return validateImagesDetail({ data, sku, index });
+          }
+        })
+        .filter(Boolean);
+
+      if (imagesErrors?.flat()?.length) {
+        reject(new Error(imagesErrors.flat().join('; ')));
+        return;
+      }
+
+      // Validate weights
+      const weightErrors = validateWeights({
+        netWeight,
+        grossWeight,
+        centerDiamondWeight,
+        totalCaratWeight,
+        sideDiamondWeight,
+        index,
+        sku,
+        isDiamondFilter,
+      });
+      if (weightErrors.length) {
+        reject(new Error(weightErrors.join('; ')));
+        return;
+      }
+
+      // Validate dimensions
+      const dimensionErrors = [
+        validateDimensionUnitForExcel({
+          value: lengthUnit,
+          fieldName: 'Length unit',
+          index,
+          sku,
+        }),
+        validateDimensionUnitForExcel({ value: widthUnit, fieldName: 'Width unit', index, sku }),
+        validatePositiveNumber({ value: Length, fieldName: 'Length', index, sku }),
+        validatePositiveNumber({ value: width, fieldName: 'Width', index, sku }),
+      ].filter(Boolean);
+
+      if (dimensionErrors.length) {
+        reject(new Error(dimensionErrors.join('; ')));
+        return;
+      }
+
+      if (Length) {
+        const lengthString = Length.toFixed(2);
+        if (!/^\d+\.\d{2}$/.test(lengthString)) {
+          reject(new Error('Length must have exactly two decimal places'));
+          return;
+        }
+      }
+
+      if (width) {
+        const widthString = width.toFixed(2);
+        if (!/^\d+\.\d{2}$/.test(widthString)) {
+          reject(new Error('Width must have exactly two decimal places'));
+          return;
+        }
+      }
+
+      // Additional validations
+      const additionalErrors = [];
+      const pNameErrorMsg = validateProductName(productName);
+      if (pNameErrorMsg) additionalErrors.push(pNameErrorMsg);
+
+      const shortDescErrorMsg = validateShortDescription(shortDescription);
+      if (shortDescErrorMsg) additionalErrors.push(shortDescErrorMsg);
+
+      if (isInValidVariationsArray(variations)) {
+        additionalErrors.push('Variations data not valid');
+      }
+
+      const variationsArray = getVariationsArray(variations);
+
+      if (isInValidVariComboWithQuantityArray(variComboWithQuantity)) {
+        additionalErrors.push('Combination data not valid');
+      }
+
+      if (additionalErrors.length) {
+        reject(new Error(additionalErrors.join('; ')));
+        return;
+      }
+
+      // Validate specifications
+      const specificationsError = validateArrayOfObjects({
+        array: specifications,
+        requiredKeys: [
+          { key: 'title', type: 'string' },
+          { key: 'description', type: 'string' },
+        ],
+        fieldName: 'Specifications',
+        index,
+        sku,
+      });
+      if (specificationsError.length) mergeErrorArr.push(...specificationsError);
+
+      const existingProduct = existingProducts.find(
+        (p) => p?.sku?.toUpperCase() === sku?.toUpperCase()
+      );
+      if (!existingProduct) {
+        let variComboWithQuantityArray = getVariComboWithQuantityArray(variComboWithQuantity);
+
+        if (priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC) {
+          variComboWithQuantityArray = helperFunctions.calculateAutomaticPrices({
+            combinations: variComboWithQuantityArray,
+            customizationSubTypesList,
+            grossWeight,
+            totalCaratWeight,
+            priceMultiplier,
+          });
+        }
+
+        const saltSKU = generateSaltSKU({ styleNo: sku });
+
+        const insertPattern = {
           id: uuid,
           productName,
-          images: uploadedImageUrls, // Extract image URLs
-          video: uploadedVideoUrl, // Use empty string if no video
-          // images: item?.compressedImages.map((img) => ({ image: img.image })) || [], // Extract image URLs
-          // video: item?.compressedVideo || '', // Use empty string if no video
-          sku: item.styleNo,
+          sku,
           saltSKU,
-          shortDescription,
+          roseGoldThumbnailImage,
+          roseGoldImages,
+          roseGoldVideo,
+          yellowGoldThumbnailImage,
+          yellowGoldImages,
+          yellowGoldVideo,
+          whiteGoldThumbnailImage,
+          whiteGoldImages,
+          whiteGoldVideo,
+          discount,
+          collectionIds: collectionIds.map((id) => id?.trim()),
+          settingStyleIds: settingStyleIds.map((id) => id?.trim()),
           categoryId,
-          // subCategoryId: "",
-          // productTypeIds: [],
-          description: `<p>${item.description}</p>`,
-          variations: generatedVariations, // Assuming variations need to be generated separately
-          variComboWithQuantity: generatedVariComboWithQty,
-          isDiamondFilter: false,
-          // diamondFilters,
+          subCategoryIds: subCategoryIds.map((id) => id?.trim()),
+          productTypeIds: productTypeIds.map((id) => id?.trim()),
+          gender,
+          netWeight,
+          grossWeight,
+          totalCaratWeight,
+          centerDiamondWeight,
+          sideDiamondWeight,
+          Length,
+          width,
+          lengthUnit,
+          widthUnit,
+          shortDescription,
+          description,
+          variations: variationsArray,
+          variComboWithQuantity: variComboWithQuantityArray,
+          isDiamondFilter,
+          diamondFilters: isDiamondFilter ? diamondFilters : null,
           specifications,
-          collectionIds: [],
-          settingStyleIds: [],
-          discount: 0,
+          priceCalculationMode,
           active: false,
           salesTaxPercentage: 0,
           shippingCharge: 0,
@@ -3035,13 +3863,664 @@ const processBulkProductsWithApi = async () => {
           createdDate: Date.now(),
           updatedDate: Date.now(),
         };
-      })
-    );
-    return products;
-  } catch (error) {
-    throw error;
-  }
+
+        resolve({ insertPattern, url: `${productsUrl}/${uuid}` });
+      } else {
+        reject(new Error('Product with this SKU already exists'));
+        // const hasChanges = !helperFunctions.deepEqual(insertPattern, existingProduct);
+        // if (hasChanges) {
+        //   const currentMediaUrls = [
+        //     insertPattern.roseGoldThumbnailImage,
+        //     ...insertPattern.roseGoldImages.map((img) => img.image),
+        //     insertPattern.roseGoldVideo,
+        //     insertPattern.yellowGoldThumbnailImage,
+        //     ...insertPattern.yellowGoldImages.map((img) => img.image),
+        //     insertPattern.yellowGoldVideo,
+        //     insertPattern.whiteGoldThumbnailImage,
+        //     ...insertPattern.whiteGoldImages.map((img) => img.image),
+        //     insertPattern.whiteGoldVideo,
+        //   ].filter((url) => url);
+
+        //   const existingMediaUrls = [
+        //     existingProduct.roseGoldThumbnailImage,
+        //     ...existingProduct.roseGoldImages.map((img) => img.image),
+        //     existingProduct.roseGoldVideo,
+        //     existingProduct.yellowGoldThumbnailImage,
+        //     ...existingProduct.yellowGoldImages.map((img) => img.image),
+        //     existingProduct.yellowGoldVideo,
+        //     existingProduct.whiteGoldThumbnailImage,
+        //     ...existingProduct.whiteGoldImages.map((img) => img.image),
+        //     existingProduct.whiteGoldVideo,
+        //   ].filter((url) => url);
+
+        //   const unmatchedFromDbUrls = existingMediaUrls
+        //     .filter((url) => !currentMediaUrls.includes(url))
+        //     .map((url) => ({ url, source: 'dbUrls' }));
+
+        //   const updatePattern = {
+        //     url: `${productsUrl}/${existingProduct.id}`,
+        //     insertPattern,
+        //     unmatchedFromDbUrlsOnly: unmatchedFromDbUrls.map((item) => item.url),
+        //   };
+        //   resolve(updatePattern);
+        // } else {
+        //   resolve(null);
+        // }
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
 };
+
+/**
+ * Adds or updates multiple products
+ * @param {Object} params - Parameters
+ * @param {Array} params.productsList - List of products
+ * @returns {Promise<string>} Success message or throws error
+ */
+const addUpdateManyProducts = async ({ productsList }) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!Array.isArray(productsList) || !productsList.length) {
+        throw new CustomError('Invalid Data: No products provided', 400);
+      }
+
+      if (productsList?.length > 10) {
+        throw new CustomError(
+          'Too Many Products: Cannot process more than 10 products at a time',
+          400
+        );
+      }
+
+      // Validate SKUs and product names
+      const skuErrors = validateSKUs({ data: productsList });
+      if (skuErrors.length) {
+        throw new CustomError('SKU validation errors', 400, skuErrors);
+      }
+
+      const duplicateSKUs = helperFunctions.findDuplicates(productsList, 'sku');
+      if (duplicateSKUs.length) {
+        throw new CustomError('Some products have duplicate SKUs', 400, duplicateSKUs);
+      }
+
+      const productNameErrors = validateProductNames({ data: productsList });
+      if (productNameErrors.length) {
+        throw new CustomError('Product Name validation errors', 400, productNameErrors);
+      }
+
+      const duplicateProductNames = helperFunctions.findDuplicates(productsList, 'productName');
+      if (duplicateProductNames.length) {
+        throw new CustomError(
+          'Some products have duplicate product names',
+          400,
+          duplicateProductNames
+        );
+      }
+
+      const mergeErrorArr = [];
+
+      // Process products in chunks
+      const CHUNK_SIZE = 100;
+      const productChunks = chunkArray({ array: productsList, chunkSize: CHUNK_SIZE });
+
+      for (let chunkIndex = 0; chunkIndex < productChunks.length; chunkIndex++) {
+        const chunk = productChunks[chunkIndex];
+        const chunkOffset = chunkIndex * CHUNK_SIZE;
+
+        chunk.forEach((product, index) => {
+          const absoluteIndex = chunkOffset + index;
+          const {
+            productName,
+            sku,
+            categoryName,
+            description,
+            variations,
+            roseGoldThumbnailImage,
+            yellowGoldThumbnailImage,
+            whiteGoldThumbnailImage,
+            roseGoldImages,
+            yellowGoldImages,
+            whiteGoldImages,
+            grossWeight,
+            totalCaratWeight,
+            netWeight,
+            centerDiamondWeight,
+            sideDiamondWeight,
+            Length,
+            lengthUnit,
+            width,
+            widthUnit,
+            priceCalculationMode,
+            specifications,
+            subCategoryNames,
+            productTypeNames,
+            collectionNames,
+            settingsStyleNames,
+            gender,
+            discount,
+            shortDescription,
+            isDiamondFilter,
+          } = product;
+
+          const finalLengthUnit = lengthUnit || 'mm';
+          const finalWidthUnit = widthUnit || 'mm';
+          const finalPriceCalculationMode =
+            priceCalculationMode || PRICE_CALCULATION_MODES.AUTOMATIC;
+
+          // Validate strings
+          const stringValidations = [
+            { value: productName, fieldName: 'Product name', minLength: 1, maxLength: 255 },
+            {
+              value: shortDescription,
+              fieldName: 'Short description',
+              minLength: 1,
+              maxLength: 250,
+            },
+          ];
+          stringValidations.forEach(({ value, fieldName, minLength, maxLength }) => {
+            const error = validateStringLength({
+              value,
+              fieldName,
+              index: absoluteIndex,
+              sku,
+              minLength,
+              maxLength,
+            });
+            if (error) mergeErrorArr.push(error);
+          });
+
+          const pNameErrorMsg = validateProductName(productName);
+          if (pNameErrorMsg)
+            mergeErrorArr.push(
+              `Product at index ${absoluteIndex} (SKU: ${sku || 'N/A'}): ${pNameErrorMsg}`
+            );
+
+          const shortDescErrorMsg = validateShortDescription(shortDescription);
+          if (shortDescErrorMsg)
+            mergeErrorArr.push(
+              `Product at index ${absoluteIndex} (SKU: ${sku || 'N/A'}): ${shortDescErrorMsg}`
+            );
+
+          // Validate required fields
+          if (!sku) mergeErrorArr.push(`Product at index ${absoluteIndex}: SKU is required`);
+          if (!categoryName)
+            mergeErrorArr.push(`Product at index ${absoluteIndex}: Category name is required`);
+
+          // Validate array IDs
+          const arrayIdValidations = [
+            { array: subCategoryNames || [], fieldName: 'Sub category names', allowEmpty: true },
+            { array: productTypeNames || [], fieldName: 'Product type names', allowEmpty: true },
+            { array: collectionNames || [], fieldName: 'Collection names', allowEmpty: true },
+            {
+              array: settingsStyleNames || [],
+              fieldName: 'Settings style names',
+              allowEmpty: true,
+            },
+          ];
+
+          arrayIdValidations.forEach(({ array, fieldName, allowEmpty }) => {
+            const error = validateArrayIds({
+              array,
+              fieldName,
+              index: absoluteIndex,
+              sku,
+              allowEmpty,
+            });
+            if (error) mergeErrorArr.push(error);
+          });
+
+          // Validate variations
+          const variationsError = validateArrayOfObjects({
+            array: variations,
+            requiredKeys: [
+              { key: 'variationName', type: 'string' },
+              { key: 'variationTypes', type: 'array' },
+            ],
+            fieldName: 'Variations',
+            index: absoluteIndex,
+            sku,
+            options: { minLength: 1 },
+          });
+          if (variationsError.length) mergeErrorArr.push(...variationsError);
+
+          variations?.forEach((variation, variationIndex) => {
+            if (Array.isArray(variation.variationTypes)) {
+              const variationTypeErrors = validateArrayOfObjects({
+                array: variation.variationTypes,
+                requiredKeys: [{ key: 'variationTypeName', type: 'string' }],
+                fieldName: `Variation Types for ${variation.variationName}`,
+                index: variationIndex,
+                sku,
+                options: { minLength: 1 },
+              });
+              if (variationTypeErrors.length) mergeErrorArr.push(...variationTypeErrors);
+            }
+          });
+
+          // Validate thumbnails
+          const thumbnailValidations = [
+            { thumbnail: roseGoldThumbnailImage, color: 'Rose Gold thumbnail' },
+            { thumbnail: yellowGoldThumbnailImage, color: 'Yellow Gold thumbnail' },
+            { thumbnail: whiteGoldThumbnailImage, color: 'White Gold thumbnail' },
+          ];
+          thumbnailValidations.forEach(({ thumbnail, color }) => {
+            const error = validateThumbnail({ thumbnail, color, sku, index: absoluteIndex });
+            if (error) mergeErrorArr.push(error);
+          });
+
+          // Validate image arrays
+          const imageArrays = [
+            { data: roseGoldImages, name: 'Rose Gold images' },
+            { data: yellowGoldImages, name: 'Yellow Gold images' },
+            { data: whiteGoldImages, name: 'White Gold images' },
+          ];
+          imageArrays.forEach(({ data, name }) => {
+            if (data?.length) {
+              const errors = validateImagesDetail({ data, sku, index: absoluteIndex });
+              mergeErrorArr.push(...errors);
+            }
+          });
+
+          // Validate description
+          const descriptionError = validateDescriptionHTML({
+            description,
+            index: absoluteIndex,
+            sku,
+          });
+          if (descriptionError) mergeErrorArr.push(descriptionError);
+
+          // Validate discount
+          const discountError = validatePositiveNumber({
+            value: discount,
+            fieldName: 'Discount',
+            index: absoluteIndex,
+            sku,
+            options: { max: 100 },
+          });
+          if (discountError) mergeErrorArr.push(discountError);
+
+          // Validate weights
+          const weightErrors = validateWeights({
+            netWeight,
+            grossWeight,
+            centerDiamondWeight,
+            totalCaratWeight,
+            sideDiamondWeight,
+            index: absoluteIndex,
+            sku,
+            isDiamondFilter,
+          });
+          mergeErrorArr.push(...weightErrors);
+
+          // Validate dimensions
+          const dimensionErrors = [
+            validatePositiveNumber({
+              value: Length,
+              fieldName: 'Length',
+              index: absoluteIndex,
+              sku,
+            }),
+            validatePositiveNumber({ value: width, fieldName: 'Width', index: absoluteIndex, sku }),
+            validateDimensionUnitForExcel({
+              value: finalLengthUnit,
+              fieldName: 'Length unit',
+              index: absoluteIndex,
+              sku,
+            }),
+            validateDimensionUnitForExcel({
+              value: finalWidthUnit,
+              fieldName: 'Width unit',
+              index: absoluteIndex,
+              sku,
+            }),
+          ].filter(Boolean);
+
+          mergeErrorArr.push(...dimensionErrors);
+
+          if (Length) {
+            const lengthString = safeRoundNumber({ value: Length }).toFixed(2);
+            if (!/^\d+\.\d{2}$/.test(lengthString)) {
+              mergeErrorArr.push(
+                `Product at index ${absoluteIndex} (SKU: ${sku || 'N/A'}): Length must have exactly two decimal places`
+              );
+            }
+          }
+
+          if (width) {
+            const widthString = safeRoundNumber({ value: width }).toFixed(2);
+            if (!/^\d+\.\d{2}$/.test(widthString)) {
+              mergeErrorArr.push(
+                `Product at index ${absoluteIndex} (SKU: ${sku || 'N/A'}): Width must have exactly two decimal places`
+              );
+            }
+          }
+
+          // Validate price calculation mode
+          const priceCalcError = validateEnumValue({
+            value: finalPriceCalculationMode,
+            allowedValues: [PRICE_CALCULATION_MODES.AUTOMATIC, PRICE_CALCULATION_MODES.MANUAL],
+            fieldName: 'Price calculation mode',
+            index: absoluteIndex,
+            sku,
+          });
+          if (priceCalcError) mergeErrorArr.push(priceCalcError);
+
+          // Validate gender
+          if (gender) {
+            const genderError = validateEnumValue({
+              value: gender,
+              allowedValues: allowedGenders,
+              fieldName: 'Gender',
+              index: absoluteIndex,
+              sku,
+            });
+            if (genderError) mergeErrorArr.push(genderError);
+          }
+
+          // Validate specifications
+          const specificationsError = validateArrayOfObjects({
+            array: specifications,
+            requiredKeys: [
+              { key: 'title', type: 'string' },
+              { key: 'description', type: 'string' },
+            ],
+            fieldName: 'Specifications',
+            index: absoluteIndex,
+            sku,
+          });
+          if (specificationsError.length) mergeErrorArr.push(...specificationsError);
+
+          // Validate ring size for RING category
+          if (subCategoryNames?.includes(RINGS)) {
+            const ringSizeVariation = variations.find((v) => v.variationName === 'Ring Size');
+            if (!ringSizeVariation || !ringSizeVariation.variationTypes?.length) {
+              mergeErrorArr.push(
+                `Product at index ${absoluteIndex} (SKU: ${sku || 'N/A'}): Ring Size variation is required for ${RINGS} category`
+              );
+            }
+          }
+        });
+      }
+
+      if (mergeErrorArr.length) {
+        throw new CustomError('Validation errors', 400, mergeErrorArr);
+      }
+
+      // Preload data
+      const caches = await preloadAllData();
+
+      // Fetch price multiplier
+      const priceMultiplier = await settingsService.fetchPriceMultiplier();
+      if (!Number.isFinite(priceMultiplier) || priceMultiplier <= 0) {
+        throw new CustomError('Invalid priceMultiplier fetched from settings', 400);
+      }
+
+      // Map products
+      const mappedProductsList = await Promise.all(
+        productsList.map(async (product, index) => {
+          const sku = product?.sku;
+          try {
+            const category = await getOrCreateMenuCategory({
+              name: product.categoryName,
+              cache: caches.categories,
+            });
+            if (!category?.id) {
+              throw new CustomError(`Invalid category "${product.categoryName}"`, 400);
+            }
+            const categoryId = category.id;
+
+            const subCategoryIds = await Promise.all(
+              (product.subCategoryNames || []).map(async (name) => {
+                const subCategory = await getOrCreateSubCategory({
+                  name,
+                  category: product.categoryName,
+                  categoryId,
+                  subCategories: caches.subCategories,
+                  cache: caches.subCategories,
+                });
+                return subCategory.id;
+              })
+            );
+
+            const productTypeIds = await Promise.all(
+              (product.productTypeNames || []).map(async (name) => {
+                const productTypeIdsForName = await Promise.all(
+                  subCategoryIds.map(async (subCategoryId) => {
+                    const productType = await getOrCreateProductType({
+                      name,
+                      category: product.categoryName,
+                      subCategorys: product.subCategoryNames,
+                      categoryId,
+                      subCategoryIds,
+                      productTypes: caches.productTypes,
+                      cache: caches.productTypes,
+                    });
+                    return productType.id;
+                  })
+                );
+                return productTypeIdsForName;
+              })
+            ).then((ids) => ids.flat().filter((id) => id));
+
+            const collectionIds = await Promise.all(
+              (product.collectionNames || []).map(async (name) => {
+                const collection = await getOrCreateCollection({ name, cache: caches.collections });
+                return collection.id;
+              })
+            );
+
+            const settingStyleIds = await Promise.all(
+              (product.settingStyleNames || []).map(async (name) => {
+                const settingStyle = await getOrCreateSettingStyle({
+                  name,
+                  cache: caches.settingStyles,
+                });
+                return settingStyle.id;
+              })
+            );
+
+            const variationsArray = await Promise.all(
+              (product.variations || []).map(async (variation) => {
+                const matchedType = await getOrCreateCustomizationType({
+                  name: variation.variationName,
+                  cache: caches.customizationTypes,
+                });
+                const matchedSubTypes = await Promise.all(
+                  (variation.variationTypes || []).map(async (type) => {
+                    return getOrCreateCustomizationSubType({
+                      name: type.variationTypeName,
+                      customizationType: matchedType,
+                      cache: caches.customizationSubTypes,
+                    });
+                  })
+                );
+                return createVariation({ matchedType, matchedSubTypes });
+              })
+            );
+
+            const variComboWithQuantity = generateVariationCombinations({
+              variations: variationsArray,
+            });
+
+            return {
+              ...product,
+              categoryId,
+              subCategoryIds,
+              productTypeIds,
+              collectionIds,
+              settingStyleIds,
+              sku,
+              variations: variationsArray,
+              variComboWithQuantity,
+            };
+          } catch (error) {
+            throw new CustomError(`Product at index ${index} (SKU: ${sku}): ${error.message}`, 400);
+          }
+        })
+      );
+
+      // Process products
+      const existingProducts = await getAllProductsWithPagging();
+      const productInsertPatterns = await Promise.all(
+        mappedProductsList.map((product, idx) =>
+          addUpdateProduct({
+            product,
+            existingProducts,
+            customizationSubTypesList: Array.from(caches.customizationSubTypes.values()),
+            priceMultiplier,
+            index: idx,
+          }).catch((error) => ({
+            error: error.message,
+            product: { sku: product.sku || 'N/A', index: idx },
+          }))
+        )
+      );
+
+      const validPatterns = productInsertPatterns.filter((pattern) => pattern && !pattern.error);
+      const invalidPatterns = productInsertPatterns.filter((pattern) => pattern && pattern.error);
+
+      if (!invalidPatterns.length && validPatterns.length) {
+        const updatedValidPatterns = await Promise.all(
+          validPatterns.map(async ({ insertPattern, url }) => {
+            const {
+              roseGoldThumbnailImage,
+              roseGoldImages,
+              roseGoldVideo,
+              yellowGoldThumbnailImage,
+              yellowGoldImages,
+              yellowGoldVideo,
+              whiteGoldThumbnailImage,
+              whiteGoldImages,
+              whiteGoldVideo,
+            } = insertPattern;
+
+            // Define folders for media
+            const imageFolder = `${productsUrl}`;
+            const videoFolder = `${productsUrl}`;
+
+            // Upload media for Rose Gold
+            const roseGoldThumbnailImageUploaded = await uploadMediaToFirebase({
+              media: roseGoldThumbnailImage,
+              folder: imageFolder,
+              type: 'thumbnail',
+              prefix: 'rose_gold',
+            });
+
+            const roseGoldImagesUploaded = await uploadMediaToFirebase({
+              media: roseGoldImages,
+              folder: imageFolder,
+              type: 'imageArray',
+              prefix: 'rose_gold',
+            });
+
+            const roseGoldVideoUploaded = await uploadMediaToFirebase({
+              media: roseGoldVideo,
+              folder: videoFolder,
+              type: 'video',
+              prefix: 'rose_gold',
+            });
+
+            // Upload media for Yellow Gold
+            const yellowGoldThumbnailImageUploaded = await uploadMediaToFirebase({
+              media: yellowGoldThumbnailImage,
+              folder: imageFolder,
+              type: 'thumbnail',
+              prefix: 'yellow_gold',
+            });
+
+            const yellowGoldImagesUploaded = await uploadMediaToFirebase({
+              media: yellowGoldImages,
+              folder: imageFolder,
+              type: 'imageArray',
+              prefix: 'yellow_gold',
+            });
+
+            const yellowGoldVideoUploaded = await uploadMediaToFirebase({
+              media: yellowGoldVideo,
+              folder: videoFolder,
+              type: 'video',
+              prefix: 'yellow_gold',
+            });
+
+            // Upload media for White Gold
+            const whiteGoldThumbnailImageUploaded = await uploadMediaToFirebase({
+              media: whiteGoldThumbnailImage,
+              folder: imageFolder,
+              type: 'thumbnail',
+              prefix: 'white_gold',
+            });
+
+            const whiteGoldImagesUploaded = await uploadMediaToFirebase({
+              media: whiteGoldImages,
+              folder: imageFolder,
+              type: 'imageArray',
+              prefix: 'white_gold',
+            });
+
+            const whiteGoldVideoUploaded = await uploadMediaToFirebase({
+              media: whiteGoldVideo,
+              folder: videoFolder,
+              type: 'video',
+              prefix: 'white_gold',
+            });
+
+            // Update insertPattern with uploaded media URLs
+            return {
+              insertPattern: {
+                ...insertPattern,
+                // Rose Gold media
+                roseGoldThumbnailImage: roseGoldThumbnailImageUploaded,
+                roseGoldImages: roseGoldImagesUploaded,
+                roseGoldVideo: roseGoldVideoUploaded,
+                // Yellow Gold media
+                yellowGoldThumbnailImage: yellowGoldThumbnailImageUploaded,
+                yellowGoldImages: yellowGoldImagesUploaded,
+                yellowGoldVideo: yellowGoldVideoUploaded,
+                // White Gold media
+                whiteGoldThumbnailImage: whiteGoldThumbnailImageUploaded,
+                whiteGoldImages: whiteGoldImagesUploaded,
+                whiteGoldVideo: whiteGoldVideoUploaded,
+              },
+              url,
+            };
+          })
+        );
+        await fetchWrapperService.createMany(updatedValidPatterns);
+
+        // validPatterns.forEach((pattern) => {
+        //   const { unmatchedFromDbUrlsOnly = [] } = pattern;
+        //   if (unmatchedFromDbUrlsOnly?.length) {
+        //     unmatchedFromDbUrlsOnly.forEach((url) => deleteImage(url));
+        //   }
+        // });
+      }
+
+      if (invalidPatterns.length) {
+        const updatedInvalidPatternArr = invalidPatterns.map((x) => ({
+          ...x,
+          product: { sku: x.product.sku || 'N/A', index: x.product.index },
+        }));
+        mergeErrorArr.push(
+          ...updatedInvalidPatternArr.map(
+            (p) =>
+              `${p.error.includes('Product at index') ? p.error : `Product at index ${p.product.index} (SKU: ${p.product.sku}): ${p.error}`}`
+          )
+        );
+      }
+
+      if (mergeErrorArr.length) {
+        throw new CustomError('Some products failed to create/update', 400, mergeErrorArr);
+      }
+
+      resolve('All items created/updated successfully');
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+// ------------------------- end export feature ----------------------------------------
 
 /**
  * Updates the price of a single product's variation combinations based on provided parameters.
@@ -3164,8 +4643,8 @@ export const productService = {
   updateProduct,
   searchProducts,
   updateProductQtyForReturn,
-  processBulkProductsWithApi,
   updateSingleProductPrice,
   getProductsByIds,
-  getAllProcessedProducts
+  getAllProcessedProducts,
+  addUpdateManyProducts,
 };

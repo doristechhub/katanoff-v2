@@ -402,6 +402,76 @@ const getItemsByIds = async ({ url, itemIds }) => {
   }
 };
 
+const createMany = (createPatterns) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const createPromises = createPatterns.map(async (pattern) => {
+        let { url, insertPattern } = pattern;
+        if (url && insertPattern) {
+          const parsedUrl = helperFunctions.removeLastSegment(url);
+          // const token = await getAppCheckToken(parsedUrl);
+          // if (!token) {
+          //   throw new Error("Token not found");
+          // }
+          const db = getDBFromUrl(parsedUrl);
+          return set(ref(db, url), insertPattern);
+        } else {
+          throw new Error('Invalid Data');
+        }
+      });
+      await Promise.all(createPromises);
+      resolve(true);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+const updateMany = (updatePatterns) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const updatePromises = updatePatterns.map(async (pattern) => {
+        let { url, payload } = pattern;
+        if (url && payload) {
+          const parsedUrl = helperFunctions.removeLastSegment(url);
+          // const token = await getAppCheckToken(parsedUrl);
+          // if (!token) {
+          //   throw new Error("Token not found");
+          // }
+          const db = getDBFromUrl(parsedUrl);
+          return update(ref(db, url), payload);
+        } else {
+          throw new Error('Invalid Data');
+        }
+      });
+      await Promise.all(updatePromises);
+      resolve(true);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+const deleteMany = (urls) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const deletePromises = urls.map(async (url) => {
+        const parsedUrl = helperFunctions.removeLastSegment(url);
+        // const token = await getAppCheckToken(parsedUrl);
+        // if (!token) {
+        //   throw new Error("Token not found");
+        // }
+        const db = getDBFromUrl(parsedUrl);
+        return remove(ref(db, url));
+      });
+      await Promise.all(deletePromises);
+      resolve(true);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 export const fetchWrapperService = {
   getAll,
   create,
@@ -415,4 +485,7 @@ export const fetchWrapperService = {
   findManyWithNotEqual,
   getAppFromUrl,
   getItemsByIds,
+  createMany,
+  updateMany,
+  deleteMany,
 };

@@ -19,7 +19,7 @@ import DuplicateProductDialog from './add/duplicate-product-dialog';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedProduct } from 'src/store/slices/productSlice';
 import ProgressiveImg from 'src/components/progressive-img';
-import { ADD, DELETE, PRODUCT } from 'src/_helpers/constants';
+import { DELETE, PRODUCT, UPDATE } from 'src/_helpers/constants';
 
 // ----------------------------------------------------------------------
 
@@ -41,12 +41,11 @@ export default function ProductCard({
   const user = helperFunctions.getCurrentUser();
 
   const canEditProduct = user.permissions.some(
-    (perm) => perm.pageId === PRODUCT && perm.actions.some((action) => action.actionId === ADD)
+    (perm) => perm.pageId === PRODUCT && perm.actions.some((action) => action.actionId === UPDATE)
   );
 
   const canDeleteProduct = user.permissions.some(
-    (perm) =>
-      perm.pageId === PRODUCT && perm.actions.some((action) => action.actionId === DELETE)
+    (perm) => perm.pageId === PRODUCT && perm.actions.some((action) => action.actionId === DELETE)
   );
 
   const renderStatus = (

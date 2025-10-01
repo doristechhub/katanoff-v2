@@ -41,6 +41,14 @@ export const ReturnList = lazy(() => import('src/sections/returns/returns-list')
 export const ReturnRefund = lazy(() => import('src/sections/returns/return-refund'));
 export const WebsiteAnalytics = lazy(() => import('src/pages/website-analytics'));
 
+export const ImportFromExcelFirstPage = lazy(
+  () => import('src/pages/products/import-from-excel-first')
+);
+export const ImportExcelMapColumns = lazy(
+  () => import('src/sections/products/import-excel-map-columns')
+);
+export const ImportExcelConfirm = lazy(() => import('src/sections/products/import-excel-confirm'));
+
 // ----------------------------------------------------------------------
 
 export default function Router() {
@@ -76,6 +84,30 @@ export default function Router() {
           element: (
             <ProtectedRoutes pageId={'product'}>
               <AddProductPage />
+            </ProtectedRoutes>
+          ),
+        },
+        {
+          path: '/product/import-from-excel-first',
+          element: (
+            <ProtectedRoutes pageId={'product'}>
+              <ImportFromExcelFirstPage />
+            </ProtectedRoutes>
+          ),
+        },
+        {
+          path: '/product/import-product-map-columns',
+          element: (
+            <ProtectedRoutes pageId={'product'}>
+              <ImportExcelMapColumns />
+            </ProtectedRoutes>
+          ),
+        },
+        {
+          path: '/product/import-excel-confirm',
+          element: (
+            <ProtectedRoutes pageId={'product'}>
+              <ImportExcelConfirm />
             </ProtectedRoutes>
           ),
         },

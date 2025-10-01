@@ -20,8 +20,10 @@ import {
   productInitDetails,
   setProcessedProductLoading,
   setProcessedProductList,
+  setCreateManyProductErrorMsg,
 } from 'src/store/slices/productSlice';
 import { helperFunctions } from 'src/_helpers';
+import CustomError from 'src/_helpers/customError';
 
 // ----------------------------------------------------------------------
 
@@ -41,7 +43,6 @@ export const getProducts = () => async (dispatch) => {
   }
 };
 
-
 export const getAllProcessedProducts = () => async (dispatch) => {
   try {
     dispatch(setProcessedProductLoading(true));
@@ -58,17 +59,25 @@ export const getAllProcessedProducts = () => async (dispatch) => {
   }
 };
 
-export const processBulkProductsWithApi = () => async (dispatch) => {
+export const createManyProductsFromExcel = (payload) => async (dispatch) => {
   try {
-    dispatch(setCrudProductLoading(true));
-    const res = await productService.processBulkProductsWithApi();
+    dispatch(setCreateManyProductErrorMsg(''));
 
+    dispatch(setCrudProductLoading(true));
+    const res = await productService.addUpdateManyProducts(payload);
     if (res) {
-      toast.success('Processed Product successfully');
+      toast.success(res);
       return true;
-    } else return false;
-  } catch (e) {
-    toastError(e);
+    }
+  } catch (err) {
+    // toastError(e);
+    if (err instanceof CustomError) {
+      dispatch(
+        setCreateManyProductErrorMsg({ message: err.message, status: err.status, data: err.data })
+      );
+    } else {
+      dispatch(setCreateManyProductErrorMsg({ message: err?.message || 'Something Went Wrong' }));
+    }
     return false;
   } finally {
     dispatch(setCrudProductLoading(false));

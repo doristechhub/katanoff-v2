@@ -130,6 +130,13 @@ const initialState = {
     filterByGender: 'all',
     page: 1,
   },
+
+  importExcelLoading: false,
+  importFromExcel: [],
+  importedFilesData: [],
+  excelProductsMappedArr: [],
+  importSampleHeadersData: [],
+  createManyProductErrorMsg: '',
 };
 
 const productSlice = createSlice({
@@ -203,6 +210,25 @@ const productSlice = createSlice({
         page: 1,
       };
     },
+
+    setImportExcelLoading: (state, action) => {
+      state.importExcelLoading = action.payload;
+    },
+    setImportFromExcel: (state, action) => {
+      state.importFromExcel = action.payload;
+    },
+    setImportedFilesData: (state, action) => {
+      state.importedFilesData = action.payload;
+    },
+    setExcelProductsMappedArr: (state, action) => {
+      state.excelProductsMappedArr = action.payload;
+    },
+    setImportSampleHeadersData: (state, action) => {
+      state.importSampleHeadersData = action.payload;
+    },
+    setCreateManyProductErrorMsg: (state, action) => {
+      state.createManyProductErrorMsg = action.payload;
+    },
   },
 });
 
@@ -226,5 +252,12 @@ export const {
   setDuplicateProductLoading,
   setFilterState,
   clearFilterState,
+
+  setImportExcelLoading,
+  setImportFromExcel,
+  setImportedFilesData,
+  setExcelProductsMappedArr,
+  setImportSampleHeadersData,
+  setCreateManyProductErrorMsg,
 } = productSlice.actions;
 export default productSlice.reducer;

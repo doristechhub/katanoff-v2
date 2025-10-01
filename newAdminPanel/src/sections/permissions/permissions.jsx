@@ -972,9 +972,8 @@ const Row = memo(({ row, setOpen, setSelectedPermissionsId, index }) => {
                     />
                     <Box sx={{ pl: 2, display: 'flex', flexDirection: 'column' }}>
                       {page.actions?.map((action) => {
-                        const isActionChecked = pagePerm?.actions?.some(
-                          (a) => a.actionId === action.value
-                        );
+                        const isActionChecked =
+                          pagePerm?.actions?.some((a) => a.actionId === action.value) ?? false;
 
                         return (
                           <FormControlLabel
