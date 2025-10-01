@@ -387,7 +387,7 @@ export default function ProductsView() {
             }}
           />
 
-          <Button
+          {/* <Button
             color="success"
             variant="contained"
             onClick={async () => {
@@ -414,7 +414,7 @@ export default function ProductsView() {
             startIcon={<Iconify icon={'vscode-icons:file-type-excel'} width={25} />}
           >
             Import
-          </Button>
+          </Button> */}
           <LoadingButton
             variant="contained"
             color="success"
