@@ -395,7 +395,7 @@ export default function AddProductPage() {
           createVariation(diamondShape.id, diamondShapeSubTypes, INIT_DIAMOND_SHAPE_SUB_TYPES_LIST)
         );
       }
-      
+
       const newPayload = {
         ...selectedProduct,
         variations: newVariations,
@@ -513,7 +513,7 @@ export default function AddProductPage() {
     (perm) => perm.pageId === PRODUCT && perm.actions.some((action) => action.actionId === UPDATE)
   );
   // If no permission → redirect
-  if (!canAddProduct || !canEditProduct) {
+  if (!canAddProduct || (productId && !canEditProduct)) {
     window.location.href = '/unauthorized'; // or your desired URL
   }
 
@@ -1592,7 +1592,7 @@ export default function AddProductPage() {
                                     checked={
                                       productId ? (hasZeroPrice ? false : values?.active) : false
                                     } // If no productId (new product), default to unchecked
-                                    disabled={productId ? hasZeroPrice : true}  // Disable switch for new products (no productId)
+                                    disabled={productId ? hasZeroPrice : true} // Disable switch for new products (no productId)
                                     // checked={hasZeroPrice ? false : values?.active}
                                     // disabled={hasZeroPrice}
                                     onBlur={handleBlur}
