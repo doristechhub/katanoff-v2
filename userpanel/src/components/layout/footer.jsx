@@ -2,23 +2,22 @@
 
 import { usePathname } from "next/navigation";
 import {
-  FaFacebookF,
+  // FaFacebookF,
   FaInstagram,
-  FaPinterestP,
-  FaTiktok,
+  // FaPinterestP,
+  // FaTiktok,
 } from "react-icons/fa6";
-import footerBGShape from "@/assets/images/footer-bg-shape.webp";
+// import footerBGShape from "@/assets/images/footer-bg-shape.webp";
 import footerDiamondShape from "@/assets/images/footer-shape-diamond.webp";
 import {
   companyEmail,
   CURRENT_YEAR,
-  facebookUrl,
+  // facebookUrl,
   instagramUrl,
-  pinterestUrl,
-  tiktokUrl,
+  // pinterestUrl,
+  // tiktokUrl,
 } from "@/_helper";
 import { SubscribeEmail } from "../dynamiComponents";
-import logo from "@/assets/images/footer-logo.webp";
 import footerLogo from "@/assets/images/footer-logo-name.webp";
 import Link from "next/link";
 import CustomImg from "../ui/custom-img";
@@ -30,6 +29,7 @@ const footerLinks = [
       { title: "Returns", href: "/return-policy" },
       { title: "Shipping", href: "/shipping-policy" },
       { title: "Warranty", href: "/warranty" },
+      { title: "Blog", href: "/blogs" },
       { title: "Track Your Order", href: "/track-your-order" },
       { title: "Track Your Return", href: "/track-your-return" },
       { title: "Payment and Financing", href: "/payment-financing" },

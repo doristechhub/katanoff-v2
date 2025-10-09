@@ -82,7 +82,7 @@ export default function ProductCard({
         }
       }
       // fallback if no filter
-      setSelectedGoldColor(goldColorVariations[0].variationTypeName);
+      setSelectedGoldColor(goldColorVariations?.[0].variationTypeName);
     }
   }, [goldColorVariations, selectedFilterGoldColor]);
 

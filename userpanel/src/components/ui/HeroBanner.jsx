@@ -40,23 +40,20 @@ const DropdownMenu = ({
       }}
       href="#"
       variant={variant}
-      className={`!rounded-none cursor-pointer !text-sm ${
-        fullWidth ? "!w-full" : ""
-      }`}
+      className={`!rounded-none cursor-pointer !text-sm ${fullWidth ? "!w-full" : ""
+        }`}
     >
       Find Your Ring
       <ChevronDown
-        className={`w-5 h-5 transition-transform duration-200 ${
-          isOpen ? "rotate-180" : ""
-        }`}
+        className={`w-5 h-5 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
+          }`}
       />
     </PrimaryLinkButton>
 
     {isOpen && (
       <div
-        className={`absolute top-full ${
-          fullWidth ? "left-1/2 -translate-x-1/2" : "left-0"
-        } mt-0 w-full bg-white shadow-md`}
+        className={`absolute top-full ${fullWidth ? "left-1/2 -translate-x-1/2" : "left-0"
+          } mt-0 w-full bg-white shadow-md`}
       >
         {items.map((item, index) => (
           <Link
@@ -143,13 +140,12 @@ const BannerImage = ({
         altAttr={altAttr}
         titleAttr={titleAttr}
         priority
-        className={`w-full ${
-          isStaticBanner
-            ? "object-cover h-[40vh] lg:h-auto"
-            : isHomePage
+        className={`w-full ${isStaticBanner
+          ? "object-cover h-[40vh] lg:h-auto"
+          : isHomePage
             ? "object-cover h-full"
             : "h-[18vh] lg:h-auto"
-        }`}
+          }`}
       />
     );
   }
@@ -182,6 +178,7 @@ const HeroBanner = (props) => {
     textAlignment = "center",
     isHomePage = false,
     customClass = "justify-center",
+    titleCustomClass = "",
   } = props;
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -189,9 +186,8 @@ const HeroBanner = (props) => {
 
   return (
     <section
-      className={`relative md:overflow-hidden ${
-        isHomePage ? "flex flex-col gap-6 md:gap-10" : "h-auto"
-      }`}
+      className={`relative md:overflow-hidden ${isHomePage ? "flex flex-col gap-6 md:gap-10" : "h-auto"
+        }`}
     >
       {isHomePage ? (
         <div className="relative w-full h-[70vh] md:h-screen">
@@ -266,7 +262,7 @@ const HeroBanner = (props) => {
 
       <div className={`absolute inset-0 flex items-center p-4 ${customClass}`}>
         <div
-          className={`flex flex-col items-${textAlignment} w-full max-w-[90%] sm:max-w-[70%] lg:max-w-[60%] text-${textAlignment} md:gap-3`}
+          className={`flex flex-col items-${textAlignment} w-full max-w-[90%] sm:max-w-[70%] lg:max-w-[60%] text-${textAlignment} md:gap-3 ${titleCustomClass}`}
         >
           {title && description && (
             <>

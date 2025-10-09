@@ -55,9 +55,8 @@ const MemoizedProgressBar = memo(
           <div
             key={`${activeColorKey}-${i}`}
             onClick={() => swiperRef.current?.slideTo(i)}
-            className={`h-1 flex-1 transition-colors duration-300 ${
-              i === activeIndex ? "bg-black" : "bg-gray-300"
-            }`}
+            className={`h-1 flex-1 transition-colors duration-300 ${i === activeIndex ? "bg-black" : "bg-gray-300"
+              }`}
           />
         ))}
       </div>
@@ -94,12 +93,12 @@ const ProductDetailPageImage = memo(
         (v) => v?.variationName === DIAMOND_SHAPE
       );
 
-      return diamondVariations?.variationTypes[0]?.variationTypeName;
+      return diamondVariations?.variationTypes?.[0]?.variationTypeName;
     };
 
     const { titleAttr, altAttr } = helperFunctions.generateProductImgAltTitle({
       gender: productDetail.gender,
-      productType: productDetail?.productTypeNames[0]?.title,
+      productType: productDetail?.productTypeNames?.[0]?.title,
       diamondShape: getProductDiamondShape() || "",
       metalColor: selectedColor,
     });
@@ -228,17 +227,17 @@ const ProductDetailPageImage = memo(
         : []),
       ...(Array.isArray(currentData.images)
         ? currentData.images.map((img) => ({
-            src: img?.image,
-            isVideo: false,
-          }))
+          src: img?.image,
+          isVideo: false,
+        }))
         : []),
       ...(currentData.video
         ? [
-            {
-              src: currentData.video,
-              isVideo: true,
-            },
-          ]
+          {
+            src: currentData.video,
+            isVideo: true,
+          },
+        ]
         : []),
     ];
     const totalSlides = allSlides.length;

@@ -198,9 +198,9 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* <section className="pt-12 lg:pt-20">
+      <section className="pt-12 lg:pt-20">
         <AboutUsCollectionToggle />
-      </section> */}
+      </section>
     </>
   );
 }

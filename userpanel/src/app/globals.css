@@ -475,6 +475,22 @@ ul {
   margin-left: auto;
 }
 
+.container1200 {
+  max-width: 68%;
+  padding-right: 10px !important;
+  padding-left: 10px !important;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.container1100 {
+  max-width: 45%;
+  padding-right: 10px !important;
+  padding-left: 10px !important;
+  margin-right: auto;
+  margin-left: auto;
+}
+
 @media (min-width: 1920px) {
   .container {
     width: 88%;
@@ -490,6 +506,16 @@ ul {
     width: 72%;
     max-width: 100%;
   }
+
+  .container1200 {
+    width: 68%;
+    max-width: 100%;
+  }
+
+  .container1100 {
+    width: 50%;
+    max-width: 100%;
+  }
 }
 
 @media (max-width: 1600px) {
@@ -499,6 +525,14 @@ ul {
 
   .container1300 {
     max-width: 85%;
+  }
+
+  .container1200 {
+    max-width: 80%;
+  }
+
+  .container1100 {
+    max-width: 50%;
   }
 }
 
@@ -516,6 +550,14 @@ ul {
   .container1300 {
     max-width: 90%;
   }
+
+  .container1200 {
+    max-width: 85%;
+  }
+
+  .container1100 {
+    max-width: 70%;
+  }
 }
 
 @media (max-width: 991px) {
@@ -528,7 +570,9 @@ ul {
 
   .container,
   .container1400,
-  .container1300 {
+  .container1300,
+  .container1200,
+  .container1100 {
     max-width: 100%;
     padding-left: 15px;
     padding-right: 15px;
@@ -536,7 +580,9 @@ ul {
 
   main .container,
   main .container1400,
-  main .container1300 {
+  main .container1300,
+  main .container1200,
+  main .container1100 {
     padding-left: 15px;
     padding-right: 15px;
   }

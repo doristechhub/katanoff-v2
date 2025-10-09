@@ -43,7 +43,7 @@ const ProductGrid = memo(
         (v) => v?.variationName === DIAMOND_SHAPE
       );
 
-      return diamondVariations?.variationTypes[0]?.variationTypeName;
+      return diamondVariations?.variationTypes?.[0]?.variationTypeName;
     };
 
     return (

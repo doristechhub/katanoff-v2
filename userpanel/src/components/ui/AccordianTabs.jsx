@@ -9,6 +9,7 @@ const AccordionTabs = ({
   contentCustomClass = "",
   alwaysOpenFirst = false,
   hideFirstToggleIcon = false,
+  customClass = "",
 }) => {
   const [activeTab, setActiveTab] = useState(defaultOpenLabel || "");
 
@@ -37,7 +38,7 @@ const AccordionTabs = ({
                   setActiveTab(label);
                 }
               }}
-              className="w-full text-left px-4 py-6 flex justify-between items-center"
+              className={`w-full text-left px-4 py-6 flex justify-between items-center ${customClass}`}
             >
               <span
                 className={`text-lg lg:text-xl 2xl:text-2xl font-medium font-gelasio text-baseblack ${labelCustomClass}`}
@@ -54,9 +55,8 @@ const AccordionTabs = ({
 
             {isOpen && (
               <div
-                className={`px-4 pb-8 text-sm text-baseblack ${
-                  label === "Product Detail" ? "lg:pb-16" : ""
-                } ${contentCustomClass}`}
+                className={`px-4 pb-8 text-sm text-baseblack ${label === "Product Detail" ? "lg:pb-16" : ""
+                  } ${contentCustomClass}`}
               >
                 {content}
               </div>
