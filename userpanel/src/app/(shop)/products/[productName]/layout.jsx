@@ -31,78 +31,81 @@ export async function generateMetadata({ params }) {
       };
     }
 
-    const productDetail = await productService.getSingleProduct(
-      productNameWithSpace
-    );
-
-    if (!productDetail) {
-      return {
-        title: "Product Not Found | Katanoff Jewelry",
-        description: "Sorry, this product does not exist or has been removed.",
-        robots: "noindex, nofollow",
-      };
-    }
-
-    /** ----------------------------
-     * DYNAMIC OG IMAGE LOGIC
-     * ---------------------------- */
-    let ogImage = "";
-
-    // Get selected gold color from query param
-    const selectedGoldColor = helperFunctions.stringReplacedWithSpace(
-      searchParams.get("goldColor")?.toLowerCase()
-    );
-
-    if (selectedGoldColor && GOLD_COLOR_MAP[selectedGoldColor]) {
-      const selectedImageKey = GOLD_COLOR_MAP[selectedGoldColor];
-      if (productDetail[selectedImageKey]) {
-        ogImage = productDetail[selectedImageKey];
+    try {
+      const productDetail = await productService.getSingleProduct(
+        productNameWithSpace
+      );
+      if (!productDetail) {
+        return {
+          title: "Product Not Found | Katanoff Jewelry",
+          description:
+            "Sorry, this product does not exist or has been removed.",
+          robots: "noindex, nofollow",
+        };
       }
-    }
 
-    if (!ogImage) {
-      const fallbackColors = [
-        "yellowGoldImages",
-        "roseGoldImages",
-        "whiteGoldImages",
-      ];
-      for (const color of fallbackColors) {
-        if (productDetail?.[color]?.[0]?.image) {
-          ogImage = productDetail[color][0].image;
-          break;
+      /** ----------------------------
+       * DYNAMIC OG IMAGE LOGIC
+       * ---------------------------- */
+      let ogImage = "";
+
+      // Get selected gold color from query param
+      const selectedGoldColor = helperFunctions.stringReplacedWithSpace(
+        searchParams.get("goldColor")?.toLowerCase()
+      );
+
+      if (selectedGoldColor && GOLD_COLOR_MAP[selectedGoldColor]) {
+        const selectedImageKey = GOLD_COLOR_MAP[selectedGoldColor];
+        if (productDetail[selectedImageKey]) {
+          ogImage = productDetail[selectedImageKey];
         }
       }
 
-      // Final fallback → placeholder image
       if (!ogImage) {
-        ogImage = `${WebsiteUrl}/opengraph-image.png`;
+        const fallbackColors = [
+          "yellowGoldImages",
+          "roseGoldImages",
+          "whiteGoldImages",
+        ];
+        for (const color of fallbackColors) {
+          if (productDetail?.[color]?.[0]?.image) {
+            ogImage = productDetail[color][0].image;
+            break;
+          }
+        }
+
+        // Final fallback → placeholder image
+        if (!ogImage) {
+          ogImage = `${WebsiteUrl}/opengraph-image.png`;
+        }
       }
+
+      /** ----------------------------
+       * META CONFIGURATION
+       * ---------------------------- */
+      const diamondShapeVariation = productDetail?.variations?.find(
+        (v) => v?.variationName === DIAMOND_SHAPE
+      );
+      const diamondShape =
+        diamondShapeVariation?.variationTypes?.[0]?.variationTypeName || "";
+      const subCategory = productDetail.subCategoryNames?.[0]?.title || "";
+
+      const canonicalUrl = `${WebsiteUrl}/${productNameWithUnderscore}${
+        searchParams.toString() ? `?${searchParams.toString()}` : ""
+      }`;
+      const customMeta = {
+        title: `${productDetail.productName} with ${diamondShape} Diamonds | Katanoff Fine Jewelry`,
+        description:
+          `Shop ${productDetail.productName} featuring brilliant ${diamondShape} diamonds at Katanoff. Elegant craftsmanship and timeless fine jewelry.` ||
+          "Explore the latest jewelry designs with Katanoff. High-quality, beautifully crafted pendants and more.",
+        keywords: `${productDetail.productName}, ${diamondShape} Diamond ${subCategory}, Diamond Jewelry, Fine Jewelry, Katanoff, Diamond Jewelry in New York City, New York City, US, United States, Shop ${productDetail.productTypeNames[0].title}, Buy Diamond ${productDetail.productTypeNames[0].title}`,
+        openGraphImage: ogImage,
+        url: canonicalUrl,
+      };
+      return generateMetaConfig({ customMeta });
+    } catch (error) {
+      console.log(error);
     }
-
-    /** ----------------------------
-     * META CONFIGURATION
-     * ---------------------------- */
-    const diamondShapeVariation = productDetail?.variations?.find(
-      (v) => v?.variationName === DIAMOND_SHAPE
-    );
-    const diamondShape =
-      diamondShapeVariation?.variationTypes?.[0]?.variationTypeName || "";
-    const subCategory = productDetail.subCategoryNames?.[0]?.title || "";
-
-    const canonicalUrl = `${WebsiteUrl}/${productNameWithUnderscore}${
-      searchParams.toString() ? `?${searchParams.toString()}` : ""
-    }`;
-    const customMeta = {
-      title: `${productDetail.productName} with ${diamondShape} Diamonds | Katanoff Fine Jewelry`,
-      description:
-        `Shop ${productDetail.productName} featuring brilliant ${diamondShape} diamonds at Katanoff. Elegant craftsmanship and timeless fine jewelry.` ||
-        "Explore the latest jewelry designs with Katanoff. High-quality, beautifully crafted pendants and more.",
-      keywords: `${productDetail.productName}, ${diamondShape} Diamond ${subCategory}, Diamond Jewelry, Fine Jewelry, Katanoff, Diamond Jewelry in New York City, New York City, US, United States, Shop ${productDetail.productTypeNames[0].title}, Buy Diamond ${productDetail.productTypeNames[0].title}`,
-      openGraphImage: ogImage,
-      url: canonicalUrl,
-    };
-
-    return generateMetaConfig({ customMeta });
   } catch (error) {
     console.error("Metadata generation failed:", error);
     return {

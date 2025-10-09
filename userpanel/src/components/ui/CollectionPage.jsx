@@ -35,10 +35,7 @@ import giftsUnder1000Desktop from "@/assets/images/collections/giftsUnder1000Des
 import giftsUnder1000Mobile from "@/assets/images/collections/giftsUnder1000Mobile.webp";
 import newArrivalDesktop from "@/assets/images/collections/newArrivalDesktop.webp";
 import newArrivalMobile from "@/assets/images/collections/newArrivalMobile.webp";
-import {
-  fetchAllCollections,
-  fetchCollectionByTitle,
-} from "@/_actions/collection.action";
+import { fetchAllCollections, fetchCollectionByTitle } from "@/_actions/collection.action";
 import { setActiveFilterType } from "@/store/slices/productSlice";
 import HomePageSliderSkeleton from "./HomePageSliderSkeleton";
 import CategoryGallery from "./home/categoryGallery";
@@ -116,7 +113,7 @@ export default function CollectionPage() {
     }
   }, [collectionType, collectionTitle, loadData]);
 
-  useEffect(() => {
+    useEffect(() => {
     dispatch(fetchAllCollections());
   }, [dispatch]);
 
@@ -136,13 +133,13 @@ export default function CollectionPage() {
   const bannerProps =
     collectionType === GENERAL && STATIC_PROPS[collectionTitle]
       ? {
-          staticSrcDesktop: STATIC_PROPS[collectionTitle]?.desktop,
-          staticSrcMobile: STATIC_PROPS[collectionTitle]?.mobile,
-        }
+        staticSrcDesktop: STATIC_PROPS[collectionTitle]?.desktop,
+        staticSrcMobile: STATIC_PROPS[collectionTitle]?.mobile,
+      }
       : {
-          imageSrcDesktop: banners?.desktop,
-          imageSrcMobile: banners?.mobile,
-        };
+        imageSrcDesktop: banners?.desktop,
+        imageSrcMobile: banners?.mobile,
+      };
 
   const bannerTitleAttr = `${collectionTitle} | Katanoff Lab Grown Diamond Jewelry`;
   const bannerAltAttr = `Discover the ${collectionTitle} collection at Katanoff, featuring stunning lab grown diamond rings, earrings, necklaces, bracelets, and fine jewelry, crafted ethically in New York.`;
@@ -204,13 +201,13 @@ export default function CollectionPage() {
         <KeyFeatures />
       </section>
 
-      {/* {collectionsListLoading ? (
+      {collectionsListLoading ? (
         <HomePageSliderSkeleton />
       ) : collectionsList?.length ? (
         <section className="container pt-12 lg:pt-16 2xl:pt-24">
           <CategoryGallery categories={collectionsList} type={COLLECTION_SLIDER} title="Our Collections" />
         </section>
-      ) : null} */}
+      ) : null}
     </>
   );
 }

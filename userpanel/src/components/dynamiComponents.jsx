@@ -464,3 +464,26 @@ export const AboutUsCollectionToggle = dynamic(
     ssr: false,
   }
 );
+
+export const ForeverDiamondsPage = dynamic(
+  () => import("./ui/blogs/ForeverDiamondPage.jsx"),
+  {
+    ssr: false,
+  }
+);
+
+export const MeetShiphraPage = dynamic(() => import("./ui/blogs/MeetShiphraPage.jsx"), {
+  ssr: false,
+});
+
+export const TableOfContents = dynamic(() => import("./ui/TableOfContents.jsx"), {
+  ssr: false,
+});
+
+export const DiamondTennisBraceletGiftPage = dynamic(() => import("./ui/blogs/DiamondTennisBraceletGiftPage.jsx"), {
+  ssr: false,
+});
+
+export const BlogSwipper = dynamic(() => import("./ui/BlogSwipper.jsx"), {
+  ssr: false,
+});

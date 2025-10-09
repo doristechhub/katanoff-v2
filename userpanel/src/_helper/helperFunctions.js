@@ -21,6 +21,9 @@ const generateUniqueId = () => {
 const stringReplacedWithUnderScore = (string) => {
   return string?.split(" ")?.join("_");
 };
+const stringReplacedWithDash = (string) => {
+  return string?.split(" ")?.join("-");
+};
 const stringReplacedWithSpace = (string) => {
   return string?.split("_")?.join(" ");
 };
@@ -836,7 +839,9 @@ const getFraction = (num) => {
 export const formatProductNameWithCarat = ({ caratWeight, productName }) => {
   const formattedCarat =
     caratWeight > 0 ? `${getFraction(caratWeight)} ctw ` : "";
-  return `${formattedCarat}${productName ? productName : "Unknown Product"}`.trim();
+  return `${formattedCarat}${
+    productName ? productName : "Unknown Product"
+  }`.trim();
 };
 
 export const roundOffPrice = (price) => {
@@ -1128,13 +1133,12 @@ const generateProductImgAltTitle = ({
 
   const titleAttr = `Diamond ${productType} in ${metal} | Lab Grown Diamond Jewelry | Buy Online in New York, USA`;
 
-  const altAttr = `${productType}, lab grown diamond, ${diamondShape ? `${diamondShape.toLowerCase()} diamond jewelry,` : ""
-    } ${metal} diamond jewelry, fine jewelry, custom jewelry, ethical diamond jewelry, ${gender.toLowerCase()} ${productType.toLowerCase()} diamond jewelry, New York, USA, Katanoff`;
+  const altAttr = `${productType}, lab grown diamond, ${
+    diamondShape ? `${diamondShape.toLowerCase()} diamond jewelry,` : ""
+  } ${metal} diamond jewelry, fine jewelry, custom jewelry, ethical diamond jewelry, ${gender.toLowerCase()} ${productType.toLowerCase()} diamond jewelry, New York, USA, Katanoff`;
 
   return { titleAttr, altAttr };
 };
-
-
 
 export const helperFunctions = {
   debounce,
@@ -1190,5 +1194,6 @@ export const helperFunctions = {
   generateCaratValues,
   getFilterTypeForPage,
   scrollToRefWithExtraSpacing,
-  generateProductImgAltTitle
+  generateProductImgAltTitle,
+  stringReplacedWithDash,
 };

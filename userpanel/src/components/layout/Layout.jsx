@@ -11,7 +11,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useLenis } from "@/hooks/useLenis";
 import { useNetworkLost } from "@/hooks/networkLost";
-import { NetworkLostOverlay } from "../dynamiComponents";
+import { NetworkLostOverlay, TawkToWidget } from "../dynamiComponents";
 
 const Layout = ({ children }) => {
   const router = useRouter();
@@ -53,7 +53,7 @@ const Layout = ({ children }) => {
 
   return (
     <>
-      {/* <TawkToWidget /> */}
+      <TawkToWidget />
       <NetworkLostOverlay />
       {children}
     </>

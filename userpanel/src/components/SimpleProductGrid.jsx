@@ -22,12 +22,12 @@ const SimpleProductGrid = memo(({ products }) => {
             (v) => v?.variationName === DIAMOND_SHAPE
           );
 
-          return diamondVariations?.variationTypes[0]?.variationTypeName;
+          return diamondVariations?.variationTypes?.[0]?.variationTypeName;
         };
         const { titleAttr, altAttr } =
           helperFunctions.generateProductImgAltTitle({
             gender: product?.gender,
-            productType: product?.productTypeNames[0]?.title,
+            productType: product?.productTypeNames?.[0]?.title,
             diamondShape: getProductDiamondShape() || "",
           });
 

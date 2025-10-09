@@ -177,6 +177,10 @@ export const META_CONSTANTS = {
   PROFILE: "profile",
   ORDER_HISTORY: "orderHistory",
   RETURN_HISTORY: "returnHistory",
+  BLOGS: "blogs",
+  FOREVER_DIAMONDS: "forever-diamonds",
+  MEET_SHIPHRA: "meet-shiphra",
+  DIAMOND_TENNIS_BRACELET_GIFT: "diamond-tennis-bracelet-gift",
 };
 
 export const PAGE_CONSTANTS = {
@@ -187,6 +191,10 @@ export const PAGE_CONSTANTS = {
   SELECT_DIAMOND: "select-diamond",
   CUSTOM_JEWELRY: "custom-jewelry",
   EDUCATION: "education",
+  BLOGS: "blogs",
+  FOREVER_DIAMONDS: "forever-diamonds",
+  DIAMOND_TENNIS_BRACELET_GIFT: "diamond-tennis-bracelet-gift",
+  MEET_SHIPHRA: "meet-shiphra",
 };
 
 export const GIFTS_FOR_HIM = "Gifts For Him";
