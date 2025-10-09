@@ -133,6 +133,18 @@ export default function SiteMapPage() {
       ],
     },
     {
+      title: "Blogs",
+      href: "/blogs",
+      links: [
+        { title: "Forever Diamonds", href: "/blogs/forever-diamonds" },
+        { title: "Meet Shiphra", href: "/blogs/meet-shiphra" },
+        {
+          title: "Diamond Tennis Bracelet Gift",
+          href: "/blogs/diamond-tennis-bracelet-gift",
+        },
+      ],
+    },
+    {
       title: "Customer Service",
       links: [
         { title: "Contact us", href: "/contact-us" },
