@@ -53,7 +53,7 @@ const Layout = ({ children }) => {
 
   return (
     <>
-      <TawkToWidget />
+      {/* <TawkToWidget /> */}
       <NetworkLostOverlay />
       {children}
     </>
