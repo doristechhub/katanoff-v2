@@ -127,7 +127,7 @@ export const PrimaryLinkButton = ({
       : variant === "whiteHover"
       ? "!bg-white !h-12 lg:!h-[2.8rem] 2xl:!h-[3.5rem] font-semibold !tracking-wider !text-baseblack !border !border-baseblack px-6 py-2 !rounded-[8px] hover:!bg-black hover:!text-white"
       : variant === "transparentHover"
-      ? "!bg-transparent py-3 px-4 font-semibold !tracking-wider !text-white !border !border-white !rounded-[4px] hover:!bg-white hover:!text-black"
+      ? "!bg-transparent py-3 px-4 font-semibold !tracking-wider !text-baseblack !border !border-baseblack !rounded-[4px] hover:!bg-baseblack hover:!text-white"
       : variant === "offWhiteHover"
       ? "!bg-[#FFFFFF99] py-3 px-4 font-semibold rounded-none border-none !tracking-wider !text-primary hover:!bg-white hover:!text-primary !h-9 xs:h-12 lg:!h-[3rem] 4xl:!min-w-[140px] lg:!px-1"
       : variant === "primaryHover"

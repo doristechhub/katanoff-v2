@@ -241,7 +241,7 @@ export default function MeetShiphraPage() {
               </ul>
             </section>
           </div>
-          <div className="hidden lg:block">
+          <div className="hidden lg:block sticky top-28 self-start">
             <TableOfContents sections={tocSections} />
             <div className="mt-10">
               <p className="text-lg xl:text-xl font-semibold mb-4 font-castoro">
@@ -256,7 +256,6 @@ export default function MeetShiphraPage() {
                     )}`}
                     className="flex gap-4 hover:opacity-80 transition"
                   >
-                    {/* Fixed-size thumbnail */}
                     <div className="w-32 h-24 flex-shrink-0 rounded-md overflow-hidden">
                       <CustomImg
                         src={blog.image}
