@@ -355,7 +355,10 @@ export default function ForeverDiamondsGiftPage() {
               </ul>
             </section>
 
-            <section className="mt-10 flex flex-col gap-4 text-sm lg:text-base">
+            <section
+              className="mt-10 flex flex-col gap-4 text-sm lg:text-base"
+              id="final-thought"
+            >
               <h2 className="text-lg md:text-xl xl:text-2xl font-medium font-castoro ">
                 Final Thought
               </h2>
@@ -368,7 +371,7 @@ export default function ForeverDiamondsGiftPage() {
               </p>
             </section>
           </div>
-          <div className="hidden lg:block">
+          <div className="hidden lg:block sticky top-28 self-start">
             <TableOfContents sections={tocSections} />
             <div className="mt-10">
               <p className="text-lg xl:text-xl font-semibold mb-4 font-castoro">
@@ -383,7 +386,6 @@ export default function ForeverDiamondsGiftPage() {
                     )}`}
                     className="flex gap-4 hover:opacity-80 transition"
                   >
-                    {/* Fixed-size thumbnail */}
                     <div className="w-32 h-24 flex-shrink-0 rounded-md overflow-hidden">
                       <CustomImg
                         src={blog.image}
@@ -392,7 +394,6 @@ export default function ForeverDiamondsGiftPage() {
                         className="w-full h-full object-cover"
                       />
                     </div>
-
                     <div>
                       <p className="text-sm font-medium line-clamp-2 uppercase">
                         {blog.subtitle}
