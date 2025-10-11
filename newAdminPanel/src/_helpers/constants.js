@@ -69,9 +69,9 @@ export const INIT_GOLD_TYPE_SUB_TYPES_LIST = [
 ];
 
 export const INIT_DIAMOND_QUALITY_SUB_TYPES_LIST = [
-  { title: 'Good - F,VS2', type: 'default' },
   { title: 'Best - D, VVS', type: 'default' },
   { title: 'Better - E, VS1', type: 'default' },
+  { title: 'Good - F,VS2', type: 'default' },
 ];
 
 export const INIT_DIAMOND_SHAPE_SUB_TYPES_LIST = [{ title: '', type: 'default' }];
