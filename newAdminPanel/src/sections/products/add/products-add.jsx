@@ -378,6 +378,14 @@ export default function AddProductPage() {
         newVariations.push(createVariation(ringSize.id, ringSizeSubTypes, sortedRingSizes));
       }
 
+      if (diamondShape) {
+        const diamondShapeSubTypes = findSubTypesByTypeName(DIAMOND_SHAPE.title);
+
+        newVariations.push(
+          createVariation(diamondShape.id, diamondShapeSubTypes, INIT_DIAMOND_SHAPE_SUB_TYPES_LIST)
+        );
+      }
+
       if (diamondQuality) {
         const diamondQualitySubTypes = findSubTypesByTypeName(DIAMOND_QUALITY.title);
         const matchedDiamondQualitySubTypes = mapSubTypesFromList(
@@ -385,14 +393,6 @@ export default function AddProductPage() {
         );
         newVariations.push(
           createVariation(diamondQuality.id, diamondQualitySubTypes, matchedDiamondQualitySubTypes)
-        );
-      }
-
-      if (diamondShape) {
-        const diamondShapeSubTypes = findSubTypesByTypeName(DIAMOND_SHAPE.title);
-
-        newVariations.push(
-          createVariation(diamondShape.id, diamondShapeSubTypes, INIT_DIAMOND_SHAPE_SUB_TYPES_LIST)
         );
       }
 
