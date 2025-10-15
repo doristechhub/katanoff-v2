@@ -2,31 +2,31 @@ import { generateMetadata } from "@/_utils/metaConfig";
 import { META_CONSTANTS, WebsiteUrl } from "@/_helper";
 import Script from "next/script";
 export const metadata = generateMetadata({
-    pageName: [META_CONSTANTS.DIAMOND_TENNIS_BRACELET_GIFT],
+  pageName: [META_CONSTANTS.DIAMOND_TENNIS_BRACELET_GIFT],
 });
 
 const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BlogPage",
-    mainEntity: {
-        "@type": "Organization",
-        name: "Katanoff Diamonds",
-        url: `${WebsiteUrl}/blogs/diamond-tennis-bracelet-gift`,
-    },
+  "@context": "https://schema.org",
+  "@type": "DiamondTennisBraceletGiftPage",
+  mainEntity: {
+    "@type": "Organization",
+    name: "Katanoff Diamonds",
+    url: `${WebsiteUrl}/blogs/diamond-tennis-bracelet-gift`,
+  },
 };
 
 export default function DiamondTennisBraceletGiftLayout({ children }) {
-    return (
-        <div>
-            <h1 className="hidden">Diamond Tennis Bracelet Gift</h1>
+  return (
+    <div>
+      <h1 className="hidden">Diamond Tennis Bracelet Gift</h1>
 
-            {children}
-            <Script
-                id="jewelry-schema"
-                type="application/ld+json"
-                strategy="afterInteractive"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-            />
-        </div>
-    );
+      {children}
+      <Script
+        id="jewelry-schema"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+    </div>
+  );
 }
