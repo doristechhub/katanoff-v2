@@ -11,6 +11,8 @@ import { FaChevronRight } from "react-icons/fa6";
 export default function BlogPage() {
   return (
     <>
+      <h1 className="hidden">Blogs</h1>
+
       <HeroBanner
         staticSrcMobile={blogHeroMobile}
         staticSrcDesktop={blogHeroDesktop}
