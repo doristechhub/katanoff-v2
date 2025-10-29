@@ -1,8 +1,8 @@
 "use client";
 import "swiper/css";
 import "swiper/css/navigation";
-import newArrivalBannerMobile from "@/assets/images/home/newArrivalBannerMobile.png";
-import newArrivalBannerDesktop from "@/assets/images/home/newArrivalBanner-desktop.png";
+import newArrivalBannerMobile from "@/assets/images/home/newArrivalBannerMobile.webp";
+import newArrivalBannerDesktop from "@/assets/images/home/newArrivalBanner-desktop.webp";
 import threeGrid1 from "@/assets/images/home/three-grid-gifts-for-her.webp";
 import threeGrid2 from "@/assets/images/home/three-grid-gifts-for-him.webp";
 import threeGrid3 from "@/assets/images/home/three-grid-gift-under-1000.webp";
