@@ -22,8 +22,10 @@ export default function CustomImg({
       title={titleAttr || commonTitleAttr}
       width={width}
       height={height}
+      loading="lazy"
+      fetchPriority="high"
       className={className}
       {...rest}
-    ></Image>
+    />
   );
 }
