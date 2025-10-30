@@ -149,7 +149,6 @@ const BannerImage = ({
         srcAttr={imageSrc}
         altAttr={altAttr}
         titleAttr={titleAttr}
-        priority
         className={`w-full ${
           isStaticBanner
             ? "object-cover h-[40vh] lg:h-auto"

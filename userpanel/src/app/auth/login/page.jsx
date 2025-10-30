@@ -11,7 +11,7 @@ const Login = () => {
 
       {/* Left Side */}
       <div className="lg:block hidden w-full lg:w-3/5 h-screen">
-        <CustomImg srcAttr={login} className="w-full h-full" priority />
+        <CustomImg srcAttr={login} className="w-full h-full" />
       </div>
 
       {/* Right Side */}

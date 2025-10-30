@@ -55,7 +55,6 @@ const AnimatedSection = ({
       >
         <CustomImg
           fill
-          priority
           src={img}
           alt={altAttr}
           title={titleAttr}
