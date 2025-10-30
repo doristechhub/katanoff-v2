@@ -10,7 +10,7 @@ const SignUp = () => {
       {/* Left Side */}
       <h1 className="hidden">Signup</h1>
       <div className="lg:block hidden w-full lg:w-3/5 h-screen">
-        <CustomImg srcAttr={signUpImg} className="w-full h-full" priority />
+        <CustomImg srcAttr={signUpImg} className="w-full h-full" />
       </div>
 
       {/* Right Side */}

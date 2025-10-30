@@ -808,37 +808,59 @@ export const formatDiscountForItem = ({
   return formatCurrencyWithDollar(perProductDiscount);
 };
 
-const getFraction = (num) => {
-  const whole = Math.floor(num);
-  const decimal = +(num - whole).toFixed(3);
+// const gcd = (a, b) => {
+//   while (b !== 0) {
+//     const t = b;
+//     b = a % b;
+//     a = t;
+//   }
+//   return a;
+// };
 
-  const fractionMap = {
-    0.125: "1/8",
-    0.2: "1/5",
-    0.25: "1/4",
-    0.333: "1/3",
-    0.375: "3/8",
-    0.5: "1/2",
-    0.625: "5/8",
-    0.666: "2/3",
-    0.75: "3/4",
-    0.875: "7/8",
-  };
+// const getFraction = (num) => {
+//   const whole = Math.floor(num);
+//   const decimal = +(num - whole).toFixed(3);
 
-  const closest = Object.keys(fractionMap).find(
-    (key) => Math.abs(decimal - parseFloat(key)) < 0.05
-  );
+//   let bestNum = 0;
+//   let bestDen = 1;
+//   let bestDiff = 1.0;
 
-  const fraction = closest ? fractionMap[closest] : "";
+//   for (let den = 1; den <= 16; den++) {
+//     const numCandidate = Math.round(decimal * den);
+//     const frac = numCandidate / den;
+//     const diff = Math.abs(decimal - frac);
+//     if (diff < bestDiff) {
+//       bestDiff = diff;
+//       bestNum = numCandidate;
+//       bestDen = den;
+//     }
+//   }
 
-  return whole === 0 && fraction
-    ? fraction
-    : `${whole > 0 ? whole : ""} ${fraction}`;
+//   let fraction = "";
+//   if (bestNum !== 0 && bestDiff < 0.05) {
+//     let g = gcd(bestNum, bestDen);
+//     bestNum /= g;
+//     bestDen /= g;
+//     fraction = `${bestNum}/${bestDen}`;
+//   }
+
+//   const wholeStr = whole > 0 ? whole.toString() : "";
+//   return `${wholeStr} ${fraction}`.trim();
+// };
+
+const formatCarats = (num) => {
+  const fixed = num.toFixed(2);
+  if (fixed.endsWith(".00")) {
+    return fixed.slice(0, -3);
+  }
+  return fixed;
 };
 
 export const formatProductNameWithCarat = ({ caratWeight, productName }) => {
+  // const formattedCarat =
+  //   caratWeight > 0 ? `${getFraction(caratWeight)} ctw ` : "";
   const formattedCarat =
-    caratWeight > 0 ? `${getFraction(caratWeight)} ctw ` : "";
+    caratWeight > 0 ? `${formatCarats(caratWeight)} ctw ` : "";
   return `${formattedCarat}${
     productName ? productName : "Unknown Product"
   }`.trim();

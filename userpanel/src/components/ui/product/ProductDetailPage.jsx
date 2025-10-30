@@ -429,10 +429,10 @@ const ProductDetailPage = ({ customizePage }) => {
   const calculatedPrice = isCustomizePage
     ? helperFunctions?.roundOffPrice(customProductPrice)
     : selectedPrice
-      ? helperFunctions?.roundOffPrice(
+    ? helperFunctions?.roundOffPrice(
         selectedPrice * productQuantity * (1 - productDetail?.discount / 100)
       )
-      : 0;
+    : 0;
 
   const displayProductName = helperFunctions?.formatProductNameWithCarat({
     caratWeight: isCustomizePage
@@ -734,8 +734,9 @@ const AddToBagBar = ({
     []
   );
 
-  const baseClasses = `w-full bg-white shadow-md transition-opacity duration-300 z-40 ${position === "bottom" ? "fixed bottom-0 left-0" : "relative mt-4 lg:mt-12"
-    }`;
+  const baseClasses = `w-full bg-white shadow-md transition-opacity duration-300 z-40 ${
+    position === "bottom" ? "fixed bottom-0 left-0" : "relative mt-4 lg:mt-12"
+  }`;
   const estimatedDate = useMemo(() => {
     const date = new Date();
     date.setDate(date.getDate() + 15);
@@ -771,11 +772,11 @@ const AddToBagBar = ({
 
             <p className="text-base pt-1">
               {(isActive && availableQty && availableQty > 0) ||
-                customizePage === "completeRing"
+              customizePage === "completeRing"
                 ? "Made-to-Order"
                 : isActive || !selectedPrice > 0
-                  ? "Out of Stock"
-                  : "Inactive"}{" "}
+                ? "Out of Stock"
+                : "Inactive"}{" "}
               | {estimatedDate}
             </p>
           </div>
@@ -857,8 +858,8 @@ const AddToBagBar = ({
               <ErrorMessage message={"Please select variants"} />
             ) : null}
             {isSubmitted &&
-              cartMessage?.message &&
-              !(cartMessage?.message === "Product already exists in cart") ? (
+            cartMessage?.message &&
+            !(cartMessage?.message === "Product already exists in cart") ? (
               <ErrorMessage message={cartMessage?.message} />
             ) : null}
           </div>
@@ -941,10 +942,11 @@ const ProductDetailTabs = ({ selectedVariations = [], isCustomizePage }) => {
       label: "Product Detail",
       content: (
         <div
-          className={`grid xs:grid-cols-2 ${productDetail?.specifications?.length > 0
-            ? "lg:grid-cols-3 lg:gap-12"
-            : "lg:grid-cols-2 lg:gap-60"
-            } gap-10 mt-4`}
+          className={`grid xs:grid-cols-2 ${
+            productDetail?.specifications?.length > 0
+              ? "lg:grid-cols-3 lg:gap-12"
+              : "lg:grid-cols-2 lg:gap-60"
+          } gap-10 mt-4`}
         >
           <div className="text-sm lg:text-[15px] font-medium">
             <p className="text-base lg:text-lg inline-block font-semibold text-baseblack pb-2 3xl:pb-4">
@@ -1057,8 +1059,8 @@ const ProductDetailTabs = ({ selectedVariations = [], isCustomizePage }) => {
                 SETTING_STYLE,
                 productDetail?.settingStyleNamesWithImg?.length > 0
                   ? productDetail?.settingStyleNamesWithImg
-                    .map((s) => s.title)
-                    .join(", ")
+                      .map((s) => s.title)
+                      .join(", ")
                   : ""
               )}
           </div>

@@ -36,7 +36,8 @@ const ProgressiveImg = ({
       width={width}
       height={height}
       className={`object-contain image-rendering-optimize ${customClass} ${className}`}
-      priority
+      loading="lazy"
+      fetchPriority="high"
       {...props}
     />
   );

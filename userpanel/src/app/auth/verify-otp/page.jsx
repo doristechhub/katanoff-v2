@@ -11,7 +11,7 @@ const VeriftOTP = () => {
 
       {/* Left Side */}
       <div className="lg:block hidden w-full lg:w-3/5 h-screen">
-        <CustomImg srcAttr={verifyOtp} className="w-full h-full" priority />
+        <CustomImg srcAttr={verifyOtp} className="w-full h-full" />
       </div>
 
       {/* Right Side */}
