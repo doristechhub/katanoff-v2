@@ -1050,7 +1050,9 @@ const ProductDetailTabs = ({ selectedVariations = [], isCustomizePage }) => {
               renderInfoRow(
                 "Total Carat Weight",
                 productDetail?.totalCaratWeight
-                  ? `${productDetail?.totalCaratWeight} ctw`
+                  ? `${helperFunctions?.formatCarats(
+                      productDetail?.totalCaratWeight
+                    )} ctw`
                   : ""
               )}
 

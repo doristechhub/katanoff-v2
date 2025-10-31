@@ -68,7 +68,8 @@ const getAllRecentlyViewedWithProduct = () => {
             )?.variationTypes,
             gender: foundProduct?.gender,
             productTypeNames: foundProduct?.productTypeNames,
-            variations: foundProduct?.variations
+            variations: foundProduct?.variations,
+            totalCaratWeight: foundProduct?.totalCaratWeight,
           };
         })
         .filter((item) => item !== null);
