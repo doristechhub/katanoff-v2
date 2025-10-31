@@ -67,22 +67,41 @@ const formatPhoneNumber = (phone) => {
 //   return fixed;
 // };
 
+// const formatCarats = (num) => {
+//   if (num <= 0) return "0";
+
+//   const integerPart = Math.floor(num);
+//   const fractional = num - integerPart;
+
+//   let rounded;
+//   if (fractional < 0.05) {
+//     rounded = integerPart;
+//   } else {
+//     rounded = Math.round(num / 0.05) * 0.05;
+//   }
+
+//   let fixed = rounded.toFixed(2);
+//   fixed = fixed.replace(/0+$/, "");
+//   fixed = fixed.replace(/\.$/, "");
+
+//   return fixed;
+// };
+
 const formatCarats = (num) => {
   if (num <= 0) return "0";
 
-  const integerPart = Math.floor(num);
-  const fractional = num - integerPart;
-
   let rounded;
-  if (fractional < 0.05) {
-    rounded = integerPart;
+  if (num < 1) {
+    // Special rule for under 1: up-round to 0.5 or 1
+    rounded = num <= 0.5 ? 0.5 : 1;
   } else {
-    rounded = Math.round(num / 0.05) * 0.05;
+    // For 1+: round to nearest 0.5
+    rounded = Math.round(num / 0.5) * 0.5;
   }
 
-  let fixed = rounded.toFixed(2);
-  fixed = fixed.replace(/0+$/, "");
-  fixed = fixed.replace(/\.$/, "");
+  // Format to 1 decimal, remove .0 for integers
+  let fixed = rounded.toFixed(1);
+  fixed = fixed.replace(/\.0$/, "");
 
   return fixed;
 };
