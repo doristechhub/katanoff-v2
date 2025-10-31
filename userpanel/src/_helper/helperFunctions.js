@@ -848,11 +848,31 @@ export const formatDiscountForItem = ({
 //   return `${wholeStr} ${fraction}`.trim();
 // };
 
+// const formatCarats = (num) => {
+//   const fixed = num.toFixed(2);
+//   if (fixed.endsWith(".00")) {
+//     return fixed.slice(0, -3);
+//   }
+//   return fixed;
+// };
+
 const formatCarats = (num) => {
-  const fixed = num.toFixed(2);
-  if (fixed.endsWith(".00")) {
-    return fixed.slice(0, -3);
+  if (num <= 0) return "0";
+
+  const integerPart = Math.floor(num);
+  const fractional = num - integerPart;
+
+  let rounded;
+  if (fractional < 0.05) {
+    rounded = integerPart;
+  } else {
+    rounded = Math.round(num / 0.05) * 0.05;
   }
+
+  let fixed = rounded.toFixed(2);
+  fixed = fixed.replace(/0+$/, "");
+  fixed = fixed.replace(/\.$/, "");
+
   return fixed;
 };
 
@@ -1207,6 +1227,7 @@ export const helperFunctions = {
   formatCurrency,
   formatCurrencyWithDollar,
   formatDiscountForItem,
+  formatCarats,
   formatProductNameWithCarat,
   roundOffPrice,
   getDefaultVariationsForNonCustomizedProducts,

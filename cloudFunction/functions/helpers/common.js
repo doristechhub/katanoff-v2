@@ -19,38 +19,82 @@ const formatPhoneNumber = (phone) => {
   return { display, link };
 };
 
-const getFraction = (num) => {
-  const whole = Math.floor(num);
-  const decimal = +(num - whole).toFixed(3);
+// const gcd = (a, b) => {
+//   while (b !== 0) {
+//     const t = b;
+//     b = a % b;
+//     a = t;
+//   }
+//   return a;
+// };
 
-  const fractionMap = {
-    0.125: "1/8",
-    0.2: "1/5",
-    0.25: "1/4",
-    0.333: "1/3",
-    0.375: "3/8",
-    0.5: "1/2",
-    0.625: "5/8",
-    0.666: "2/3",
-    0.75: "3/4",
-    0.875: "7/8",
-  };
+// const getFraction = (num) => {
+//   const whole = Math.floor(num);
+//   const decimal = +(num - whole).toFixed(3);
 
-  const closest = Object.keys(fractionMap).find(
-    (key) => Math.abs(decimal - parseFloat(key)) < 0.05
-  );
+//   let bestNum = 0;
+//   let bestDen = 1;
+//   let bestDiff = 1.0;
 
-  const fraction = closest ? fractionMap[closest] : "";
+//   for (let den = 1; den <= 16; den++) {
+//     const numCandidate = Math.round(decimal * den);
+//     const frac = numCandidate / den;
+//     const diff = Math.abs(decimal - frac);
+//     if (diff < bestDiff) {
+//       bestDiff = diff;
+//       bestNum = numCandidate;
+//       bestDen = den;
+//     }
+//   }
 
-  return whole === 0 && fraction
-    ? fraction
-    : `${whole > 0 ? whole : ""} ${fraction}`;
+//   let fraction = "";
+//   if (bestNum !== 0 && bestDiff < 0.05) {
+//     let g = gcd(bestNum, bestDen);
+//     bestNum /= g;
+//     bestDen /= g;
+//     fraction = `${bestNum}/${bestDen}`;
+//   }
+
+//   const wholeStr = whole > 0 ? whole.toString() : "";
+//   return `${wholeStr} ${fraction}`.trim();
+// };
+
+// const formatCarats = (num) => {
+//   const fixed = num.toFixed(2);
+//   if (fixed.endsWith(".00")) {
+//     return fixed.slice(0, -3);
+//   }
+//   return fixed;
+// };
+
+const formatCarats = (num) => {
+  if (num <= 0) return "0";
+
+  const integerPart = Math.floor(num);
+  const fractional = num - integerPart;
+
+  let rounded;
+  if (fractional < 0.05) {
+    rounded = integerPart;
+  } else {
+    rounded = Math.round(num / 0.05) * 0.05;
+  }
+
+  let fixed = rounded.toFixed(2);
+  fixed = fixed.replace(/0+$/, "");
+  fixed = fixed.replace(/\.$/, "");
+
+  return fixed;
 };
 
 const formatProductNameWithCarat = ({ caratWeight, productName }) => {
+  // const formattedCarat =
+  //   caratWeight > 0 ? `${getFraction(caratWeight)} ctw ` : "";
   const formattedCarat =
-    caratWeight > 0 ? `${getFraction(caratWeight)} ctw ` : "";
-  return `${formattedCarat}${productName || ""}`.trim();
+    caratWeight > 0 ? `${formatCarats(caratWeight)} ctw ` : "";
+  return `${formattedCarat}${
+    productName ? productName : "Unknown Product"
+  }`.trim();
 };
 
 const formatCurrency = (amount) => {
@@ -197,20 +241,23 @@ const generateProductTable = (products, quantityKey = "cartQuantity") => {
         </thead>
         <tbody class="text-black text-xs leading-4">
           ${products
-      .map((x) => {
-        const variations = displayVariationsLabel(x.variations);
-        const nameLine = formatProductNameWithCarat({
-          caratWeight: x?.diamondDetail ? x?.diamondDetail?.caratWeight : x?.totalCaratWeight,
-          productName: x.productName,
-        });
-        const diamondDetail = displayDiamondDetailsLabel(x.diamondDetail);
-        return `
+            .map((x) => {
+              const variations = displayVariationsLabel(x.variations);
+              const nameLine = formatProductNameWithCarat({
+                caratWeight: x?.diamondDetail
+                  ? x?.diamondDetail?.caratWeight
+                  : x?.totalCaratWeight,
+                productName: x.productName,
+              });
+              const diamondDetail = displayDiamondDetailsLabel(x.diamondDetail);
+              return `
                 <tr class="border-b border-gray-300">
                   <td class="p-2 text-center">
-                    ${x.productImage
-            ? `<img src="${x.productImage}" class="w-16 h-full object-contain mx-auto" alt="" />`
-            : ""
-          }
+                    ${
+                      x.productImage
+                        ? `<img src="${x.productImage}" class="w-16 h-full object-contain mx-auto" alt="" />`
+                        : ""
+                    }
                   </td>
                   <td class="p-2 pl-4">
                     <span class="font-semibold text-sm">${nameLine}</span>
@@ -221,15 +268,15 @@ const generateProductTable = (products, quantityKey = "cartQuantity") => {
                   </td>
                   <td class="p-2 text-center">${x[quantityKey]}</td>
                   <td class="p-2 text-right">${formatCurrency(
-            x.productPrice
-          )}</td>
+                    x.productPrice
+                  )}</td>
                   <td class="p-2 text-right">${formatCurrency(
-            x.unitAmount
-          )}</td>
+                    x.unitAmount
+                  )}</td>
                 </tr>
               `;
-      })
-      .join("")}
+            })
+            .join("")}
         </tbody>
       </table>
     </div>
@@ -254,9 +301,13 @@ const processProducts = async (products) => {
 };
 
 const addNamesToVariationsArray = (variations, customizations) =>
-  variations.map(v => {
-    const variationName = customizations?.customizationType?.find(x => x?.id === v?.variationId)?.title;
-    const variationTypeName = customizations?.customizationSubType?.find(x => x?.id === v?.variationTypeId)?.title;
+  variations.map((v) => {
+    const variationName = customizations?.customizationType?.find(
+      (x) => x?.id === v?.variationId
+    )?.title;
+    const variationTypeName = customizations?.customizationSubType?.find(
+      (x) => x?.id === v?.variationTypeId
+    )?.title;
     return {
       ...v,
       ...(variationName && { variationName }),
@@ -267,7 +318,7 @@ const addNamesToVariationsArray = (variations, customizations) =>
 const hasDuplicateVariations = (variations) => {
   const uniqueVariationKeys = new Set();
 
-  return variations.some(variation => {
+  return variations.some((variation) => {
     const variationKey = `${variation.variationId}-${variation.variationTypeId}`;
     if (uniqueVariationKeys.has(variationKey)) {
       return true;
@@ -275,19 +326,28 @@ const hasDuplicateVariations = (variations) => {
     uniqueVariationKeys.add(variationKey);
     return false;
   });
-}
+};
 
-const isValidVariationsArray = ({ product, selectedVariations, diamondDetail, customizations }) => {
+const isValidVariationsArray = ({
+  product,
+  selectedVariations,
+  diamondDetail,
+  customizations,
+}) => {
   if (!product || !Array.isArray(selectedVariations)) return false;
 
-  const productVariationIds = (product?.variations || []).map(v => v.variationId);
-  const productVariationTypeIds = (product?.variations || [])
-    .flatMap(v => v.variationTypes?.map(t => t.variationTypeId) || []);
+  const productVariationIds = (product?.variations || []).map(
+    (v) => v.variationId
+  );
+  const productVariationTypeIds = (product?.variations || []).flatMap(
+    (v) => v.variationTypes?.map((t) => t.variationTypeId) || []
+  );
 
   // Check if all selected variations exist in product
-  const allVariationsExist = selectedVariations.every(v =>
-    productVariationIds.includes(v.variationId) &&
-    productVariationTypeIds.includes(v.variationTypeId)
+  const allVariationsExist = selectedVariations.every(
+    (v) =>
+      productVariationIds.includes(v.variationId) &&
+      productVariationTypeIds.includes(v.variationTypeId)
   );
 
   if (!allVariationsExist) {
@@ -299,30 +359,44 @@ const isValidVariationsArray = ({ product, selectedVariations, diamondDetail, cu
     return false;
   }
 
-  const enrichedSelected = addNamesToVariationsArray(selectedVariations, customizations);
+  const enrichedSelected = addNamesToVariationsArray(
+    selectedVariations,
+    customizations
+  );
 
   if (diamondDetail) {
-    const hasGoldColor = enrichedSelected.some(v => v.variationName === GOLD_COLOR);
-    const hasGoldType = enrichedSelected.some(v => v.variationName === GOLD_TYPES);
-    const hasRingOrLength = enrichedSelected.some(v =>
+    const hasGoldColor = enrichedSelected.some(
+      (v) => v.variationName === GOLD_COLOR
+    );
+    const hasGoldType = enrichedSelected.some(
+      (v) => v.variationName === GOLD_TYPES
+    );
+    const hasRingOrLength = enrichedSelected.some((v) =>
       [RING_SIZE, LENGTH].includes(v.variationName)
     );
     return hasGoldColor && hasGoldType && hasRingOrLength;
   }
 
   const requiredVariationIds = new Set(productVariationIds);
-  const selectedVariationIds = new Set(selectedVariations.map(v => v.variationId));
+  const selectedVariationIds = new Set(
+    selectedVariations.map((v) => v.variationId)
+  );
 
-  if (requiredVariationIds.size !== selectedVariationIds.size ||
-    ![...requiredVariationIds].every(id => selectedVariationIds.has(id))) {
+  if (
+    requiredVariationIds.size !== selectedVariationIds.size ||
+    ![...requiredVariationIds].every((id) => selectedVariationIds.has(id))
+  ) {
     return false;
   }
 
-  return selectedVariations.every(selVar => {
-    const variation = product.variations.find(v => v.variationId === selVar.variationId);
-    return variation?.variationTypes?.some(t => t.variationTypeId === selVar.variationTypeId);
+  return selectedVariations.every((selVar) => {
+    const variation = product.variations.find(
+      (v) => v.variationId === selVar.variationId
+    );
+    return variation?.variationTypes?.some(
+      (t) => t.variationTypeId === selVar.variationTypeId
+    );
   });
-
 };
 
 const MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT = 5;
@@ -394,5 +468,5 @@ module.exports = {
   generateProductTable,
   processProducts,
   addNamesToVariationsArray,
-  isValidVariationsArray
+  isValidVariationsArray,
 };

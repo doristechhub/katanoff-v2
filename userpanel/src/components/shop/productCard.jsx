@@ -23,6 +23,7 @@ export default function ProductCard({
   gender,
   productType,
   diamondShape,
+  productData = {},
 }) {
   // State for selected and hovered gold color
   const [selectedGoldColor, setSelectedGoldColor] = useState(null);
@@ -158,6 +159,19 @@ export default function ProductCard({
     []
   );
 
+  // const customProduct = useMemo(() => {
+  //   if (!isDiamondSettingPage) return null;
+  //   return helperFunctions?.getCustomProduct();
+  // }, [isDiamondSettingPage]);
+
+  const displayProductName = helperFunctions?.formatProductNameWithCarat({
+    caratWeight: isDiamondSettingPage
+      ? null
+      : // ? customProduct?.diamondDetails?.caratWeight
+        productData?.totalCaratWeight,
+    productName: productData?.productName,
+  });
+
   return (
     <div className="flex flex-col">
       <Link
@@ -197,7 +211,7 @@ export default function ProductCard({
           href={computedProductLink}
           className="text-base leading-5 mb-[15px] line-clamp-1"
         >
-          {title}
+          {displayProductName}
         </Link>
         <div className="flex items-center gap-2 font-gelasio text-base font-bold leading-4 pb-[10px]">
           <p>${price}</p>

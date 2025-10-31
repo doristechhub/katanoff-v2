@@ -136,6 +136,7 @@ export default function ProductSwiper({
                   gender={product?.gender}
                   productType={product?.productTypeNames[0]?.title}
                   diamondShape={getProductDiamondShape(product) || ""}
+                  productData={product}
                 />
               </SwiperSlide>
             ))}
