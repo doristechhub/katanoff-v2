@@ -31,6 +31,15 @@ const SimpleProductGrid = memo(({ products }) => {
             diamondShape: getProductDiamondShape() || "",
           });
 
+        const displayProductName = helperFunctions?.formatProductNameWithCarat({
+          caratWeight: !product?.productTypeNames?.some(
+            (type) => type.title?.toLowerCase() === "studs"
+          )
+            ? null
+            : product?.totalCaratWeight,
+          productName: product?.productName,
+        });
+
         return (
           <Link
             href={`/products/${helperFunctions.stringReplacedWithUnderScore(
@@ -52,9 +61,7 @@ const SimpleProductGrid = memo(({ products }) => {
                 className="w-full h-full object-cover"
               />
             </div>
-            <p className="text-sm font-medium truncate">
-              {product?.productName}
-            </p>
+            <p className="text-sm font-medium truncate">{displayProductName}</p>
             <p className="text-xs text-gray-500">
               ${product?.baseSellingPrice}
             </p>
