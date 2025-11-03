@@ -159,16 +159,14 @@ export default function ProductCard({
     []
   );
 
-  // const customProduct = useMemo(() => {
-  //   if (!isDiamondSettingPage) return null;
-  //   return helperFunctions?.getCustomProduct();
-  // }, [isDiamondSettingPage]);
-
   const displayProductName = helperFunctions?.formatProductNameWithCarat({
-    caratWeight: isDiamondSettingPage
-      ? null
-      : // ? customProduct?.diamondDetails?.caratWeight
-        productData?.totalCaratWeight,
+    caratWeight:
+      isDiamondSettingPage ||
+      !productData?.productTypeNames?.some(
+        (type) => type.title?.toLowerCase() === "studs"
+      )
+        ? null
+        : productData?.totalCaratWeight,
     productName: productData?.productName,
   });
 

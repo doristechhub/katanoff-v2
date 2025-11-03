@@ -808,53 +808,45 @@ export const formatDiscountForItem = ({
   return formatCurrencyWithDollar(perProductDiscount);
 };
 
-// const gcd = (a, b) => {
-//   while (b !== 0) {
-//     const t = b;
-//     b = a % b;
-//     a = t;
-//   }
-//   return a;
-// };
+const gcd = (a, b) => {
+  while (b !== 0) {
+    const t = b;
+    b = a % b;
+    a = t;
+  }
+  return a;
+};
 
-// const getFraction = (num) => {
-//   const whole = Math.floor(num);
-//   const decimal = +(num - whole).toFixed(3);
+const getFraction = (num) => {
+  const whole = Math.floor(num);
+  const decimal = +(num - whole).toFixed(3);
 
-//   let bestNum = 0;
-//   let bestDen = 1;
-//   let bestDiff = 1.0;
+  let bestNum = 0;
+  let bestDen = 1;
+  let bestDiff = 1.0;
 
-//   for (let den = 1; den <= 16; den++) {
-//     const numCandidate = Math.round(decimal * den);
-//     const frac = numCandidate / den;
-//     const diff = Math.abs(decimal - frac);
-//     if (diff < bestDiff) {
-//       bestDiff = diff;
-//       bestNum = numCandidate;
-//       bestDen = den;
-//     }
-//   }
+  for (let den = 1; den <= 16; den++) {
+    const numCandidate = Math.round(decimal * den);
+    const frac = numCandidate / den;
+    const diff = Math.abs(decimal - frac);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      bestNum = numCandidate;
+      bestDen = den;
+    }
+  }
 
-//   let fraction = "";
-//   if (bestNum !== 0 && bestDiff < 0.05) {
-//     let g = gcd(bestNum, bestDen);
-//     bestNum /= g;
-//     bestDen /= g;
-//     fraction = `${bestNum}/${bestDen}`;
-//   }
+  let fraction = "";
+  if (bestNum !== 0 && bestDiff < 0.05) {
+    let g = gcd(bestNum, bestDen);
+    bestNum /= g;
+    bestDen /= g;
+    fraction = `${bestNum}/${bestDen}`;
+  }
 
-//   const wholeStr = whole > 0 ? whole.toString() : "";
-//   return `${wholeStr} ${fraction}`.trim();
-// };
-
-// const formatCarats = (num) => {
-//   const fixed = num.toFixed(2);
-//   if (fixed.endsWith(".00")) {
-//     return fixed.slice(0, -3);
-//   }
-//   return fixed;
-// };
+  const wholeStr = whole > 0 ? whole.toString() : "";
+  return `${wholeStr} ${fraction}`.trim();
+};
 
 const formatCarats = (num) => {
   if (num <= 0) return "0";
@@ -877,10 +869,10 @@ const formatCarats = (num) => {
 };
 
 export const formatProductNameWithCarat = ({ caratWeight, productName }) => {
-  // const formattedCarat =
-  //   caratWeight > 0 ? `${getFraction(caratWeight)} ctw ` : "";
   const formattedCarat =
-    caratWeight > 0 ? `${formatCarats(caratWeight)} ctw ` : "";
+    caratWeight > 0 ? `${getFraction(caratWeight)} ctw ` : "";
+  // const formattedCarat =
+  //   caratWeight > 0 ? `${formatCarats(caratWeight)} ctw ` : "";
   return `${formattedCarat}${
     productName ? productName : "Unknown Product"
   }`.trim();
