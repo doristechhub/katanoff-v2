@@ -26,7 +26,7 @@ const RingSettingCenterStone = () => {
 
           {/* Center GIF with overlap */}
 
-          <div className="hidden h-[80vh] 2xl:h-[90vh] w-full xl:flex justify-center p-0 m-0 aspect-video -mt-[10%]">
+          <div className="hidden h-[80vh] 4xl:h-[90vh] w-full xl:flex justify-center p-0 m-0 aspect-video">
             <video
               className="w-full h-full object-contain border-0 outline-0"
               autoPlay

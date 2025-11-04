@@ -113,7 +113,7 @@ export default function CollectionPage() {
     }
   }, [collectionType, collectionTitle, loadData]);
 
-    useEffect(() => {
+  useEffect(() => {
     dispatch(fetchAllCollections());
   }, [dispatch]);
 
@@ -161,7 +161,7 @@ export default function CollectionPage() {
 
       <h1
         ref={headingRef}
-        className="sm:text-[20px] sm:leading-[24px]  md:text-[16px] md:leading-[20px] lg:text-[30px] lg:leading-[35px] 2xl:text-[35px] 2xl:leading-[40px] text-[26px] leading-[33px] font-normal font-gelasio text-center pt-10 2xl:pt-12 capitalize text-[#2B2B2B]"
+        className="sm:text-[20px] sm:leading-[24px]  md:text-[16px] md:leading-[20px] lg:text-[30px] lg:leading-[35px] 2xl:text-[35px] 2xl:leading-[40px] text-[26px] leading-[33px] font-normal font-gelasio text-center pt-10 2xl:pt-12 text-baseblack"
       >
         {collectionTitle}
       </h1>
