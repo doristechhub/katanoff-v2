@@ -27,6 +27,7 @@ import { setLoginMessage } from "@/store/slices/userSlice";
 import { useAlertTimeout } from "@/hooks/use-alert-timeout";
 import CategoryGallery from "./categoryGallery";
 import {
+  DEALS_OF_THE_WEEK,
   GENERAL,
   GIFTS_FOR_HER,
   GIFTS_FOR_HIM,
@@ -51,6 +52,10 @@ import HomePageSliderSkeleton from "../HomePageSliderSkeleton";
 import TwoGridSkeleton from "../TwoGridSkeleton";
 import CollectionHighlights from "./CollectionHighlights";
 import { PAGE_IMG_ALT_TITLE } from "@/_helper/pageImgAltTitle";
+import dealsOfWeekDesktop from "@/assets/images/home/deals-of-the-week-desktop.webp";
+import dealsOfWeekMobile from "@/assets/images/home/deals-of-the-week-mobile.webp";
+import CustomImg from "../custom-img";
+import { LinkButton } from "../button";
 // import ThreeGridSkeleton from "../ThreeGridSkeleton";
 
 const faqData = [
@@ -218,12 +223,78 @@ const Home = () => {
     collectionsData.find((item) => item.type === SLIDER_GRID)?.data || [];
 
   let currentUser = helperFunctions?.getCurrentUser();
+
+  const dealsOfWeekData = {
+    title: DEALS_OF_THE_WEEK,
+    description:
+      "Top-quality designs at unbelievable prices. Shop the weekly highlights.",
+    link: `/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+      DEALS_OF_THE_WEEK
+    )}`,
+  };
+
   return (
     <>
       {/* {currentUser ? <HomePagePopupWithLogin /> : <HomePagePopup />} */}
       {!currentUser && <HomePagePopup />}
       <HeroBanner isHomePage={true} titleAttr="" altAttr="Hero Banner" />
-      <section className="bg-white py-10 xl:pb-16">
+
+      <section className="flex justify-center py-8 md:py-10 lg:py-12 xl:py-12 4xl:py-16">
+        {/* For Desktop and tablet view */}
+        <div className="relative hidden md:block lg:container">
+          <CustomImg
+            srcAttr={dealsOfWeekDesktop}
+            altAttr=""
+            titleAttr=""
+            className="w-auto h-auto"
+          />
+          <div className="absolute top-1/2 -translate-y-1/2 left-6 md:left-10 lg:left-16 xl:left-20 text-white max-w-sm lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl flex flex-col gap-3 md:gap-4 2xl:gap-6">
+            <h3 className="font-castoro text-2xl md:text-3xl lg:text-4xl xl:text-5xl">
+              {dealsOfWeekData?.title}
+            </h3>
+
+            <p className="text-base md:text-lg xl:text-xl 4xl:text-2xl font-light">
+              {dealsOfWeekData?.description}
+            </p>
+
+            <LinkButton
+              href={dealsOfWeekData?.link}
+              className="!w-fit !uppercase !rounded-none !text-primary hover:!text-white"
+            >
+              Shop Now
+            </LinkButton>
+          </div>
+        </div>
+
+        {/* For Mobile View */}
+        <div className="relative md:hidden">
+          <CustomImg
+            srcAttr={dealsOfWeekMobile}
+            altAttr=""
+            titleAttr=""
+            className="w-auto h-auto"
+          />
+          <div className="absolute top-[10%] items-center px-4 md:left-10 lg:left-16 xl:left-24 text-white max-w-lg xl:max-w-xl 2xl:max-w-2xl flex flex-col">
+            <h3 className="font-castoro text-3xl md:text-3xl lg:text-4xl xl:text-5xl">
+              {dealsOfWeekData?.title}
+            </h3>
+
+            <p className="text-center text-base md:text-lg xl:text-xl 4xl:text-2xl font-light pt-3">
+              {dealsOfWeekData?.description}
+            </p>
+            <div className="pt-3">
+              <LinkButton
+                href={dealsOfWeekData?.link}
+                className="!w-fit !uppercase !rounded-none !text-primary hover:!text-white"
+              >
+                Shop Now
+              </LinkButton>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white pb-10 xl:pb-16">
         <RingSettingCenterStone />
       </section>
 
@@ -235,7 +306,7 @@ const Home = () => {
         title="New Arrivals"
         subtitle="New Designer Collection"
         linkText="Explore Collection"
-        linkHref={`/collections/${GENERAL}/${helperFunctions?.stringReplacedWithUnderScore(
+        linkHref={`/ collections / ${GENERAL}/${helperFunctions?.stringReplacedWithUnderScore(
           NEW_ARRIVAL
         )}`}
       />

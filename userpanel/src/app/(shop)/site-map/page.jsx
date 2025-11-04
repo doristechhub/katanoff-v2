@@ -130,6 +130,10 @@ export default function SiteMapPage() {
           title: "Quick Ship Gifts",
           href: "/collections/collection/Quick_Ship_Gifts",
         },
+        {
+          title: "Deals of the Week",
+          href: "/collections/collection/Deals_of_the_Week"
+        }
       ],
     },
     {

@@ -55,6 +55,7 @@ export const DIAMOND_WEIGHT_KEY = "diamondWeight";
 export const DIAMOND_CLARITY_KEY = "diamondClarity";
 export const DIAMOND_COLOR_KEY = "diamondColor";
 export const COLLECTION_SLIDER = "collectionSlider";
+export const DEALS_OF_THE_WEEK = "Deals of the Week";
 
 export const allowedVariationListForThreeSteps = [
   GOLD_COLOR,
