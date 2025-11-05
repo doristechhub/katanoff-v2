@@ -37,7 +37,10 @@ import giftsUnder1000Desktop from "@/assets/images/collections/giftsUnder1000Des
 import giftsUnder1000Mobile from "@/assets/images/collections/giftsUnder1000Mobile.webp";
 import newArrivalDesktop from "@/assets/images/collections/newArrivalDesktop.webp";
 import newArrivalMobile from "@/assets/images/collections/newArrivalMobile.webp";
-import { fetchAllCollections, fetchCollectionByTitle } from "@/_actions/collection.action";
+import {
+  fetchAllCollections,
+  fetchCollectionByTitle,
+} from "@/_actions/collection.action";
 import { setActiveFilterType } from "@/store/slices/productSlice";
 import HomePageSliderSkeleton from "./HomePageSliderSkeleton";
 import CategoryGallery from "./home/categoryGallery";
@@ -139,13 +142,13 @@ export default function CollectionPage() {
   const bannerProps =
     collectionType === GENERAL && STATIC_PROPS[collectionTitle]
       ? {
-        staticSrcDesktop: STATIC_PROPS[collectionTitle]?.desktop,
-        staticSrcMobile: STATIC_PROPS[collectionTitle]?.mobile,
-      }
+          staticSrcDesktop: STATIC_PROPS[collectionTitle]?.desktop,
+          staticSrcMobile: STATIC_PROPS[collectionTitle]?.mobile,
+        }
       : {
-        imageSrcDesktop: banners?.desktop,
-        imageSrcMobile: banners?.mobile,
-      };
+          imageSrcDesktop: banners?.desktop,
+          imageSrcMobile: banners?.mobile,
+        };
 
   const bannerTitleAttr = `${collectionTitle} | Katanoff Lab Grown Diamond Jewelry`;
   const bannerAltAttr = `Discover the ${collectionTitle} collection at Katanoff, featuring stunning lab grown diamond rings, earrings, necklaces, bracelets, and fine jewelry, crafted ethically in New York.`;
@@ -198,19 +201,36 @@ export default function CollectionPage() {
       {collectionTitle === FLASH_DEALS && (
         <section className="pt-6 lg:pt-10 2xl:pt-12">
           <div className=" hidden md:block relative">
-            <CustomImg srcAttr={dealsOfWeekDesktop} altAttr="Deals of the week" className="w-full h-full" />
+            <CustomImg
+              srcAttr={dealsOfWeekDesktop}
+              altAttr="Deals of the week"
+              className="w-full h-full"
+            />
             <div className="absolute top-1/2 -translate-y-1/2 right-[5%]">
-              <Link href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(DEALS_OF_THE_WEEK)}`}
-                className="text-primary uppercase py-1 lg:py-2 2xl:py-3 px-3 lg:px-4 bg-white w-fit hover:text-white border border-transparent hover:border-white hover:bg-transparent rounded-none text-sm lg:text-lg 2xl:text-xl font-medium">
-                View Collection
+              <Link
+                href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
+                  DEALS_OF_THE_WEEK
+                )}`}
+                className="text-primary uppercase py-1 lg:py-2 2xl:py-3 px-3 lg:px-4 bg-white w-fit hover:text-white border border-transparent hover:border-white hover:bg-transparent rounded-none text-sm lg:text-lg 2xl:text-xl font-medium"
+              >
+                Shop Now
               </Link>
             </div>
-          </div >
+          </div>
           <div className="md:hidden relative">
-            <CustomImg srcAttr={dealsOfWeekMobile} altAttr="Deals of the week" className="w-full h-full md:hidden" />
+            <CustomImg
+              srcAttr={dealsOfWeekMobile}
+              altAttr="Deals of the week"
+              className="w-full h-full md:hidden"
+            />
             <div className="absolute bottom-[30%] left-[12%]">
-              <Link href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(DEALS_OF_THE_WEEK)}`} className="text-primary uppercase py-1 xss:py-2 px-2.5 xss:px-3.5 bg-white w-fit hover:text-white border border-transparent hover:border-white hover:bg-transparent rounded-none text-[10px] xss:text-xs font-medium">
-                View Collection
+              <Link
+                href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
+                  DEALS_OF_THE_WEEK
+                )}`}
+                className="text-primary uppercase py-1 xss:py-2 px-2.5 xss:px-3.5 bg-white w-fit hover:text-white border border-transparent hover:border-white hover:bg-transparent rounded-none text-[10px] xss:text-xs font-medium"
+              >
+                Shop Now
               </Link>
             </div>
           </div>
@@ -234,7 +254,11 @@ export default function CollectionPage() {
         <HomePageSliderSkeleton />
       ) : collectionsList?.length ? (
         <section className="container pt-12 lg:pt-16 2xl:pt-24">
-          <CategoryGallery categories={collectionsList} type={COLLECTION_SLIDER} title="Our Collections" />
+          <CategoryGallery
+            categories={collectionsList}
+            type={COLLECTION_SLIDER}
+            title="Our Collections"
+          />
         </section>
       ) : null}
     </>
