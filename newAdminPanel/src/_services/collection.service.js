@@ -274,16 +274,11 @@ const insertCollection = (params) => {
       await validateFiles(desktopBannerFile, 'IMAGE_FILE_NAME', 'desktop');
       await validateFiles(mobileBannerFile, 'IMAGE_FILE_NAME', 'mobile');
       if (!thumbnailFile?.length) {
-        return reject(new Error("Thumbnail image is required"));
+        return reject(new Error('Thumbnail image is required'));
       }
       const readableType = getReadableType(type);
 
-      await validateFiles(
-        thumbnailFile,
-        "IMAGE_FILE_NAME",
-        readableType
-      );
-
+      await validateFiles(thumbnailFile, 'IMAGE_FILE_NAME', readableType);
 
       const filesPayload = [...desktopBannerFile, ...mobileBannerFile, ...thumbnailFile];
       const { desktopBannerUrl, mobileBannerUrl, thumbnailUrl } = await uploadFiles(
@@ -400,10 +395,11 @@ const updateCollection = (params) => {
       }
 
       // ===== Thumbnail Validation Start =====
-      const readableType = getReadableType(type);
+      const targetType = type ?? collectionData.type;
+      const readableType = getReadableType(targetType);
 
       const resolution = IMAGE_RESOLUTIONS[readableType.toUpperCase()];
-      const typeChanged = type !== collectionData.type;
+      const typeChanged = type != null && type !== collectionData.type;
 
       const hasNewThumbnail = thumbnailFile?.length > 0;
       const hasExistingThumbnail = !!thumbnailImage;
