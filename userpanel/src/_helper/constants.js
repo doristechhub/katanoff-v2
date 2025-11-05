@@ -46,6 +46,7 @@ export const ENGAGEMENT_RINGS = "Engagement Rings";
 export const Start_WITH_SETTING = "Start With Setting";
 export const SIX = "6";
 export const SIX_WITH_DECIMAL = "6.00";
+export const STUDS="Studs"
 
 export const DIAMOND_WEIGHT = "Diamond Weight";
 export const DIAMOND_CLARITY = "Diamond Clarity";
@@ -88,7 +89,7 @@ export const PRODUCT_TYPES = "productTypes";
 export const SUB_CATEGORIES = "subCategories";
 export const SUB_CATEGORIES_KEY = "sub_categories";
 export const RING = "Ring";
-
+export const EARRINGS = "Earrings"
 export const MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT = 5;
 export const ENGAGEMENT = "Engagement";
 

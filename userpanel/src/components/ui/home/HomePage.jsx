@@ -238,7 +238,7 @@ const Home = () => {
       {!currentUser && <HomePagePopup />}
       <HeroBanner isHomePage={true} titleAttr="" altAttr="Hero Banner" />
 
-      <section className="flex justify-center md:pt-8 4xl:pt-10">
+      <section className="flex justify-center md:pt-6 4xl:pt-10">
         {/* For Desktop and tablet view */}
         <div className="relative hidden md:block">
           <CustomImg

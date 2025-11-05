@@ -6,7 +6,9 @@ import {
 import {
   COLLECTION,
   COLLECTION_SLIDER,
+  DEALS_OF_THE_WEEK,
   FILTER_TO_OPTIONS_MAP,
+  FLASH_DEALS,
   GENERAL,
   GIFTS_FOR_HER,
   GIFTS_FOR_HIM,
@@ -39,6 +41,10 @@ import { fetchAllCollections, fetchCollectionByTitle } from "@/_actions/collecti
 import { setActiveFilterType } from "@/store/slices/productSlice";
 import HomePageSliderSkeleton from "./HomePageSliderSkeleton";
 import CategoryGallery from "./home/categoryGallery";
+import dealsOfWeekDesktop from "@/assets/images/collections/deals-of-the-week-collection-page-desktop.webp";
+import dealsOfWeekMobile from "@/assets/images/collections/deals-of-the-week-collection-page-mobile.webp";
+import CustomImg from "./custom-img";
+import Link from "next/link";
 
 export default function CollectionPage() {
   const params = useParams();
@@ -187,6 +193,29 @@ export default function CollectionPage() {
           />
         )}
       </section>
+
+      {/* Deals of week section */}
+      {collectionTitle === FLASH_DEALS && (
+        <section className="pt-6 lg:pt-10 2xl:pt-12">
+          <div className=" hidden md:block relative">
+            <CustomImg srcAttr={dealsOfWeekDesktop} altAttr="Deals of the week" className="w-full h-full" />
+            <div className="absolute top-1/2 -translate-y-1/2 right-[5%]">
+              <Link href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(DEALS_OF_THE_WEEK)}`}
+                className="text-primary uppercase py-1 lg:py-2 2xl:py-3 px-3 lg:px-4 bg-white w-fit hover:text-white border border-transparent hover:border-white hover:bg-transparent rounded-none text-sm lg:text-lg 2xl:text-xl font-medium">
+                View Collection
+              </Link>
+            </div>
+          </div >
+          <div className="md:hidden relative">
+            <CustomImg srcAttr={dealsOfWeekMobile} altAttr="Deals of the week" className="w-full h-full md:hidden" />
+            <div className="absolute bottom-[30%] left-[12%]">
+              <Link href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(DEALS_OF_THE_WEEK)}`} className="text-primary uppercase py-1 xss:py-2 px-2.5 xss:px-3.5 bg-white w-fit hover:text-white border border-transparent hover:border-white hover:bg-transparent rounded-none text-[10px] xss:text-xs font-medium">
+                View Collection
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Product Grid Section */}
       <section className="container pt-6 lg:pt-10 2xl:pt-12">
