@@ -226,36 +226,39 @@ const Home = () => {
 
   const dealsOfWeekData = {
     title: DEALS_OF_THE_WEEK,
-    description:
-      "Top-quality designs at unbelievable prices. Shop the weekly highlights.",
+    description: "1 1/4 CTW Valen Crest",
+    price: "$699.00",
     link: `/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
       DEALS_OF_THE_WEEK
     )}`,
-  };
-
+  }
   return (
     <>
       {/* {currentUser ? <HomePagePopupWithLogin /> : <HomePagePopup />} */}
       {!currentUser && <HomePagePopup />}
       <HeroBanner isHomePage={true} titleAttr="" altAttr="Hero Banner" />
 
-      <section className="flex justify-center py-8 md:py-10 lg:py-12 xl:py-12 4xl:py-16">
+      <section className="flex justify-center md:pt-8 4xl:pt-10">
         {/* For Desktop and tablet view */}
-        <div className="relative hidden md:block lg:container">
+        <div className="relative hidden md:block">
           <CustomImg
             srcAttr={dealsOfWeekDesktop}
             altAttr=""
             titleAttr=""
             className="w-auto h-auto"
           />
-          <div className="absolute top-1/2 -translate-y-1/2 left-6 md:left-10 lg:left-16 xl:left-20 text-white max-w-sm lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl flex flex-col gap-3 md:gap-4 2xl:gap-6">
+          <div className="absolute top-1/2 -translate-y-1/2 left-6 md:left-10 lg:left-16 xl:left-20 text-white max-w-sm lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl flex flex-col gap-3 md:gap-4 2xl:gap-6 4xl:gap-8">
             <h3 className="font-castoro text-2xl md:text-3xl lg:text-4xl xl:text-5xl">
               {dealsOfWeekData?.title}
             </h3>
-
-            <p className="text-base md:text-lg xl:text-xl 4xl:text-2xl font-light">
-              {dealsOfWeekData?.description}
-            </p>
+            <div>
+              <p className="text-base md:text-lg xl:text-xl 4xl:text-xl font-light">
+                {dealsOfWeekData?.description}
+              </p>
+              <p className="text-base md:text-lg xl:text-2xl 4xl:text-3xl font-light font-gelasio pt-2">
+                {dealsOfWeekData?.price}
+              </p>
+            </div>
 
             <LinkButton
               href={dealsOfWeekData?.link}
@@ -274,15 +277,19 @@ const Home = () => {
             titleAttr=""
             className="w-auto h-auto"
           />
-          <div className="absolute top-[10%] items-center px-4 md:left-10 lg:left-16 xl:left-24 text-white max-w-lg xl:max-w-xl 2xl:max-w-2xl flex flex-col">
+          <div className="absolute w-full mx-auto top-[10%] items-center px-4 text-white flex flex-col">
             <h3 className="font-castoro text-3xl md:text-3xl lg:text-4xl xl:text-5xl">
               {dealsOfWeekData?.title}
             </h3>
-
-            <p className="text-center text-base md:text-lg xl:text-xl 4xl:text-2xl font-light pt-3">
-              {dealsOfWeekData?.description}
-            </p>
-            <div className="pt-3">
+            <div>
+              <p className="text-center text-base font-light pt-4">
+                {dealsOfWeekData?.description}
+              </p>
+              <p className="text-center text-2xl font-light font-gelasio">
+                {dealsOfWeekData?.price}
+              </p>
+            </div>
+            <div className="pt-4">
               <LinkButton
                 href={dealsOfWeekData?.link}
                 className="!w-fit !uppercase !rounded-none !text-primary hover:!text-white"
@@ -294,7 +301,8 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="bg-white pb-10 xl:pb-16">
+
+      <section className="bg-white pt-6 lg:pt-0 pb-10 xl:pb-16">
         <RingSettingCenterStone />
       </section>
 
