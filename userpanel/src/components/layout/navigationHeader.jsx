@@ -24,6 +24,7 @@ import {
   SearchBar,
 } from "@/components/dynamiComponents";
 import {
+  DEALS_OF_THE_WEEK,
   DIAMOND_SHAPE,
   ENGAGEMENT,
   ENGAGEMENT_RINGS,
@@ -141,25 +142,29 @@ export default function NavigationHeader() {
     weddingHeaderUniqueFilterOptions?.maleFilters?.settingStyles?.length;
   return (
     <header
-      className={`w-full  ${transparentHeaderBg && !isHeaderVisible ? "bg-offwhite" : "bg-white"
-        } ${
+      className={`w-full  ${
+        transparentHeaderBg && !isHeaderVisible ? "bg-offwhite" : "bg-white"
+      } ${
         // lastScrollY > 100 ? "bg-white shadow-lg" : "lg:pt-4"
         lastScrollY > 100 ? "bg-white shadow-lg" : "lg:pt-2"
-        } z-40 transition-all duration-500 ease-in-out ${isHeaderVisible
+      } z-40 transition-all duration-500 ease-in-out ${
+        isHeaderVisible
           ? "fixed top-0 left-0 clear-both"
           : "relative  lg:opacity-100 lg:transform lg:translate-y-0"
-        }`}
+      }`}
     >
       {/* Desktop Navigation */}
       <nav
-        className={`hidden lg:flex  ${lastScrollY > 100 ? "justify-between" : "justify-center"
-          } w-full container items-center gap-6`}
+        className={`hidden lg:flex  ${
+          lastScrollY > 100 ? "justify-between" : "justify-center"
+        } w-full container items-center gap-6`}
       >
         {lastScrollY > 100 ? (
           <Link href={"/"}>
             <CustomImg
-              className={` ${lastScrollY > 100 ? "block w-12 2xl:w-12" : "hidden"
-                }`}
+              className={` ${
+                lastScrollY > 100 ? "block w-12 2xl:w-12" : "hidden"
+              }`}
               srcAttr={miniLogo}
             />
           </Link>
@@ -167,10 +172,11 @@ export default function NavigationHeader() {
 
         {menuLoading ? (
           <div
-            className={`flex justify-center gap-12 ${transparentHeaderBg && !isHeaderVisible
-              ? "bg-offwhite"
-              : "bg-white"
-              } ${lastScrollY > 100 ? "py-2 lg:py-5" : "py-4"}`}
+            className={`flex justify-center gap-12 ${
+              transparentHeaderBg && !isHeaderVisible
+                ? "bg-offwhite"
+                : "bg-white"
+            } ${lastScrollY > 100 ? "py-2 lg:py-5" : "py-4"}`}
           >
             {Array.from({ length: 6 }).map((_, index) => (
               <SkeletonLoader
@@ -188,8 +194,9 @@ export default function NavigationHeader() {
                 href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
                   FLASH_DEALS
                 )}`}
-                className={`rounded-none flex items-center gap-1 hover:!text-primary hover:!font-semibold  ${lastScrollY > 100 ? "py-2 lg:py-5" : "py-4"
-                  }`}
+                className={`rounded-none flex items-center gap-1 hover:!text-primary hover:!font-semibold  ${
+                  lastScrollY > 100 ? "py-2 lg:py-5" : "py-4"
+                }`}
                 onClick={closeAllDropdown}
               >
                 {FLASH_DEALS}
@@ -204,18 +211,20 @@ export default function NavigationHeader() {
                 href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
                   ENGAGEMENT_RINGS
                 )}`}
-                className={`rounded-none flex items-center gap-1 hover:!text-primary hover:!font-semibold ${lastScrollY > 100 ? "py-2 lg:py-5" : "py-4"
-                  }`}
+                className={`rounded-none flex items-center gap-1 hover:!text-primary hover:!font-semibold ${
+                  lastScrollY > 100 ? "py-2 lg:py-5" : "py-4"
+                }`}
                 onClick={closeAllDropdown}
               >
                 {ENGAGEMENT}
               </HeaderLinkButton>
               {openDropdown === ENGAGEMENT ? (
                 <div
-                  className={`fixed left-0 right-0 ${isHeaderVisible
-                    ? "top-[54px] 2xl:top-[63px]"
-                    : "2xl:top-full"
-                    } bg-white shadow-lg z-50 border-t-[0.5px] border-primary`}
+                  className={`fixed left-0 right-0 ${
+                    isHeaderVisible
+                      ? "top-[54px] 2xl:top-[63px]"
+                      : "2xl:top-full"
+                  } bg-white shadow-lg z-50 border-t-[0.5px] border-primary`}
                 >
                   {engagementHeaderLoader ? (
                     <div className="container grid grid-cols-2 py-[30px] gap-[30px] text-baseblack">
@@ -394,31 +403,31 @@ export default function NavigationHeader() {
                                   >
                                     {variation.variationName === GOLD_COLOR
                                       ? variation.variationTypes.map(
-                                        (item, index) => (
-                                          <HeaderLinkButton
-                                            key={`variation-${index}2`}
-                                            href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-                                              ENGAGEMENT_RINGS
-                                            )}?Gold_Color=${helperFunctions.stringReplacedWithUnderScore(
-                                              item.variationTypeName
-                                            )}`}
-                                            className="flex !text-[12px]  2xl:!text-[13px] font-medium items-center gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              closeAllDropdown();
-                                            }}
-                                          >
-                                            <div
-                                              className="w-5 h-5 rounded-full"
-                                              style={{
-                                                background:
-                                                  item?.variationTypeHexCode,
+                                          (item, index) => (
+                                            <HeaderLinkButton
+                                              key={`variation-${index}2`}
+                                              href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                                                ENGAGEMENT_RINGS
+                                              )}?Gold_Color=${helperFunctions.stringReplacedWithUnderScore(
+                                                item.variationTypeName
+                                              )}`}
+                                              className="flex !text-[12px]  2xl:!text-[13px] font-medium items-center gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                closeAllDropdown();
                                               }}
-                                            ></div>{" "}
-                                            {item.variationTypeName}
-                                          </HeaderLinkButton>
+                                            >
+                                              <div
+                                                className="w-5 h-5 rounded-full"
+                                                style={{
+                                                  background:
+                                                    item?.variationTypeHexCode,
+                                                }}
+                                              ></div>{" "}
+                                              {item.variationTypeName}
+                                            </HeaderLinkButton>
+                                          )
                                         )
-                                      )
                                       : null}
                                   </div>
                                 )
@@ -428,8 +437,8 @@ export default function NavigationHeader() {
                         </div>
                         {engagementHeaderUniqueFilterOptions
                           ?.uniqueSettingStyles?.length ||
-                          engagementHeaderUniqueFilterOptions?.uniqueVariations
-                            ?.length ? (
+                        engagementHeaderUniqueFilterOptions?.uniqueVariations
+                          ?.length ? (
                           <HeaderLinkButton
                             href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
                               ENGAGEMENT_RINGS
@@ -477,18 +486,20 @@ export default function NavigationHeader() {
                 href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
                   WEDDING_RINGS
                 )}`}
-                className={`rounded-none flex items-center gap-1 hover:!text-primary hover:!font-semibold ${lastScrollY > 100 ? "py-2 lg:py-5" : "py-4"
-                  }`}
+                className={`rounded-none flex items-center gap-1 hover:!text-primary hover:!font-semibold ${
+                  lastScrollY > 100 ? "py-2 lg:py-5" : "py-4"
+                }`}
                 onClick={closeAllDropdown}
               >
                 {WEDDING}
               </HeaderLinkButton>
               {openDropdown === WEDDING ? (
                 <div
-                  className={`fixed left-0 right-0 ${isHeaderVisible
-                    ? "top-[54px] 2xl:top-[63px]"
-                    : "2xl:top-full"
-                    } bg-white shadow-lg z-50 border-t-[0.5px] border-primary`}
+                  className={`fixed left-0 right-0 ${
+                    isHeaderVisible
+                      ? "top-[54px] 2xl:top-[63px]"
+                      : "2xl:top-full"
+                  } bg-white shadow-lg z-50 border-t-[0.5px] border-primary`}
                 >
                   {weddingHeaderLoader ? (
                     <div className="container grid grid-cols-12 py-[30px] text-baseblack">
@@ -667,48 +678,48 @@ export default function NavigationHeader() {
                           {weddingHeaderUniqueFilterOptions?.femaleFilters
                             ?.variations?.length
                             ? weddingHeaderUniqueFilterOptions?.femaleFilters?.variations?.map(
-                              (variation, index) => {
-                                if (variation.variationName !== GOLD_COLOR)
-                                  return null; // Only render "Gold Color"
+                                (variation, index) => {
+                                  if (variation.variationName !== GOLD_COLOR)
+                                    return null; // Only render "Gold Color"
 
-                                return (
-                                  <div
-                                    className="flex flex-col col-span-3"
-                                    key={`variation-${index}`}
-                                  >
-                                    <h3 className="capitalize font-medium font-gelasio p-[10px]">
-                                      Shop by Metal
-                                    </h3>
-                                    {variation.variationTypes.map(
-                                      (item, index) => (
-                                        <HeaderLinkButton
-                                          key={`variation-${index}2`}
-                                          href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
-                                            WEDDING_RINGS
-                                          )}?Gold_Color=${helperFunctions?.stringReplacedWithUnderScore(
-                                            item?.variationTypeName
-                                          )}&gender=female`}
-                                          className="flex !text-[12px]  2xl:!text-[13px] font-medium items-center gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            closeAllDropdown();
-                                          }}
-                                        >
-                                          <div
-                                            className="w-5 h-5 rounded-full"
-                                            style={{
-                                              background:
-                                                item?.variationTypeHexCode,
+                                  return (
+                                    <div
+                                      className="flex flex-col col-span-3"
+                                      key={`variation-${index}`}
+                                    >
+                                      <h3 className="capitalize font-medium font-gelasio p-[10px]">
+                                        Shop by Metal
+                                      </h3>
+                                      {variation.variationTypes.map(
+                                        (item, index) => (
+                                          <HeaderLinkButton
+                                            key={`variation-${index}2`}
+                                            href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
+                                              WEDDING_RINGS
+                                            )}?Gold_Color=${helperFunctions?.stringReplacedWithUnderScore(
+                                              item?.variationTypeName
+                                            )}&gender=female`}
+                                            className="flex !text-[12px]  2xl:!text-[13px] font-medium items-center gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              closeAllDropdown();
                                             }}
-                                          ></div>{" "}
-                                          {item.variationTypeName}
-                                        </HeaderLinkButton>
-                                      )
-                                    )}
-                                  </div>
-                                );
-                              }
-                            )
+                                          >
+                                            <div
+                                              className="w-5 h-5 rounded-full"
+                                              style={{
+                                                background:
+                                                  item?.variationTypeHexCode,
+                                              }}
+                                            ></div>{" "}
+                                            {item.variationTypeName}
+                                          </HeaderLinkButton>
+                                        )
+                                      )}
+                                    </div>
+                                  );
+                                }
+                              )
                             : null}
                         </div>
                         <HeaderLinkButton
@@ -779,10 +790,11 @@ export default function NavigationHeader() {
                             </div>
                           ) : null}
                           <div
-                            className={`col-span-7 ${displayMaleSettingStyle
-                              ? "col-span-7"
-                              : "col-span-12"
-                              }`}
+                            className={`col-span-7 ${
+                              displayMaleSettingStyle
+                                ? "col-span-7"
+                                : "col-span-12"
+                            }`}
                           >
                             {/* <h3
                               className={`${headingClass} uppercase !border-0`}
@@ -847,8 +859,9 @@ export default function NavigationHeader() {
                 >
                   <HeaderLinkButton
                     href={item.href}
-                    className={`rounded-none flex items-center gap-1 hover:!text-primary hover:!font-semibold ${lastScrollY > 100 ? "!py-2 lg:!py-5" : "!py-4"
-                      }`}
+                    className={`rounded-none flex items-center gap-1 hover:!text-primary hover:!font-semibold ${
+                      lastScrollY > 100 ? "!py-2 lg:!py-5" : "!py-4"
+                    }`}
                     onClick={closeAllDropdown}
                   >
                     {item?.title}
@@ -857,10 +870,11 @@ export default function NavigationHeader() {
                   {/* Dropdown for Desktop */}
                   {hasSubCategories && openDropdown === item.title ? (
                     <div
-                      className={`fixed left-0 right-0 ${isHeaderVisible
-                        ? "top-[54px] 2xl:top-[63px]"
-                        : "2xl:top-full"
-                        } bg-white shadow-lg z-50 border-t-[0.5px] border-primary`}
+                      className={`fixed left-0 right-0 ${
+                        isHeaderVisible
+                          ? "top-[54px] 2xl:top-[63px]"
+                          : "2xl:top-full"
+                      } bg-white shadow-lg z-50 border-t-[0.5px] border-primary`}
                     >
                       <div className="px-[100px] flex justify-between p-6 w-full">
                         <div className="w-[70%] flex justify-start flex-wrap lg:gap-14 2xl:gap-18 h-fit">
@@ -883,20 +897,20 @@ export default function NavigationHeader() {
                                 <div className="flex flex-col">
                                   {subItem?.productTypes?.length
                                     ? subItem?.productTypes.map(
-                                      (productType, index) => (
-                                        <HeaderLinkButton
-                                          key={`${productType.title}-${index}`}
-                                          href={productType.href}
-                                          className="!text-[12px] 2xl:!text-[13px] !leading-[1em] font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            closeAllDropdown();
-                                          }}
-                                        >
-                                          {productType.title}
-                                        </HeaderLinkButton>
+                                        (productType, index) => (
+                                          <HeaderLinkButton
+                                            key={`${productType.title}-${index}`}
+                                            href={productType.href}
+                                            className="!text-[12px] 2xl:!text-[13px] !leading-[1em] font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              closeAllDropdown();
+                                            }}
+                                          >
+                                            {productType.title}
+                                          </HeaderLinkButton>
+                                        )
                                       )
-                                    )
                                     : null}
                                   <HeaderLinkButton
                                     href={subItem.href}
@@ -921,15 +935,16 @@ export default function NavigationHeader() {
                             titleAttr=""
                           />
                           <p className="font-medium text-sm mt-2 italic">
-                            Discover stunning lab-grown diamonds, ethical,
-                            brilliant, and crafted to perfection for every
-                            occasion.
+                            Discover dazzling diamond deals, expertly crafted
+                            and perfectly priced for every occasion.
                           </p>
                           <Link
-                            href={`/collections/collection/Special_Buys`}
+                            href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
+                              DEALS_OF_THE_WEEK
+                            )}`}
                             className="mt-5 font-semibold text-primary underline decoration-primary underline-offset-2  inline-block"
                           >
-                            SPECIAL BUYS
+                            Deals of the Week{" "}
                           </Link>
                         </div>
                       </div>
@@ -943,8 +958,9 @@ export default function NavigationHeader() {
               <li key={`static-link-${link.title}`} className={`relative `}>
                 <HeaderLinkButton
                   href={link.href}
-                  className={`rounded-none hover:!font-semibold flex items-center gap-1 hover:!text-primary ${lastScrollY > 100 ? "py-2 lg:py-5" : "py-4"
-                    }`}
+                  className={`rounded-none hover:!font-semibold flex items-center gap-1 hover:!text-primary ${
+                    lastScrollY > 100 ? "py-2 lg:py-5" : "py-4"
+                  }`}
                 >
                   {link.title}
                 </HeaderLinkButton>
@@ -987,8 +1003,9 @@ export default function NavigationHeader() {
                 {Array.from({ length: 8 }).map((_, index) => (
                   <div
                     key={index}
-                    className={`flex justify-between items-center py-3.5 ${index < 8 ? "border-b" : ""
-                      }`}
+                    className={`flex justify-between items-center py-3.5 ${
+                      index < 8 ? "border-b" : ""
+                    }`}
                   >
                     <SkeletonLoader width="w-1/2" height="h-6" />
                     <SkeletonLoader width="w-6" height="h-6" />
@@ -1013,8 +1030,9 @@ export default function NavigationHeader() {
                 </div>
                 <div>
                   <div
-                    className={`flex justify-between py-3.5 ${openDropdownMobile === ENGAGEMENT ? "pb-0" : ""
-                      } border-t`}
+                    className={`flex justify-between py-3.5 ${
+                      openDropdownMobile === ENGAGEMENT ? "pb-0" : ""
+                    } border-t`}
                     onClick={() =>
                       dispatch(
                         setOpenDropdownMobile(
@@ -1034,18 +1052,20 @@ export default function NavigationHeader() {
                     </HeaderLinkButton>
                     <div className="text-base px-[10px] pb-0.5">
                       <IoIosArrowDown
-                        className={`transition-all duration-300 ease-in-out transform ${openDropdownMobile === ENGAGEMENT
-                          ? "rotate-180 scale-110"
-                          : "rotate-0 scale-100"
-                          }`}
+                        className={`transition-all duration-300 ease-in-out transform ${
+                          openDropdownMobile === ENGAGEMENT
+                            ? "rotate-180 scale-110"
+                            : "rotate-0 scale-100"
+                        }`}
                       />
                     </div>
                   </div>
                   <div
-                    className={`grid grid-cols-1 overflow-hidden transition-all duration-300 ease-in-out mt-1 ${openDropdownMobile === ENGAGEMENT
-                      ? "max-h-fit opacity-100 translate-y-0"
-                      : "max-h-0 opacity-0 -translate-y-2"
-                      }`}
+                    className={`grid grid-cols-1 overflow-hidden transition-all duration-300 ease-in-out mt-1 ${
+                      openDropdownMobile === ENGAGEMENT
+                        ? "max-h-fit opacity-100 translate-y-0"
+                        : "max-h-0 opacity-0 -translate-y-2"
+                    }`}
                   >
                     {/* PRE-DESIGNED RINGS Section */}
                     <div className="ps-3">
@@ -1070,19 +1090,21 @@ export default function NavigationHeader() {
                         <div className="px-[20px]">
                           {" "}
                           <IoIosArrowDown
-                            className={`transition-all duration-300 ease-in-out transform ${activeNestedMobile === "predesigned"
-                              ? "rotate-180 scale-110"
-                              : "rotate-0 scale-100"
-                              }`}
+                            className={`transition-all duration-300 ease-in-out transform ${
+                              activeNestedMobile === "predesigned"
+                                ? "rotate-180 scale-110"
+                                : "rotate-0 scale-100"
+                            }`}
                           />
                         </div>
                       </button>
 
                       <div
-                        className={`overflow-hidden transition-all duration-300 ease-in-out ${activeNestedMobile === "predesigned"
-                          ? "max-h-fit opacity-100"
-                          : "max-h-0 opacity-0"
-                          }`}
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                          activeNestedMobile === "predesigned"
+                            ? "max-h-fit opacity-100"
+                            : "max-h-0 opacity-0"
+                        }`}
                       >
                         {engagementHeaderLoader ? (
                           <>
@@ -1107,8 +1129,8 @@ export default function NavigationHeader() {
                           <>
                             {engagementHeaderUniqueFilterOptions
                               ?.uniqueSettingStyles?.length ||
-                              engagementHeaderUniqueFilterOptions
-                                ?.uniqueVariations?.length ? (
+                            engagementHeaderUniqueFilterOptions
+                              ?.uniqueVariations?.length ? (
                               <Link
                                 href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
                                   ENGAGEMENT_RINGS
@@ -1220,34 +1242,34 @@ export default function NavigationHeader() {
                                       >
                                         {variation.variationName === GOLD_COLOR
                                           ? variation.variationTypes.map(
-                                            (item, index) => (
-                                              <HeaderLinkButton
-                                                key={`sm-variation-${index}-child`}
-                                                href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-                                                  ENGAGEMENT_RINGS
-                                                )}?Gold_Color=${helperFunctions.stringReplacedWithUnderScore(
-                                                  item.variationTypeName
-                                                )}`}
-                                                className="!text-[14px] flex items-center font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  closeAllDropdown();
-                                                  dispatch(
-                                                    setIsMenuOpen(false)
-                                                  );
-                                                }}
-                                              >
-                                                <div
-                                                  className="w-5 h-5 rounded-full"
-                                                  style={{
-                                                    background:
-                                                      item?.variationTypeHexCode,
+                                              (item, index) => (
+                                                <HeaderLinkButton
+                                                  key={`sm-variation-${index}-child`}
+                                                  href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                                                    ENGAGEMENT_RINGS
+                                                  )}?Gold_Color=${helperFunctions.stringReplacedWithUnderScore(
+                                                    item.variationTypeName
+                                                  )}`}
+                                                  className="!text-[14px] flex items-center font-medium gap-2 text-baseblack transition-all hover:text-primary hover:!font-semibold !p-[10px] hover:bg-[#F3F3F4] duration-300 capitalize"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    closeAllDropdown();
+                                                    dispatch(
+                                                      setIsMenuOpen(false)
+                                                    );
                                                   }}
-                                                ></div>{" "}
-                                                {item.variationTypeName}
-                                              </HeaderLinkButton>
+                                                >
+                                                  <div
+                                                    className="w-5 h-5 rounded-full"
+                                                    style={{
+                                                      background:
+                                                        item?.variationTypeHexCode,
+                                                    }}
+                                                  ></div>{" "}
+                                                  {item.variationTypeName}
+                                                </HeaderLinkButton>
+                                              )
                                             )
-                                          )
                                           : null}
                                       </div>
                                     )
@@ -1281,19 +1303,21 @@ export default function NavigationHeader() {
                         <div className="px-[20px]">
                           {" "}
                           <IoIosArrowDown
-                            className={`transition-all duration-300 ease-in-out transform ${activeNestedMobile === "design"
-                              ? "rotate-180 scale-110"
-                              : "rotate-0 scale-100"
-                              }`}
+                            className={`transition-all duration-300 ease-in-out transform ${
+                              activeNestedMobile === "design"
+                                ? "rotate-180 scale-110"
+                                : "rotate-0 scale-100"
+                            }`}
                           />
                         </div>
                       </button>
 
                       <div
-                        className={`overflow-hidden transition-all duration-300 ease-in-out ${activeNestedMobile === "design"
-                          ? "max-h-fit opacity-100 pt-2 pb-4"
-                          : "max-h-0 opacity-0"
-                          }`}
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                          activeNestedMobile === "design"
+                            ? "max-h-fit opacity-100 pt-2 pb-4"
+                            : "max-h-0 opacity-0"
+                        }`}
                       >
                         {/* Shop By Metal Nested Section */}
                         <CustomImg
@@ -1343,20 +1367,22 @@ export default function NavigationHeader() {
                     </HeaderLinkButton>
                     <div className="text-base px-[10px] pb-0.5">
                       <IoIosArrowDown
-                        className={`transition-all duration-300 ease-in-out transform ${openDropdownMobile === WEDDING
-                          ? "rotate-180 scale-110"
-                          : "rotate-0 scale-100"
-                          }`}
+                        className={`transition-all duration-300 ease-in-out transform ${
+                          openDropdownMobile === WEDDING
+                            ? "rotate-180 scale-110"
+                            : "rotate-0 scale-100"
+                        }`}
                       />
                     </div>
                   </div>
 
                   {/* Dropdown for Mobile */}
                   <div
-                    className={`grid grid-cols-1 overflow-hidden transition-all duration-300 ease-in-out ${openDropdownMobile === WEDDING
-                      ? "max-h-fit opacity-100 translate-y-0"
-                      : "max-h-0 opacity-0 -translate-y-2"
-                      }`}
+                    className={`grid grid-cols-1 overflow-hidden transition-all duration-300 ease-in-out ${
+                      openDropdownMobile === WEDDING
+                        ? "max-h-fit opacity-100 translate-y-0"
+                        : "max-h-0 opacity-0 -translate-y-2"
+                    }`}
                   >
                     <div className="flex flex-col mt-2 ps-3">
                       <HeaderLinkButton
@@ -1413,10 +1439,11 @@ export default function NavigationHeader() {
                         </HeaderLinkButton>
                         <div className="text-base px-[10px] pb-0.5">
                           <IoIosArrowDown
-                            className={`transition-all duration-300 ease-in-out transform ${isDropdownOpen
-                              ? "rotate-180 scale-110"
-                              : "rotate-0 scale-100"
-                              }`}
+                            className={`transition-all duration-300 ease-in-out transform ${
+                              isDropdownOpen
+                                ? "rotate-180 scale-110"
+                                : "rotate-0 scale-100"
+                            }`}
                           />
                         </div>
                       </div>
@@ -1424,10 +1451,11 @@ export default function NavigationHeader() {
                       {/* Dropdown for Mobile */}
                       {hasSubCategories && (
                         <div
-                          className={`grid grid-cols-1 overflow-hidden transition-all duration-300 ease-in-out ${isDropdownOpen
-                            ? "max-h-fit opacity-100 translate-y-0"
-                            : "max-h-0 opacity-0 -translate-y-2"
-                            }`}
+                          className={`grid grid-cols-1 overflow-hidden transition-all duration-300 ease-in-out ${
+                            isDropdownOpen
+                              ? "max-h-fit opacity-100 translate-y-0"
+                              : "max-h-0 opacity-0 -translate-y-2"
+                          }`}
                         >
                           <div className="p-[10px] pb-0">
                             {" "}
