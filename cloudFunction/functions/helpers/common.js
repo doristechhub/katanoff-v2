@@ -79,11 +79,26 @@ const formatCarats = (num) => {
   return fixed;
 };
 
-const formatProductNameWithCarat = ({ caratWeight, productName }) => {
-  const formattedCarat =
-    caratWeight > 0 ? `${getFraction(caratWeight)} ctw ` : "";
-  // const formattedCarat =
-  // caratWeight > 0 ? `${formatCarats(caratWeight)} ctw ` : "";
+const formatProductNameWithCarat = ({
+  caratWeight,
+  productName,
+  productNamePrefix,
+}) => {
+  let formattedCarat = "";
+  if (caratWeight > 0) {
+    switch (productNamePrefix) {
+      case "fraction":
+        formattedCarat = `${getFraction(caratWeight)} ctw `;
+        break;
+      case "numeric":
+        formattedCarat = `${formatCarats(caratWeight)} ctw `;
+        break;
+      case "none":
+      default:
+        // No carat prefix
+        break;
+    }
+  }
   return `${formattedCarat}${
     productName ? productName : "Unknown Product"
   }`.trim();
@@ -235,12 +250,15 @@ const generateProductTable = (products, quantityKey = "cartQuantity") => {
           ${products
             .map((x) => {
               const variations = displayVariationsLabel(x.variations);
+
               const nameLine = formatProductNameWithCarat({
-                caratWeight: x?.diamondDetail
+                caratWeight: Object.keys(x?.diamondDetail || {}).length
                   ? x?.diamondDetail?.caratWeight
                   : x?.totalCaratWeight,
                 productName: x.productName,
+                productNamePrefix: x?.productNamePrefix,
               });
+
               const diamondDetail = displayDiamondDetailsLabel(x.diamondDetail);
               return `
                 <tr class="border-b border-gray-300">

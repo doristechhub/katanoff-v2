@@ -409,6 +409,7 @@ const processOrderProductItem = ({
     ...orderProductItem,
     productSku: findedProduct.saltSKU,
     productName: findedProduct.productName,
+    productNamePrefix: findedProduct?.productNamePrefix,
     productImage: thumbnailImage,
     totalCaratWeight: findedProduct?.totalCaratWeight,
     variations: variationArray,

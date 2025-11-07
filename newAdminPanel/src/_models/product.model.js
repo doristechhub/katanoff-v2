@@ -5,6 +5,11 @@ export const productModel = {
     type: String,
     unique: true,
   },
+  productNamePrefix: {
+    type: String,
+    enum: ['fraction', 'numeric', 'none'],
+    default: 'none',
+  },
   productName: {
     type: String,
     unique: true,

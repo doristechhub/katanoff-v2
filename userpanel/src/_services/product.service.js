@@ -425,6 +425,7 @@ const getCollectionsTypeWiseProduct = (
           );
           return {
             productName: product.productName,
+            productNamePrefix: product.productNamePrefix,
             isDiamondFilter: product?.isDiamondFilter || false,
             whiteGoldThumbnailImage: product?.whiteGoldThumbnailImage,
             yellowGoldThumbnailImage: product?.yellowGoldThumbnailImage,
@@ -1216,6 +1217,7 @@ const searchProducts = (params) => {
         const formattedName = helperFunctions.formatProductNameWithCarat({
           caratWeight: product.totalCaratWeight,
           productName: product.productName,
+          productNamePrefix: product?.productNamePrefix,
         });
 
         const fieldsToSearch = [

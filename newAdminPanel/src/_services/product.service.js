@@ -57,6 +57,13 @@ export const validateProductName = (productName) => {
   return null;
 };
 
+export const validateProductNamePrefix = (productNamePrefix) => {
+  if (!['fraction', 'numeric', 'none'].includes(productNamePrefix)) {
+    return 'Invalid product name prefix. Must be one of: fraction, numeric, none';
+  }
+  return null;
+};
+
 export const validateShortDescription = (description) => {
   // Check if the length is higher than 60 characters
   if (description && description.length > 250) {
@@ -153,6 +160,7 @@ const insertProduct = (params) => {
       const uuid = uid();
       let {
         productName,
+        productNamePrefix,
         roseGoldThumbnailImageFile,
         roseGoldImageFiles,
         roseGoldVideoFile,
@@ -193,6 +201,7 @@ const insertProduct = (params) => {
 
       // Sanitize and process inputs
       productName = productName ? productName.trim() : null;
+      productNamePrefix = productNamePrefix ? productNamePrefix.trim() : 'none';
       roseGoldThumbnailImageFile =
         typeof roseGoldThumbnailImageFile === 'object' ? [roseGoldThumbnailImageFile] : [];
       roseGoldImageFiles = Array.isArray(roseGoldImageFiles) ? roseGoldImageFiles : [];
@@ -306,6 +315,12 @@ const insertProduct = (params) => {
         const pNameErrorMsg = validateProductName(productName);
         if (pNameErrorMsg) {
           reject(new Error(pNameErrorMsg));
+          return;
+        }
+
+        const productNamePrefixErrorMsg = validateProductNamePrefix(productNamePrefix);
+        if (productNamePrefixErrorMsg) {
+          reject(new Error(productNamePrefixErrorMsg));
           return;
         }
 
@@ -802,6 +817,7 @@ const insertProduct = (params) => {
                 const insertPattern = {
                   id: uuid,
                   productName,
+                  productNamePrefix,
                   roseGoldThumbnailImage,
                   roseGoldImages,
                   roseGoldVideo,
@@ -1943,6 +1959,7 @@ const updateProduct = (params) => {
       let {
         productId,
         productName,
+        productNamePrefix,
         roseGoldThumbnailImageFile,
         roseGoldImageFiles,
         roseGoldVideoFile,
@@ -2013,6 +2030,9 @@ const updateProduct = (params) => {
         if (productData) {
           // Sanitize and fallback to existing data
           productName = productName ? productName.trim() : productData.productName;
+          productNamePrefix = productNamePrefix
+            ? productNamePrefix.trim()
+            : productData?.productNamePrefix || 'none';
           sku = sku ? sku.trim() : productData.sku;
           saltSKU = saltSKU ? saltSKU.trim() : productData.saltSKU;
           discount = !isNaN(discount) ? Number(discount) : productData.discount;
@@ -2067,6 +2087,12 @@ const updateProduct = (params) => {
           const pNameErrorMsg = validateProductName(productName);
           if (pNameErrorMsg) {
             reject(new Error(pNameErrorMsg));
+            return;
+          }
+
+          const productNamePrefixErrorMsg = validateProductNamePrefix(productNamePrefix);
+          if (productNamePrefixErrorMsg) {
+            reject(new Error(productNamePrefixErrorMsg));
             return;
           }
 
@@ -2528,6 +2554,7 @@ const updateProduct = (params) => {
           // Prepare payload
           const payload = {
             productName,
+            productNamePrefix,
             roseGoldThumbnailImage:
               uploadedRoseGoldThumbnailImage || productData.roseGoldThumbnailImage,
             roseGoldImages: roseGoldImagesArray,

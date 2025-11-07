@@ -99,6 +99,7 @@ const CombinationDialog = ({
       variations: fields?.variations,
       categoryId: fields?.categoryId,
       productName: fields?.productName,
+      productNamePrefix: fields?.productNamePrefix,
       description: fields?.description,
       collectionIds: fields?.collectionIds,
       settingStyleIds: fields?.settingStyleIds,

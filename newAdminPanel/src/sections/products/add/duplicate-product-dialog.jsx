@@ -4,7 +4,8 @@ import * as Yup from 'yup';
 import Dialog from '../../../components/dialog';
 import { Button, LoadingButton } from '../../../components/button';
 import { useDispatch, useSelector } from 'react-redux';
-import { Checkbox, FormControlLabel, TextField, Typography } from '@mui/material';
+import { Checkbox, FormControlLabel, MenuItem, TextField, Typography } from '@mui/material';
+import Grid from '@mui/material/Unstable_Grid2';
 import { useFormik } from 'formik';
 import {
   StyledDialogActions,
@@ -19,6 +20,7 @@ import {
 import { helperFunctions, prefixSaltSku } from 'src/_helpers';
 
 const validationSchema = Yup.object({
+  productNamePrefix: Yup.string().oneOf(['fraction', 'numeric', 'none'], 'Invalid prefix option'),
   productName: Yup.string()
     .required('Product name is required')
     .max(60, 'Product name should not exceed 60 characters.')
@@ -122,6 +124,7 @@ const DuplicateProductDialog = ({ open, setOpen, loading }) => {
     async (val) => {
       const payload = {
         ...productInitDetails,
+        productNamePrefix: val?.productNamePrefix,
         productName: val?.productName,
         sku: val?.sku,
         saltSKU: val?.saltSKU,
@@ -162,6 +165,7 @@ const DuplicateProductDialog = ({ open, setOpen, loading }) => {
     validationSchema,
     enableReinitialize: true,
     initialValues: {
+      productNamePrefix: selectedProduct?.productNamePrefix || 'none',
       productName: selectedProduct.productName + ' copy',
       sku: selectedProduct.sku + '-copy',
       // saltSKU: `UJ-${selectedProduct.sku}-copy-${randomNumber}`,
@@ -184,19 +188,41 @@ const DuplicateProductDialog = ({ open, setOpen, loading }) => {
     <Dialog open={open} handleOpen={() => setOpen(true)} handleClose={() => setOpen(false)}>
       <StyledDialogTitle>Duplicate Product</StyledDialogTitle>
       <StyledDialogContent>
-        <TextField
-          sx={{
-            my: 2,
-            width: '100%',
-          }}
-          name="productName"
-          onBlur={handleBlur}
-          label="Product Name"
-          onChange={handleChange}
-          value={values.productName}
-          error={!!(touched.productName && errors.productName)}
-          helperText={touched.productName && errors.productName ? errors.productName : ''}
-        />
+        <Grid container spacing={2} sx={{ mt: 2 }}>
+          <Grid xs={12} sm={3}>
+            <TextField
+              select
+              sx={{ width: '100%' }}
+              name="productNamePrefix"
+              label="Prefix"
+              onBlur={handleBlur}
+              onChange={handleChange}
+              value={values.productNamePrefix || 'none'}
+              error={!!(touched?.productNamePrefix && errors?.productNamePrefix)}
+              helperText={
+                touched?.productNamePrefix && errors?.productNamePrefix
+                  ? errors?.productNamePrefix
+                  : ''
+              }
+            >
+              <MenuItem value="fraction">Fraction</MenuItem>
+              <MenuItem value="numeric">Numeric</MenuItem>
+              <MenuItem value="none">None of above</MenuItem>
+            </TextField>
+          </Grid>
+          <Grid xs={12} sm={9}>
+            <TextField
+              sx={{ width: '100%' }}
+              name="productName"
+              onBlur={handleBlur}
+              label="Product Name"
+              onChange={handleChange}
+              value={values.productName || ''}
+              error={!!(touched?.productName && errors?.productName)}
+              helperText={touched?.productName && errors?.productName ? errors?.productName : ''}
+            />
+          </Grid>
+        </Grid>
         <TextField
           sx={{
             my: 2,
