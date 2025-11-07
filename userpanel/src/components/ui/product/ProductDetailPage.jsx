@@ -737,13 +737,27 @@ const AddToBagBar = ({
   const baseClasses = `w-full bg-white shadow-md transition-opacity duration-300 z-40 ${
     position === "bottom" ? "fixed bottom-0 left-0" : "relative mt-4 lg:mt-12"
   }`;
-  const estimatedDate = useMemo(() => {
-    const date = new Date();
-    date.setDate(date.getDate() + 15);
 
-    const options = { weekday: "long", month: "long", day: "numeric" };
-    return date.toLocaleDateString("en-US", options);
-  }, []);
+  const estimatedDate = useMemo(() => {
+    if (productName === "1 1/4 ctw Valen Crest") {
+      const date1 = new Date();
+      date1.setDate(date1.getDate() + 1);
+      const date2 = new Date();
+      date2.setDate(date2.getDate() + 3);
+
+      const options = { weekday: "short", month: "short", day: "numeric" };
+      const formatted1 = date1.toLocaleDateString("en-US", options);
+      const formatted2 = date2.toLocaleDateString("en-US", options);
+      return `${formatted1} - ${formatted2}`;
+    } else {
+      const date = new Date();
+      date.setDate(date.getDate() + 15);
+
+      const options = { weekday: "long", month: "long", day: "numeric" };
+      return date.toLocaleDateString("en-US", options);
+    }
+  }, [productName]);
+
   const visibility = visible
     ? "opacity-100 pointer-events-auto"
     : "opacity-0 pointer-events-none";
