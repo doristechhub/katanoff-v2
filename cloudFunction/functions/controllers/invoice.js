@@ -21,9 +21,7 @@ const enrichProducts = async ({
     .map((product) => product?.productId)
     .filter(Boolean);
 
-  const productDetails = await productService?.getProductsByIds(
-    productIds
-  );
+  const productDetails = await productService?.getProductsByIds(productIds);
   const diamondShapeList = await diamondShapeService?.getAllDiamondShapes();
   return products.map((product) => {
     const productDetail =
@@ -62,6 +60,7 @@ const enrichProducts = async ({
         productDetail?.whiteGoldThumbnailImage ||
         "",
       productName: productDetail?.productName || "Unknown Product",
+      productNamePrefix: productDetail?.productNamePrefix,
       totalCaratWeight: productDetail?.totalCaratWeight || 0,
       diamondDetail,
       variations,
@@ -101,6 +100,7 @@ const transformInvoiceData = (data, type) => {
       return {
         productImage: item?.productImage || "",
         productName: item?.productName || "Unknown Product",
+        productNamePrefix: item?.productNamePrefix,
         totalCaratWeight: item?.totalCaratWeight || 0,
         variations: item?.variations || [],
         ...(ringSizeVariation
@@ -214,7 +214,8 @@ const invoiceController = async (req, res, type = "order") => {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename=${type === "order" ? "invoice" : "return-invoice"
+      `attachment; filename=${
+        type === "order" ? "invoice" : "return-invoice"
       }.pdf`
     );
     res.status(200).end(pdfBuffer);

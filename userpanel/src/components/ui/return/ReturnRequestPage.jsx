@@ -15,7 +15,7 @@ import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {  ProgressiveImg } from "@/components/dynamiComponents";
+import { ProgressiveImg } from "@/components/dynamiComponents";
 import {
   ESTIMATE_AMOUNT_NOTE,
   helperFunctions,
@@ -136,26 +136,26 @@ const ReturnRequestPage = () => {
   });
 
   const handleCheckboxChange = useCallback(
-    (event, cartItem) => {
+    (event, productItem) => {
       const isChecked = event.target.checked;
       const prevSelected = values.selectedProducts || [];
 
       let updatedSelected = [];
 
       if (isChecked) {
-        updatedSelected = [...prevSelected, cartItem.productId];
+        updatedSelected = [...prevSelected, productItem.productId];
       } else {
         updatedSelected = prevSelected.filter(
-          (id) => id !== cartItem.productId
+          (id) => id !== productItem.productId
         );
       }
 
       setFieldValue("selectedProducts", updatedSelected);
       updateDetail(
         orderDetail,
-        cartItem.productId,
-        cartItem.variations,
-        cartItem.diamondDetail,
+        productItem.productId,
+        productItem.variations,
+        productItem.diamondDetail,
         "isChecked",
         isChecked
       );
@@ -225,10 +225,11 @@ const ReturnRequestPage = () => {
     [orderDetail, updateDetail]
   );
 
-  const bgHeadingText = ` ${selectedProducts?.length
-    ? `${selectedProducts?.length} Products Selected`
-    : ""
-    } `;
+  const bgHeadingText = ` ${
+    selectedProducts?.length
+      ? `${selectedProducts?.length} Products Selected`
+      : ""
+  } `;
 
   return (
     <>
@@ -247,12 +248,13 @@ const ReturnRequestPage = () => {
             }
           />
           <div className="max-w-5xl justify-center flex flex-col mx-auto container">
-            {orderDetail?.products?.map((cartItem, index) => (
+            {orderDetail?.products?.map((productItem, index) => (
               <div
-                className={`py-6 md:py-8 pr-2 xs:pr-6 ${index !== orderDetail?.products?.length - 1
-                  ? "border-b border-grayborder"
-                  : ""
-                  }`}
+                className={`py-6 md:py-8 pr-2 xs:pr-6 ${
+                  index !== orderDetail?.products?.length - 1
+                    ? "border-b border-grayborder"
+                    : ""
+                }`}
                 key={`returnRequest-${index}`}
               >
                 <div className="flex gap-2 md:gap-4">
@@ -261,16 +263,16 @@ const ReturnRequestPage = () => {
                       <input
                         type="checkbox"
                         name="productCheckbox"
-                        value={cartItem.productId}
-                        checked={cartItem.isChecked}
-                        onChange={(e) => handleCheckboxChange(e, cartItem)}
+                        value={productItem.productId}
+                        checked={productItem.isChecked}
+                        onChange={(e) => handleCheckboxChange(e, productItem)}
                         className="w-4 h-4 rounded-full border-2 border-gray-400 text-primary accent-primary focus:ring-primary checked:bg-primary checked:border-primary"
                       />
                     </div>
                     <div>
                       <ProgressiveImg
-                        src={cartItem?.productImage}
-                        alt={cartItem?.productName}
+                        src={productItem?.productImage}
+                        alt={productItem?.productName}
                         className="w-32 md:w-40 border border-alabaster"
                       />
                     </div>
@@ -279,14 +281,17 @@ const ReturnRequestPage = () => {
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
                       <h2 className="md:text-base lg:text-lg font-semibold">
                         {helperFunctions?.formatProductNameWithCarat({
-                          caratWeight: cartItem?.diamondDetail ? cartItem?.diamondDetail?.caratWeight : cartItem?.totalCaratWeight,
-                          productName: cartItem?.productName,
+                          caratWeight: productItem?.diamondDetail
+                            ? productItem?.diamondDetail?.caratWeight
+                            : productItem?.totalCaratWeight,
+                          productName: productItem?.productName,
+                          productNamePrefix: productItem?.productNamePrefix,
                         })}
                       </h2>
 
                       <p className="text-base md:text-lg font-bold">
                         {helperFunctions.formatCurrencyWithDollar(
-                          cartItem.productPrice * cartItem.returnQuantity
+                          productItem.productPrice * productItem.returnQuantity
                         )}
                       </p>
                     </div>
@@ -294,34 +299,34 @@ const ReturnRequestPage = () => {
                       <div className="flex flex-col">
                         <div className="text-baseblack font-medium text-sm md:text-base  flex flex-wrap gap-1">
                           {helperFunctions?.displayVariationsLabel(
-                            cartItem?.variations
+                            productItem?.variations
                           )}
                         </div>
                         <div className="text-baseblack font-medium text-sm md:text-base flex flex-wrap">
                           <span className="inline xss:block">Product SKU:</span>
                           <span className="inline xss:block">
-                            {cartItem?.productSku}
+                            {productItem?.productSku}
                           </span>
                         </div>
 
-                        {cartItem?.variations?.some(
+                        {productItem?.variations?.some(
                           (v) => v.variationName === RING_SIZE
                         ) && (
-                            <div className="flex items-center gap-2 pt-2 sm:pt-0">
-                              <p className="text-sm items-center md:text-base font-medium text-baseblack">
-                                {cartItem?.variations?.find(
-                                  (v) => v.variationName === RING_SIZE
-                                )?.variationName || "N/A"}
-                                :{" "}
-                                {cartItem?.variations?.find(
-                                  (v) => v.variationName === RING_SIZE
-                                )?.variationTypeName || "N/A"}
-                              </p>
-                            </div>
-                          )}
+                          <div className="flex items-center gap-2 pt-2 sm:pt-0">
+                            <p className="text-sm items-center md:text-base font-medium text-baseblack">
+                              {productItem?.variations?.find(
+                                (v) => v.variationName === RING_SIZE
+                              )?.variationName || "N/A"}
+                              :{" "}
+                              {productItem?.variations?.find(
+                                (v) => v.variationName === RING_SIZE
+                              )?.variationTypeName || "N/A"}
+                            </p>
+                          </div>
+                        )}
 
                         <DiamondDetailDrawer
-                          cartItem={cartItem}
+                          productItem={productItem}
                           openDiamondDetailDrawer={openDiamondDetailDrawer}
                           dispatch={dispatch}
                           setOpenDiamondDetailDrawer={
@@ -337,8 +342,8 @@ const ReturnRequestPage = () => {
                             <span className="inline xss:block">
                               -
                               {helperFunctions?.formatDiscountForItem({
-                                productPrice: cartItem?.productPrice,
-                                cartQuantity: cartItem?.returnQuantity,
+                                productPrice: productItem?.productPrice,
+                                cartQuantity: productItem?.returnQuantity,
                                 subTotal: orderDetail?.subTotal,
                                 discountAmount: orderDetail?.discount,
                               })}
@@ -352,10 +357,10 @@ const ReturnRequestPage = () => {
 
                           <div className="relative w-fit">
                             <select
-                              value={cartItem.returnQuantity}
+                              value={productItem.returnQuantity}
                               onChange={(e) =>
                                 handleProductQtyChange("set", {
-                                  ...cartItem,
+                                  ...productItem,
                                   returnQuantity: parseInt(e.target.value),
                                 })
                               }
@@ -364,7 +369,7 @@ const ReturnRequestPage = () => {
                               {Array.from(
                                 {
                                   length:
-                                    cartItem.cartQuantity - minQuantity + 1,
+                                    productItem.cartQuantity - minQuantity + 1,
                                 },
                                 (_, i) => i + minQuantity
                               ).map((qty) => (
@@ -390,7 +395,7 @@ const ReturnRequestPage = () => {
 
                 {/* <div className=" xs:hidden mt-1">
                   <DiamondDetailDrawer
-                    cartItem={cartItem}
+                    productItem={productItem}
                     openDiamondDetailDrawer={openDiamondDetailDrawer}
                     dispatch={dispatch}
                     setOpenDiamondDetailDrawer={setOpenDiamondDetailDrawer}
@@ -411,8 +416,8 @@ const ReturnRequestPage = () => {
                   <span>
                     {returnRequestTotalSummary?.subTotal
                       ? helperFunctions?.formatCurrencyWithDollar(
-                        returnRequestTotalSummary?.subTotal
-                      )
+                          returnRequestTotalSummary?.subTotal
+                        )
                       : "$0.00"}
                   </span>
                 </div>
@@ -422,8 +427,8 @@ const ReturnRequestPage = () => {
                   <span>
                     {returnRequestTotalSummary?.discount
                       ? ` - ${helperFunctions?.formatCurrencyWithDollar(
-                        returnRequestTotalSummary?.discount
-                      )}`
+                          returnRequestTotalSummary?.discount
+                        )}`
                       : "$0.00"}
                   </span>
                 </div>
@@ -433,8 +438,8 @@ const ReturnRequestPage = () => {
                   <span>
                     {returnRequestTotalSummary?.salesTax
                       ? helperFunctions?.formatCurrencyWithDollar(
-                        returnRequestTotalSummary?.salesTax
-                      )
+                          returnRequestTotalSummary?.salesTax
+                        )
                       : "$0.00"}
                   </span>
                 </div>
@@ -448,8 +453,8 @@ const ReturnRequestPage = () => {
                   <span>
                     {selectedProducts?.length
                       ? helperFunctions?.formatCurrencyWithDollar(
-                        returnRequestTotalSummary?.returnRequestAmount
-                      )
+                          returnRequestTotalSummary?.returnRequestAmount
+                        )
                       : "$0.00"}
                   </span>
                 </div>

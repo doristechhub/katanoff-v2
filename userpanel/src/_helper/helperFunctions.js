@@ -868,11 +868,26 @@ const formatCarats = (num) => {
   return fixed;
 };
 
-export const formatProductNameWithCarat = ({ caratWeight, productName }) => {
-  const formattedCarat =
-    caratWeight > 0 ? `${getFraction(caratWeight)} ctw ` : "";
-  // const formattedCarat =
-  //   caratWeight > 0 ? `${formatCarats(caratWeight)} ctw ` : "";
+export const formatProductNameWithCarat = ({
+  caratWeight,
+  productName,
+  productNamePrefix,
+}) => {
+  let formattedCarat = "";
+  if (caratWeight > 0) {
+    switch (productNamePrefix) {
+      case "fraction":
+        formattedCarat = `${getFraction(caratWeight)} ctw `;
+        break;
+      case "numeric":
+        formattedCarat = `${formatCarats(caratWeight)} ctw `;
+        break;
+      case "none":
+      default:
+        // No carat prefix
+        break;
+    }
+  }
   return `${formattedCarat}${
     productName ? productName : "Unknown Product"
   }`.trim();

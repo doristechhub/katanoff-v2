@@ -104,6 +104,7 @@ const validationSchema = Yup.object({
       /^[a-zA-Z0-9\s]*$/,
       'Product name can only contain letters (a-z, A-Z), numbers (0-9), and spaces.'
     ),
+  productNamePrefix: Yup.string().oneOf(['fraction', 'numeric', 'none'], 'Invalid prefix option'),
   sku: Yup.string().required('SKU is required'),
   discount: Yup.number().min(0, 'Discount must be positive').max(100, 'Maximum discount is 100'),
   grossWeight: Yup.number()
@@ -573,6 +574,7 @@ export default function AddProductPage() {
                   const product = await dispatch(getSingleProduct(productId));
                   if (product) {
                     formik.setFieldValue('productName', product?.productName);
+                    formik.setFieldValue('productNamePrefix', product?.productNamePrefix || 'none');
                     formik.setFieldValue('sku', product?.sku);
                     formik.setFieldValue('saltSKU', product?.saltSKU);
                     formik.setFieldValue('discount', product?.discount);
@@ -709,20 +711,47 @@ export default function AddProductPage() {
                             sx={{ p: 1, borderRadius: 2, overflow: 'initial !important' }}
                           >
                             <Grid xs={12} sm={12} md={12}>
-                              <TextField
-                                sx={{ mb: 2, width: '100%' }}
-                                name="productName"
-                                onBlur={handleBlur}
-                                label="Product Name"
-                                onChange={handleChange}
-                                value={values.productName || ''}
-                                error={!!(touched?.productName && errors?.productName)}
-                                helperText={
-                                  touched?.productName && errors?.productName
-                                    ? errors?.productName
-                                    : ''
-                                }
-                              />
+                              <Grid container spacing={2}>
+                                <Grid xs={12} sm={3}>
+                                  <TextField
+                                    select
+                                    sx={{ width: '100%' }}
+                                    name="productNamePrefix"
+                                    label="Prefix"
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    value={values?.productNamePrefix || 'none'}
+                                    error={
+                                      !!(touched?.productNamePrefix && errors?.productNamePrefix)
+                                    }
+                                    helperText={
+                                      touched?.productNamePrefix && errors?.productNamePrefix
+                                        ? errors?.productNamePrefix
+                                        : ''
+                                    }
+                                  >
+                                    <MenuItem value="fraction">Fraction</MenuItem>
+                                    <MenuItem value="numeric">Numeric</MenuItem>
+                                    <MenuItem value="none">None of above</MenuItem>
+                                  </TextField>
+                                </Grid>
+                                <Grid xs={12} sm={9}>
+                                  <TextField
+                                    sx={{ width: '100%' }}
+                                    name="productName"
+                                    onBlur={handleBlur}
+                                    label="Product Name"
+                                    onChange={handleChange}
+                                    value={values.productName || ''}
+                                    error={!!(touched?.productName && errors?.productName)}
+                                    helperText={
+                                      touched?.productName && errors?.productName
+                                        ? errors?.productName
+                                        : ''
+                                    }
+                                  />
+                                </Grid>
+                              </Grid>
                               {/* <TextField
                                 rows={4}
                                 multiline

@@ -160,14 +160,9 @@ export default function ProductCard({
   );
 
   const displayProductName = helperFunctions?.formatProductNameWithCarat({
-    caratWeight:
-      isDiamondSettingPage ||
-      !productData?.productTypeNames?.some(
-        (type) => type.title?.toLowerCase() === "studs"
-      )
-        ? null
-        : productData?.totalCaratWeight,
+    caratWeight: isDiamondSettingPage ? null : productData?.totalCaratWeight,
     productName: productData?.productName,
+    productNamePrefix: productData?.productNamePrefix,
   });
 
   return (

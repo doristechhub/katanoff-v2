@@ -32,12 +32,9 @@ const SimpleProductGrid = memo(({ products }) => {
           });
 
         const displayProductName = helperFunctions?.formatProductNameWithCarat({
-          caratWeight: !product?.productTypeNames?.some(
-            (type) => type.title?.toLowerCase() === "studs"
-          )
-            ? null
-            : product?.totalCaratWeight,
+          caratWeight: product?.totalCaratWeight,
           productName: product?.productName,
+          productNamePrefix: product?.productNamePrefix,
         });
 
         return (

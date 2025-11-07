@@ -17,7 +17,12 @@ import {
 } from "@/_helper/constants";
 import { customizeService } from "./customize.service";
 
-const filterActiveCartItems = async ({ cartData, activeProductIds, userData = null, allActiveProductsData = [] }) => {
+const filterActiveCartItems = async ({
+  cartData,
+  activeProductIds,
+  userData = null,
+  allActiveProductsData = [],
+}) => {
   if (!Array.isArray(cartData) || !Array.isArray(activeProductIds)) {
     console.warn(
       "Invalid cartData or activeProductIds, returning empty array."
@@ -26,7 +31,8 @@ const filterActiveCartItems = async ({ cartData, activeProductIds, userData = nu
   }
 
   let updatedActiveProductIds = [...activeProductIds];
-  const customProductSettingsData = await customizeService?.fetchCustomizeProductSettings();
+  const customProductSettingsData =
+    await customizeService?.fetchCustomizeProductSettings();
 
   const filteredCartData = cartData.filter((cartItem) => {
     if (!updatedActiveProductIds.includes(cartItem.productId)) {
@@ -38,26 +44,34 @@ const filterActiveCartItems = async ({ cartData, activeProductIds, userData = nu
     );
 
     if (!findedProduct) {
-      updatedActiveProductIds = updatedActiveProductIds.filter((id) => id !== cartItem.productId);
+      updatedActiveProductIds = updatedActiveProductIds.filter(
+        (id) => id !== cartItem.productId
+      );
       return false;
     }
 
     const cartItemDiamondDetail = cartItem?.diamondDetail;
 
     if (cartItemDiamondDetail && !findedProduct?.isDiamondFilter) {
-      updatedActiveProductIds = updatedActiveProductIds.filter((id) => id !== cartItem.productId);
+      updatedActiveProductIds = updatedActiveProductIds.filter(
+        (id) => id !== cartItem.productId
+      );
       return false;
     }
 
     if (cartItemDiamondDetail && findedProduct?.isDiamondFilter) {
       const { caratWeight, clarity, color, shapeId } = cartItemDiamondDetail;
-      const { caratWeightRange, diamondShapeIds } = findedProduct?.diamondFilters || {};
+      const { caratWeightRange, diamondShapeIds } =
+        findedProduct?.diamondFilters || {};
 
       if (
         caratWeightRange &&
-        (caratWeight < caratWeightRange.min || caratWeight > caratWeightRange.max)
+        (caratWeight < caratWeightRange.min ||
+          caratWeight > caratWeightRange.max)
       ) {
-        updatedActiveProductIds = updatedActiveProductIds?.filter((id) => id !== cartItem?.productId);
+        updatedActiveProductIds = updatedActiveProductIds?.filter(
+          (id) => id !== cartItem?.productId
+        );
         return false;
       }
 
@@ -65,7 +79,9 @@ const filterActiveCartItems = async ({ cartData, activeProductIds, userData = nu
         (clarityOption) => clarityOption?.compatibleOptions?.includes(clarity)
       );
       if (!clarityExists) {
-        updatedActiveProductIds = updatedActiveProductIds?.filter((id) => id !== cartItem?.productId);
+        updatedActiveProductIds = updatedActiveProductIds?.filter(
+          (id) => id !== cartItem?.productId
+        );
         return false;
       }
 
@@ -73,15 +89,18 @@ const filterActiveCartItems = async ({ cartData, activeProductIds, userData = nu
         (colorOption) => colorOption?.compatibleOptions?.includes(color)
       );
       if (!colorExists) {
-        updatedActiveProductIds = updatedActiveProductIds?.filter((id) => id !== cartItem?.productId);
+        updatedActiveProductIds = updatedActiveProductIds?.filter(
+          (id) => id !== cartItem?.productId
+        );
         return false;
       }
 
       if (shapeId && diamondShapeIds && !diamondShapeIds.includes(shapeId)) {
-        updatedActiveProductIds = updatedActiveProductIds?.filter((id) => id !== cartItem?.productId);
+        updatedActiveProductIds = updatedActiveProductIds?.filter(
+          (id) => id !== cartItem?.productId
+        );
         return false;
       }
-
     }
     return true;
   });
@@ -132,7 +151,12 @@ const getAllCartWithProduct = () => {
         );
 
       const activeProductIds = allActiveProductsData?.map((p) => p?.id);
-      cartData = await filterActiveCartItems({ cartData, activeProductIds, userData, allActiveProductsData });
+      cartData = await filterActiveCartItems({
+        cartData,
+        activeProductIds,
+        userData,
+        allActiveProductsData,
+      });
 
       // Update localStorage for non-logged-in users
       if (!userData) {
@@ -212,11 +236,11 @@ const getAllCartWithProduct = () => {
 
           const diamondDetail = cartItem?.diamondDetail
             ? {
-              ...cartItem?.diamondDetail,
-              shapeName: findedProduct?.diamondFilters?.diamondShapes?.find(
-                (shape) => shape?.id === cartItem?.diamondDetail?.shapeId
-              )?.title,
-            }
+                ...cartItem?.diamondDetail,
+                shapeName: findedProduct?.diamondFilters?.diamondShapes?.find(
+                  (shape) => shape?.id === cartItem?.diamondDetail?.shapeId
+                )?.title,
+              }
             : null;
 
           const goldColor = variationArray
@@ -227,6 +251,7 @@ const getAllCartWithProduct = () => {
           const thumbnailImage = findedProduct[thumbnailField];
           return {
             ...cartItem,
+            productNamePrefix: findedProduct?.productNamePrefix,
             productSku: findedProduct.saltSKU,
             productName: findedProduct.productName,
             productImage: thumbnailImage,
@@ -285,7 +310,13 @@ const insertProductIntoCart = (params) => {
       }
 
       // Validate variations
-      if (!isValidVariationsArray({ productVariations: productData.variations, selectedVariations: variations, diamondDetail })) {
+      if (
+        !isValidVariationsArray({
+          productVariations: productData.variations,
+          selectedVariations: variations,
+          diamondDetail,
+        })
+      ) {
         reject(
           new Error(
             "Invalid variation or variation does not exist in this product"
@@ -358,7 +389,7 @@ const insertProductIntoCart = (params) => {
             return (
               cartItem?.diamondDetail?.shapeId === diamondDetail?.shapeId &&
               cartItem?.diamondDetail?.caratWeight ===
-              diamondDetail?.caratWeight &&
+                diamondDetail?.caratWeight &&
               cartItem?.diamondDetail?.clarity === diamondDetail?.clarity &&
               cartItem?.diamondDetail?.color === diamondDetail?.color
             );
@@ -463,7 +494,13 @@ const insertMultipleProductsIntoCart = (params) => {
         }
 
         // Validate variations
-        if (!isValidVariationsArray({ productVariations: productData.variations, selectedVariations: variations, diamondDetail })) {
+        if (
+          !isValidVariationsArray({
+            productVariations: productData.variations,
+            selectedVariations: variations,
+            diamondDetail,
+          })
+        ) {
           sendResponse();
           continue;
         }
@@ -535,7 +572,7 @@ const insertMultipleProductsIntoCart = (params) => {
               return (
                 cartItem?.diamondDetail?.shapeId === diamondDetail?.shapeId &&
                 cartItem?.diamondDetail?.caratWeight ===
-                diamondDetail?.caratWeight &&
+                  diamondDetail?.caratWeight &&
                 cartItem?.diamondDetail?.clarity === diamondDetail?.clarity &&
                 cartItem?.diamondDetail?.color === diamondDetail?.color
               );
@@ -733,15 +770,21 @@ const getCartItemOnOffline = () => {
 const isValidVariationsArray = async ({
   productVariations,
   selectedVariations,
-  diamondDetail
+  diamondDetail,
 }) => {
   if (!Array.isArray(selectedVariations) || !selectedVariations?.length) {
     return false;
   }
 
   const customizations = await productService?.getAllCustomizations();
-  const enrichedProductVariations = helperFunctions?.addNamesToVariationsArray(productVariations, customizations);
-  const enrichedSelectedVariations = helperFunctions?.addNamesToVariationsArray(selectedVariations, customizations);
+  const enrichedProductVariations = helperFunctions?.addNamesToVariationsArray(
+    productVariations,
+    customizations
+  );
+  const enrichedSelectedVariations = helperFunctions?.addNamesToVariationsArray(
+    selectedVariations,
+    customizations
+  );
 
   // Constants for diamond-required variation names
   const requiredForDiamond = [GOLD_COLOR, GOLD_TYPES, RING_SIZE, LENGTH];
@@ -776,7 +819,6 @@ const isValidVariationsArray = async ({
     variationsMatch(enrichedProductVariations, enrichedSelectedVariations)
   );
 };
-
 
 export const cartService = {
   getAllCartWithProduct,

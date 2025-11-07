@@ -4,10 +4,7 @@ import crossIcon from "@/assets/icons/cross.svg";
 import dropdownArrow from "@/assets/icons/dropdownArrow.svg";
 import couponCodeRight from "@/assets/icons/couponCodeRight.svg";
 import couponCodeWrong from "@/assets/icons/couponCodeWrong.svg";
-import {
-  CartNotFound,
-  ProgressiveImg,
-} from "@/components/dynamiComponents";
+import { CartNotFound, ProgressiveImg } from "@/components/dynamiComponents";
 import SkeletonLoader from "@/components/ui/skeletonLoader";
 import KeyFeatures from "@/components/ui/KeyFeatures";
 import { useDispatch, useSelector } from "react-redux";
@@ -117,8 +114,8 @@ const CartPage = () => {
         type === "increase"
           ? cartItem.quantity + 1
           : type === "decrease"
-            ? cartItem.quantity - 1
-            : cartItem.quantity;
+          ? cartItem.quantity - 1
+          : cartItem.quantity;
       const payload = {
         type: type,
         quantity: quantity,
@@ -222,10 +219,11 @@ const CartPage = () => {
             <div className="w-full lg:w-2/3">
               {cartList?.map((cartItem, index) => (
                 <div
-                  className={`py-6 md:py-8 pr-2 xs:pr-6 ${index !== cartList?.length - 1
-                    ? "border-b border-grayborder"
-                    : ""
-                    }`}
+                  className={`py-6 md:py-8 pr-2 xs:pr-6 ${
+                    index !== cartList?.length - 1
+                      ? "border-b border-grayborder"
+                      : ""
+                  }`}
                   key={cartItem.id}
                 >
                   <div className="flex gap-2 md:gap-6">
@@ -244,8 +242,8 @@ const CartPage = () => {
                               cartItem?.diamondDetail
                                 ? "/customize/complete-ring"
                                 : `/products/${cartItem?.productName
-                                  ?.split(" ")
-                                  ?.join("_")}`
+                                    ?.split(" ")
+                                    ?.join("_")}`
                             }
                             onClick={() =>
                               helperFunctions?.setCustomProductInLocalStorage(
@@ -255,8 +253,11 @@ const CartPage = () => {
                             className="md:text-base lg:text-lg font-semibold hover:underline"
                           >
                             {helperFunctions?.formatProductNameWithCarat({
-                              caratWeight: cartItem?.diamondDetail ? cartItem?.diamondDetail?.caratWeight : cartItem?.totalCaratWeight,
+                              caratWeight: cartItem?.diamondDetail
+                                ? cartItem?.diamondDetail?.caratWeight
+                                : cartItem?.totalCaratWeight,
                               productName: cartItem?.productName,
+                              productNamePrefix: cartItem?.productNamePrefix,
                             })}
                           </Link>
 
@@ -279,7 +280,7 @@ const CartPage = () => {
                         <div className="flex xss:gap-4 xss:flex-row flex-col sm:items-center gap-2">
                           <p className="text-base md:text-lg font-bold">
                             {cartItem?.productDiscountPerc &&
-                              !cartItem?.diamondDetail ? (
+                            !cartItem?.diamondDetail ? (
                               <span className="text-sm md:text-base lg:text-lg text-gray-500 line-through mr-2">
                                 ${cartItem?.quantityWisePrice}
                               </span>
@@ -464,8 +465,9 @@ const CartPage = () => {
                 <input
                   type="text"
                   placeholder="Enter Promo Code"
-                  className={`w-full bg-transparent border border-grayborder px-4 py-2 focus:outline-none  ${appliedPromoDetail ? "!bg-[#f1f1f1]" : ""
-                    }`}
+                  className={`w-full bg-transparent border border-grayborder px-4 py-2 focus:outline-none  ${
+                    appliedPromoDetail ? "!bg-[#f1f1f1]" : ""
+                  }`}
                   value={couponCode}
                   onChange={(e) => {
                     dispatch(setCouponCode(e.target.value));
@@ -480,8 +482,9 @@ const CartPage = () => {
                   onMouseLeave={() => dispatch(setIsHovered(false))}
                 >
                   <LoadingPrimaryButton
-                    className={`w-full uppercase ${appliedPromoDetail ? "" : ""
-                      }`}
+                    className={`w-full uppercase ${
+                      appliedPromoDetail ? "" : ""
+                    }`}
                     loading={promoCodeLoading}
                     loaderType={isHovered ? "" : "white"}
                     onClick={() =>
@@ -543,10 +546,11 @@ const CartPage = () => {
                 <input
                   type="checkbox"
                   id="terms"
-                  className={`mt-2 cursor-pointer accent-primary rounded-sm ring-1 ring-transparent ${isSubmitted && !isChecked
-                    ? " !ring-red-500 appearance-none p-1.5"
-                    : ""
-                    }`}
+                  className={`mt-2 cursor-pointer accent-primary rounded-sm ring-1 ring-transparent ${
+                    isSubmitted && !isChecked
+                      ? " !ring-red-500 appearance-none p-1.5"
+                      : ""
+                  }`}
                   checked={isChecked}
                   onChange={(e) => dispatch(setIsChecked(e.target.checked))}
                 />

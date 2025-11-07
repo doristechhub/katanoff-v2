@@ -439,6 +439,7 @@ const ProductDetailPage = ({ customizePage }) => {
       ? customProductDetails?.diamondDetails?.caratWeight
       : productDetail?.totalCaratWeight,
     productName: productDetail?.productName,
+    productNamePrefix: productDetail?.productNamePrefix,
   });
 
   return (

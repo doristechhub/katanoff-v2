@@ -257,6 +257,7 @@ const OrderDetails = ({
                                 ? product?.diamondDetail?.caratWeight
                                 : product?.totalCaratWeight,
                               productName: product?.productName,
+                              productNamePrefix: product?.productNamePrefix,
                             })}
                           </h3>
                           <h3 className="font-semibold">
@@ -376,22 +377,22 @@ const OrderDetails = ({
               },
               ...(orderDetail?.discount > 0
                 ? [
-                  {
-                    label: `Promo Discount (${orderDetail?.promoCode})`,
-                    value: `- ${helperFunctions?.formatCurrencyWithDollar(
-                      orderDetail?.discount
-                    )}`,
-                    strong: false,
-                  },
-                ]
+                    {
+                      label: `Promo Discount (${orderDetail?.promoCode})`,
+                      value: `- ${helperFunctions?.formatCurrencyWithDollar(
+                        orderDetail?.discount
+                      )}`,
+                      strong: false,
+                    },
+                  ]
                 : []),
               {
                 label: `Sales Tax (${SALES_TAX_PERCENTAGE_VALUE})`,
                 value:
                   orderDetail?.salesTax > 0
                     ? helperFunctions?.formatCurrencyWithDollar(
-                      orderDetail?.salesTax
-                    )
+                        orderDetail?.salesTax
+                      )
                     : "$0.00",
               },
               {
@@ -399,8 +400,8 @@ const OrderDetails = ({
                 value:
                   orderDetail?.shippingCharge > 0
                     ? `$${helperFunctions?.formatCurrencyWithDollar(
-                      orderDetail.shippingCharge
-                    )}`
+                        orderDetail.shippingCharge
+                      )}`
                     : "Free",
               },
               {
@@ -415,8 +416,9 @@ const OrderDetails = ({
                 className="flex justify-between"
               >
                 <h4
-                  className={`${item.label === "Total Amount" ? "font-bold" : "font-medium"
-                    }`}
+                  className={`${
+                    item.label === "Total Amount" ? "font-bold" : "font-medium"
+                  }`}
                 >
                   {item.label}
                 </h4>

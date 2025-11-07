@@ -573,6 +573,7 @@ const processReturnProductItem = ({
   return {
     ...returnProductItem,
     productName: findedProduct.productName,
+    productNamePrefix: findedProduct.productNamePrefix,
     productImage: thumbnailImage,
     totalCaratWeight: findedProduct?.totalCaratWeight,
     variations: variationArray,
