@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "analyze": "cross-env ANALYZE=true next build"
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.11",
@@ -47,6 +48,8 @@
     "yup": "^1.6.1"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^15.2.4",
+    "cross-env": "^7.0.3",
     "eslint": "^8",
     "eslint-config-next": "15.0.3",
     "file-loader": "^6.2.0",
