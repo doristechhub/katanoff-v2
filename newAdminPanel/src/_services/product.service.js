@@ -657,7 +657,7 @@ const insertProduct = (params) => {
               );
               if (!roseGoldVideoValidFileSize) {
                 reject(
-                  new Error('Invalid File Size! (Only 100 MB are allowed for Rose Gold video!)')
+                  new Error('Invalid File Size! (Only 10 MB are allowed for Rose Gold video!)')
                 );
                 return;
               }
@@ -682,7 +682,7 @@ const insertProduct = (params) => {
               );
               if (!yellowGoldVideoValidFileSize) {
                 reject(
-                  new Error('Invalid File Size! (Only 100 MB are allowed for Yellow Gold video!)')
+                  new Error('Invalid File Size! (Only 10 MB are allowed for Yellow Gold video!)')
                 );
                 return;
               }
@@ -707,7 +707,7 @@ const insertProduct = (params) => {
               );
               if (!whiteGoldVideoValidFileSize) {
                 reject(
-                  new Error('Invalid File Size! (Only 100 MB are allowed for White Gold video!)')
+                  new Error('Invalid File Size! (Only 10 MB are allowed for White Gold video!)')
                 );
                 return;
               }
@@ -1336,7 +1336,7 @@ const updateRoseGoldMedia = (params) => {
                 if (!validFileSize) {
                   reject(
                     new Error(
-                      `Invalid file size for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'} are allowed!)`
+                      `Invalid file size for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? '5 MB' : '10 MB'} are allowed!)`
                     )
                   );
                   return;
@@ -1591,7 +1591,7 @@ const updateYellowGoldMedia = (params) => {
               reject(
                 new Error(
                   `Invalid file size for ${name}! (Only ${
-                    type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
+                    type === 'IMAGE_FILE_NAME' ? '5 MB' : '10 MB'
                   } are allowed!)`
                 )
               );
@@ -1840,7 +1840,7 @@ const updateWhiteGoldMedia = (params) => {
               reject(
                 new Error(
                   `Invalid file size for ${name}! (Only ${
-                    type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'
+                    type === 'IMAGE_FILE_NAME' ? '5 MB' : '10 MB'
                   } are allowed!)`
                 )
               );
@@ -2463,7 +2463,7 @@ const updateProduct = (params) => {
                 if (!validFileSize) {
                   reject(
                     new Error(
-                      `Invalid file size for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? '5 MB' : '100 MB'} are allowed!)`
+                      `Invalid file size for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? '5 MB' : '10 MB'} are allowed!)`
                     )
                   );
                   return;

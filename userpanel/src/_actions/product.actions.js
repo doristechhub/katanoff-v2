@@ -8,6 +8,7 @@ import {
   setUniqueFilterOptions,
   setProductMessage,
   setSelectedPrices,
+  setSelectedCaratWeights,
   setBannerLoading,
   setBanners,
   setFilterProductLoading,
@@ -57,9 +58,9 @@ export const fetchWeddingCollectionsTypeWiseProduct = () => {
           WEDDING_RINGS
         );
       if (WeddingCollectionProducts) {
-        const tempUniqueFilterOptions = getUniqueFilterOptions(
-          { productList: WeddingCollectionProducts }
-        );
+        const tempUniqueFilterOptions = getUniqueFilterOptions({
+          productList: WeddingCollectionProducts,
+        });
         const uniqueFilterOptions = { ...tempUniqueFilterOptions };
         dispatch(setWeddingHeaderUniqueFilterOptions(uniqueFilterOptions));
 
@@ -86,9 +87,9 @@ export const fetchEngagementCollectionsTypeWiseProduct = () => {
           ENGAGEMENT_RINGS
         );
       if (engagementCollectionProducts) {
-        const tempUniqueFilterOptions = getUniqueFilterOptions(
-          { productList: engagementCollectionProducts }
-        );
+        const tempUniqueFilterOptions = getUniqueFilterOptions({
+          productList: engagementCollectionProducts,
+        });
         const uniqueFilterOptions = { ...tempUniqueFilterOptions };
         dispatch(setEngagementHeaderUniqueFilterOptions(uniqueFilterOptions));
 
@@ -111,6 +112,9 @@ const resetAllInit = (dispatch) => {
   const uniqueFilterOptions = getUniqueFilterOptions({ productList: [] });
   dispatch(setUniqueFilterOptions(uniqueFilterOptions));
   dispatch(setSelectedPrices(uniqueFilterOptions?.availablePriceRange ?? []));
+  dispatch(
+    setSelectedCaratWeights(uniqueFilterOptions?.availableCaratRange ?? [])
+  );
   dispatch(setCollectionTypeProductList([]));
   dispatch(setProductLoading(false));
   dispatch(setFilterProductLoading(false));
@@ -150,10 +154,12 @@ export const fetchCollectionsTypeWiseProduct = (
 
       let categoryId = null;
       let subCategoryId = null;
-      const activeFilterType = helperFunctions?.getFilterTypeForPage(collectionType, collectionTitle);
+      const activeFilterType = helperFunctions?.getFilterTypeForPage(
+        collectionType,
+        collectionTitle
+      );
 
       if (Array.isArray(products) && products.length > 0) {
-
         if ([SUB_CATEGORIES_KEY, PRODUCT_TYPE_KEY].includes(activeFilterType)) {
           collectionType = sanitizeValue(collectionType)
             ? collectionType.trim()
@@ -164,18 +170,25 @@ export const fetchCollectionsTypeWiseProduct = (
 
           for (const product of products) {
             if (parentMainCategory) {
-              if (product?.categoryName?.toLowerCase() === parentMainCategory.toLowerCase()) {
+              if (
+                product?.categoryName?.toLowerCase() ===
+                parentMainCategory.toLowerCase()
+              ) {
                 categoryId = product.categoryId;
               }
             } else if (!categoryId) {
               categoryId = product.categoryId || null;
             }
 
-            if (activeFilterType === PRODUCT_TYPE_KEY && Array.isArray(product?.subCategoryNames)) {
-
+            if (
+              activeFilterType === PRODUCT_TYPE_KEY &&
+              Array.isArray(product?.subCategoryNames)
+            ) {
               const subMatch = product.subCategoryNames.find((sub) => {
-                const titleMatch = sub?.title?.toLowerCase() === collectionTitle?.toLowerCase();
-                if (categoryId) return titleMatch && product?.categoryId === categoryId;
+                const titleMatch =
+                  sub?.title?.toLowerCase() === collectionTitle?.toLowerCase();
+                if (categoryId)
+                  return titleMatch && product?.categoryId === categoryId;
                 return titleMatch;
               });
 
@@ -191,12 +204,18 @@ export const fetchCollectionsTypeWiseProduct = (
         const uniqueFilterOptions = getUniqueFilterOptions({
           productList: products,
           subCategoryId,
-          categoryId
+          categoryId,
         });
         dispatch(setUniqueFilterOptions(uniqueFilterOptions));
         dispatch(
           setSelectedPrices(uniqueFilterOptions?.availablePriceRange ?? [])
         );
+        dispatch(
+          setSelectedCaratWeights(
+            uniqueFilterOptions?.availableCaratRange ?? []
+          )
+        );
+
         dispatch(setCollectionTypeProductList(products));
       } else {
         resetAllInit(dispatch);
@@ -309,15 +328,16 @@ export const fetchProductDetailByProductName = (productName) => {
 
 const getUniqueSettingStyles = (styles) => {
   return Array.from(new Set(styles.map((item) => item.id))).map((styleId) => {
-    const { title, image, id } = styles.find((item) => item.id === styleId) || {};
+    const { title, image, id } =
+      styles.find((item) => item.id === styleId) || {};
     return { title, value: id, image };
   });
 };
 
-
 const getUniqueProductTypes = (productTypes) => {
   return Array.from(new Set(productTypes.map((item) => item.id))).map((id) => {
-    const { title, image, subCategoryId } = productTypes.find((item) => item.id === id) || {};
+    const { title, image, subCategoryId } =
+      productTypes.find((item) => item.id === id) || {};
     return {
       id,
       title,
@@ -340,14 +360,17 @@ const getUniqueSubCategories = (subCategories) => {
   });
 };
 
-
-
-export const getUniqueFilterOptions = ({ productList, subCategoryId, categoryId }) => {
+export const getUniqueFilterOptions = ({
+  productList,
+  subCategoryId,
+  categoryId,
+}) => {
   const uniqueVariations = new Map();
   const tempSettingStyles = [];
   const uniqueShapeIds = new Set();
   const uniqueDiamondShapes = [];
   const tempPriceRange = [];
+  const tempCaratWeightRange = [];
   const uniqueGenders = new Set();
   const tempProductTypes = [];
   const tempSubCategories = [];
@@ -434,6 +457,7 @@ export const getUniqueFilterOptions = ({ productList, subCategoryId, categoryId 
       });
     }
     tempPriceRange?.push(product?.baseSellingPrice || 0);
+    tempCaratWeightRange?.push(product?.totalCaratWeight || 0);
 
     // Collect unique genders
     const gender = product?.gender?.toLowerCase() || "";
@@ -480,10 +504,17 @@ export const getUniqueFilterOptions = ({ productList, subCategoryId, categoryId 
   const minPrice = tempPriceRange.length ? Math.min(...tempPriceRange) : 0;
   const maxPrice = tempPriceRange.length ? Math.max(...tempPriceRange) : 0;
 
+  // Carat weight range
+  const minCaratWeight = tempCaratWeightRange.length
+    ? Math.min(...tempCaratWeightRange)
+    : 0;
+  const maxCaratWeight = tempCaratWeightRange.length
+    ? Math.max(...tempCaratWeightRange)
+    : 0;
+
   // Filter product types by subCategoryId if provided
   let filteredProductTypes = tempProductTypes;
   let filteredSubCategories = tempSubCategories;
-
 
   if (categoryId) {
     filteredProductTypes = filteredProductTypes?.filter(
@@ -504,6 +535,7 @@ export const getUniqueFilterOptions = ({ productList, subCategoryId, categoryId 
     uniqueSettingStyles: getUniqueSettingStyles(tempSettingStyles),
     uniqueDiamondShapes,
     availablePriceRange: [minPrice, maxPrice],
+    availableCaratRange: [minCaratWeight, maxCaratWeight],
     uniqueGenders: Array.from(uniqueGenders),
     uniqueProductTypes: getUniqueProductTypes(filteredProductTypes),
     uniqueSubCategories: getUniqueSubCategories(filteredSubCategories),
