@@ -10,6 +10,7 @@ import { grey } from 'src/theme/palette';
 import Iconify from '../iconify';
 import filesFolder from '../../../public/assets/illustrations/files.svg';
 import PdfViewer from '../pdf-viewer';
+import fileSettings from 'src/_utils/fileSettings';
 
 // ----------------------------------------------------------------------
 
@@ -19,8 +20,6 @@ const pdfReg = /application\/pdf/;
 const imageTypes = '.png, .jpg, .jpeg, .webp';
 const videoReg = /video\/(mp4|webm|ogg)/;
 const videoTypes = '.mp4, .webm, .ogg';
-// const TENMB = 10485760;
-const HUNDRED_MB = 104857600;
 const FIVEMB = 5242880;
 
 const getRegexByMediaType = (type) => {
@@ -83,11 +82,14 @@ const FileDrop = forwardRef(
 
             //FIX BUG HERE
             // Validate the image size.
-            if (file.size > (mediaType === 'video' ? HUNDRED_MB : FIVEMB)) {
+            if (
+              file.size >
+              (mediaType === 'video'
+                ? fileSettings?.VIDEO_ALLOW_FILE_SIZE
+                : fileSettings?.IMAGE_ALLOW_FILE_SIZE)
+            ) {
               // size in bytes
-              toast.error(
-                `Invalid Size! (Only ${mediaType === 'video' ? 100 : 5} MB are allowed!)`
-              );
+              toast.error(`Invalid Size! (Only ${mediaType === 'video' ? 10 : 2} MB are allowed!)`);
               return;
             }
           }

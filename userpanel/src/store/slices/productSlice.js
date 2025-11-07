@@ -1,5 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
-export const defaultsmOpenFilter = ["shape", "metal", "settingStyle", "price", "productType", "subCategory"];
+export const defaultsmOpenFilter = [
+  "shape",
+  "metal",
+  "settingStyle",
+  "price",
+  "carat",
+  "productType",
+  "subCategory",
+];
 const initialState = {
   productLoading: true,
   recentlyProductLoading: false,
@@ -23,6 +31,7 @@ const initialState = {
   selectedDiamondShapes: [],
   selectedDiamondShape: "",
   selectedPrices: [],
+  selectedCaratWeights: [],
   selectedGenders: [],
   customizeProductList: [],
   customizeProductLoading: false,
@@ -125,6 +134,9 @@ const productSlice = createSlice({
     setSelectedPrices: (state, action) => {
       state.selectedPrices = action.payload;
     },
+    setSelectedCaratWeights: (state, action) => {
+      state.selectedCaratWeights = action.payload;
+    },
     setUniqueFilterOptions: (state, action) => {
       state.uniqueFilterOptions = action.payload;
     },
@@ -210,6 +222,7 @@ export const {
   setSMOpenFilter,
   setIsFilterFixed,
   setSelectedPrices,
+  setSelectedCaratWeights,
   setUniqueFilterOptions,
   setSelectedSettingStyles,
   setSelectedSettingStyle,
@@ -231,7 +244,7 @@ export const {
   setSelectedProductTypes,
   setSelectedSubCategories,
   setActiveFilterType,
-  setFilterProductLoading
+  setFilterProductLoading,
 } = productSlice.actions;
 
 export default productSlice.reducer;

@@ -5,6 +5,7 @@ import {
   setSelectedFilterVariations,
   setSelectedSettingStyles,
   setSelectedPrices,
+  setSelectedCaratWeights,
   setSelectedSortByValue,
   resetFilters,
   setSelectedGenders,
@@ -60,6 +61,7 @@ export default function ProductFilter({
     selectedProductTypes,
     selectedSubCategories,
     selectedPrices,
+    selectedCaratWeights,
     uniqueFilterOptions,
     selectedGenders,
     isFilterFixed,
@@ -67,8 +69,8 @@ export default function ProductFilter({
     smOpenFilter,
     activeFilterType,
   } = useSelector(({ product }) => product);
-  const { lastScrollY } = useSelector(({ common }) => common);
 
+  const { lastScrollY } = useSelector(({ common }) => common);
   // Swiper
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
@@ -140,6 +142,8 @@ export default function ProductFilter({
         "setting_style",
         "min_price",
         "max_price",
+        "min_carat",
+        "max_carat",
         "sort_by",
         "gender",
       ];
@@ -195,8 +199,9 @@ export default function ProductFilter({
       if (newFilters.productType && newFilters.productType.length > 0) {
         newFilters.productType.forEach((productType) => {
           const typeId = productType?.value;
-          const typeTitle = helperFunctions?.stringReplacedWithUnderScore(productType?.title);
-
+          const typeTitle = helperFunctions?.stringReplacedWithUnderScore(
+            productType?.title
+          );
           // Combine title and ID with '/'
           params.append("product_type", `${typeTitle}/${typeId}`);
         });
@@ -206,8 +211,8 @@ export default function ProductFilter({
       if (newFilters.subCategory && newFilters.subCategory.length > 0) {
         newFilters.subCategory.forEach((subCategory) => {
           const subCategoryId = subCategory?.value;
-          const subCategoryTitle = helperFunctions?.stringReplacedWithUnderScore(subCategory?.title);
-
+          const subCategoryTitle =
+            helperFunctions?.stringReplacedWithUnderScore(subCategory?.title);
           // Combine title and ID with '/'
           params.append("sub_category", `${subCategoryTitle}/${subCategoryId}`);
         });
@@ -225,6 +230,16 @@ export default function ProductFilter({
         }
       }
 
+      // Handle carat range
+      if (newFilters.caratRange && newFilters.caratRange.length === 2) {
+        const defaultRange = uniqueFilterOptions?.availableCaratRange || [0, 0];
+        const [minCarat, maxCarat] = newFilters.caratRange;
+        const [defaultMin, defaultMax] = defaultRange;
+        if (minCarat !== defaultMin || maxCarat !== defaultMax) {
+          params.set("min_carat", minCarat);
+          params.set("max_carat", maxCarat);
+        }
+      }
       // Handle sort by
       if (newFilters.sortBy) {
         params.set(
@@ -257,6 +272,7 @@ export default function ProductFilter({
         variations: selectedFilterVariations,
         settingStyles: selectedSettingStyles,
         priceRange: value,
+        caratRange: selectedCaratWeights,
         sortBy: selectedSortByValue,
         genders: selectedGenders,
         productType: selectedProductTypes,
@@ -271,10 +287,39 @@ export default function ProductFilter({
       selectedGenders,
       selectedProductTypes,
       selectedSubCategories,
+      selectedCaratWeights,
       updateURL,
     ]
   );
-  const formik = useFormik({
+
+  const onCaratChange = useCallback(
+    (value) => {
+      dispatch(setSelectedCaratWeights(value));
+      updateURL({
+        variations: selectedFilterVariations,
+        settingStyles: selectedSettingStyles,
+        priceRange: selectedPrices,
+        caratRange: value,
+        sortBy: selectedSortByValue,
+        genders: selectedGenders,
+        productType: selectedProductTypes,
+        subCategory: selectedSubCategories,
+      });
+    },
+    [
+      dispatch,
+      selectedFilterVariations,
+      selectedSettingStyles,
+      selectedSortByValue,
+      selectedGenders,
+      selectedProductTypes,
+      selectedSubCategories,
+      selectedPrices,
+      updateURL,
+    ]
+  );
+
+  const formikPrice = useFormik({
     initialValues: {
       priceRange: uniqueFilterOptions?.availablePriceRange || [0, 0],
     },
@@ -290,9 +335,40 @@ export default function ProductFilter({
     }),
     validateOnChange: true,
     validateOnBlur: true,
-    onSubmit: () => { }, // Not needed for onChange usage
+    onSubmit: () => {}, // Not needed for onChange usage
   });
-  const { values, setFieldValue, errors, touched } = formik;
+
+  const formikCarat = useFormik({
+    initialValues: {
+      caratRange: uniqueFilterOptions?.availableCaratRange || [0, 0],
+    },
+    validationSchema: Yup.object({
+      caratRange: Yup.array()
+        .of(Yup.number().required("Required"))
+        .length(2, "Both min and max are required")
+        .test(
+          "min-max",
+          "Min must be less than or equal to max",
+          (value) => value && value[0] <= value[1]
+        ),
+    }),
+    validateOnChange: true,
+    validateOnBlur: true,
+    onSubmit: () => {}, // Not needed for onChange usage
+  });
+
+  const {
+    values: priceValues,
+    setFieldValue: setPriceFieldValue,
+    errors: priceErrors,
+    touched: priceTouched,
+  } = formikPrice;
+  const {
+    values: caratValues,
+    setFieldValue: setCaratFieldValue,
+    errors: caratErrors,
+    touched: caratTouched,
+  } = formikCarat;
 
   const handleKeyDown = (e) => {
     const allowedKeys = [
@@ -311,11 +387,26 @@ export default function ProductFilter({
   };
   const debouncedOnPriceChange = useCallback(
     helperFunctions?.debounce((value) => {
-      if (!formik.errors.priceRange && typeof onPriceChange === "function") {
+      if (
+        !formikPrice.errors.priceRange &&
+        typeof onPriceChange === "function"
+      ) {
         onPriceChange(value);
       }
     }, 300),
-    [formik.errors.priceRange, onPriceChange]
+    [formikPrice.errors.priceRange, onPriceChange]
+  );
+
+  const debouncedOnCaratChange = useCallback(
+    helperFunctions?.debounce((value) => {
+      if (
+        !formikCarat.errors.caratRange &&
+        typeof onCaratChange === "function"
+      ) {
+        onCaratChange(value);
+      }
+    }, 300),
+    [formikCarat.errors.caratRange, onCaratChange]
   );
 
   useEffect(() => {
@@ -339,25 +430,40 @@ export default function ProductFilter({
   }, [isFilterMenuOpen]);
 
   useEffect(() => {
-    debouncedOnPriceChange(values.priceRange);
-  }, [values.priceRange, debouncedOnPriceChange]);
+    debouncedOnPriceChange(priceValues.priceRange);
+  }, [priceValues.priceRange, debouncedOnPriceChange]);
+
+  useEffect(() => {
+    debouncedOnCaratChange(caratValues.caratRange);
+  }, [caratValues.caratRange, debouncedOnCaratChange]);
 
   const multipleTrack = (props, state) => (
     <div
       {...props}
       key={state.index}
-      className={`absolute top-0 bottom-0 rounded-md ${[0, 2].includes(state.index) ? "bg-gray-200" : "bg-primary"
-        }`}
+      className={`absolute top-0 bottom-0 rounded-md ${
+        [0, 2].includes(state.index) ? "bg-gray-200" : "bg-primary"
+      }`}
     />
   );
-  const handleInputChange = (e, index) => {
+  const handlePriceInputChange = (e, index) => {
     // Remove the dollar sign and any non-numeric characters except decimal point
     const rawValue = e.target.value.replace(/[^0-9.]/g, "");
     const val = parseFloat(rawValue) || 0;
-    const newRange = [...values.priceRange];
+    const newRange = [...priceValues.priceRange];
     newRange[index] = val;
     if (newRange[0] > newRange[1]) newRange.sort((a, b) => a - b);
-    setFieldValue("priceRange", newRange);
+    setPriceFieldValue("priceRange", newRange);
+  };
+
+  const handleCaratInputChange = (e, index) => {
+    // Remove any non-numeric characters except decimal point
+    const rawValue = e.target.value.replace(/[^0-9.]/g, "");
+    const val = parseFloat(rawValue) || 0;
+    const newRange = [...caratValues.caratRange];
+    newRange[index] = val;
+    if (newRange[0] > newRange[1]) newRange.sort((a, b) => a - b);
+    setCaratFieldValue("caratRange", newRange);
   };
 
   const handleFilteredProductsChange = (filtered) => {
@@ -399,6 +505,7 @@ export default function ProductFilter({
         variations: newVariations,
         settingStyles: selectedSettingStyles,
         priceRange: selectedPrices,
+        caratRange: selectedCaratWeights,
         sortBy: selectedSortByValue,
         genders: selectedGenders,
         productType: selectedProductTypes,
@@ -411,6 +518,7 @@ export default function ProductFilter({
       selectedFilterVariations,
       selectedSettingStyles,
       selectedPrices,
+      selectedCaratWeights,
       selectedSortByValue,
       selectedProductTypes,
       selectedSubCategories,
@@ -440,6 +548,7 @@ export default function ProductFilter({
         variations: selectedFilterVariations,
         settingStyles: newStyles,
         priceRange: selectedPrices,
+        caratRange: selectedCaratWeights,
         sortBy: selectedSortByValue,
         productType: selectedProductTypes,
         subCategory: selectedSubCategories,
@@ -452,6 +561,7 @@ export default function ProductFilter({
       selectedFilterVariations,
       selectedSettingStyles,
       selectedPrices,
+      selectedCaratWeights,
       selectedProductTypes,
       selectedSubCategories,
       selectedSortByValue,
@@ -480,7 +590,8 @@ export default function ProductFilter({
         variations: selectedFilterVariations,
         settingStyles: selectedSettingStyles,
         priceRange: selectedPrices,
-        productType: selectedProductTypes,
+        caratRange: selectedCaratWeights,
+        productType: newStyles,
         subCategory: selectedSubCategories,
         genders: selectedGenders,
       });
@@ -491,6 +602,7 @@ export default function ProductFilter({
       selectedFilterVariations,
       selectedSettingStyles,
       selectedPrices,
+      selectedCaratWeights,
       selectedGenders,
       selectedProductTypes,
       updateURL,
@@ -516,8 +628,9 @@ export default function ProductFilter({
         variations: selectedFilterVariations,
         settingStyles: selectedSettingStyles,
         priceRange: selectedPrices,
+        caratRange: selectedCaratWeights,
         productType: selectedProductTypes,
-        subCategory: selectedSubCategories,
+        subCategory: newStyles,
         genders: selectedGenders,
       });
       helperFunctions?.scrollToRefWithExtraSpacing({ ref: displayRef });
@@ -527,6 +640,7 @@ export default function ProductFilter({
       selectedFilterVariations,
       selectedSettingStyles,
       selectedPrices,
+      selectedCaratWeights,
       selectedGenders,
       selectedProductTypes,
       selectedSubCategories,
@@ -550,6 +664,7 @@ export default function ProductFilter({
         variations: selectedFilterVariations,
         settingStyles: selectedSettingStyles,
         priceRange: selectedPrices,
+        caratRange: selectedCaratWeights,
         productType: selectedProductTypes,
         subCategory: selectedSubCategories,
         sortBy: selectedSortByValue,
@@ -564,6 +679,7 @@ export default function ProductFilter({
       selectedProductTypes,
       selectedSubCategories,
       selectedPrices,
+      selectedCaratWeights,
       selectedSortByValue,
       selectedGenders,
       updateURL,
@@ -579,6 +695,7 @@ export default function ProductFilter({
         variations: selectedFilterVariations,
         settingStyles: selectedSettingStyles,
         priceRange: selectedPrices,
+        caratRange: selectedCaratWeights,
         productType: selectedProductTypes,
         subCategory: selectedSubCategories,
         genders: selectedGenders,
@@ -591,6 +708,7 @@ export default function ProductFilter({
       selectedFilterVariations,
       selectedSettingStyles,
       selectedPrices,
+      selectedCaratWeights,
       selectedGenders,
       updateURL,
       selectedProductTypes,
@@ -604,6 +722,7 @@ export default function ProductFilter({
         variations: selectedFilterVariations,
         settingStyles: selectedSettingStyles,
         priceRange: selectedPrices,
+        caratRange: selectedCaratWeights,
         sortBy: selectedSortByValue,
         genders: selectedGenders,
         productType: selectedProductTypes,
@@ -674,12 +793,18 @@ export default function ProductFilter({
           break;
 
         case "priceRange":
-          const defaultRange = uniqueFilterOptions?.availablePriceRange || [
-            0, 0,
-          ];
+          const defaultPriceRange =
+            uniqueFilterOptions?.availablePriceRange || [0, 0];
           newFilters.priceRange = null;
-          dispatch(setSelectedPrices([]));
-          setFieldValue("priceRange", defaultRange);
+          dispatch(setSelectedPrices(defaultPriceRange));
+          setPriceFieldValue("priceRange", defaultPriceRange);
+          break;
+        case "caratRange":
+          const defaultCaratRange =
+            uniqueFilterOptions?.availableCaratRange || [0, 0];
+          newFilters.caratRange = null;
+          dispatch(setSelectedCaratWeights(defaultCaratRange));
+          setCaratFieldValue("caratRange", defaultCaratRange);
           break;
         case "sortBy":
           newFilters.sortBy = null;
@@ -696,12 +821,14 @@ export default function ProductFilter({
       selectedFilterVariations,
       selectedSettingStyles,
       selectedPrices,
+      selectedCaratWeights,
       selectedSortByValue,
       uniqueFilterOptions,
       selectedProductTypes,
       selectedSubCategories,
       selectedGenders,
-      setFieldValue,
+      setPriceFieldValue,
+      setCaratFieldValue,
       updateURL,
       displayRef,
     ]
@@ -711,9 +838,15 @@ export default function ProductFilter({
     dispatch(resetFilters());
 
     // Reset formik values to default price range
-    const defaultRange = uniqueFilterOptions?.availablePriceRange || [0, 0];
-    setFieldValue("priceRange", defaultRange);
-
+    const defaultPriceRange = uniqueFilterOptions?.availablePriceRange || [
+      0, 0,
+    ];
+    setPriceFieldValue("priceRange", defaultPriceRange);
+    // Reset formik values to default carat range
+    const defaultCaratRange = uniqueFilterOptions?.availableCaratRange || [
+      0, 0,
+    ];
+    setCaratFieldValue("caratRange", defaultCaratRange);
     router.replace(window.location.pathname, { scroll: false });
     dispatch(setVisibleItemCount(ITEMS_PER_PAGE));
     helperFunctions?.scrollToRefWithExtraSpacing({ ref: displayRef });
@@ -796,12 +929,21 @@ export default function ProductFilter({
         return price >= minPrice && price <= maxPrice;
       });
     }
+
+    // Carat filter
+    if (selectedCaratWeights?.length === 2) {
+      const [minCarat, maxCarat] = selectedCaratWeights;
+      filteredItemsList = filteredItemsList.filter((product) => {
+        const carat = parseFloat(product.totalCaratWeight || 0);
+        return carat >= minCarat && carat <= maxCarat;
+      });
+    }
     // Sorting remains the same (single selection)
     filteredItemsList = filteredItemsList.sort((a, b) => {
       if (!selectedSortByValue) return 0; // Default case if no sort value
       try {
         switch (
-        helperFunctions?.stringReplacedWithUnderScore(selectedSortByValue)
+          helperFunctions?.stringReplacedWithUnderScore(selectedSortByValue)
         ) {
           case "alphabetically_a_to_z":
             return (a.productName || "").localeCompare(b.productName || "");
@@ -838,6 +980,7 @@ export default function ProductFilter({
     selectedFilterVariations,
     selectedSettingStyles,
     selectedPrices,
+    selectedCaratWeights,
     selectedSortByValue,
     selectedGenders,
   ]);
@@ -929,11 +1072,31 @@ export default function ProductFilter({
         parseFloat(decodeURIComponent(maxPrice)),
       ];
       dispatch(setSelectedPrices(parsedPrices));
-      setFieldValue("priceRange", parsedPrices);
+      setPriceFieldValue("priceRange", parsedPrices);
     } else {
-      const defaultRange = uniqueFilterOptions?.availablePriceRange || [0, 0];
-      dispatch(setSelectedPrices(defaultRange));
-      setFieldValue("priceRange", defaultRange);
+      const defaultPriceRange = uniqueFilterOptions?.availablePriceRange || [
+        0, 0,
+      ];
+      dispatch(setSelectedPrices(defaultPriceRange));
+      setPriceFieldValue("priceRange", defaultPriceRange);
+    }
+
+    // Parse carat range
+    const minCarat = urlParams.get("min_carat");
+    const maxCarat = urlParams.get("max_carat");
+    if (minCarat && maxCarat) {
+      const parsedCarats = [
+        parseFloat(decodeURIComponent(minCarat)),
+        parseFloat(decodeURIComponent(maxCarat)),
+      ];
+      dispatch(setSelectedCaratWeights(parsedCarats));
+      setCaratFieldValue("caratRange", parsedCarats);
+    } else {
+      const defaultCaratRange = uniqueFilterOptions?.availableCaratRange || [
+        0, 0,
+      ];
+      dispatch(setSelectedCaratWeights(defaultCaratRange));
+      setCaratFieldValue("caratRange", defaultCaratRange);
     }
 
     // Parse sort by
@@ -951,8 +1114,13 @@ export default function ProductFilter({
         helperFunctions?.stringReplacedWithSpace(decodeURIComponent(g))
       );
     dispatch(setSelectedGenders(genders));
-  }, [searchParams, dispatch, setFieldValue, uniqueFilterOptions]);
-
+  }, [
+    searchParams,
+    dispatch,
+    setPriceFieldValue,
+    setCaratFieldValue,
+    uniqueFilterOptions,
+  ]);
   // Get active filter count
   const getActiveFilterCount = () => {
     let count = 0;
@@ -970,8 +1138,29 @@ export default function ProductFilter({
     }
 
     // Count price range
-    if (selectedPrices?.length === 2) count += 1;
-
+    const defaultPriceRange = uniqueFilterOptions?.availablePriceRange || [
+      0, 0,
+    ];
+    const [defaultMinPrice, defaultMaxPrice] = defaultPriceRange;
+    if (
+      selectedPrices?.length === 2 &&
+      (selectedPrices[0] !== defaultMinPrice ||
+        selectedPrices[1] !== defaultMaxPrice)
+    ) {
+      count += 1;
+    }
+    // Count carat range
+    const defaultCaratRange = uniqueFilterOptions?.availableCaratRange || [
+      0, 0,
+    ];
+    const [defaultMinCarat, defaultMaxCarat] = defaultCaratRange;
+    if (
+      selectedCaratWeights?.length === 2 &&
+      (selectedCaratWeights[0] !== defaultMinCarat ||
+        selectedCaratWeights[1] !== defaultMaxCarat)
+    ) {
+      count += 1;
+    }
     return count;
   };
 
@@ -1001,7 +1190,6 @@ export default function ProductFilter({
     );
 
     // Add setting style filters
-
     if (selectedSettingStyles && selectedSettingStyles?.length) {
       selectedSettingStyles.forEach(({ value: styleId, title: styleTitle }) => {
         const matchedStyle = uniqueFilterOptions?.uniqueSettingStyles?.find(
@@ -1065,21 +1253,40 @@ export default function ProductFilter({
         }
       );
     }
-
     // Add price range filter
-    if (selectedPrices?.length === 2) {
-      const defaultRange = uniqueFilterOptions?.availablePriceRange || [0, 0];
-      const [minPrice, maxPrice] = selectedPrices;
-      const [defaultMin, defaultMax] = defaultRange;
+    const defaultPriceRange = uniqueFilterOptions?.availablePriceRange || [
+      0, 0,
+    ];
+    const [defaultMinPrice, defaultMaxPrice] = defaultPriceRange;
+    if (
+      selectedPrices?.length === 2 &&
+      (selectedPrices[0] !== defaultMinPrice ||
+        selectedPrices[1] !== defaultMaxPrice)
+    ) {
+      selectedFilters.push({
+        type: "priceRange",
+        key: "priceRange",
+        label: `$${selectedPrices[0]} - $${selectedPrices[1]}`,
+        value: null,
+      });
+    }
 
-      if (minPrice !== defaultMin || maxPrice !== defaultMax) {
-        selectedFilters.push({
-          type: "priceRange",
-          key: "priceRange",
-          label: `$${selectedPrices[0]} - $${selectedPrices[1]}`,
-          value: null,
-        });
-      }
+    // Add carat range filter
+    const defaultCaratRange = uniqueFilterOptions?.availableCaratRange || [
+      0, 0,
+    ];
+    const [defaultMinCarat, defaultMaxCarat] = defaultCaratRange;
+    if (
+      selectedCaratWeights?.length === 2 &&
+      (selectedCaratWeights[0] !== defaultMinCarat ||
+        selectedCaratWeights[1] !== defaultMaxCarat)
+    ) {
+      selectedFilters.push({
+        type: "caratRange",
+        key: "caratRange",
+        label: `${selectedCaratWeights[0]} - ${selectedCaratWeights[1]} ct`,
+        value: null,
+      });
     }
 
     if (selectedGenders?.length) {
@@ -1101,7 +1308,6 @@ export default function ProductFilter({
         });
       });
     }
-
     return selectedFilters;
   };
 
@@ -1119,14 +1325,15 @@ export default function ProductFilter({
       ></div>
       <div
         // className={`z-30 transition-all duration-700 ease-in-out ${
-        //   isFilterFixed
-        //     ? "fixed top-[110px] lg:top-[60px] clear-both w-full pt-6 bg-white shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] animate-slideDown animate-duration-900 animate-ease-in-out"
-        //     : "top-0 border-b-2 border-primary bg-transparent "
+        // isFilterFixed
+        // ? "fixed top-[110px] lg:top-[60px] clear-both w-full pt-6 bg-white shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] animate-slideDown animate-duration-900 animate-ease-in-out"
+        // : "top-0 border-b-2 border-primary bg-transparent "
         // }`}
-        className={`z-30 transition-all duration-700 ease-in-out ${isFilterFixed
-          ? "fixed top-[39px] lg:top-[50px] clear-both w-full pt-6 bg-white shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] animate-slideDown animate-duration-900 animate-ease-in-out"
-          : "top-0  bg-transparent border-b-2 "
-          }`}
+        className={`z-30 transition-all duration-700 ease-in-out ${
+          isFilterFixed
+            ? "fixed top-[39px] lg:top-[50px] clear-both w-full pt-6 bg-white shadow-[0_5px_5px_0_rgba(0,0,0,0.21)] animate-slideDown animate-duration-900 animate-ease-in-out"
+            : "top-0 bg-transparent border-b-2 "
+        }`}
       >
         <div className="container">
           <div className="gap-2 flex flex-col lg:flex-row lg:items-center lg:justify-between lg:h-[45px] relative pb-4">
@@ -1197,18 +1404,19 @@ export default function ProductFilter({
                   <ul className="text-[14px] leading-[17px] font-semibold text-baseblack">
                     {sortByList?.length
                       ? sortByList.map((item) => (
-                        <li
-                          key={item?.value}
-                          style={{ textTransform: "capitalize" }}
-                          className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${selectedSortByValue === item?.value
-                            ? "bg-gray-200 font-bold"
-                            : ""
+                          <li
+                            key={item?.value}
+                            style={{ textTransform: "capitalize" }}
+                            className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${
+                              selectedSortByValue === item?.value
+                                ? "bg-gray-200 font-bold"
+                                : ""
                             }`}
-                          onClick={() => onSelectSortBy(item?.value)}
-                        >
-                          {item.title}
-                        </li>
-                      ))
+                            onClick={() => onSelectSortBy(item?.value)}
+                          >
+                            {item.title}
+                          </li>
+                        ))
                       : null}
                   </ul>
                 </div>
@@ -1250,7 +1458,7 @@ export default function ProductFilter({
                     {/* Mobile Dropdowns */}
                     <div className="lg:hidden flex flex-col w-full">
                       {!isDiamondSettingPage &&
-                        haveUniqueDiamondShapeOptions ? (
+                      haveUniqueDiamondShapeOptions ? (
                         // <div className="border-b border-baseblack ">
                         <div>
                           <button
@@ -1270,10 +1478,11 @@ export default function ProductFilter({
                             <div className="p-3 relative">
                               {showNavigationButtons && (
                                 <button
-                                  className={`absolute top-1/2 left-[25px] -translate-x-8 -translate-y-1/2 ${isBeginning
-                                    ? "opacity-50 cursor-not-allowed"
-                                    : ""
-                                    }`}
+                                  className={`absolute top-1/2 left-[25px] -translate-x-8 -translate-y-1/2 ${
+                                    isBeginning
+                                      ? "opacity-50 cursor-not-allowed"
+                                      : ""
+                                  }`}
                                   onClick={() => swiperRef.current?.slidePrev()}
                                   disabled={isBeginning}
                                 >
@@ -1282,8 +1491,9 @@ export default function ProductFilter({
                               )}
                               {showNavigationButtons && (
                                 <button
-                                  className={`absolute top-1/2 -right-[8px]  -translate-y-1/2 ${isEnd ? "opacity-50 cursor-not-allowed" : ""
-                                    }`}
+                                  className={`absolute top-1/2 -right-[8px] -translate-y-1/2 ${
+                                    isEnd ? "opacity-50 cursor-not-allowed" : ""
+                                  }`}
                                   onClick={() => swiperRef.current?.slideNext()}
                                   disabled={isEnd}
                                 >
@@ -1326,7 +1536,7 @@ export default function ProductFilter({
                                       (item, index) => {
                                         const selectedDiamondShape =
                                           selectedFilterVariations[
-                                          DIAMOND_SHAPE
+                                            DIAMOND_SHAPE
                                           ] || [];
                                         const isSelected =
                                           selectedDiamondShape.includes(
@@ -1337,10 +1547,11 @@ export default function ProductFilter({
                                             key={`filter-diamond-shape-${index}`}
                                           >
                                             <div
-                                              className={`flex flex-col items-center gap-2 group cursor-pointer p-1 rounded border ${isSelected
-                                                ? "border-baseblack bg-gray-50"
-                                                : "border-gray-200 hover:border-baseblack"
-                                                }`}
+                                              className={`flex flex-col items-center gap-2 group cursor-pointer p-1 rounded border ${
+                                                isSelected
+                                                  ? "border-baseblack bg-gray-50"
+                                                  : "border-gray-200 hover:border-baseblack"
+                                              }`}
                                               onClick={() =>
                                                 onSelectVariant(
                                                   DIAMOND_SHAPE,
@@ -1363,10 +1574,11 @@ export default function ProductFilter({
                                                 />
                                               </span>
                                               <span
-                                                className={`text-[14px] font-light ${isSelected
-                                                  ? "font-semibold"
-                                                  : ""
-                                                  }`}
+                                                className={`text-[14px] font-light ${
+                                                  isSelected
+                                                    ? "font-semibold"
+                                                    : ""
+                                                }`}
                                               >
                                                 {helperFunctions?.stringReplacedWithSpace(
                                                   item?.variationTypeName
@@ -1403,56 +1615,58 @@ export default function ProductFilter({
                               (variation) =>
                                 variation.variationName === GOLD_COLOR
                                   ? variation.variationTypes.map(
-                                    (item, index) => {
-                                      const selectedGoldColors =
-                                        selectedFilterVariations[
-                                        GOLD_COLOR
-                                        ] || [];
-                                      const isSelected =
-                                        selectedGoldColors.includes(
-                                          item.variationTypeName
-                                        );
-                                      return (
-                                        <div
-                                          className={`gap-1.5 flex items-center cursor-pointer p-1`}
-                                          key={`filter-variation-${index}2`}
-                                          onClick={() =>
-                                            onSelectVariant(
-                                              GOLD_COLOR,
-                                              item.variationTypeName
-                                            )
-                                          }
-                                        >
-                                          <input
-                                            type="checkbox"
-                                            checked={isSelected}
-                                            readOnly
-                                            className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
-                                          />
+                                      (item, index) => {
+                                        const selectedGoldColors =
+                                          selectedFilterVariations[
+                                            GOLD_COLOR
+                                          ] || [];
+                                        const isSelected =
+                                          selectedGoldColors.includes(
+                                            item.variationTypeName
+                                          );
+                                        return (
                                           <div
-                                            className={`rounded-full w-5 h-5 border ${isSelected
-                                              ? "border-primary"
-                                              : "border-black"
-                                              }`}
-                                            style={{
-                                              background:
-                                                item?.variationTypeHexCode,
-                                            }}
-                                          ></div>
-                                          <span
-                                            className={`text-[14px] font-light ${isSelected
-                                              ? "font-semibold"
-                                              : ""
-                                              }`}
+                                            className={`gap-1.5 flex items-center cursor-pointer p-1`}
+                                            key={`filter-variation-${index}2`}
+                                            onClick={() =>
+                                              onSelectVariant(
+                                                GOLD_COLOR,
+                                                item.variationTypeName
+                                              )
+                                            }
                                           >
-                                            {helperFunctions?.stringReplacedWithSpace(
-                                              item?.variationTypeName
-                                            )}
-                                          </span>
-                                        </div>
-                                      );
-                                    }
-                                  )
+                                            <input
+                                              type="checkbox"
+                                              checked={isSelected}
+                                              readOnly
+                                              className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
+                                            />
+                                            <div
+                                              className={`rounded-full w-5 h-5 border ${
+                                                isSelected
+                                                  ? "border-primary"
+                                                  : "border-black"
+                                              }`}
+                                              style={{
+                                                background:
+                                                  item?.variationTypeHexCode,
+                                              }}
+                                            ></div>
+                                            <span
+                                              className={`text-[14px] font-light ${
+                                                isSelected
+                                                  ? "font-semibold"
+                                                  : ""
+                                              }`}
+                                            >
+                                              {helperFunctions?.stringReplacedWithSpace(
+                                                item?.variationTypeName
+                                              )}
+                                            </span>
+                                          </div>
+                                        );
+                                      }
+                                    )
                                   : null
                             )}
                           </div>
@@ -1481,12 +1695,12 @@ export default function ProductFilter({
                                     selectedSettingStyles?.some(
                                       (s) => s.value === item.value
                                     );
-
                                   return (
                                     <span
                                       key={`filter-variation-${index}4`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
-                                        }`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
+                                        isSelected ? "font-semibold" : ""
+                                      }`}
                                       onClick={() => onSelectSettingStyle(item)}
                                     >
                                       <input
@@ -1526,12 +1740,12 @@ export default function ProductFilter({
                               }
                               min={uniqueFilterOptions?.availablePriceRange[0]}
                               max={uniqueFilterOptions?.availablePriceRange[1]}
-                              rangeValue={values.priceRange}
+                              rangeValue={priceValues.priceRange}
                               setRangeValue={(value) =>
-                                setFieldValue("priceRange", value)
+                                setPriceFieldValue("priceRange", value)
                               }
                               setInputValues={(value) =>
-                                setFieldValue("priceRange", value)
+                                setPriceFieldValue("priceRange", value)
                               }
                               step={1}
                               renderTrack={multipleTrack}
@@ -1541,9 +1755,9 @@ export default function ProductFilter({
                                 <span className="pl-1">$</span>
                                 <input
                                   type="text"
-                                  value={values?.priceRange[0]}
-                                  onChange={(e) => handleInputChange(e, 0)}
-                                  onBlur={formik.handleBlur}
+                                  value={priceValues?.priceRange[0]}
+                                  onChange={(e) => handlePriceInputChange(e, 0)}
+                                  onBlur={formikPrice.handleBlur}
                                   onKeyDown={handleKeyDown}
                                   className="p-1 w-full text-center border-none focus:outline-none"
                                 />
@@ -1552,23 +1766,102 @@ export default function ProductFilter({
                                 <span className="pl-1">$</span>
                                 <input
                                   type="text"
-                                  value={values?.priceRange[1]}
-                                  onChange={(e) => handleInputChange(e, 1)}
-                                  onBlur={formik.handleBlur}
+                                  value={priceValues?.priceRange[1]}
+                                  onChange={(e) => handlePriceInputChange(e, 1)}
+                                  onBlur={formikPrice.handleBlur}
                                   onKeyDown={handleKeyDown}
                                   className="p-1 w-full text-center border-none focus:outline-none"
                                 />
                               </div>
-                              {touched?.priceRange &&
-                                typeof errors?.priceRange === "string" && (
+                              {priceTouched?.priceRange &&
+                                typeof priceErrors?.priceRange === "string" && (
                                   <div className="text-red-500 text-[14px]">
-                                    {errors?.priceRange}
+                                    {priceErrors?.priceRange}
                                   </div>
                                 )}
                             </div>
                           </div>
                         )}
                       </div>
+
+                      {/* Total Carat Weight */}
+                      {!isDiamondSettingPage ? (
+                        <div className="border-b border-baseblack">
+                          <button
+                            className="w-full flex justify-between items-center py-3 font-medium text-base"
+                            onClick={() => toggleDropdown("carat")}
+                          >
+                            Total Carat Weight
+                            <span>
+                              {smOpenFilter?.includes("carat") ? (
+                                <FiMinus />
+                              ) : (
+                                <FaPlus />
+                              )}
+                            </span>
+                          </button>
+                          {smOpenFilter?.includes("carat") && (
+                            <div className="p-3">
+                              <RangeSlider
+                                defaultValue={
+                                  uniqueFilterOptions?.availableCaratRange
+                                }
+                                min={
+                                  uniqueFilterOptions?.availableCaratRange[0]
+                                }
+                                max={
+                                  uniqueFilterOptions?.availableCaratRange[1]
+                                }
+                                rangeValue={caratValues.caratRange}
+                                setRangeValue={(value) =>
+                                  setCaratFieldValue("caratRange", value)
+                                }
+                                setInputValues={(value) =>
+                                  setCaratFieldValue("caratRange", value)
+                                }
+                                step={0.01}
+                                renderTrack={multipleTrack}
+                              />
+                              <div className="flex justify-between mt-6">
+                                <div className="flex items-center border border-baseblack w-20">
+                                  <input
+                                    type="text"
+                                    value={caratValues?.caratRange[0]}
+                                    onChange={(e) =>
+                                      handleCaratInputChange(e, 0)
+                                    }
+                                    onBlur={formikCarat.handleBlur}
+                                    onKeyDown={handleKeyDown}
+                                    className="p-1 w-full text-center border-none focus:outline-none"
+                                  />
+                                  <span className="pr-1">ct</span>
+                                </div>
+                                <div className="flex items-center border border-baseblack w-20">
+                                  <input
+                                    type="text"
+                                    value={caratValues?.caratRange[1]}
+                                    onChange={(e) =>
+                                      handleCaratInputChange(e, 1)
+                                    }
+                                    onBlur={formikCarat.handleBlur}
+                                    onKeyDown={handleKeyDown}
+                                    className="p-1 w-full text-center border-none focus:outline-none"
+                                  />
+                                  <span className="pr-1">ct</span>
+                                </div>
+                                {caratTouched?.caratRange &&
+                                  typeof caratErrors?.caratRange ===
+                                    "string" && (
+                                    <div className="text-red-500 text-[14px]">
+                                      {caratErrors?.caratRange}
+                                    </div>
+                                  )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ) : null}
+
                       {uniqueFilterOptions?.uniqueGenders?.length ? (
                         <div className="border-b border-baseblack">
                           <button
@@ -1600,8 +1893,9 @@ export default function ProductFilter({
                                   return (
                                     <span
                                       key={`filter-gender-${index}`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
-                                        }`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
+                                        isSelected ? "font-semibold" : ""
+                                      }`}
                                       onClick={() =>
                                         onSelectGender(normalizedGender)
                                       }
@@ -1623,7 +1917,7 @@ export default function ProductFilter({
                       ) : null}
                       {/* PRODUCT TYPE FILTER */}
                       {activeFilterType === PRODUCT_TYPE_KEY &&
-                        uniqueFilterOptions?.uniqueProductTypes?.length ? (
+                      uniqueFilterOptions?.uniqueProductTypes?.length ? (
                         <div className="border-b border-baseblack">
                           <button
                             className="w-full flex justify-between items-center py-3 font-medium text-base"
@@ -1645,12 +1939,12 @@ export default function ProductFilter({
                                   const isSelected = selectedProductTypes?.some(
                                     (s) => s.value === item.value
                                   );
-
                                   return (
                                     <span
                                       key={`filter-productType-${index}`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
-                                        }`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
+                                        isSelected ? "font-semibold" : ""
+                                      }`}
                                       onClick={() => onSelectProductType(item)}
                                     >
                                       <input
@@ -1671,7 +1965,7 @@ export default function ProductFilter({
 
                       {/* SUB CATEGORY FILTER */}
                       {activeFilterType === SUB_CATEGORIES_KEY &&
-                        uniqueFilterOptions?.uniqueSubCategories?.length > 0 ? (
+                      uniqueFilterOptions?.uniqueSubCategories?.length > 0 ? (
                         <div className="border-b border-baseblack">
                           <button
                             className="w-full flex justify-between items-center py-3 font-medium text-base"
@@ -1694,12 +1988,12 @@ export default function ProductFilter({
                                     selectedSubCategories?.some(
                                       (s) => s.value === item.value
                                     );
-
                                   return (
                                     <span
                                       key={`filter-subCategory-${index}`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
-                                        }`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
+                                        isSelected ? "font-semibold" : ""
+                                      }`}
                                       onClick={() => onSelectSubCategory(item)}
                                     >
                                       <input
@@ -1721,7 +2015,7 @@ export default function ProductFilter({
                     {/* Desktop Layout */}
                     <div className="hidden lg:flex justify-between w-full gap-[30px]">
                       {!isDiamondSettingPage &&
-                        haveUniqueDiamondShapeOptions ? (
+                      haveUniqueDiamondShapeOptions ? (
                         <div className="w-[30%]">
                           <h5 className={filterHeadingClass}>Shape</h5>
                           <div className="grid grid-cols-2 gap-[10px]">
@@ -1751,10 +2045,11 @@ export default function ProductFilter({
                                       }
                                     >
                                       <span
-                                        className={`flex items-center justify-center w-full flex-[0_0_36px] max-w-[36px] h-[36px] border ${isSelected
-                                          ? "border-baseblack"
-                                          : "border-transparent group-hover:border-baseblack"
-                                          } rounded-full overflow-hidden`}
+                                        className={`flex items-center justify-center w-full flex-[0_0_36px] max-w-[36px] h-[36px] border ${
+                                          isSelected
+                                            ? "border-baseblack"
+                                            : "border-transparent group-hover:border-baseblack"
+                                        } rounded-full overflow-hidden`}
                                       >
                                         <ProgressiveImg
                                           className={`w-[25px] h-[25px] !transition-none`}
@@ -1766,8 +2061,9 @@ export default function ProductFilter({
                                         />
                                       </span>
                                       <span
-                                        className={`text-[15px] font-light ${isSelected ? "font-semibold" : ""
-                                          }`}
+                                        className={`text-[15px] font-light ${
+                                          isSelected ? "font-semibold" : ""
+                                        }`}
                                       >
                                         {helperFunctions?.stringReplacedWithSpace(
                                           item?.variationTypeName
@@ -1790,53 +2086,55 @@ export default function ProductFilter({
                             >
                               {variation.variationName === GOLD_COLOR
                                 ? variation.variationTypes.map(
-                                  (item, index) => {
-                                    const selectedGoldColors =
-                                      selectedFilterVariations[GOLD_COLOR] ||
-                                      [];
-                                    const isSelected =
-                                      selectedGoldColors.includes(
-                                        item.variationTypeName
-                                      );
-                                    return (
-                                      <div
-                                        className={`gap-1.5 flex items-center cursor-pointer p-1`}
-                                        key={`filter-variation-${index}2`}
-                                        onClick={() =>
-                                          onSelectVariant(
-                                            GOLD_COLOR,
-                                            item.variationTypeName
-                                          )
-                                        }
-                                      >
-                                        <input
-                                          type="checkbox"
-                                          checked={isSelected}
-                                          readOnly
-                                          className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
-                                        />
+                                    (item, index) => {
+                                      const selectedGoldColors =
+                                        selectedFilterVariations[GOLD_COLOR] ||
+                                        [];
+                                      const isSelected =
+                                        selectedGoldColors.includes(
+                                          item.variationTypeName
+                                        );
+                                      return (
                                         <div
-                                          className={`rounded-full w-5 h-5 border ${isSelected
-                                            ? "border-primary"
-                                            : "border-black"
-                                            }`}
-                                          style={{
-                                            background:
-                                              item?.variationTypeHexCode,
-                                          }}
-                                        ></div>
-                                        <span
-                                          className={`text-[14px] font-light ${isSelected ? "font-semibold" : ""
-                                            }`}
+                                          className={`gap-1.5 flex items-center cursor-pointer p-1`}
+                                          key={`filter-variation-${index}2`}
+                                          onClick={() =>
+                                            onSelectVariant(
+                                              GOLD_COLOR,
+                                              item.variationTypeName
+                                            )
+                                          }
                                         >
-                                          {helperFunctions?.stringReplacedWithSpace(
-                                            item?.variationTypeName
-                                          )}
-                                        </span>
-                                      </div>
-                                    );
-                                  }
-                                )
+                                          <input
+                                            type="checkbox"
+                                            checked={isSelected}
+                                            readOnly
+                                            className="form-checkbox h-5 w-5 accent-baseblack cursor-pointer"
+                                          />
+                                          <div
+                                            className={`rounded-full w-5 h-5 border ${
+                                              isSelected
+                                                ? "border-primary"
+                                                : "border-black"
+                                            }`}
+                                            style={{
+                                              background:
+                                                item?.variationTypeHexCode,
+                                            }}
+                                          ></div>
+                                          <span
+                                            className={`text-[14px] font-light ${
+                                              isSelected ? "font-semibold" : ""
+                                            }`}
+                                          >
+                                            {helperFunctions?.stringReplacedWithSpace(
+                                              item?.variationTypeName
+                                            )}
+                                          </span>
+                                        </div>
+                                      );
+                                    }
+                                  )
                                 : null}
                             </div>
                           )
@@ -1859,8 +2157,9 @@ export default function ProductFilter({
                                   return (
                                     <span
                                       key={`filter-variation-${index}4`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
-                                        }`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
+                                        isSelected ? "font-semibold" : ""
+                                      }`}
                                       onClick={() => onSelectSettingStyle(item)}
                                     >
                                       <input
@@ -1889,12 +2188,12 @@ export default function ProductFilter({
                               }
                               min={uniqueFilterOptions?.availablePriceRange[0]}
                               max={uniqueFilterOptions?.availablePriceRange[1]}
-                              rangeValue={values.priceRange}
+                              rangeValue={priceValues.priceRange}
                               setRangeValue={(value) =>
-                                setFieldValue("priceRange", value)
+                                setPriceFieldValue("priceRange", value)
                               }
                               setInputValues={(value) =>
-                                setFieldValue("priceRange", value)
+                                setPriceFieldValue("priceRange", value)
                               }
                               step={1}
                               renderTrack={multipleTrack}
@@ -1904,9 +2203,9 @@ export default function ProductFilter({
                                 <span className="pl-1">$</span>
                                 <input
                                   type="text"
-                                  value={values?.priceRange[0]}
-                                  onChange={(e) => handleInputChange(e, 0)}
-                                  onBlur={formik.handleBlur}
+                                  value={priceValues?.priceRange[0]}
+                                  onChange={(e) => handlePriceInputChange(e, 0)}
+                                  onBlur={formikPrice.handleBlur}
                                   onKeyDown={handleKeyDown}
                                   className="p-1 w-full border-none focus:outline-none"
                                 />
@@ -1915,22 +2214,88 @@ export default function ProductFilter({
                                 <span className="pl-1">$</span>
                                 <input
                                   type="text"
-                                  value={values?.priceRange[1]}
-                                  onChange={(e) => handleInputChange(e, 1)}
-                                  onBlur={formik.handleBlur}
+                                  value={priceValues?.priceRange[1]}
+                                  onChange={(e) => handlePriceInputChange(e, 1)}
+                                  onBlur={formikPrice.handleBlur}
                                   onKeyDown={handleKeyDown}
                                   className="p-1 w-full border-none focus:outline-none"
                                 />
                               </div>
-                              {touched?.priceRange &&
-                                typeof errors?.priceRange === "string" && (
+                              {priceTouched?.priceRange &&
+                                typeof priceErrors?.priceRange === "string" && (
                                   <div className="text-red-500 text-[14px]">
-                                    {errors?.priceRange}
+                                    {priceErrors?.priceRange}
                                   </div>
                                 )}
                             </div>
                           </div>
                         </div>
+
+                        {!isDiamondSettingPage ? (
+                          <div>
+                            <h5 className={filterHeadingClass}>
+                              Total Carat Weight
+                            </h5>
+                            <div>
+                              <RangeSlider
+                                defaultValue={
+                                  uniqueFilterOptions?.availableCaratRange
+                                }
+                                min={
+                                  uniqueFilterOptions?.availableCaratRange[0]
+                                }
+                                max={
+                                  uniqueFilterOptions?.availableCaratRange[1]
+                                }
+                                rangeValue={caratValues.caratRange}
+                                setRangeValue={(value) =>
+                                  setCaratFieldValue("caratRange", value)
+                                }
+                                setInputValues={(value) =>
+                                  setCaratFieldValue("caratRange", value)
+                                }
+                                step={0.01}
+                                renderTrack={multipleTrack}
+                              />
+                              <div className="flex justify-between mt-4">
+                                <div className="flex items-center border border-baseblack w-24">
+                                  <input
+                                    type="text"
+                                    value={caratValues?.caratRange[0]}
+                                    onChange={(e) =>
+                                      handleCaratInputChange(e, 0)
+                                    }
+                                    onBlur={formikCarat.handleBlur}
+                                    onKeyDown={handleKeyDown}
+                                    className="p-1 w-full border-none focus:outline-none"
+                                  />
+                                  <span className="pr-1">ct</span>
+                                </div>
+                                <div className="flex items-center border border-baseblack w-24">
+                                  <input
+                                    type="text"
+                                    value={caratValues?.caratRange[1]}
+                                    onChange={(e) =>
+                                      handleCaratInputChange(e, 1)
+                                    }
+                                    onBlur={formikCarat.handleBlur}
+                                    onKeyDown={handleKeyDown}
+                                    className="p-1 w-full border-none focus:outline-none"
+                                  />
+                                  <span className="pr-1">ct</span>
+                                </div>
+                                {caratTouched?.caratRange &&
+                                  typeof caratErrors?.caratRange ===
+                                    "string" && (
+                                    <div className="text-red-500 text-[14px]">
+                                      {caratErrors?.caratRange}
+                                    </div>
+                                  )}
+                              </div>
+                            </div>
+                          </div>
+                        ) : null}
+
                         {uniqueFilterOptions?.uniqueGenders?.length ? (
                           <div>
                             <h5 className={filterHeadingClass}>Gender</h5>
@@ -1949,8 +2314,9 @@ export default function ProductFilter({
                                   return (
                                     <span
                                       key={`filter-gender-${index}`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
-                                        }`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
+                                        isSelected ? "font-semibold" : ""
+                                      }`}
                                       onClick={() =>
                                         onSelectGender(normalizedGender)
                                       }
@@ -1971,7 +2337,7 @@ export default function ProductFilter({
                         ) : null}
 
                         {activeFilterType === PRODUCT_TYPE_KEY &&
-                          uniqueFilterOptions?.uniqueProductTypes?.length ? (
+                        uniqueFilterOptions?.uniqueProductTypes?.length ? (
                           <div>
                             <h5 className={filterHeadingClass}>Product Type</h5>
                             <div className="flex gap-6">
@@ -1983,8 +2349,9 @@ export default function ProductFilter({
                                   return (
                                     <span
                                       key={`filter-productType-${index}`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
-                                        }`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
+                                        isSelected ? "font-semibold" : ""
+                                      }`}
                                       onClick={() => onSelectProductType(item)}
                                     >
                                       <input
@@ -2003,7 +2370,7 @@ export default function ProductFilter({
                         ) : null}
 
                         {activeFilterType === SUB_CATEGORIES_KEY &&
-                          uniqueFilterOptions?.uniqueSubCategories?.length ? (
+                        uniqueFilterOptions?.uniqueSubCategories?.length ? (
                           <div>
                             <h5 className={filterHeadingClass}>Sub Category</h5>
                             <div className="grid grid-cols-3 gap-3">
@@ -2016,8 +2383,9 @@ export default function ProductFilter({
                                   return (
                                     <span
                                       key={`filter-subCategory-${index}`}
-                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${isSelected ? "font-semibold" : ""
-                                        }`}
+                                      className={`text-[14px] font-light cursor-pointer p-1 gap-2 flex items-center ${
+                                        isSelected ? "font-semibold" : ""
+                                      }`}
                                       onClick={() => onSelectSubCategory(item)}
                                     >
                                       <input
