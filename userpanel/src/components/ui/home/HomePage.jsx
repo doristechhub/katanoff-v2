@@ -231,7 +231,8 @@ const Home = () => {
     link: `/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
       DEALS_OF_THE_WEEK
     )}`,
-  }
+  };
+
   return (
     <>
       {/* {currentUser ? <HomePagePopupWithLogin /> : <HomePagePopup />} */}
@@ -248,9 +249,9 @@ const Home = () => {
             className="w-auto h-auto"
           />
           <div className="absolute top-1/2 -translate-y-1/2 left-6 md:left-10 lg:left-16 xl:left-20 text-white max-w-sm lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl flex flex-col gap-3 md:gap-4 2xl:gap-6 4xl:gap-8">
-            <h3 className="font-castoro text-2xl md:text-3xl lg:text-4xl xl:text-5xl">
+            <h2 className="font-castoro text-2xl md:text-3xl lg:text-4xl xl:text-5xl">
               {dealsOfWeekData?.title}
-            </h3>
+            </h2>
             <div>
               <p className="text-base md:text-lg xl:text-xl 4xl:text-xl font-light">
                 {dealsOfWeekData?.description}
@@ -263,6 +264,7 @@ const Home = () => {
             <LinkButton
               href={dealsOfWeekData?.link}
               className="!w-fit !uppercase !rounded-none !text-primary hover:!text-white"
+              aria-label="Shop Deals of the Week"
             >
               Shop Now
             </LinkButton>
@@ -293,6 +295,7 @@ const Home = () => {
               <LinkButton
                 href={dealsOfWeekData?.link}
                 className="!w-fit !uppercase !rounded-none !text-primary hover:!text-white"
+                aria-label="Shop Deals of the Week"
               >
                 Shop Now
               </LinkButton>
@@ -300,7 +303,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
 
       <section className="bg-white pt-6 lg:pt-0 pb-10 xl:pb-16">
         <RingSettingCenterStone />
@@ -331,7 +333,7 @@ const Home = () => {
       </section>
 
       <section className="bg-[#F2F2F2] mt-0 sm:mt-2 md:mt-8 lg:mt-12 xl:mt-16">
-        <ReviewSlider reviews={mockReviews} totalCount={120} />
+        <ReviewSlider reviews={mockReviews} totalCount={100} />
       </section>
       <section className="container pt-12 lg:pt-20 2xl:pt-24">
         <KeyFeatures />

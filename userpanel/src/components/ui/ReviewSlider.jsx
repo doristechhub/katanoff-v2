@@ -29,7 +29,9 @@ export default function ReviewSlider({ reviews = [], totalCount = 0 }) {
         <h2 className="text-2xl md:text-3xl lg:text-4xl italic font-medium mt-3 font-gelasio">
           WHAT CLIENTS SAY ABOUT OUR WORK
         </h2>
-        <p className="mt-3 text-sm text-gray-500">Our 100+ People Trust Us</p>
+        <p className="mt-3 text-sm text-gray-500">
+          Our {totalCount}+ People Trust Us
+        </p>
       </div>
 
       {/* Swiper */}
@@ -60,8 +62,12 @@ export default function ReviewSlider({ reviews = [], totalCount = 0 }) {
             <SwiperSlide key={index}>
               <div className="bg-white rounded-xl p-6 h-[300px] flex flex-col gap-8 shadow-lg">
                 <div className="pt-4 xl:pt-5">
-                  <h4 className="font-semibold text-lg mb-2">{item.author}</h4>
-                  <div className="flex gap-1 mb-2">
+                  <h2 className="font-semibold text-lg mb-2">{item.author}</h2>
+                  <div
+                    className="flex gap-1 mb-2"
+                    role="img"
+                    aria-label={`${item.rating} out of 5 stars`}
+                  >
                     {[...Array(5)].map((_, i) =>
                       i < item.rating ? (
                         <FaStar key={i} size={16} className="text-[#B58C08]" />
@@ -81,7 +87,7 @@ export default function ReviewSlider({ reviews = [], totalCount = 0 }) {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center gap-2 mt-10">
+      <div className="flex justify-center gap-2 mt-10" role="tablist">
         {Array.from({ length: totalPages }).map((_, i) => (
           <button
             key={i}
@@ -90,8 +96,12 @@ export default function ReviewSlider({ reviews = [], totalCount = 0 }) {
               swiperRef.current?.slideTo(i * perPage);
               setCurrentPage(i);
             }}
-            className={`w-3 h-3 rounded-full ${currentPage === i ? "bg-primary" : "bg-gray-300"
-              } transition-all duration-300`}
+            className={`w-3 h-3 rounded-full ${
+              currentPage === i ? "bg-primary" : "bg-gray-300"
+            } transition-all duration-300`}
+            aria-label={`Go to testimonial page ${i + 1}`}
+            role="tab"
+            aria-selected={currentPage === i}
           />
         ))}
       </div>

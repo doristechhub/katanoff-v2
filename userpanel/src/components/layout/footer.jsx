@@ -98,13 +98,11 @@ export default function Footer() {
                     {link?.navLinks?.length &&
                       link?.navLinks?.map((nav, index) => {
                         return (
-                          <Link
-                            href={nav.href || "#"}
-                            target={nav?.target}
-                            key={`nav-${index}`}
-                          >
-                            <li className="py-1 2xl:text-lg">{nav?.title}</li>
-                          </Link>
+                          <li className="py-1 2xl:text-lg" key={`nav-${index}`}>
+                            <Link href={nav.href || "#"} target={nav?.target}>
+                              {nav?.title}
+                            </Link>
+                          </li>
                         );
                       })}
                   </ul>
