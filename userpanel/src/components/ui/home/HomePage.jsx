@@ -316,7 +316,7 @@ const Home = () => {
         title="New Arrivals"
         subtitle="New Designer Collection"
         linkText="Explore Collection"
-        linkHref={`/ collections / ${GENERAL}/${helperFunctions?.stringReplacedWithUnderScore(
+        linkHref={`/collections/${GENERAL}/${helperFunctions?.stringReplacedWithUnderScore(
           NEW_ARRIVAL
         )}`}
       />
