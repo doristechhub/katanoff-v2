@@ -1,6 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./src/**/*.{js,ts,jsx,tsx}"],
+  content: [
+    "./pages/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+  ],
   theme: {
     extend: {
       colors: {
@@ -26,9 +29,9 @@ module.exports = {
       },
     },
     fontFamily: {
-      "castoro": ["Castoro", "sans-serif"],
+      castoro: ["Castoro", "sans-serif"],
       "great-vibes": ["Great_Vibes", "sans-serif"],
-      "gelasio": ["Gelasio", "sans-serif"],
+      gelasio: ["Gelasio", "sans-serif"],
     },
     animation: {
       "fade-in": "fadeIn 2s linear infinite",
