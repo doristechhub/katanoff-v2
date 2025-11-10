@@ -12,7 +12,6 @@ export function middleware(request) {
     "/profile",
   ];
 
-
   const isProtected = protectedRoutes.some((route) =>
     pathname.startsWith(route)
   );
@@ -21,10 +20,7 @@ export function middleware(request) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  if (
-    !isAuthenticated &&
-    isProtected
-  ) {
+  if (!isAuthenticated && isProtected) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 

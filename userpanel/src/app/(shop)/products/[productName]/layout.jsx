@@ -10,9 +10,9 @@ import { headers } from "next/headers";
 
 export async function generateMetadata({ params }) {
   try {
-    let { productName } = params;
+    let { productName } = await params;
 
-    const headersList = headers();
+    const headersList = await headers();
     const completeUrl = headersList.get("x-url") || "";
     const urlObj = new URL(completeUrl);
     const searchParams = urlObj.searchParams;
@@ -102,6 +102,7 @@ export async function generateMetadata({ params }) {
         openGraphImage: ogImage,
         url: canonicalUrl,
       };
+
       return generateMetaConfig({ customMeta });
     } catch (error) {
       console.log(error);

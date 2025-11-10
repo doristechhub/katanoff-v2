@@ -393,12 +393,13 @@ export default function SelectDiamondPage() {
                             }
                           }}
                         >
-                          {console.log(diamondSEO[item?.title])}
                           <ProgressiveImg
                             src={item?.image}
                             // alt={item?.name}
                             alt={diamondSEO[item?.title]?.alt || item?.title}
-                            title={diamondSEO[item?.title]?.title || item?.title}
+                            title={
+                              diamondSEO[item?.title]?.title || item?.title
+                            }
                             className="w-8 h-8 mb-2"
                           />
                           {/* Reserve space for label, even when not selected */}

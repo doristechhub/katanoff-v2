@@ -465,25 +465,20 @@ export const AboutUsCollectionToggle = dynamic(
   }
 );
 
-export const ForeverDiamondsPage = dynamic(
-  () => import("./ui/blogs/ForeverDiamondPage.jsx"),
+export const TableOfContents = dynamic(
+  () => import("./ui/TableOfContents.jsx"),
   {
     ssr: false,
   }
 );
 
-export const MeetShiphraPage = dynamic(() => import("./ui/blogs/MeetShiphraPage.jsx"), {
-  ssr: false,
-});
-
-export const TableOfContents = dynamic(() => import("./ui/TableOfContents.jsx"), {
-  ssr: false,
-});
-
-export const DiamondTennisBraceletGiftPage = dynamic(() => import("./ui/blogs/DiamondTennisBraceletGiftPage.jsx"), {
-  ssr: false,
-});
-
 export const BlogSwipper = dynamic(() => import("./ui/BlogSwipper.jsx"), {
   ssr: false,
 });
+
+export const DynamicBlogPage = dynamic(
+  () => import("./ui/blogs/DynamicBlogPage.jsx"),
+  {
+    ssr: false,
+  }
+);
