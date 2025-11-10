@@ -46,6 +46,7 @@ export default function CollectionHighlights() {
                 <Link
                   href={href}
                   className="font-medium text-white underline decoration-white underline-offset-4  inline-block"
+                  aria-label={item.title}
                 >
                   SHOP NOW
                 </Link>

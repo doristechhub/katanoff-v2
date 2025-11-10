@@ -61,6 +61,7 @@ export default function HomePagePopup() {
           onClick={() => {
             dispatch(setOpenHomePagePopup(false));
           }}
+          aria-label="Close popup"
         >
           <X size={24} />
         </button>

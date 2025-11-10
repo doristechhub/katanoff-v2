@@ -128,12 +128,14 @@ export default function Header() {
   return (
     <>
       <div className="bg-primary py-2 lg:py-3 text-white text-xs flex gap-2 text-center justify-center items-center px-6 lg:px-8 lg:text-base">
-
         <p className="font-castoro">Discover What’s New - </p>
-        <Link href={`/collections/${GENERAL}/${helperFunctions?.stringReplacedWithUnderScore(
-          NEW_ARRIVAL
-        )}`}>
-          <p className="font-castoro hover:underline"> Shop now</p>
+        <Link
+          href={`/collections/${GENERAL}/${helperFunctions?.stringReplacedWithUnderScore(
+            NEW_ARRIVAL
+          )}`}
+          aria-label="Shop New Arrivals"
+        >
+          <span className="font-castoro hover:underline"> Shop now</span>
         </Link>
       </div>
       <header
