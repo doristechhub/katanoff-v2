@@ -35,7 +35,7 @@ export default function BlogSwipper({ blogData }) {
                     )}`}
                   >
                     <CustomImg
-                      src={blog?.image}
+                      src={blog?.thumbnailImage}
                       altAttr={blog?.altAttr}
                       titleAttr={blog?.titleAttr}
                       className="w-full h-auto object-cover !rounded-none transition-transform duration-500 group-hover:scale-105"
@@ -74,7 +74,7 @@ export default function BlogSwipper({ blogData }) {
                   )}`}
                 >
                   <CustomImg
-                    src={blog?.image}
+                    src={blog?.thumbnailImage}
                     altAttr={blog?.altAttr}
                     titleAttr={blog?.titleAttr}
                     className="w-full h-auto object-cover !rounded-none transition-transform duration-500 group-hover:scale-105"

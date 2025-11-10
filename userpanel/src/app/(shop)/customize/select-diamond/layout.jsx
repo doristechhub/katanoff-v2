@@ -9,7 +9,7 @@ import Script from "next/script";
 // });
 
 export async function generateMetadata({ params }) {
-  const headersList = headers();
+  const headersList = await headers();
   const completeUrl = headersList.get("x-url") || "";
   const urlObj = new URL(completeUrl);
   const searchParams = urlObj.searchParams;
@@ -19,7 +19,7 @@ export async function generateMetadata({ params }) {
     searchParams.toString() ? `?${searchParams.toString()}` : ""
   }`;
   selectDiamondPage.url = canonicalUrl;
-  console.log(selectDiamondPage);
+
   return generateMetaConfig({
     customMeta: selectDiamondPage,
   });

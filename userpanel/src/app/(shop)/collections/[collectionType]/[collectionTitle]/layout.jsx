@@ -23,12 +23,12 @@ const newArrivalMobile = "/images/newArrivalMobile.webp";
 
 export async function generateMetadata({ params }) {
   try {
-    let { collectionType, collectionTitle } = params;
+    let { collectionType, collectionTitle } = await params;
     let metaTitle = "";
     let metaKeyword = "";
     let metaDesc = "";
 
-    const headersList = headers();
+    const headersList = await headers();
     const completeUrl = headersList.get("x-url") || "";
     const urlObj = new URL(completeUrl);
     const searchParams = urlObj.searchParams;
@@ -123,8 +123,8 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export default function CollectionLayout({ children, params }) {
-  const { collectionTitle } = params;
+export default async function CollectionLayout({ children, params }) {
+  const { collectionTitle } = await params;
 
   const collectionTitleWithSpace = decodeURIComponent(
     collectionTitle?.replace(/_/g, " ")

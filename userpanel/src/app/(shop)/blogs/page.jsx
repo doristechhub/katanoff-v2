@@ -38,7 +38,7 @@ export default function BlogPage() {
               <div key={blog?.id} className="bg-white rounded-lg p-3.5">
                 <Link href={blogUrl}>
                   <CustomImg
-                    src={blog?.image}
+                    src={blog?.thumbnailImage}
                     alt={blog?.title}
                     className="w-full"
                   />
