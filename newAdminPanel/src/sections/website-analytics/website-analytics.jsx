@@ -7,7 +7,6 @@ import {
   Card,
   CardContent,
   Chip,
-  CircularProgress,
   Container,
   IconButton,
   Tooltip,
@@ -19,7 +18,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
@@ -53,23 +51,119 @@ exporting(Highcharts);
 exportData(Highcharts);
 variablePie(Highcharts);
 
-// Utility Functions
+// ---------------- utility & display helpers ----------------
+const KNOWN_SOURCE_MAP = {
+  ig: 'Instagram',
+  'l.instagram.com': 'Instagram (link)',
+  'm.facebook.com': 'Facebook (mobile)',
+  'facebook.com': 'Facebook',
+  google: 'Google',
+  bing: 'Bing',
+  '(direct)': 'Direct',
+  '(not set)': 'Not set',
+  'search.google.com': 'Google Search',
+  'admin-katanoff.web.app': 'Admin (referral)',
+  vercel: 'Vercel',
+  'localhost:3000': 'Localhost',
+};
+
+const toTitleCase = (s = '') =>
+  String(s)
+    .toString()
+    .replace(/[-_]/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .trim();
+
+const humanizeSource = (src) => {
+  if (src === null || src === undefined || src === '') return 'Unknown';
+  const raw = String(src).trim();
+  if (KNOWN_SOURCE_MAP[raw]) return KNOWN_SOURCE_MAP[raw];
+
+  // Try to extract hostname if it's a URL
+  const domainMatch = raw.match(/^(?:https?:\/\/)?(?:www\.)?([^/]+)/i);
+  if (domainMatch) {
+    const host = domainMatch[1].replace(/[:]/g, ''); // remove port
+    // If host is short token like 'ig', return title case of it
+    if (host.length <= 4) return toTitleCase(host);
+    // If host includes subdomain like 'l.instagram.com' -> convert to nicer label
+    const parts = host.split('.');
+    if (parts.length >= 2) {
+      // Prefer second-level name if possible: instagram.com -> instagram
+      return toTitleCase(parts[parts.length - 2]);
+    }
+    return toTitleCase(host);
+  }
+
+  // fallback: remove parentheses and return title case
+  return toTitleCase(raw.replace(/[()]/g, ''));
+};
+
+const humanizeDevice = (device) => {
+  if (device === null || device === undefined || device === '') return 'Unknown';
+  return toTitleCase(String(device));
+};
+
+const humanizeCountry = (country) => {
+  if (!country) return 'Unknown';
+  return toTitleCase(String(country));
+};
+
+// Convert bounce rate or other 0-1 rates to percent string (handles strings and 0 correctly)
+const formatRatePercent = (value) => {
+  const n = Number(value);
+  if (Number.isNaN(n) || n === null || n === undefined) return '--';
+  return `${(n * 100).toFixed(1)}%`;
+};
+
+// Generic percentage formatter accepting fractional (0-1) or percent-like strings (e.g., "0.5" or "50")
+const formatPercentage = (value) => {
+  if (value === null || value === undefined || value === '') return '0%';
+  const n = Number(value);
+  if (Number.isNaN(n)) return '0%';
+  // If it's likely already a fraction between 0 and 1, multiply by 100
+  if (n <= 1) return `${(n * 100).toFixed(1)}%`;
+  // otherwise assume it's already percent-ish number
+  return `${n.toFixed(1)}%`;
+};
+
+// Convert numeric-ish strings into safe numbers (0 fallback)
+const toNumber = (v) => {
+  if (v === null || v === undefined || v === '') return 0;
+  const n = Number(v);
+  return Number.isNaN(n) ? 0 : n;
+};
+
 const formatDuration = (seconds) => {
-  if (!seconds || isNaN(seconds)) return '0m 0s';
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
+  const s = Number(seconds);
+  if (!s || Number.isNaN(s)) return '0m 0s';
+  const mins = Math.floor(s / 60);
+  const secs = Math.floor(s % 60);
   return `${mins}m ${secs}s`;
 };
 
-const formatPercentage = (value) => {
-  if (!value || isNaN(value)) return '0%';
-  return `${(parseFloat(value) * 100).toFixed(1)}%`;
+const formatNumber = (num) => {
+  const n = toNumber(num);
+  return n.toLocaleString();
 };
 
-const formatNumber = (num) => {
-  if (!num) return '0';
-  return parseInt(num).toLocaleString();
+// Turn a path like "/collections/collection/Flash_Deals" into "Collections / Collection / Flash Deals"
+const humanizePath = (path) => {
+  if (!path) return 'Unknown';
+  let p = String(path);
+  try {
+    p = decodeURIComponent(p);
+  } catch (e) {
+    // ignore decode errors
+  }
+  // handle root
+  if (p === '/' || p === '') return '/';
+  return p
+    .replace(/^\//, '')
+    .split('/')
+    .map((seg) => toTitleCase(seg.replace(/[-_]/g, ' ')))
+    .join(' / ');
 };
+// ---------------- end helpers ----------------
 
 // Metric Card Component
 const MetricCard = ({ title, value, icon: Icon, color }) => {
@@ -119,20 +213,41 @@ const WebsiteAnalytics = () => {
     }
     return '';
   };
-  const fetchAnalytics = async ({ startDate = null, endDate = null }) => {
-    const error = validateDates(startDate, endDate);
+
+  const fetchAnalytics = async ({ startDate: sDate = null, endDate: eDate = null } = {}) => {
+    const error = validateDates(sDate, eDate);
     setDateError(error);
-    console.log(error);
     if (!error) {
       await dispatch(
         getAllWebsiteAnalytics({
-          startDate: startDate ? startDate.toISOString().split('T')[0] : '',
-          endDate: endDate ? endDate.toISOString().split('T')[0] : '',
+          startDate: sDate ? sDate.toISOString().split('T')[0] : '',
+          endDate: eDate ? eDate.toISOString().split('T')[0] : '',
         })
       );
     }
   };
 
+  useEffect(() => {
+    fetchAnalytics({ startDate, endDate });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startDate, endDate]);
+
+  const handleRefresh = () => {
+    setStartDate(thirtyDaysAgo);
+    setEndDate(today);
+    setDateError('');
+    dispatch(setWebsiteAnalyticsError(''));
+    fetchAnalytics({}); // fetch with no date filter (or use defaults inside action)
+  };
+
+  if (!websiteAnalyticsData) return null;
+
+  // Note: if your action sets websiteAnalyticsData.analyticsData (or similar),
+  // ensure websiteAnalyticsData references the analytics object. This code assumes
+  // the shape used in your original snippet (overview, trafficSources, etc).
+  const overview = websiteAnalyticsData?.overview?.[0] || {};
+
+  // Traffic sources chart options (humanized names + numeric values)
   const trafficSourcesChartOptions = {
     chart: {
       type: 'pie',
@@ -159,28 +274,13 @@ const WebsiteAnalytics = () => {
         colorByPoint: true,
         data:
           websiteAnalyticsData.trafficSources?.map((item) => ({
-            name: item.sessionSource,
-            y: Number(item.sessions) || 0,
+            name: humanizeSource(item.sessionSource),
+            y: toNumber(item.sessions),
+            raw: item.sessionSource,
           })) || [],
       },
     ],
   };
-
-  useEffect(() => {
-    fetchAnalytics({ startDate, endDate });
-  }, [startDate, endDate]);
-
-  const handleRefresh = () => {
-    setStartDate(thirtyDaysAgo);
-    setEndDate(today);
-    setDateError('');
-    dispatch(setWebsiteAnalyticsError(''));
-    fetchAnalytics();
-  };
-
-  if (!websiteAnalyticsData) return null;
-
-  const overview = websiteAnalyticsData?.overview?.[0] || {};
 
   return (
     <Container maxWidth="xl" sx={{ py: isMobile ? 2 : 4 }}>
@@ -238,13 +338,13 @@ const WebsiteAnalytics = () => {
           </Tooltip>
         </Box>
       </Box>
+
       {websiteAnalyticsError ? (
-        <>
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {websiteAnalyticsError}
-          </Alert>
-        </>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {websiteAnalyticsError}
+        </Alert>
       ) : null}
+
       {websiteAnalyticsLoading ? (
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
           <Spinner />
@@ -338,17 +438,17 @@ const WebsiteAnalytics = () => {
                       }}
                     >
                       <Typography sx={{ fontSize: isMobile ? '0.85rem' : '1rem' }}>
-                        {referral.sessionSource}
+                        {humanizeSource(referral.sessionSource)}
                       </Typography>
                       <Box display="flex" gap={1}>
                         <Chip
-                          label={`${referral.activeUsers} Users`}
+                          label={`${formatNumber(toNumber(referral.activeUsers))} Users`}
                           size={isMobile ? 'small' : 'medium'}
                           color="primary"
                           variant="outlined"
                         />
                         <Chip
-                          label={`${referral.sessions} Sessions`}
+                          label={`${formatNumber(toNumber(referral.sessions))} Sessions`}
                           size={isMobile ? 'small' : 'medium'}
                           color="secondary"
                           variant="outlined"
@@ -392,21 +492,24 @@ const WebsiteAnalytics = () => {
                           fontSize: isMobile ? '0.85rem' : '1rem',
                         }}
                       >
-                        {device.deviceCategory}
+                        {humanizeDevice(device.deviceCategory)}
                       </Typography>
-                      <Box display="flex" gap={1}>
+                      <Box display="flex" gap={1} alignItems="center">
                         <Chip
-                          label={`${device.activeUsers} Users`}
+                          label={`${formatNumber(toNumber(device.activeUsers))} Users`}
                           size={isMobile ? 'small' : 'medium'}
                           color="primary"
                           variant="outlined"
                         />
                         <Chip
-                          label={`${device.sessions} Sessions`}
+                          label={`${formatNumber(toNumber(device.sessions))} Sessions`}
                           size={isMobile ? 'small' : 'medium'}
                           color="secondary"
                           variant="outlined"
                         />
+                        <Typography variant="caption" sx={{ ml: 1 }}>
+                          {formatRatePercent(device.bounceRate)}
+                        </Typography>
                       </Box>
                     </Box>
                   ))
@@ -441,17 +544,17 @@ const WebsiteAnalytics = () => {
                       }}
                     >
                       <Typography sx={{ fontSize: isMobile ? '0.85rem' : '1rem' }}>
-                        {location.country}
+                        {humanizeCountry(location.country)}
                       </Typography>
                       <Box display="flex" gap={1}>
                         <Chip
-                          label={`${location.activeUsers} Users`}
+                          label={`${formatNumber(toNumber(location.activeUsers))} Users`}
                           size={isMobile ? 'small' : 'medium'}
                           color="primary"
                           variant="outlined"
                         />
                         <Chip
-                          label={`${location.sessions} Sessions`}
+                          label={`${formatNumber(toNumber(location.sessions))} Sessions`}
                           size={isMobile ? 'small' : 'medium'}
                           color="secondary"
                           variant="outlined"
@@ -489,13 +592,13 @@ const WebsiteAnalytics = () => {
                         {websiteAnalyticsData.realTime.map((rt, index) => (
                           <TableRow key={index} hover>
                             <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                              {rt.country}
+                              {humanizeCountry(rt.country)}
                             </TableCell>
                             <TableCell
                               align="right"
                               sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}
                             >
-                              {formatNumber(rt.activeUsers)}
+                              {formatNumber(toNumber(rt.activeUsers))}
                             </TableCell>
                           </TableRow>
                         ))}
@@ -519,37 +622,37 @@ const WebsiteAnalytics = () => {
                     Events
                   </Typography>
                 </Box>
-                <TableContainer sx={{ maxHeight: 300, overflowX: 'auto' }}>
-                  <Table size={isMobile ? 'small' : 'medium'}>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Event Name</TableCell>
-                        <TableCell align="right">Event Count</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {websiteAnalyticsData.events?.length > 0 ? (
-                        websiteAnalyticsData.events.map((event, index) => (
+                {websiteAnalyticsData.events?.length > 0 ? (
+                  <TableContainer sx={{ maxHeight: 300, overflowX: 'auto' }}>
+                    <Table size={isMobile ? 'small' : 'medium'}>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Event Name</TableCell>
+                          <TableCell align="right">Event Count</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {websiteAnalyticsData.events.map((event, index) => (
                           <TableRow key={index} hover>
                             <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                              {event.eventName}
+                              {toTitleCase(event.eventName)}
                             </TableCell>
                             <TableCell
                               align="right"
                               sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}
                             >
-                              {formatNumber(event.eventCount)}
+                              {formatNumber(toNumber(event.eventCount))}
                             </TableCell>
                           </TableRow>
-                        ))
-                      ) : (
-                        <Typography variant="body2" color="text.secondary">
-                          No data available.
-                        </Typography>
-                      )}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                ) : (
+                  <Typography variant="body2" color="text.secondary">
+                    No data available.
+                  </Typography>
+                )}
               </Paper>
             </Grid>
 
@@ -562,21 +665,21 @@ const WebsiteAnalytics = () => {
                     User Engagement
                   </Typography>
                 </Box>
-                <TableContainer sx={{ maxHeight: 300, overflowX: 'auto' }}>
-                  <Table size={isMobile ? 'small' : 'medium'}>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Page Path</TableCell>
-                        <TableCell align="right">Engagement Duration</TableCell>
-                        {!isMobile && <TableCell align="right">Engaged Sessions</TableCell>}
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {websiteAnalyticsData.userEngagement?.length > 0 ? (
-                        websiteAnalyticsData.userEngagement.map((engagement, index) => (
+                {websiteAnalyticsData.userEngagement?.length > 0 ? (
+                  <TableContainer sx={{ maxHeight: 300, overflowX: 'auto' }}>
+                    <Table size={isMobile ? 'small' : 'medium'}>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Page Path</TableCell>
+                          <TableCell align="right">Engagement Duration</TableCell>
+                          {!isMobile && <TableCell align="right">Engaged Sessions</TableCell>}
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {websiteAnalyticsData.userEngagement.map((engagement, index) => (
                           <TableRow key={index} hover>
                             <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                              {engagement.pagePath}
+                              {humanizePath(engagement.pagePath)}
                             </TableCell>
                             <TableCell
                               align="right"
@@ -586,19 +689,19 @@ const WebsiteAnalytics = () => {
                             </TableCell>
                             {!isMobile && (
                               <TableCell align="right" sx={{ fontSize: '0.875rem' }}>
-                                {formatNumber(engagement.engagedSessions)}
+                                {formatNumber(toNumber(engagement.engagedSessions))}
                               </TableCell>
                             )}
                           </TableRow>
-                        ))
-                      ) : (
-                        <Typography variant="body2" className="p-4" color="text.secondary">
-                          No data available.
-                        </Typography>
-                      )}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                ) : (
+                  <Typography variant="body2" sx={{ p: 4 }} color="text.secondary">
+                    No data available.
+                  </Typography>
+                )}
               </Paper>
             </Grid>
 
@@ -611,49 +714,49 @@ const WebsiteAnalytics = () => {
                     Landing Pages
                   </Typography>
                 </Box>
-                <TableContainer sx={{ maxHeight: 300, overflowX: 'auto' }}>
-                  <Table size={isMobile ? 'small' : 'medium'}>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Landing Page</TableCell>
-                        <TableCell align="right">Sessions</TableCell>
-                        {!isMobile && <TableCell align="right">New Users</TableCell>}
-                        {!isMobile && <TableCell align="right">Bounce Rate</TableCell>}
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {websiteAnalyticsData.landingPages?.length > 0 ? (
-                        websiteAnalyticsData.landingPages.map((page, index) => (
+                {websiteAnalyticsData.landingPages?.length > 0 ? (
+                  <TableContainer sx={{ maxHeight: 300, overflowX: 'auto' }}>
+                    <Table size={isMobile ? 'small' : 'medium'}>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Landing Page</TableCell>
+                          <TableCell align="right">Sessions</TableCell>
+                          {!isMobile && <TableCell align="right">New Users</TableCell>}
+                          {!isMobile && <TableCell align="right">Bounce Rate</TableCell>}
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {websiteAnalyticsData.landingPages.map((page, index) => (
                           <TableRow key={index} hover>
                             <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                              {page.landingPage}
+                              {humanizePath(page.landingPage)}
                             </TableCell>
                             <TableCell
                               align="right"
                               sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}
                             >
-                              {formatNumber(page.sessions)}
+                              {formatNumber(toNumber(page.sessions))}
                             </TableCell>
                             {!isMobile && (
                               <TableCell align="right" sx={{ fontSize: '0.875rem' }}>
-                                {formatNumber(page.newUsers)}
+                                {formatNumber(toNumber(page.newUsers))}
                               </TableCell>
                             )}
                             {!isMobile && (
                               <TableCell align="right" sx={{ fontSize: '0.875rem' }}>
-                                {formatPercentage(page.bounceRate)}
+                                {formatRatePercent(page.bounceRate)}
                               </TableCell>
                             )}
                           </TableRow>
-                        ))
-                      ) : (
-                        <Typography variant="body2" className="p-4" color="text.secondary">
-                          No data available.
-                        </Typography>
-                      )}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                ) : (
+                  <Typography variant="body2" sx={{ p: 4 }} color="text.secondary">
+                    No data available.
+                  </Typography>
+                )}
               </Paper>
             </Grid>
 
@@ -666,28 +769,28 @@ const WebsiteAnalytics = () => {
                     Top Pages
                   </Typography>
                 </Box>
-                <TableContainer sx={{ maxHeight: 300, overflowX: 'auto' }}>
-                  <Table size={isMobile ? 'small' : 'medium'}>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Page Path</TableCell>
-                        <TableCell align="right">Page Views</TableCell>
-                        {!isMobile && <TableCell align="right">Avg. Duration</TableCell>}
-                        {!isMobile && <TableCell align="right">Bounce Rate</TableCell>}
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {websiteAnalyticsData.topPages?.length > 0 ? (
-                        websiteAnalyticsData.topPages.map((page, index) => (
+                {websiteAnalyticsData.topPages?.length > 0 ? (
+                  <TableContainer sx={{ maxHeight: 300, overflowX: 'auto' }}>
+                    <Table size={isMobile ? 'small' : 'medium'}>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Page Path</TableCell>
+                          <TableCell align="right">Page Views</TableCell>
+                          {!isMobile && <TableCell align="right">Avg. Duration</TableCell>}
+                          {!isMobile && <TableCell align="right">Bounce Rate</TableCell>}
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {websiteAnalyticsData.topPages.map((page, index) => (
                           <TableRow key={index} hover>
                             <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                              {page.pagePath}
+                              {humanizePath(page.pagePath)}
                             </TableCell>
                             <TableCell
                               align="right"
                               sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}
                             >
-                              {formatNumber(page.screenPageViews)}
+                              {formatNumber(toNumber(page.screenPageViews))}
                             </TableCell>
                             {!isMobile && (
                               <TableCell align="right" sx={{ fontSize: '0.875rem' }}>
@@ -696,19 +799,19 @@ const WebsiteAnalytics = () => {
                             )}
                             {!isMobile && (
                               <TableCell align="right" sx={{ fontSize: '0.875rem' }}>
-                                {formatPercentage(page.bounceRate)}
+                                {formatRatePercent(page.bounceRate)}
                               </TableCell>
                             )}
                           </TableRow>
-                        ))
-                      ) : (
-                        <Typography variant="body2" className="p-4" color="text.secondary">
-                          No data available.
-                        </Typography>
-                      )}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                ) : (
+                  <Typography variant="body2" sx={{ p: 4 }} color="text.secondary">
+                    No data available.
+                  </Typography>
+                )}
               </Paper>
             </Grid>
           </Grid>
