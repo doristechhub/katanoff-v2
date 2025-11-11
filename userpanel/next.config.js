@@ -11,4 +11,7 @@ module.exports = withBundleAnalyzer({
     enabled: true,
   },
   reactStrictMode: false,
+  experimental: {
+    inlineCss: true,
+  },
 });
