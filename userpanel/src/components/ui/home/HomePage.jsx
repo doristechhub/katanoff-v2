@@ -226,13 +226,11 @@ const Home = () => {
 
   const dealsOfWeekData = {
     title: DEALS_OF_THE_WEEK,
-    description: "1 1/4 CTW Valen Crest",
-    price: "$699.00",
+    description: "Where Glamour Meets Great Deals Weekly",
     link: `/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
       DEALS_OF_THE_WEEK
     )}`,
   };
-
   return (
     <>
       {/* {currentUser ? <HomePagePopupWithLogin /> : <HomePagePopup />} */}
@@ -248,26 +246,24 @@ const Home = () => {
             titleAttr=""
             className="w-auto h-auto"
           />
-          <div className="absolute top-1/2 -translate-y-1/2 left-6 md:left-10 lg:left-16 xl:left-20 text-white max-w-sm lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl flex flex-col gap-3 md:gap-4 2xl:gap-6 4xl:gap-8">
-            <h2 className="font-castoro text-2xl md:text-3xl lg:text-4xl xl:text-5xl">
-              {dealsOfWeekData?.title}
-            </h2>
-            <div>
-              <p className="text-base md:text-lg xl:text-xl 4xl:text-xl font-light">
-                {dealsOfWeekData?.description}
-              </p>
-              <p className="text-base md:text-lg xl:text-2xl 4xl:text-3xl font-light font-gelasio pt-2">
-                {dealsOfWeekData?.price}
-              </p>
-            </div>
+          <div className="absolute inset-0 flex flex-col justify-center items-center  text-white w-full gap-3 md:gap-4 2xl:gap-6 4xl:gap-8">
+            <div className="w-1/3 lg:w-full text-center">
+              <h3 className="font-castoro text-2xl md:text-3xl lg:text-4xl  xl:text-5xl">
+                {dealsOfWeekData?.title}
+              </h3>
+              <div>
+                <p className="text-base md:text-lg xl:text-xl 4xl:text-xl font-light">
+                  {dealsOfWeekData?.description}
+                </p>
+              </div>
 
-            <LinkButton
-              href={dealsOfWeekData?.link}
-              className="!w-fit !uppercase !rounded-none !text-primary hover:!text-white"
-              aria-label="Shop Deals of the Week"
-            >
-              Shop Now
-            </LinkButton>
+              <LinkButton
+                href={dealsOfWeekData?.link}
+                className="!w-fit  mt-3 lg:mt-6  mx-auto !uppercase !rounded-none !text-primary hover:!text-white"
+              >
+                Shop Now
+              </LinkButton>
+            </div>
           </div>
         </div>
 

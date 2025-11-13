@@ -29,7 +29,6 @@
   font-display: swap;
 }
 
-
 @font-face {
   font-family: "Figtree";
   src: url("/fonts/Figtree/static/Figtree-Bold.ttf") format("woff2"),
@@ -74,7 +73,6 @@
   font-style: italic;
   font-display: swap;
 }
-
 
 @font-face {
   font-family: "Gelasio";
@@ -203,6 +201,22 @@ html.lenis body {
 
 .lenis.lenis-stopped {
   overflow: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: var(--alabaster);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: var(--primary);
 }
 
 html,
@@ -453,8 +467,8 @@ ul {
   margin-left: 0;
 }
 
-.no-gutters>.col,
-.no-gutters>[class*="col-"] {
+.no-gutters > .col,
+.no-gutters > [class*="col-"] {
   padding-right: 0;
   padding-left: 0;
 }
@@ -567,7 +581,6 @@ ul {
 }
 
 @media (max-width: 767px) {
-
   .container,
   .container1400,
   .container1300,
@@ -646,12 +659,12 @@ ul {
     transform: scale(1) !important;
   }
 
-  .custom-slick-slider .slick-center+.slick-slide,
+  .custom-slick-slider .slick-center + .slick-slide,
   .custom-slick-slider .slick-active:not(.slick-center):not(.slick-cloned) {
     transform: scale(0.5) !important;
   }
 
-  .custom-slick-slider .slick-center+.slick-slide+.slick-slide {
+  .custom-slick-slider .slick-center + .slick-slide + .slick-slide {
     transform: scale(0.4) !important;
   }
 }
