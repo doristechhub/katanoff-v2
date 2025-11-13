@@ -26,9 +26,9 @@ module.exports = {
       },
     },
     fontFamily: {
-      castoro: ["Castoro", "sans-serif"],
+      "castoro": ["Castoro", "sans-serif"],
       "great-vibes": ["Great_Vibes", "sans-serif"],
-      gelasio: ["Gelasio", "sans-serif"],
+      "gelasio": ["Gelasio", "sans-serif"],
     },
     animation: {
       "fade-in": "fadeIn 2s linear infinite",

@@ -223,12 +223,12 @@ export default function CollectionPage() {
               altAttr="Deals of the week"
               className="w-full h-full md:hidden"
             />
-            <div className="absolute bottom-[30%] left-[12%]">
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
               <Link
                 href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
                   DEALS_OF_THE_WEEK
                 )}`}
-                className="text-primary uppercase py-1 xss:py-2 px-2.5 xss:px-3.5 bg-white w-fit hover:text-white border border-transparent hover:border-white hover:bg-transparent rounded-none text-[10px] xss:text-xs font-medium"
+                className="text-primary uppercase py-[3px] px-[5px] bg-white w-fit hover:text-white border border-transparent hover:border-white hover:bg-transparent rounded-none text-[9px] font-medium"
               >
                 Shop Now
               </Link>
