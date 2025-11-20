@@ -51,6 +51,8 @@ const initialState = {
   },
   activeFilterType: "",
   filterProductLoading: true,
+  similarProductsList: [],
+  similarProductsLoading: true,
 };
 
 const productSlice = createSlice({
@@ -187,6 +189,12 @@ const productSlice = createSlice({
     setFilteredProducts: (state, action) => {
       state.filteredProducts = action.payload;
     },
+    setSimilarProductsList: (state, action) => {
+      state.similarProductsList = action.payload;
+    },
+    setSimilarProductsLoading: (state, action) => {
+      state.similarProductsLoading = action.payload;
+    },
 
     setBannerLoading: (state, action) => {
       state.bannerLoading = action.payload;
@@ -239,6 +247,8 @@ export const {
   setVisibleItemCount,
   toggleSMOpenFilter,
   setFilteredProducts,
+  setSimilarProductsList,
+  setSimilarProductsLoading,
   setBannerLoading,
   setBanners,
   setSelectedProductTypes,
