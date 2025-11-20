@@ -21,6 +21,7 @@ import {
   HeroBanner,
   ProductFilter,
   ProductGrid,
+  ProductSwiper,
 } from "@/components/dynamiComponents";
 
 import { useParams, useSearchParams } from "next/navigation";
@@ -41,7 +42,11 @@ import {
   fetchAllCollections,
   fetchCollectionByTitle,
 } from "@/_actions/collection.action";
-import { setActiveFilterType } from "@/store/slices/productSlice";
+import {
+  setActiveFilterType,
+  setSimilarProductsList,
+  setSimilarProductsLoading,
+} from "@/store/slices/productSlice";
 import HomePageSliderSkeleton from "./HomePageSliderSkeleton";
 import CategoryGallery from "./home/categoryGallery";
 import dealsOfWeekDesktop from "@/assets/images/collections/deals-of-the-week-collection-page-desktop.webp";
@@ -54,6 +59,7 @@ export default function CollectionPage() {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
   const headingRef = useRef(null);
+
   const {
     collectionTypeProductList,
     productLoading,
@@ -63,6 +69,8 @@ export default function CollectionPage() {
     banners,
     filterProductLoading,
     activeFilterType,
+    similarProductsList,
+    similarProductsLoading,
   } = useSelector(({ product }) => product);
   const { collectionsListLoading, collectionsList } = useSelector(
     ({ collection }) => collection
@@ -152,6 +160,36 @@ export default function CollectionPage() {
 
   const bannerTitleAttr = `${collectionTitle} | Katanoff Lab Grown Diamond Jewelry`;
   const bannerAltAttr = `Discover the ${collectionTitle} collection at Katanoff, featuring stunning lab grown diamond rings, earrings, necklaces, bracelets, and fine jewelry, crafted ethically in New York.`;
+
+  // --- NEW: compute similar products (max 8) from filteredProducts ---
+  useEffect(() => {
+    const loading = productLoading || filterProductLoading;
+    dispatch(setSimilarProductsLoading(loading));
+
+    if (
+      !loading &&
+      Array.isArray(filteredProducts) &&
+      filteredProducts.length
+    ) {
+      const maxItems = 8;
+
+      // Proper Fisher–Yates shuffle for true randomness
+      const shuffled = [...filteredProducts];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+
+      const randomProducts = shuffled.slice(0, maxItems);
+
+      dispatch(setSimilarProductsList(randomProducts));
+      dispatch(setSimilarProductsLoading(false));
+    } else if (!loading) {
+      dispatch(setSimilarProductsList([]));
+      dispatch(setSimilarProductsLoading(false));
+    }
+  }, [filteredProducts, productLoading, filterProductLoading]);
+  // -------------------------------------------------------------------
 
   return (
     <>
@@ -246,7 +284,20 @@ export default function CollectionPage() {
           isLoading={productLoading}
         />
       </section>
-      <section className="container pt-16 lg:pt-20 2xl:pt-20">
+
+      {similarProductsList && similarProductsList?.length > 0 && (
+        <>
+          <section className="pt-16 lg:pt-20 2xl:pt-24 container">
+            <ProductSwiper
+              productList={similarProductsList}
+              loading={similarProductsLoading}
+              title="Similar products"
+            />
+          </section>
+        </>
+      )}
+
+      <section className="container pt-16 lg:pt-20 2xl:pt-24">
         <KeyFeatures />
       </section>
 
