@@ -359,6 +359,15 @@ const CustomJewelryDetailPage = () => {
             className="w-full h-full object-contain"
           />
         </div>
+
+        <div className="flex justify-center pt-5 lg:pt-0">
+          <LinkButton
+            href="/custom-jewelry-form"
+            className="!text-white !uppercase !font-medium  w-fit !py-6 !bg-baseblack !text-base hover:!border-[#202A4E] hover:!bg-transparent hover:!text-baseblack !border-black !border !rounded-none"
+          >
+            Start Creating
+          </LinkButton>
+        </div>
       </section>
 
       <section className="pt-2 md:pt-12 xl:pt-16 4xl:pt-20 container mx-auto px-4 pb-12">

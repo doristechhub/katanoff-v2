@@ -725,7 +725,7 @@ const getSingleProduct = (productName) => {
   });
 };
 
-const getReletedProducts = (productName) => {
+const getSimilarProducts = (productName) => {
   return new Promise(async (resolve, reject) => {
     try {
       productName = sanitizeValue(productName) ? productName.trim() : null;
@@ -740,12 +740,16 @@ const getReletedProducts = (productName) => {
 
           // Normalize productData subCategoryIds
           const productSubCategoryIds = productData?.subCategoryIds || [];
+          const productProductTypeIds = productData?.productTypeIds || [];
 
           const relatedProducts = allActiveProductsData?.filter(
             (x) =>
               x?.categoryId === productData?.categoryId &&
               x?.subCategoryIds?.some((id) =>
                 productSubCategoryIds.includes(id)
+              ) &&
+              x?.productTypeIds?.some((id) =>
+                productProductTypeIds.includes(id)
               )
           );
 
@@ -757,35 +761,40 @@ const getReletedProducts = (productName) => {
           const sortedReletedProductData = helperFunctions
             .sortByField(reletedProductsWithoutCurrentProduct)
             .slice(0, 8)
-            .map((product) => {
+            .map((foundProduct) => {
               const { price = 0 } = helperFunctions.getMinPriceVariCombo(
-                product.variComboWithQuantity
+                foundProduct.variComboWithQuantity
               );
               return {
-                productName: product.productName,
-                whiteGoldImages: product?.whiteGoldImages,
-                yellowGoldImages: product?.yellowGoldImages,
-                roseGoldImages: product?.roseGoldImages,
-                whiteGoldThumbnailImage: product?.whiteGoldThumbnailImage,
-                yellowGoldThumbnailImage: product?.yellowGoldThumbnailImage,
-                roseGoldThumbnailImage: product?.roseGoldThumbnailImage,
-                id: product.id,
-                basePrice: helperFunctions?.roundOffPrice(price),
+                id: foundProduct.id,
+                productName: foundProduct?.productName,
+                whiteGoldImages: foundProduct?.whiteGoldImages,
+                yellowGoldImages: foundProduct?.yellowGoldImages,
+                roseGoldImages: foundProduct?.roseGoldImages,
+                whiteGoldThumbnailImage: foundProduct?.whiteGoldThumbnailImage,
+                yellowGoldThumbnailImage:
+                  foundProduct?.yellowGoldThumbnailImage,
+                roseGoldThumbnailImage: foundProduct?.roseGoldThumbnailImage,
+                basePrice: price,
                 baseSellingPrice: helperFunctions.getSellingPrice({
                   price,
-                  discount: product.discount,
+                  discount: foundProduct.discount,
                 }),
-                discount: product.discount,
-                goldTypeVariations: product?.variations?.find(
+                discount: foundProduct.discount,
+                goldTypeVariations: foundProduct?.variations?.find(
                   (x) =>
                     x?.variationName?.toLowerCase() ===
                     GOLD_TYPES?.toLowerCase()
                 )?.variationTypes,
-                goldColorVariations: product?.variations?.find(
+                goldColorVariations: foundProduct?.variations?.find(
                   (x) =>
                     x?.variationName?.toLowerCase() ===
                     GOLD_COLOR?.toLowerCase()
                 )?.variationTypes,
+                gender: foundProduct?.gender,
+                productTypeNames: foundProduct?.productTypeNames,
+                variations: foundProduct?.variations,
+                totalCaratWeight: foundProduct?.totalCaratWeight,
               };
             });
           resolve(sortedReletedProductData);
@@ -1303,7 +1312,7 @@ export const productService = {
   getCollectionsTypeWiseProduct,
   fetchCollectionBanners,
   getSingleProduct,
-  getReletedProducts,
+  getSimilarProducts,
   getFilteredDiamondProducts,
   getSingleProductDataById,
   getProcessProducts,

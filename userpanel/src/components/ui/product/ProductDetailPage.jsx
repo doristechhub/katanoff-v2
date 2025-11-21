@@ -8,6 +8,7 @@ import {
   addUpdateRecentlyViewedProducts,
   fetchProductDetailByProductName,
   fetchRecentlyViewedProducts,
+  fetchSimilarProducts,
   fetchSingleProductDataById,
 } from "@/_actions/product.actions";
 import { useDispatch, useSelector } from "react-redux";
@@ -101,6 +102,8 @@ const ProductDetailPage = ({ customizePage }) => {
     selectedVariations,
     productQuantity,
     recentlyViewProductList,
+    similarProductsList,
+    similarProductsLoading,
   } = useSelector(({ product }) => product);
   const { cartMessage, cartLoading } = useSelector(({ cart }) => cart);
   const { isHovered, isSubmitted, customProductDetails } = useSelector(
@@ -216,6 +219,12 @@ const ProductDetailPage = ({ customizePage }) => {
       loadRecentlyViewProduct();
     }
   }, [isCustomizePage]);
+
+  useEffect(() => {
+    if (productDetail?.productName && !isCustomizePage) {
+      dispatch(fetchSimilarProducts(productDetail.productName));
+    }
+  }, [productDetail?.productName, isCustomizePage, dispatch]);
 
   if (
     Array.isArray(productDetail?.variComboWithQuantity) &&
@@ -652,7 +661,19 @@ const ProductDetailPage = ({ customizePage }) => {
           <section className="pt-10 lg:pt-12 xl:pt-16 container">
             <KeyFeatures />
           </section>
-          {!isCustomizePage &&
+
+          {/* Similar Products */}
+          {similarProductsList?.length > 0 && !isCustomizePage && (
+            <section className="pt-16 lg:pt-20 2xl:pt-24 container">
+              <ProductSwiper
+                productList={similarProductsList}
+                loading={similarProductsLoading}
+                title="Similar Products"
+              />
+            </section>
+          )}
+
+          {/* {!isCustomizePage &&
             recentlyViewProductList &&
             recentlyViewProductList?.length > 0 && (
               <>
@@ -664,7 +685,7 @@ const ProductDetailPage = ({ customizePage }) => {
                   />
                 </section>
               </>
-            )}
+            )} */}
           <StickyAddToBag
             customizePage={customizePage}
             availableQty={availableQty}
