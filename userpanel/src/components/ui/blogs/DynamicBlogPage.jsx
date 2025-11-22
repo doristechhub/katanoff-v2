@@ -57,20 +57,24 @@ export default function DynamicBlogPage() {
             )}
 
             {/* Dynamic sections */}
-            {blog.sections.map((section) => (
-              <section
-                key={section.id}
-                className="mt-10 flex flex-col gap-4 text-sm lg:text-base"
-                id={section.id}
-              >
-                {section.title && (
-                  <h2 className="text-xl md:text-2xl xl:text-3xl font-medium font-castoro">
-                    {section.title}
-                  </h2>
-                )}
-                {section.content}
-              </section>
-            ))}
+            {blog.sections.map((section, idx) => {
+              const marginTop = blog.introContent || idx !== 0 ? "mt-10" : "";
+
+              return (
+                <section
+                  key={section.id}
+                  id={section.id}
+                  className={`${marginTop} flex flex-col gap-4 text-sm lg:text-base`}
+                >
+                  {section.title && (
+                    <h2 className="text-xl md:text-2xl xl:text-3xl font-medium font-castoro">
+                      {section.title}
+                    </h2>
+                  )}
+                  {section.content}
+                </section>
+              );
+            })}
           </div>
           <div className="hidden lg:block sticky top-28 self-start">
             <TableOfContents sections={blog.tocSections} />

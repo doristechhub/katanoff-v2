@@ -46,7 +46,7 @@ export const ENGAGEMENT_RINGS = "Engagement Rings";
 export const Start_WITH_SETTING = "Start With Setting";
 export const SIX = "6";
 export const SIX_WITH_DECIMAL = "6.00";
-export const STUDS="Studs"
+export const STUDS = "Studs";
 
 export const DIAMOND_WEIGHT = "Diamond Weight";
 export const DIAMOND_CLARITY = "Diamond Clarity";
@@ -89,7 +89,7 @@ export const PRODUCT_TYPES = "productTypes";
 export const SUB_CATEGORIES = "subCategories";
 export const SUB_CATEGORIES_KEY = "sub_categories";
 export const RING = "Ring";
-export const EARRINGS = "Earrings"
+export const EARRINGS = "Earrings";
 export const MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT = 5;
 export const ENGAGEMENT = "Engagement";
 
@@ -180,9 +180,14 @@ export const META_CONSTANTS = {
   ORDER_HISTORY: "orderHistory",
   RETURN_HISTORY: "returnHistory",
   BLOGS: "blogs",
+
+  // Blog-specific meta slugs
   FOREVER_DIAMONDS: "forever-diamonds",
   MEET_SHIPHRA: "meet-shiphra",
   DIAMOND_TENNIS_BRACELET_GIFT: "diamond-tennis-bracelet-gift",
+  RING_SIZE_GUIDE: "ring-size-guide",
+  LAB_GROWN_DIAMOND_BUYING_GUIDE: "lab-grown-diamond-buying-guide",
+  ENGAGEMENT_RING_TRENDS_2026: "engagement-ring-trends-2026",
 };
 
 export const PAGE_CONSTANTS = {
@@ -194,9 +199,14 @@ export const PAGE_CONSTANTS = {
   CUSTOM_JEWELRY: "custom-jewelry",
   EDUCATION: "education",
   BLOGS: "blogs",
+
+  // Individual blog pages (use these to build routes / links)
   FOREVER_DIAMONDS: "forever-diamonds",
-  DIAMOND_TENNIS_BRACELET_GIFT: "diamond-tennis-bracelet-gift",
   MEET_SHIPHRA: "meet-shiphra",
+  DIAMOND_TENNIS_BRACELET_GIFT: "diamond-tennis-bracelet-gift",
+  RING_SIZE_GUIDE: "ring-size-guide",
+  LAB_GROWN_DIAMOND_BUYING_GUIDE: "lab-grown-diamond-buying-guide",
+  ENGAGEMENT_RING_TRENDS_2026: "engagement-ring-trends-2026",
 };
 
 export const GIFTS_FOR_HIM = "Gifts For Him";

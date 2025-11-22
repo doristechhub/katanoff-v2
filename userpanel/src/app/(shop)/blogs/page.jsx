@@ -29,7 +29,7 @@ export default function BlogPage() {
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 2xl:gap-x-12 gap-y-8 pt-8 xl:pt-10">
-          {blogData.map((blog) => {
+          {[...blogData].reverse().map((blog) => {
             const blogUrl = `/blogs/${helperFunctions.stringReplacedWithDash(
               blog.title
             )}`;
