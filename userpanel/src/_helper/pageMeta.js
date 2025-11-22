@@ -264,4 +264,30 @@ export const PAGE_META = {
       "diamond tennis bracelet, diamond bracelet gift, tennis bracelet for her, jewelry gifts, diamond jewelry",
     url: `${WebsiteUrl}/blogs/diamond-tennis-bracelet-gift`,
   },
+  [META_CONSTANTS.ENGAGEMENT_RING_TRENDS_2026]: {
+    title: "Top Engagement Ring Trends 2026 | Modern & Stylish Ring Guide",
+    description:
+      "Discover the top engagement ring trends of 2026. From hidden halos to vintage styles, find the perfect ring that matches your style and story.",
+    keywords:
+      "engagement ring trends, engagement rings for her, diamond engagement ring, luxury engagement rings, custom engagement rings, create your engagement ring",
+    url: `${WebsiteUrl}/blogs/engagement-ring-trends-2026`,
+  },
+
+  [META_CONSTANTS.LAB_GROWN_DIAMOND_BUYING_GUIDE]: {
+    title: "Lab Grown Diamond Buying Guide | Smart Jewelry Shopping Tips",
+    description:
+      "Learn how to choose the best lab grown diamonds with clarity, cut, color, and carat tips. Find the perfect ring or jewelry with our expert buying guide.",
+    keywords:
+      "lab grown diamond jewelry, lab grown diamond engagement rings, custom lab grown engagement rings, diamond solitaire, diamond engagement ring, custom diamond jewelry",
+    url: `${WebsiteUrl}/blogs/lab-grown-diamond-buying-guide`,
+  },
+
+  [META_CONSTANTS.RING_SIZE_GUIDE]: {
+    title: "Ring Size Guide New York | Find Your Perfect Fit | Katanoff",
+    description:
+      "Discover how to measure your ring size accurately. Expert tips for perfect fit plus guidance for engagement rings and diamond jewelry at Katanoff New York.",
+    keywords:
+      "ring size guide new york, diamond engagement ring, lab grown diamond jewelry",
+    url: `${WebsiteUrl}/blogs/ring-size-guide`,
+  },
 };

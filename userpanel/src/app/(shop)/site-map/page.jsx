@@ -132,8 +132,8 @@ export default function SiteMapPage() {
         },
         {
           title: "Deals of the Week",
-          href: "/collections/collection/Deals_of_the_Week"
-        }
+          href: "/collections/collection/Deals_of_the_Week",
+        },
       ],
     },
     {
@@ -145,6 +145,18 @@ export default function SiteMapPage() {
         {
           title: "Diamond Tennis Bracelet Gift",
           href: "/blogs/diamond-tennis-bracelet-gift",
+        },
+        {
+          title: "Ring Size Guide",
+          href: "/blogs/ring-size-guide",
+        },
+        {
+          title: "Lab Grown Diamond Buying Guide",
+          href: "/blogs/lab-grown-diamond-buying-guide",
+        },
+        {
+          title: "Engagement Ring Trends 2026",
+          href: "/blogs/engagement-ring-trends-2026",
         },
       ],
     },

@@ -60,4 +60,18 @@ export const PAGE_IMG_ALT_TITLE = {
     title: "Katanoff | Why a Diamond Tennis Bracelet Is the Perfect Gift",
     alt: "diamond tennis bracelet, perfect gift jewelry, lab grown diamond bracelet, timeless diamond jewelry, ethical diamonds, Katanoff, New York, USA",
   },
+  [PAGE_CONSTANTS.RING_SIZE_GUIDE]: {
+    title: "Ring Size Guide Katanoff New York",
+    alt: "ring size guide new york, diamond engagement ring, lab grown diamond jewelry, measure ring size, ring sizing tips, custom diamond jewelry, Katanoff New York",
+  },
+
+  [PAGE_CONSTANTS.LAB_GROWN_DIAMOND_BUYING_GUIDE]: {
+    title: "Lab Grown Diamond Buying Guide",
+    alt: "lab grown diamond jewelry, lab grown diamond engagement rings, custom lab grown engagement rings, diamond solitaire, diamond engagement ring, custom diamond jewelry, sustainable diamonds, Katanoff New York",
+  },
+
+  [PAGE_CONSTANTS.ENGAGEMENT_RING_TRENDS_2026]: {
+    title: "Engagement Ring Trends 2026 Guide",
+    alt: "engagement ring trends, engagement rings for her, diamond engagement ring, luxury engagement rings, custom engagement rings, create your engagement ring, lab grown diamonds, modern ring styles 2026",
+  },
 };

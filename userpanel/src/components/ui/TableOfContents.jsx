@@ -24,9 +24,7 @@ export default function TableOfContents({ sections }) {
     <div className="border rounded-md mx-auto">
       <button
         onClick={() => setOpen(!open)}
-        className={`w-full flex justify-between items-center px-4 py-3 ${
-          open ? "border-b" : ""
-        } font-semibold text-gray-900`}
+        className={`w-full flex justify-between items-center px-4 py-3 ${open ? "border-b" : ""} font-semibold text-gray-900`}
       >
         <span>In This Blog</span>
         {open ? (
@@ -38,17 +36,16 @@ export default function TableOfContents({ sections }) {
 
       {open && (
         <div className="px-6 py-4 space-y-3">
-          <ul className="list-disc list-inside  marker:text-primary">
+          <ul className="list-disc list-outside pl-5 marker:text-primary">
             {sections.map((section, idx) => (
               <li key={idx}>
                 <Link
                   href="/"
                   onClick={(e) => handleScroll(e, section.id)}
                   className={`text-sm cursor-pointer hover:underline underline-offset-4 transition-colors duration-200 
-                    ${
-                      activeId === section.id
-                        ? "text-gray-66 font-semibold"
-                        : "text-primary"
+              ${activeId === section.id
+                      ? "text-gray-66 font-semibold"
+                      : "text-primary"
                     }`}
                 >
                   {section.title}
