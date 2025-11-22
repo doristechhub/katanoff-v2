@@ -1804,7 +1804,7 @@ export const blogData = [
               />
             </div>
             <LinkButton
-              href={`/collections/collection/Engagement_Rings?setting_style=Bezel_Ring%2F2a56c251e0e&sort_by=date_new_to_old`}
+              href={`/collections/collection/Engagement_Rings?setting_style=Bezel_Ring/2a56c251e0e&sort_by=date_new_to_old`}
               className="!w-fit !uppercase !rounded-none !text-white !bg-primary hover:!bg-transparent hover:!text-primary !border !border-primary !px-6 !py-3"
             >
               Shop Now
