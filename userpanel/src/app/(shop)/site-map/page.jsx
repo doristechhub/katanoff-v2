@@ -100,15 +100,15 @@ export default function SiteMapPage() {
           subLinks: [
             {
               title: "Rings",
-              href: "/collections/productTypes/Rings?parentCategory=Men%27s+Jewelry&parentMainCategory=Jewelry",
+              href: "/collections/productTypes/Rings?parentCategory=Men's_Jewelry&parentMainCategory=Jewelry",
             },
             {
               title: "Bracelets",
-              href: "/collections/productTypes/Bracelets?parentCategory=Men%27s+Jewelry&parentMainCategory=Jewelry",
+              href: "/collections/productTypes/Bracelets?parentCategory=Men's_Jewelry&parentMainCategory=Jewelry",
             },
             {
               title: "Pendants",
-              href: "/collections/productTypes/Pendants?parentCategory=Men%27s+Jewelry&parentMainCategory=Jewelry",
+              href: "/collections/productTypes/Pendants?parentCategory=Men's_Jewelry&parentMainCategory=Jewelry",
             },
           ],
         },
