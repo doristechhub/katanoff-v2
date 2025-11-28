@@ -33,19 +33,27 @@ export const getAllMenuList = () => {
       ) => {
         return menuData.productTypes
           .filter((productType) => productType.subCategoryId === subCategoryId)
-          .sort((a, b) => a.position - b.position) // Sort product types by position
+          .sort((a, b) => a.position - b.position)
           .map((productType) => {
             const type = "productTypes";
             const encodedProductType =
               helperFunctions.stringReplacedWithUnderScore(productType?.title);
-            const encodedSubCategory = encodeURIComponent(subCategoryTitle);
-            const encodedCategory = encodeURIComponent(categoryTitle);
+
+            const encodedSubCategory =
+              helperFunctions.stringReplacedWithUnderScore(subCategoryTitle);
+            const encodedCategory =
+              helperFunctions.stringReplacedWithUnderScore(categoryTitle);
+
+            const qs = new URLSearchParams({
+              parentCategory: encodedSubCategory,
+              parentMainCategory: encodedCategory,
+            }).toString();
 
             return {
               id: productType.id,
               type,
               title: productType.title,
-              href: `/collections/${type}/${encodedProductType}?parentCategory=${encodedSubCategory}&parentMainCategory=${encodedCategory}`,
+              href: `/collections/${type}/${encodedProductType}?${qs}`,
               parentCategory: subCategoryTitle,
               parentMainCategory: categoryTitle,
             };
