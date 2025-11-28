@@ -1,8 +1,13 @@
+import { helperFunctions } from "@/_helper";
 import { HeaderLinkButton } from "@/components/dynamiComponents";
 import CommonBgHeading from "@/components/ui/CommonBgHeading";
 import Link from "next/link";
 
 export default function SiteMapPage() {
+
+  const mensJewelryEncodedURI = encodeURIComponent("Men's Jewelry")
+  const mensJewelryValueWithUnderScrore = helperFunctions.stringReplacedWithUnderScore(mensJewelryEncodedURI)
+
   const siteMapData = [
     {
       title: "About Katanoff",
@@ -96,19 +101,19 @@ export default function SiteMapPage() {
         // Men's Jewelry
         {
           title: "Men’s Jewelry",
-          href: "/collections/subCategories/Men's_Jewelry?parentMainCategory=Jewelry",
+          href: `/collections/subCategories/${mensJewelryValueWithUnderScrore}?parentMainCategory=Jewelry&sort_by=date_new_to_old`,
           subLinks: [
             {
               title: "Rings",
-              href: "/collections/productTypes/Rings?parentCategory=Men%27s_Jewelry&parentMainCategory=Jewelry",
+              href: `/collections/productTypes/Rings?parentCategory=${mensJewelryEncodedURI}&parentMainCategory=Jewelry&sort_by=date_new_to_old`,
             },
             {
               title: "Bracelets",
-              href: "/collections/productTypes/Bracelets?parentCategory=Men%27s_Jewelry&parentMainCategory=Jewelry",
+              href: `/collections/productTypes/Bracelets?parentCategory=${mensJewelryEncodedURI}&parentMainCategory=Jewelry`,
             },
             {
               title: "Pendants",
-              href: "/collections/productTypes/Pendants?parentCategory=Men%27s_Jewelry&parentMainCategory=Jewelry",
+              href: `/collections/productTypes/Pendants?parentCategory=${mensJewelryEncodedURI}&parentMainCategory=Jewelry`,
             },
           ],
         },

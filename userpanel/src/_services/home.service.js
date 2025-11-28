@@ -24,7 +24,7 @@ export const getAllMenuList = () => {
   return new Promise(async (resolve, reject) => {
     try {
       const menuData = await getAllMenuData();
-
+ 
       // Modified to include parent subcategory information in product type links
       const subCategoryWiseProductType = (
         subCategoryId,
@@ -33,33 +33,25 @@ export const getAllMenuList = () => {
       ) => {
         return menuData.productTypes
           .filter((productType) => productType.subCategoryId === subCategoryId)
-          .sort((a, b) => a.position - b.position)
+          .sort((a, b) => a.position - b.position) // Sort product types by position
           .map((productType) => {
             const type = "productTypes";
             const encodedProductType =
               helperFunctions.stringReplacedWithUnderScore(productType?.title);
-
-            const encodedSubCategory =
-              helperFunctions.stringReplacedWithUnderScore(subCategoryTitle);
-            const encodedCategory =
-              helperFunctions.stringReplacedWithUnderScore(categoryTitle);
-
-            const qs = new URLSearchParams({
-              parentCategory: encodedSubCategory,
-              parentMainCategory: encodedCategory,
-            }).toString();
-
+            const encodedSubCategory = encodeURIComponent(subCategoryTitle);
+            const encodedCategory = encodeURIComponent(categoryTitle);
+ 
             return {
               id: productType.id,
               type,
               title: productType.title,
-              href: `/collections/${type}/${encodedProductType}?${qs}`,
+              href: `/collections/${type}/${encodedProductType}?parentCategory=${encodedSubCategory}&parentMainCategory=${encodedCategory}`,
               parentCategory: subCategoryTitle,
               parentMainCategory: categoryTitle,
             };
           });
       };
-
+ 
       const categoryWiseSubCategory = (categoryId, categoryTitle) => {
         return menuData.subCategories
           .filter((subCategory) => subCategory.categoryId === categoryId)
@@ -69,7 +61,7 @@ export const getAllMenuList = () => {
             const encodedSubCategory =
               helperFunctions.stringReplacedWithUnderScore(subCategory?.title);
             const encodedCategory = encodeURIComponent(categoryTitle);
-
+ 
             return {
               id: subCategory.id,
               type,
@@ -84,11 +76,11 @@ export const getAllMenuList = () => {
             };
           });
       };
-
+ 
       const sortedCategories = menuData.categories.sort(
         (a, b) => a.position - b.position
       );
-
+ 
       const menuList = sortedCategories.map((category) => {
         const type = "categories";
         return {
@@ -101,7 +93,7 @@ export const getAllMenuList = () => {
           subCategories: categoryWiseSubCategory(category.id, category.title),
         };
       });
-
+ 
       resolve(menuList);
     } catch (e) {
       reject(e);
