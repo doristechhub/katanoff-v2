@@ -1,217 +1,214 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset
-      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
-
-
+This XML file does not appear to have any style information associated with it. The document tree is shown below.
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<!--  created with Free Online Sitemap Generator www.xml-sitemaps.com  -->
 <url>
-  <loc>https://www.katanoff.com/</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>1.00</priority>
+<loc>https://www.katanoff.com/</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>1.00</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/collections/general/New_Arrival</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.80</priority>
+<loc>https://www.katanoff.com/collections/general/New_Arrival</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/contact-us</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.80</priority>
+<loc>https://www.katanoff.com/contact-us</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/book-appointment</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.80</priority>
+<loc>https://www.katanoff.com/book-appointment</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/collections/collection/Flash_Deals</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.80</priority>
+<loc>https://www.katanoff.com/collections/collection/Flash_Deals</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/collections/collection/Engagement_Rings</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.80</priority>
+<loc>https://www.katanoff.com/collections/collection/Engagement_Rings</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/collections/collection/Wedding_Rings</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.80</priority>
+<loc>https://www.katanoff.com/collections/collection/Wedding_Rings</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/custom-jewelry</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.80</priority>
+<loc>https://www.katanoff.com/custom-jewelry</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/about-us</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.80</priority>
+<loc>https://www.katanoff.com/about-us</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/return-policy</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.80</priority>
+<loc>https://www.katanoff.com/return-policy</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/shipping-policy</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.80</priority>
+<loc>https://www.katanoff.com/shipping-policy</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/warranty</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.80</priority>
+<loc>https://www.katanoff.com/warranty</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/blogs</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.80</priority>
+<loc>https://www.katanoff.com/blogs</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/track-your-order</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.80</priority>
+<loc>https://www.katanoff.com/track-your-order</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/track-your-return</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.80</priority>
+<loc>https://www.katanoff.com/track-your-return</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/payment-financing</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.80</priority>
+<loc>https://www.katanoff.com/payment-financing</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/terms-and-conditions</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.80</priority>
+<loc>https://www.katanoff.com/terms-and-conditions</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/privacy-policy</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.80</priority>
+<loc>https://www.katanoff.com/privacy-policy</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/site-map</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.80</priority>
+<loc>https://www.katanoff.com/site-map</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/blogs/engagement-ring-trends-2026</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.64</priority>
+<loc>https://www.katanoff.com/blogs/engagement-ring-trends-2026</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/blogs/lab-grown-diamond-buying-guide</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.64</priority>
+<loc>https://www.katanoff.com/blogs/lab-grown-diamond-buying-guide</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/blogs/ring-size-guide</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.64</priority>
+<loc>https://www.katanoff.com/blogs/ring-size-guide</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/blogs/diamond-tennis-bracelet-gift</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.64</priority>
+<loc>https://www.katanoff.com/blogs/diamond-tennis-bracelet-gift</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/blogs/meet-shiphra</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.64</priority>
+<loc>https://www.katanoff.com/blogs/meet-shiphra</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/blogs/forever-diamonds</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.64</priority>
+<loc>https://www.katanoff.com/blogs/forever-diamonds</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/education</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.64</priority>
+<loc>https://www.katanoff.com/education</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/collections/categories/Jewelry</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.64</priority>
+<loc>https://www.katanoff.com/collections/categories/Jewelry</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/collections/subCategories/rings?parentMainCategory=Jewelry</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.64</priority>
+<loc>https://www.katanoff.com/collections/subCategories/rings?parentMainCategory=Jewelry</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/collections/subCategories/earrings?parentMainCategory=Jewelry</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.64</priority>
+<loc>https://www.katanoff.com/collections/subCategories/earrings?parentMainCategory=Jewelry</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/collections/subCategories/Necklaces?parentMainCategory=Jewelry</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.64</priority>
+<loc>https://www.katanoff.com/collections/subCategories/Necklaces?parentMainCategory=Jewelry</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/collections/subCategories/Bracelets?parentMainCategory=Jewelry</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.64</priority>
+<loc>https://www.katanoff.com/collections/subCategories/Bracelets?parentMainCategory=Jewelry</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/collections/subCategories/Men&amp;#x27;s_Jewelry?parentMainCategory=Jewelry</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.64</priority>
+<loc>https://www.katanoff.com/collections/subCategories/Men&#x27;s%20Jewelry?parentMainCategory=Jewelry&sort_by=date_new_to_old</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/collections/collection/Special_Buys</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.64</priority>
+<loc>https://www.katanoff.com/collections/collection/Special_Buys</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/collections/collection/Tennis</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.64</priority>
+<loc>https://www.katanoff.com/collections/collection/Tennis</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/collections/collection/Fashion</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.64</priority>
+<loc>https://www.katanoff.com/collections/collection/Fashion</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/collections/collection/Trending_Collections</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.64</priority>
+<loc>https://www.katanoff.com/collections/collection/Trending_Collections</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/collections/collection/Quick_Ship_Gifts</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.64</priority>
+<loc>https://www.katanoff.com/collections/collection/Quick_Ship_Gifts</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/collections/collection/Deals_of_the_Week</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.64</priority>
+<loc>https://www.katanoff.com/collections/collection/Deals_of_the_Week</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/collections/collection/Engagement_Rings?setting_style=Bezel_Ring/2a56c251e0e&amp;sort_by=date_new_to_old</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.51</priority>
+<loc>https://www.katanoff.com/collections/collection/Engagement_Rings?setting_style=Bezel_Ring/2a56c251e0e&sort_by=date_new_to_old</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.51</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/collections/productTypes/Tennis?parentCategory=Bracelets&amp;parentMainCategory=Jewelry</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.51</priority>
+<loc>https://www.katanoff.com/collections/productTypes/Tennis?parentCategory=Bracelets&parentMainCategory=Jewelry</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.51</priority>
 </url>
 <url>
-  <loc>https://www.katanoff.com/collections/subCategories/Earrings</loc>
-  <lastmod>2025-11-22T08:09:21+00:00</lastmod>
-  <priority>0.51</priority>
+<loc>https://www.katanoff.com/collections/subCategories/Earrings</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.51</priority>
 </url>
-
-
+<url>
+<loc>https://www.katanoff.com/collections/subCategories/Men&#x27;s_Jewelry?parentMainCategory=Jewelry</loc>
+<lastmod>2025-11-28T09:16:30+00:00</lastmod>
+<priority>0.51</priority>
+</url>
 </urlset>
