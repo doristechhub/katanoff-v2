@@ -37,10 +37,13 @@ export async function generateMetadata({ params }) {
     const parentMainCategory = searchParams.get("parentMainCategory") || "";
 
     // Keep both versions
+    const cleanedTitle = decodeURIComponent(collectionTitle).replace(
+      /['"]/g,
+      "%27"
+    );
     const collectionTitleWithUnderscore =
-      helperFunctions.stringReplacedWithUnderScore(
-        decodeURIComponent(collectionTitle)
-      );
+      helperFunctions.stringReplacedWithUnderScore(cleanedTitle);
+
     const collectionTitleWithSpace = helperFunctions.stringReplacedWithSpace(
       decodeURIComponent(collectionTitle)
     );
@@ -100,10 +103,11 @@ export async function generateMetadata({ params }) {
     }
 
     /** ----------- CANONICAL URL ----------- **/
+    const rawQuery = searchParams.toString();
+    const prettyQuery = rawQuery ? rawQuery.replace(/%2F/gi, "/") : "";
     const canonicalUrl = `${WebsiteUrl}/collections/${collectionType}/${collectionTitleWithUnderscore}${
-      searchParams.toString() ? `?${searchParams.toString()}` : ""
+      prettyQuery ? `?${prettyQuery}` : ""
     }`;
-
     /** ----------- FINAL META CONFIG ----------- **/
     const customMeta = {
       title: metaTitle,

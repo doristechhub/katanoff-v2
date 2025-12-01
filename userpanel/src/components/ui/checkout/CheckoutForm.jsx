@@ -15,7 +15,7 @@ import {
 } from "@/_actions/address.action";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import { GrayLinkButton, LoadingPrimaryButton } from "@/components/ui/button";
-import { messageType, ONE_TIME } from "@/_helper/constants";
+import { messageType } from "@/_helper/constants";
 import {
   setIsChecked,
   setIsHovered,
@@ -371,10 +371,11 @@ const CheckoutForm = () => {
                 <input
                   type="email"
                   placeholder="Your Email"
-                  className={`custom-input ${inputClassName} ${!!currentUser?.email
-                    ? "!bg-[#f1f1f1] cursor-not-allowed"
-                    : ""
-                    }`}
+                  className={`custom-input ${inputClassName} ${
+                    !!currentUser?.email
+                      ? "!bg-[#f1f1f1] cursor-not-allowed"
+                      : ""
+                  }`}
                   name="email"
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -472,10 +473,11 @@ const CheckoutForm = () => {
                     value={values.stateCode || ""}
                     onChange={(e) => handleStateChange(e.target.value)}
                     onBlur={handleBlur}
-                    className={`custom-input appearance-none ${inputClassName} ${touched?.stateCode && errors?.stateCode
-                      ? "border-rose-500"
-                      : "border-gray-300"
-                      }`}
+                    className={`custom-input appearance-none ${inputClassName} ${
+                      touched?.stateCode && errors?.stateCode
+                        ? "border-rose-500"
+                        : "border-gray-300"
+                    }`}
                   >
                     <option value="" hidden>
                       Select State
@@ -540,21 +542,21 @@ const CheckoutForm = () => {
                 <div className="flex flex-col md:flex-row gap-4 mt-4">
                   {invalidAddressDetail?.unconfirmedComponentTypes?.length >
                     0 && (
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-red-600 mb-2">
-                          Unconfirmed:
-                        </h4>
-                        <ul className="list-inside text-red-500 text-sm">
-                          {invalidAddressDetail?.unconfirmedComponentTypes?.map(
-                            (componentType, index) => (
-                              <li key={index}>
-                                {componentType?.replace(/_/g, " ")}
-                              </li>
-                            )
-                          )}
-                        </ul>
-                      </div>
-                    )}
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-red-600 mb-2">
+                        Unconfirmed:
+                      </h4>
+                      <ul className="list-inside text-red-500 text-sm">
+                        {invalidAddressDetail?.unconfirmedComponentTypes?.map(
+                          (componentType, index) => (
+                            <li key={index}>
+                              {componentType?.replace(/_/g, " ")}
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    </div>
+                  )}
 
                   {invalidAddressDetail?.missingComponentTypes?.length > 0 && (
                     <div className="flex-1">

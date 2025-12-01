@@ -3,65 +3,11 @@
 @import "tailwindcss/utilities";
 
 @font-face {
-  font-family: "Figtree";
-  src: url("/fonts/Figtree/static/Figtree-Medium.ttf") format("woff2"),
-    url("/fonts/Figtree/static/Figtree-Medium.ttf") format("woff");
-  font-weight: 500;
-  font-style: medium;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Figtree";
-  src: url("/fonts/Figtree/static/Figtree-Regular.ttf") format("woff2"),
-    url("/fonts/Figtree/static/Figtree-Regular.ttf") format("woff");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Figtree";
-  src: url("/fonts/Figtree/static/Figtree-SemiBold.ttf") format("woff2"),
-    url("/fonts/Figtree/static/Figtree-SemiBold.ttf") format("woff");
-  font-weight: 600;
-  font-style: semi-bold;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Figtree";
-  src: url("/fonts/Figtree/static/Figtree-Bold.ttf") format("woff2"),
-    url("/fonts/Figtree/static/Figtree-Bold.ttf") format("woff");
-  font-weight: 700;
-  font-style: bold;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Figtree";
-  src: url("/fonts/Figtree/static/Figtree-Black.ttf") format("woff2"),
-    url("/fonts/Figtree/static/Figtree-Black.ttf") format("woff");
-  font-weight: 900;
-  font-style: black;
-  font-display: swap;
-}
-
-@font-face {
   font-family: "Castoro";
   src: url("/fonts/Castoro/Castoro-Regular.ttf") format("woff2"),
     url("/fonts/Castoro/Castoro-Regular.ttf") format("woff");
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Figtree";
-  src: url("/fonts/Figtree/static/Figtree-LightItalic.ttf") format("woff2"),
-    url("/fonts/Figtree/static/Figtree-LightItalic.ttf") format("woff");
-  font-weight: 300;
-  font-style: italic;
   font-display: swap;
 }
 

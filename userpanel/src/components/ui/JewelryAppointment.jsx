@@ -1,4 +1,3 @@
-// components/JewelryAppointment.tsx
 "use client";
 import bookAppointment from "@/assets/images/home/book-appointment-home.webp";
 import bookAppointmentMobile from "@/assets/images/home/book-appointment-home-mobile.webp";

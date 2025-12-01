@@ -1,5 +1,5 @@
 import paypal from "@/assets/images/payment/paypal.webp";
-import stripe from "@/assets/images/payment/stripe.webp";
+// import stripe from "@/assets/images/payment/stripe.webp";
 import mastercard from "@/assets/images/payment/mastercard.webp";
 import gpay from "@/assets/images/payment/gpay.webp";
 

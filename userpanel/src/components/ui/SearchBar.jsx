@@ -21,9 +21,7 @@ import {
   ProgressiveImg,
   SimpleProductGrid,
 } from "@/components/dynamiComponents";
-import Link from "next/link";
 import { HeaderLinkButton } from "./button";
-import { IoCloseOutline } from "react-icons/io5";
 
 // Memoized search result item component to prevent unnecessary re-renders
 const SearchResultItem = memo(({ product, onClick }) => (

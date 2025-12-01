@@ -24,14 +24,13 @@ import {
 } from "@/store/slices/productSlice";
 import { IoMenu } from "react-icons/io5";
 import { RxCross2 } from "react-icons/rx";
-import flagUs from "@/assets/images/flag-us.webp";
 import textLogo from "@/assets/images/logo-text.webp";
 import diamondIcon from "@/assets/icons/diamond.svg";
 import calendarIcon from "@/assets/icons/calendar.svg";
 import { usePathname } from "next/navigation";
 import { getMenuList } from "@/_actions/home.action";
 import { GENERAL, helperFunctions, NEW_ARRIVAL } from "@/_helper";
-import miniLogo from "@/assets/images/mini-logo.webp";
+// import miniLogo from "@/assets/images/mini-logo.webp";
 import CustomImg from "../ui/custom-img";
 
 export default function Header() {

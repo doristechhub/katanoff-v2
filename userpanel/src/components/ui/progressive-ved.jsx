@@ -1,7 +1,6 @@
 "use client";
 
 import { memo, useCallback, useMemo, useState } from "react";
-import Image from "next/image";
 import logo from "@/assets/images/logo.webp";
 import CustomImg from "./custom-img";
 

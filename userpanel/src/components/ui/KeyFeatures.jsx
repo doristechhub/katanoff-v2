@@ -1,7 +1,3 @@
-import pricing from "@/assets/icons/pricing.svg";
-import warranty from "@/assets/icons/warranty.svg";
-import returns from "@/assets/icons/returns.svg";
-import shipping from "@/assets/icons/shipping.svg";
 import thirtyDaysReturn from "@/assets/icons/30DayReturn.svg";
 import freeShipping from "@/assets/icons/freeShipping.svg";
 import freeResizing from "@/assets/icons/freeResizing.svg";
