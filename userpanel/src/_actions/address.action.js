@@ -1,7 +1,4 @@
 import {
-  setAddressLoading,
-  setAddressList,
-  setAddressLoader,
   setAddressMessage,
   setInvalidAddressDetail,
   setValidateAddressLoader,

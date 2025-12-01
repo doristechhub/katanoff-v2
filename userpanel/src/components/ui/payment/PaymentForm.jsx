@@ -33,7 +33,6 @@ import {
   updatePaymentStatus,
 } from "@/_actions/payment.action";
 import { deleteOrder } from "@/_actions/order.action";
-import { setCartList } from "@/store/slices/cartSlice";
 import { paymentService } from "@/_services";
 import { removeCouponCode } from "@/_actions/coupon.action";
 

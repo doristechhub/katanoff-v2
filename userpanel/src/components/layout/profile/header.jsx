@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import flagUs from "@/assets/images/flag-us.webp";
 import { useDispatch, useSelector } from "react-redux";
 import { getMenuList } from "@/_actions/home.action";
 import { useEffect, useRef, useState } from "react";
@@ -17,7 +16,7 @@ import { RxCross2 } from "react-icons/rx";
 import diamondIcon from "@/assets/icons/diamond.svg";
 import calendarIcon from "@/assets/icons/calendar.svg";
 import textLogo from "@/assets/images/logo-text.webp";
-import miniLogo from "@/assets/images/mini-logo.webp";
+// import miniLogo from "@/assets/images/mini-logo.webp";
 import { fetchCart } from "@/_actions/cart.action";
 import CustomImg from "@/components/ui/custom-img";
 

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import CustomImg from "./custom-img";
 
 const Marquee = ({ items }) => {

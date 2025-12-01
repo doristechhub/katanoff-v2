@@ -259,7 +259,10 @@ export default function ProductFilter({
       }
 
       const queryString = params.toString();
-      const newURL = queryString ? `?${queryString}` : window.location.pathname;
+      const prettyQueryString = queryString.replace(/%2F/gi, "/");
+      const newURL = prettyQueryString
+        ? `?${prettyQueryString}`
+        : window.location.pathname;
       router.replace(newURL, { scroll: false });
     },
     [router, uniqueFilterOptions, searchParams]

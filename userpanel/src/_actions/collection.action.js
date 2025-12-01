@@ -6,7 +6,7 @@ const {
   setCollectionsList,
 } = require("@/store/slices/collectionSlice");
 const { collectionService } = require("@/_services");
-const { messageType, TWO_GRID, THREE_GRID, SLIDER_GRID } = require("@/_helper");
+const { messageType, SLIDER_GRID } = require("@/_helper");
 
 const fetchCollectionsByTypes = (types) => {
   return async (dispatch) => {
@@ -32,9 +32,8 @@ const fetchCollectionsByTypes = (types) => {
             alt: collection.title || "",
             btnText: type !== SLIDER_GRID ? "SHOP NOW" : undefined,
             id: collection.id,
-          })).sort(
-            (a, b) => a.position - b.position
-          ),
+          }))
+          .sort((a, b) => a.position - b.position),
       }));
       dispatch(setCollectionsData(groupedData));
 
@@ -112,8 +111,6 @@ const fetchCollectionByTitle = (title) => {
     }
   };
 };
-
-
 
 module.exports = {
   fetchCollectionsByTypes,

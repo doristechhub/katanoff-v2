@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { motion, useAnimation } from "framer-motion";
+import { useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 const colorData = [
   {
@@ -99,10 +99,11 @@ const DiamondColorChartSection = () => {
                               w-full flex flex-col items-center justify-center text-center
                               aspect-[6/4] sm:aspect-[5/4] md:aspect-square px-2 sm:px-3 md:px-4
                               border border-primary
-                              ${selected?.label === item.label
-                    ? "bg-primary text-white z-20"
-                    : "text-black hover:bg-primary hover:text-white  hover:z-10"
-                  }
+                              ${
+                                selected?.label === item.label
+                                  ? "bg-primary text-white z-20"
+                                  : "text-black hover:bg-primary hover:text-white  hover:z-10"
+                              }
                               ${index % 6 !== 5 ? "border-r " : ""}
                               ${index >= 6 ? "border-t " : ""}
                             `}
