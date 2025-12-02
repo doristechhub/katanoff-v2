@@ -1465,7 +1465,7 @@ export const blogData = [
               <Link
                 href={`/collections/subCategories/${helperFunctions.stringReplacedWithUnderScore(
                   EARRINGS
-                )}`}
+                )}?parentMainCategory=Jewelry`}
               >
                 <p className="text-baseblack font-semibold mb-1 hover:text-primary">
                   3.3 Earrings
@@ -1479,7 +1479,7 @@ export const blogData = [
                 <Link
                   href={`/collections/subCategories/${helperFunctions.stringReplacedWithUnderScore(
                     EARRINGS
-                  )}`}
+                  )}?parentMainCategory=Jewelry`}
                 >
                   <span className="text-primary hover:underline">
                     See More →

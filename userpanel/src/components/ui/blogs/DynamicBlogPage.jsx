@@ -128,7 +128,7 @@ export default function DynamicBlogPage() {
         </div>
       </section>
 
-      <section className="mt-8 xl:mt-16 2xl:mt-20 pt-8 md:pt-10 xl:pt-16 bg-alabaster pb-16">
+      <section className="mt-8 xl:mt-16 2xl:mt-20 pt-8 md:pt-10 xl:pt-16 bg-alabaster pb-16 overflow-x-clip">
         <div className="px-6 xl:px-12 container">
           <h2 className="text-2xl xl:text-3xl font-medium font-castoro text-baseblack mt-6 pb-8 xl:pb-10 text-center">
             Discover More
