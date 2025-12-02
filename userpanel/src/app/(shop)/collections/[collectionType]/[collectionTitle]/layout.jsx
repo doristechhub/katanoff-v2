@@ -24,6 +24,8 @@ const newArrivalMobile = "/images/newArrivalMobile.webp";
 export async function generateMetadata({ params }) {
   try {
     let { collectionType, collectionTitle } = await params;
+
+    const { formatLabel, stringReplacedWithSpace } = helperFunctions;
     let metaTitle = "";
     let metaKeyword = "";
     let metaDesc = "";
@@ -33,20 +35,21 @@ export async function generateMetadata({ params }) {
     const urlObj = new URL(completeUrl);
     const searchParams = urlObj.searchParams;
 
-    const parentCategory = searchParams.get("parentCategory") || "";
-    const parentMainCategory = searchParams.get("parentMainCategory") || "";
+    const parentCategorySearchedParams = searchParams.get("parentCategory");
+    const parentMainCategorySearchedParams =
+      searchParams.get("parentMainCategory");
 
-    // Keep both versions
-    const cleanedTitle = decodeURIComponent(collectionTitle).replace(
-      /['"]/g,
-      "%27"
-    );
-    const collectionTitleWithUnderscore =
-      helperFunctions.stringReplacedWithUnderScore(cleanedTitle);
+    const parentCategory = formatLabel(parentCategorySearchedParams);
+    const parentMainCategory = formatLabel(parentMainCategorySearchedParams);
 
-    const collectionTitleWithSpace = helperFunctions.stringReplacedWithSpace(
+    const collectionTitleWithSpace = stringReplacedWithSpace(
       decodeURIComponent(collectionTitle)
     );
+
+    const formatCollectionTitle = formatLabel(
+      collectionTitleWithSpace
+    )?.toString();
+    const collectionTitleForUrl = collectionTitle;
 
     /** ----------- STATIC BANNER CONFIG ----------- **/
     const STATIC_PROPS = {
@@ -57,45 +60,46 @@ export async function generateMetadata({ params }) {
     };
 
     /** ----------- META TITLE / DESC / KEYWORDS ----------- **/
+
     if ([CATEGORIES, SUB_CATEGORIES].includes(collectionType)) {
-      metaTitle = `Shop ${collectionTitleWithSpace} | Lab Grown Diamond Jewelry | Katanoff`;
-      metaDesc = `Explore ${collectionTitleWithSpace} at Katanoff – luxury lab grown diamond jewelry crafted for everyday elegance, special occasions, and lasting beauty.`;
-      metaKeyword = `Shop ${collectionTitleWithSpace}, Buy ${collectionTitleWithSpace}, Lab Grown Diamond ${collectionTitleWithSpace}, Ethical Diamond Jewelry, Katanoff, Diamond Jewelry in New York City, New York City, US, United States, Shop Diamond ${collectionTitleWithSpace}, Buy Diamond ${collectionTitleWithSpace}`;
+      metaTitle = `Shop ${formatCollectionTitle} | Lab Grown Diamond Jewelry | Katanoff`;
+      metaDesc = `Explore ${formatCollectionTitle} at Katanoff – luxury lab grown diamond jewelry crafted for everyday elegance, special occasions, and lasting beauty.`;
+      metaKeyword = `Shop ${formatCollectionTitle}, Buy ${formatCollectionTitle}, Lab Grown Diamond ${formatCollectionTitle}, Ethical Diamond Jewelry, Katanoff, Diamond Jewelry in New York City, New York City, US, United States, Shop Diamond ${formatCollectionTitle}, Buy Diamond ${formatCollectionTitle}`;
     } else if (collectionType === PRODUCT_TYPES) {
       if (parentCategory === "Men’s Jewelry") {
-        metaTitle = `Shop Men's ${collectionTitleWithSpace} | Lab Grown Diamond Jewelry | Katanoff`;
-        metaDesc = `Explore our collection of men's ${collectionTitleWithSpace} crafted with lab grown diamonds. Katanoff brings modern style, fine craftsmanship, and sustainable luxury.`;
-        metaKeyword = `men's ${collectionTitleWithSpace}, men's diamond ${collectionTitleWithSpace}, lab grown diamond men's ${collectionTitleWithSpace}, sustainable men's jewelry`;
+        metaTitle = `Shop Men's ${formatCollectionTitle} | Lab Grown Diamond Jewelry | Katanoff`;
+        metaDesc = `Explore our collection of men's ${formatCollectionTitle} crafted with lab grown diamonds. Katanoff brings modern style, fine craftsmanship, and sustainable luxury.`;
+        metaKeyword = `men's ${formatCollectionTitle}, men's diamond ${formatCollectionTitle}, lab grown diamond men's ${formatCollectionTitle}, sustainable men's jewelry`;
       } else if (
-        collectionTitleWithSpace
+        formatCollectionTitle
           ?.toLowerCase()
           ?.includes(parentCategory?.toLowerCase())
       ) {
-        metaTitle = `Shop ${collectionTitleWithSpace} | Lab Grown Diamond Jewelry | Katanoff`;
-        metaDesc = `Discover our stunning ${collectionTitleWithSpace} collection, featuring lab grown diamonds set in timeless designs. Shop sustainable, high-quality jewelry at Katanoff.`;
-        metaKeyword = `${collectionTitleWithSpace}, diamond ${collectionTitleWithSpace}, lab grown diamond ${collectionTitleWithSpace}, sustainable ${collectionTitleWithSpace} jewelry`;
+        metaTitle = `Shop ${formatCollectionTitle} | Lab Grown Diamond Jewelry | Katanoff`;
+        metaDesc = `Discover our stunning ${formatCollectionTitle} collection, featuring lab grown diamonds set in timeless designs. Shop sustainable, high-quality jewelry at Katanoff.`;
+        metaKeyword = `${formatCollectionTitle}, diamond ${formatCollectionTitle}, lab grown diamond ${formatCollectionTitle}, sustainable ${formatCollectionTitle} jewelry`;
       } else {
-        metaTitle = `Shop ${collectionTitleWithSpace} ${parentCategory} | Lab Grown Diamond Jewelry | Katanoff`;
-        metaDesc = `Shop elegant ${collectionTitleWithSpace} ${parentCategory} at Katanoff. Designed with lab grown diamonds, each piece blends brilliance, quality, and sustainability.`;
-        metaKeyword = `${collectionTitleWithSpace} ${parentCategory}, diamond ${collectionTitleWithSpace} ${parentCategory}, lab grown ${collectionTitleWithSpace} ${parentCategory}, sustainable ${collectionTitleWithSpace} jewelry`;
+        metaTitle = `Shop ${formatCollectionTitle} ${parentCategory} | Lab Grown Diamond Jewelry | Katanoff`;
+        metaDesc = `Shop elegant ${formatCollectionTitle} ${parentCategory} at Katanoff. Designed with lab grown diamonds, each piece blends brilliance, quality, and sustainability.`;
+        metaKeyword = `${formatCollectionTitle} ${parentCategory}, diamond ${formatCollectionTitle} ${parentCategory}, lab grown ${formatCollectionTitle} ${parentCategory}, sustainable ${formatCollectionTitle} jewelry`;
       }
     } else if ([COLLECTION, GENERAL].includes(collectionType)) {
-      metaTitle = `${collectionTitleWithSpace} | Lab Grown Diamond Jewelry Deals | Katanoff`;
-      metaDesc = `Discover ${collectionTitleWithSpace} collection at Katanoff. Featuring lab grown diamond jewelry with timeless design, expert craftsmanship, and exceptional value.`;
-      metaKeyword = `${collectionTitleWithSpace}, Lab Grown Diamond Jewelry, Fine Jewelry, Katanoff Jewelry, Diamond Jewelry in New York City, New York City, US, United States,`;
+      metaTitle = `${formatCollectionTitle} | Lab Grown Diamond Jewelry Deals | Katanoff`;
+      metaDesc = `Discover ${formatCollectionTitle} collection at Katanoff. Featuring lab grown diamond jewelry with timeless design, expert craftsmanship, and exceptional value.`;
+      metaKeyword = `${formatCollectionTitle}, Lab Grown Diamond Jewelry, Fine Jewelry, Katanoff Jewelry, Diamond Jewelry in New York City, New York City, US, United States,`;
     }
 
     /** ----------- BANNER HANDLING ----------- **/
     let openGraphImage = DEFAULT_META.openGraphImage;
 
     if (collectionType === GENERAL) {
-      if (STATIC_PROPS[collectionTitleWithSpace]) {
-        openGraphImage = `${WebsiteUrl}${STATIC_PROPS[collectionTitleWithSpace]}`;
+      if (STATIC_PROPS[formatCollectionTitle]) {
+        openGraphImage = `${WebsiteUrl}${STATIC_PROPS[formatCollectionTitle]}`;
       }
     } else {
       const collectionDetail = await productService.fetchCollectionBanners({
         collectionCategory: collectionType,
-        collectionName: collectionTitleWithSpace, // <-- Using space for API
+        collectionName: formatCollectionTitle, // <-- Using space for API
         parentSubCategory: parentCategory || "",
         parentMainCategory,
       });
@@ -105,7 +109,7 @@ export async function generateMetadata({ params }) {
     /** ----------- CANONICAL URL ----------- **/
     const rawQuery = searchParams.toString();
     const prettyQuery = rawQuery ? rawQuery.replace(/%2F/gi, "/") : "";
-    const canonicalUrl = `${WebsiteUrl}/collections/${collectionType}/${collectionTitleWithUnderscore}${
+    const canonicalUrl = `${WebsiteUrl}/collections/${collectionType}/${collectionTitleForUrl}${
       prettyQuery ? `?${prettyQuery}` : ""
     }`;
     /** ----------- FINAL META CONFIG ----------- **/
@@ -129,14 +133,16 @@ export async function generateMetadata({ params }) {
 
 export default async function CollectionLayout({ children, params }) {
   const { collectionTitle } = await params;
-
-  const collectionTitleWithSpace = decodeURIComponent(
-    collectionTitle?.replace(/_/g, " ")
+  const { formatLabel, stringReplacedWithSpace } = helperFunctions;
+  const collectionTitleWithSpace = stringReplacedWithSpace(
+    decodeURIComponent(collectionTitle)
   );
+
+  const formatCollectionTitle = formatLabel(collectionTitleWithSpace);
 
   return (
     <>
-      <h1 className="hidden">{collectionTitleWithSpace}</h1>
+      <h1 className="hidden">{formatCollectionTitle}</h1>
       {children}
     </>
   );
