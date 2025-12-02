@@ -1511,7 +1511,7 @@ export const blogData = [
             <div>
               <p className="text-baseblack font-semibold mb-1 hover:text-primary">
                 <Link
-                  href={`/collections/subCategories/Men's_Jewelry?parentMainCategory=Jewelry`}
+                  href={`/collections/subCategories/Mens_Jewelry?parentMainCategory=Jewelry`}
                 >
                   <span>3.5 Bracelets for Men &nbsp;</span>
                 </Link>
