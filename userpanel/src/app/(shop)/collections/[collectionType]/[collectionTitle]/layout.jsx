@@ -93,8 +93,8 @@ export async function generateMetadata({ params }) {
     let openGraphImage = DEFAULT_META.openGraphImage;
 
     if (collectionType === GENERAL) {
-      if (STATIC_PROPS[formatCollectionTitle]) {
-        openGraphImage = `${WebsiteUrl}${STATIC_PROPS[formatCollectionTitle]}`;
+      if (STATIC_PROPS[collectionTitleWithSpace]) {
+        openGraphImage = `${WebsiteUrl}${STATIC_PROPS[collectionTitleWithSpace]}`;
       }
     } else {
       const collectionDetail = await productService.fetchCollectionBanners({
