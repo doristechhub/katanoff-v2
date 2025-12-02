@@ -11,6 +11,7 @@ import {
   FILTER_CONFIG,
   GENERAL,
   DEFAULT,
+  SPECIAL_CASE_MAP,
 } from "./constants";
 
 const generateUniqueId = () => {
@@ -888,9 +889,8 @@ export const formatProductNameWithCarat = ({
         break;
     }
   }
-  return `${formattedCarat}${
-    productName ? productName : "Unknown Product"
-  }`.trim();
+  return `${formattedCarat}${productName ? productName : "Unknown Product"
+    }`.trim();
 };
 
 export const roundOffPrice = (price) => {
@@ -1182,15 +1182,31 @@ const generateProductImgAltTitle = ({
 
   const titleAttr = `Diamond ${productType} in ${metal} | Lab Grown Diamond Jewelry | Buy Online in New York, USA`;
 
-  const altAttr = `${productType}, lab grown diamond, ${
-    diamondShape ? `${diamondShape.toLowerCase()} diamond jewelry,` : ""
-  } ${metal} diamond jewelry, fine jewelry, custom jewelry, ethical diamond jewelry, ${gender.toLowerCase()} ${productType.toLowerCase()} diamond jewelry, New York, USA, Katanoff`;
+  const altAttr = `${productType}, lab grown diamond, ${diamondShape ? `${diamondShape.toLowerCase()} diamond jewelry,` : ""
+    } ${metal} diamond jewelry, fine jewelry, custom jewelry, ethical diamond jewelry, ${gender.toLowerCase()} ${productType.toLowerCase()} diamond jewelry, New York, USA, Katanoff`;
 
   return { titleAttr, altAttr };
 };
 
+const removeAphostrophe = (text = "") =>
+  (text || "")
+    .toString()
+    .replace(/[’'"]/g, "");
+
+const formatLabel = (rawValue = "") => {
+  let cleaned = stringReplacedWithSpace(decodeURIComponent(rawValue))?.trim();
+
+  const lower = cleaned?.toLowerCase();
+  if (SPECIAL_CASE_MAP[lower]) {
+    return SPECIAL_CASE_MAP[lower];
+  }
+
+  return cleaned;
+}
+
 export const helperFunctions = {
   debounce,
+  removeAphostrophe,
   generateUniqueId,
   stringReplacedWithUnderScore,
   stringReplacedWithSpace,
@@ -1246,4 +1262,5 @@ export const helperFunctions = {
   scrollToRefWithExtraSpacing,
   generateProductImgAltTitle,
   stringReplacedWithDash,
+  formatLabel
 };

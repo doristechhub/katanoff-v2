@@ -251,3 +251,7 @@ export const FILTER_TO_OPTIONS_MAP = {
   [SUB_CATEGORIES_KEY]: "uniqueSubCategories",
   [DEFAULT]: "uniqueSettingStyles",
 };
+
+export const SPECIAL_CASE_MAP = {
+  "mens jewelry": "Men's Jewelry",
+};

@@ -75,13 +75,17 @@ export default function CollectionPage() {
   const { collectionsListLoading, collectionsList } = useSelector(
     ({ collection }) => collection
   );
-
+  const { getFilterTypeForPage, stringReplacedWithUnderScore, formatLabel } =
+    helperFunctions;
   let { collectionType, collectionTitle } = params;
-  const parentCategory = searchParams.get("parentCategory");
-  const parentMainCategory = searchParams.get("parentMainCategory");
-  collectionTitle = helperFunctions.stringReplacedWithSpace(
-    decodeURIComponent(collectionTitle)
-  );
+
+  const parentCategorySearchedParams = searchParams.get("parentCategory");
+  const parentMainCategorySearchedParams =
+    searchParams.get("parentMainCategory");
+
+  const parentCategory = formatLabel(parentCategorySearchedParams);
+  const parentMainCategory = formatLabel(parentMainCategorySearchedParams);
+  collectionTitle = formatLabel(collectionTitle);
 
   const loadData = useCallback(async () => {
     let latestFilterType = SETTING_STYLE_KEY;
@@ -91,10 +95,7 @@ export default function CollectionPage() {
       );
       latestFilterType = collectionData?.filterType || latestFilterType;
     } else {
-      latestFilterType = helperFunctions?.getFilterTypeForPage(
-        collectionType,
-        collectionTitle
-      );
+      latestFilterType = getFilterTypeForPage(collectionType, collectionTitle);
     }
     dispatch(setActiveFilterType(latestFilterType));
     if (collectionType && collectionTitle) {
@@ -246,7 +247,7 @@ export default function CollectionPage() {
             />
             <div className="absolute top-1/2 -translate-y-1/2 right-[5%]">
               <Link
-                href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
+                href={`/collections/collection/${stringReplacedWithUnderScore(
                   DEALS_OF_THE_WEEK
                 )}`}
                 className="text-primary uppercase py-1 lg:py-2 2xl:py-3 px-3 lg:px-4 bg-white w-fit hover:text-white border border-transparent hover:border-white hover:bg-transparent rounded-none text-sm lg:text-lg 2xl:text-xl font-medium"
@@ -263,7 +264,7 @@ export default function CollectionPage() {
             />
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
               <Link
-                href={`/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
+                href={`/collections/collection/${stringReplacedWithUnderScore(
                   DEALS_OF_THE_WEEK
                 )}`}
                 className="text-primary uppercase py-[3px] px-[5px] bg-white w-fit hover:text-white border border-transparent hover:border-white hover:bg-transparent rounded-none text-[9px] font-medium"

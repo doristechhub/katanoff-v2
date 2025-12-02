@@ -1,5 +1,5 @@
 import { fetchWrapperService, helperFunctions, menuUrl } from "@/_helper";
-
+const { stringReplacedWithUnderScore, removeAphostrophe } = helperFunctions
 export const getAllMenuData = () => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -24,76 +24,76 @@ export const getAllMenuList = () => {
   return new Promise(async (resolve, reject) => {
     try {
       const menuData = await getAllMenuData();
- 
+
       // Modified to include parent subcategory information in product type links
       const subCategoryWiseProductType = (
-        subCategoryId,
-        subCategoryTitle,
-        categoryTitle
+        { subCategoryId,
+          subCategoryTitle,
+          categoryTitle }
       ) => {
         return menuData.productTypes
           .filter((productType) => productType.subCategoryId === subCategoryId)
           .sort((a, b) => a.position - b.position) // Sort product types by position
           .map((productType) => {
             const type = "productTypes";
-            const encodedProductType =
-              helperFunctions.stringReplacedWithUnderScore(productType?.title);
-            const encodedSubCategory = encodeURIComponent(subCategoryTitle);
-            const encodedCategory = encodeURIComponent(categoryTitle);
- 
+
+            const mainCategorySlug = stringReplacedWithUnderScore(removeAphostrophe(categoryTitle))
+            const subCategorySlug = stringReplacedWithUnderScore(removeAphostrophe(subCategoryTitle))
+            const productTypeSlug = stringReplacedWithUnderScore(removeAphostrophe(productType?.title))
+
             return {
               id: productType.id,
               type,
               title: productType.title,
-              href: `/collections/${type}/${encodedProductType}?parentCategory=${encodedSubCategory}&parentMainCategory=${encodedCategory}`,
+              href: `/collections/${type}/${productTypeSlug}?parentCategory=${subCategorySlug}&parentMainCategory=${mainCategorySlug}`,
               parentCategory: subCategoryTitle,
               parentMainCategory: categoryTitle,
             };
           });
       };
- 
-      const categoryWiseSubCategory = (categoryId, categoryTitle) => {
+
+      const categoryWiseSubCategory = ({ categoryId, categoryTitle }) => {
         return menuData.subCategories
           .filter((subCategory) => subCategory.categoryId === categoryId)
           .sort((a, b) => a.position - b.position) // Sort subcategories by position
           .map((subCategory) => {
             const type = "subCategories";
-            const encodedSubCategory =
-              helperFunctions.stringReplacedWithUnderScore(subCategory?.title);
-            const encodedCategory = encodeURIComponent(categoryTitle);
- 
+
+            const mainCategorySlug = stringReplacedWithUnderScore(removeAphostrophe(categoryTitle))
+            const subCategorySlug = stringReplacedWithUnderScore(removeAphostrophe(subCategory?.title))
+
             return {
               id: subCategory.id,
               type,
               title: subCategory.title,
-              href: `/collections/${type}/${encodedSubCategory}?parentMainCategory=${encodedCategory}`,
+              href: `/collections/${type}/${subCategorySlug}?parentMainCategory=${mainCategorySlug}`,
               parentMainCategory: categoryTitle,
-              productTypes: subCategoryWiseProductType(
-                subCategory.id,
-                subCategory.title,
+              productTypes: subCategoryWiseProductType({
+                subCategoryId: subCategory.id,
+                subCategoryTitle: subCategory.title,
                 categoryTitle
-              ),
+              }),
             };
           });
       };
- 
+
       const sortedCategories = menuData.categories.sort(
         (a, b) => a.position - b.position
       );
- 
+
       const menuList = sortedCategories.map((category) => {
         const type = "categories";
+        const categorySlug = stringReplacedWithUnderScore(
+          removeAphostrophe(category?.title))
         return {
           id: category.id,
           type,
           title: category.title,
-          href: `/collections/${type}/${helperFunctions.stringReplacedWithUnderScore(
-            category?.title
-          )}`,
-          subCategories: categoryWiseSubCategory(category.id, category.title),
+          href: `/collections/${type}/${categorySlug}`,
+          subCategories: categoryWiseSubCategory({ categoryId: category.id, categoryTitle: category.title }),
         };
       });
- 
+
       resolve(menuList);
     } catch (e) {
       reject(e);
