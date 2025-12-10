@@ -31,6 +31,8 @@ export const settingsUrl = process.env.REACT_APP_SETTINGS;
 export const priceMultiplierUrl = process.env.REACT_APP_PRICE_MULTIPLIER;
 export const customProductsSettingsUrl = process.env.REACT_APP_CUSTOM_PRODUCTS_SETTINGS;
 
+export const returnRequestStorageUrl = process.env.REACT_APP_RETURN_REQUEST;
+
 export const storageUrl = process.env.REACT_APP_STORAGE;
 
 export const firebaseConfig = {

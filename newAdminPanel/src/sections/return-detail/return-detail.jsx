@@ -133,7 +133,7 @@ const ReturnDetail = () => {
                 </Stack>
                 <Box>
                   {selectedReturn?.status === 'pending' &&
-                  selectedReturn?.returnPaymentStatus === 'pending' ? (
+                    selectedReturn?.returnPaymentStatus === 'pending' ? (
                     <Button
                       size={'small'}
                       color="success"
@@ -147,7 +147,7 @@ const ReturnDetail = () => {
                     </Button>
                   ) : null}
                   {selectedReturn?.status === 'pending' &&
-                  selectedReturn?.returnPaymentStatus === 'pending' ? (
+                    selectedReturn?.returnPaymentStatus === 'pending' ? (
                     <Button
                       sx={{
                         mr: '10px',
@@ -176,7 +176,7 @@ const ReturnDetail = () => {
                     </Button>
                   ) : null} */}
                   {selectedReturn?.status === 'approved' &&
-                  selectedReturn?.returnPaymentStatus === 'pending' ? (
+                    selectedReturn?.returnPaymentStatus === 'pending' ? (
                     <Button
                       sx={{ ml: 1 }}
                       size={'small'}
@@ -190,12 +190,12 @@ const ReturnDetail = () => {
                     </Button>
                   ) : null}
                   {selectedReturn?.status === 'received' &&
-                  [
-                    'pending',
-                    'failed_refund',
-                    'refund_initialization_failed',
-                    'cancelled_refund',
-                  ].includes(selectedReturn?.returnPaymentStatus) ? (
+                    [
+                      'pending',
+                      'failed_refund',
+                      'refund_initialization_failed',
+                      'cancelled_refund',
+                    ].includes(selectedReturn?.returnPaymentStatus) ? (
                     <Button
                       size={'small'}
                       color="success"
@@ -268,7 +268,7 @@ const ReturnDetail = () => {
                                     alt={'product-img'}
                                     title={'product-img'}
                                     customClassName="w-full h-full rounded-md"
-                                    // placeHolderClassName={'h-[75px]'}
+                                  // placeHolderClassName={'h-[75px]'}
                                   />
                                 </Box>
                               </Box>
@@ -429,7 +429,7 @@ const ReturnDetail = () => {
                             </Typography>
                             <Divider />
                             {Number(selectedReturn?.refundAmount) ===
-                            Number(selectedReturn?.returnRequestAmount) ? (
+                              Number(selectedReturn?.returnRequestAmount) ? (
                               // ✅ Full refund - only show refunded amount
                               <Typography
                                 variant="caption"
@@ -483,7 +483,7 @@ const ReturnDetail = () => {
                                       -
                                       {fCurrency(
                                         selectedReturn.returnRequestAmount -
-                                          selectedReturn.refundAmount
+                                        selectedReturn.refundAmount
                                       )}
                                     </span>
                                   </Typography>
@@ -657,6 +657,71 @@ const ReturnDetail = () => {
                             <Box sx={sxPrimaryColor}>{selectedReturn?.cancelReason}</Box>
                           </Stack>
                         ) : null}
+                        {selectedReturn?.images?.length > 0 && (
+                          <Stack direction="column" sx={font14} gap={1}>
+                            <Box sx={sx}>Return Photos</Box>
+
+                            <Stack direction="row" gap={1} flexWrap="wrap">
+                              {selectedReturn.images.map((imgObj, index) => (
+                                <Box
+                                  key={`return-img-${index}`}
+                                  sx={{
+                                    width: "100px",
+                                    height: "100px",
+                                    borderRadius: 2,
+                                    border: `1px dashed ${grey[300]}`,
+                                    p: 0.5,
+                                    position: "relative",
+                                    cursor: "pointer",
+                                    overflow: "hidden",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+
+                                    // Hover effect for overlay
+                                    "&:hover .hoverOverlay": {
+                                      opacity: 1,
+                                    },
+                                  }}
+                                  onClick={() => window.open(imgObj.image, "_blank")}
+                                >
+                                  {/* Image */}
+                                  <ProgressiveImg
+                                    src={imgObj.image}
+                                    alt={`return-img-${index}`}
+                                    title={`return-img-${index}`}
+                                    customClassName="w-full h-full rounded-md object-cover"
+                                  />
+
+                                  {/* Hover Overlay */}
+                                  <Box
+                                    className="hoverOverlay"
+                                    sx={{
+                                      position: "absolute",
+                                      top: 0,
+                                      left: 0,
+                                      width: "100%",
+                                      height: "100%",
+                                      backgroundColor: "rgba(0, 0, 0, 0.5)",
+                                      borderRadius: 2,
+                                      display: "flex",
+                                      justifyContent: "center",
+                                      alignItems: "center",
+                                      color: "#fff",
+                                      fontSize: 12,
+                                      fontWeight: 500,
+                                      opacity: 0,
+                                      transition: "opacity 0.3s ease",
+                                    }}
+                                  >
+                                    Click to View
+                                  </Box>
+                                </Box>
+                              ))}
+                            </Stack>
+                          </Stack>
+                        )}
+
                         {selectedReturn?.shippingLabel ? (
                           <Stack direction={'row'} sx={font14} gap={1}>
                             <Box sx={sx}>Shipping Label</Box>

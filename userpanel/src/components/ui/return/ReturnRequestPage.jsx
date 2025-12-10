@@ -2,12 +2,15 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import dropdownArrow from "@/assets/icons/dropdownArrow.svg";
+import imgDrop from "@/assets/icons/img-drop.svg";
 
 import {
   createReturnRequest,
   fetchOrderDetailByOrderId,
 } from "@/_actions/return.action";
 import {
+  setPreview,
+  setReturnRequestImageMessage,
   setReturnMessage,
   setSelectedProducts,
 } from "@/store/slices/returnSlice";
@@ -36,12 +39,29 @@ import FixedAlert from "../FixedAlert";
 import SkeletonLoader from "../skeletonLoader";
 import CommonNotFound from "../CommonNotFound";
 import CustomImg from "../custom-img";
+import ImageUploader from "../ImageUploader";
+import { fileSettings } from "@/_utils/fileSettings";
 
 const validationSchema = Yup.object().shape({
   returnRequestReason: Yup.string().required("Reason is required"),
   selectedProducts: Yup.array()
     .min(1, "Please select at least one product")
     .required("Please select at least one product"),
+  returnRequestImageFiles: Yup.array()
+    .nullable()
+    .test("maxFiles", "You can upload up to 5 images", (files) => {
+      return !files || files.length <= 5;
+    })
+    .test("fileType", "Only image files are allowed", (files) => {
+      return (
+        !files || files.every((file) => file && file.type.startsWith("image/"))
+      );
+    })
+    .test("totalSize", "Total image size cannot exceed 25MB", function (files) {
+      if (!files || !files.length) return true;
+      const totalSize = files.reduce((sum, f) => sum + (f?.size || 0), 0);
+      return totalSize <= 25 * 1024 * 1024;
+    }),
 });
 
 const ReturnRequestPage = () => {
@@ -52,9 +72,13 @@ const ReturnRequestPage = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const minQuantity = 1;
-  const { returnReqLoader, returnMessage, selectedProducts } = useSelector(
-    ({ returns }) => returns
-  );
+  const {
+    preview,
+    returnRequestImageMessage,
+    returnReqLoader,
+    returnMessage,
+    selectedProducts,
+  } = useSelector(({ returns }) => returns);
   const { openDiamondDetailDrawer, isHovered } = useSelector(
     ({ common }) => common
   );
@@ -63,6 +87,8 @@ const ReturnRequestPage = () => {
   useEffect(() => {
     dispatch(fetchOrderDetailByOrderId(orderId));
     dispatch(setSelectedProducts([]));
+    dispatch(setReturnRequestImageMessage(""));
+    dispatch(setPreview([]));
     dispatch(setReturnMessage({ message: "", type: "" }));
   }, [orderId]);
   const updateDetail = useCallback(
@@ -105,6 +131,7 @@ const ReturnRequestPage = () => {
           orderId: orderDetail?.id,
           products: getProductsArray(selectedProducts),
           returnRequestReason: values.returnRequestReason,
+          returnRequestImageFiles: values.returnRequestImageFiles,
         };
         const response = await dispatch(createReturnRequest(payload));
         if (response) {
@@ -130,6 +157,7 @@ const ReturnRequestPage = () => {
     initialValues: {
       returnRequestReason: "",
       selectedProducts: [],
+      returnRequestImageFiles: [],
     },
     validationSchema: validationSchema,
     onSubmit: returnReqSubmit,
@@ -153,9 +181,9 @@ const ReturnRequestPage = () => {
       setFieldValue("selectedProducts", updatedSelected);
       updateDetail(
         orderDetail,
-        productItem.productId,
-        productItem.variations,
-        productItem.diamondDetail,
+        productItem?.productId,
+        productItem?.variations,
+        productItem?.diamondDetail,
         "isChecked",
         isChecked
       );
@@ -326,7 +354,7 @@ const ReturnRequestPage = () => {
                         )}
 
                         <DiamondDetailDrawer
-                          productItem={productItem}
+                          cartItem={productItem}
                           openDiamondDetailDrawer={openDiamondDetailDrawer}
                           dispatch={dispatch}
                           setOpenDiamondDetailDrawer={
@@ -464,6 +492,29 @@ const ReturnRequestPage = () => {
               </div>
             ) : null}
             <form className="flex flex-col  gap-6 pt-6 w-full">
+              <ImageUploader
+                files={values.returnRequestImageFiles}
+                previews={preview}
+                imgIcon={imgDrop}
+                maxFiles={fileSettings.RETURN_REQUEST_IMAGE_FILE_LIMIT}
+                maxTotalSize={fileSettings.RETURN_REQUEST_TOTAL_IMAGE_FILE_SIZE}
+                accept=".png,.jpg,.jpeg,.webp"
+                setErrorMessage={(msg) =>
+                  dispatch(setReturnRequestImageMessage(msg))
+                }
+                onChange={(returnRequestImages, previewsArr) => {
+                  setFieldValue("returnRequestImageFiles", returnRequestImages);
+                  dispatch(setPreview(previewsArr));
+                }}
+              />
+
+              {returnRequestImageMessage && (
+                <ErrorMessage
+                  message={returnRequestImageMessage}
+                  className="!text-start"
+                />
+              )}
+
               <div>
                 <textarea
                   name="returnRequestReason"

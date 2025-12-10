@@ -401,6 +401,36 @@ const ReturnDetails = ({
 
         {/* Right Panel: Order Details */}
         <div className="flex flex-col gap-6 md:px-4 lg:pl-12 2xl:pl-14 pt-2.5 w-full lg:w-1/2">
+          {Array.isArray(returnDetail?.images) &&
+            returnDetail?.images?.length && (
+              <div className="pb-6 border-b border-gray-300">
+                <h3 className="font-semibold text-base md:text-lg mb-3">
+                  Return Request Images
+                </h3>
+
+                <div className="flex flex-wrap gap-3">
+                  {returnDetail.images.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="relative w-24 h-24 md:w-28 md:h-28 overflow-hidden rounded-md border border-gray-300 border-dashed p-1 cursor-pointer group"
+                      onClick={() => window.open(item.image, "_blank")}
+                    >
+                      <ProgressiveImg
+                        src={item.image}
+                        alt={`return-image-${idx}`}
+                        title="Return Image"
+                        className="w-full h-full object-cover rounded"
+                      />
+                      <div
+                        className="absolute inset-0 bg-black bg-opacity-50 text-white text-xs font-medium flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded"
+                      >
+                        Click to View
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           <div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 text-sm md:text-base">
               {returnOrderMetaFields.map(({ label, value, isOptional }) => {

@@ -22,6 +22,7 @@ export const discountsUrl = process.env.NEXT_PUBLIC_DISCOUNTS;
 export const customizedProductSettingsUrl =
   process.env.NEXT_PUBLIC_CUSTOMIZE_PRODUCT_SETTINGS;
 
+export const returnRequestStorageUrl = process.env.NEXT_PUBLIC_RETURN_REQUEST;
 export const storageUrl = process.env.NEXT_PUBLIC_STORAGE;
 
 export const apiUrl = process.env.NEXT_PUBLIC_API_URL;
