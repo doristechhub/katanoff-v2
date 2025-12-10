@@ -25,6 +25,12 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Backdrop,
+  CircularProgress,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import {
@@ -77,10 +83,11 @@ const AddCollectionPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const collectionId = searchParams.get('collectionId');
-  const { crudCollectionLoading, selectedCollection } = useSelector(({ collection }) => collection);
+  const { crudCollectionLoading, selectedCollection, processCollectionLoading } = useSelector(({ collection }) => collection);
   const { productLoading, productList } = useSelector(({ product }) => product);
   const [browseDialog, setBrowseDialog] = useState(false);
   const [confirmSelectProductDialog, setConfirmSelectProductDialog] = useState(false);
+  const [processingAction, setProcessingAction] = useState(null);
   const [selectedGender, setSelectedGender] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const deferredQuery = useDeferredValue(searchQuery);
@@ -89,11 +96,28 @@ const AddCollectionPage = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [selectedProductCount, setSelectedProductCount] = useState(0);
+  const [openNavigationConfirmDialog, setOpenNavigationConfirmDialog] = useState(false);
+  const [nextLocation, setNextLocation] = useState(null);
+  const [isBackNavigation, setIsBackNavigation] = useState(false);
   const [expandedAccordions, setExpandedAccordions] = useState({
     desktopBanner: false,
     mobileBanner: false,
     thumbnail: false,
   });
+
+  const processingTitle =
+    processingAction === 'create'
+      ? 'Processing Collection Creation...'
+      : processingAction === 'update'
+        ? 'Processing Collection Update...'
+        : null;
+
+  const processingBody =
+    processingAction === 'create'
+      ? 'Your new collection is being created. Leaving the page may interrupt the creation process. Please wait until it finishes.'
+      : processingAction === 'update'
+        ? 'Your collection updates are being applied. Leaving the page may interrupt the update process. Please wait until it finishes.'
+        : null;
 
   const uniqueGenders = useMemo(() => {
     const genders = productList.map((p) => p.gender).filter(Boolean);
@@ -120,6 +144,55 @@ const AddCollectionPage = () => {
       dispatch(setProductList([]));
     }
   }, [dispatch, collectionId]);
+
+  const handleCancelNavigation = () => {
+    setOpenNavigationConfirmDialog(false);
+    setIsBackNavigation(false);
+    setNextLocation(null);
+  };
+
+  useEffect(() => {
+    if (!processCollectionLoading && openNavigationConfirmDialog) {
+      setOpenNavigationConfirmDialog(false);
+      setIsBackNavigation(false);
+      setNextLocation(null);
+    }
+  }, [processCollectionLoading, openNavigationConfirmDialog]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (processCollectionLoading) {
+        e.preventDefault();
+        e.returnValue =
+          'Products selects are in progress. Leaving the page may interrupt the process. Are you sure?';
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [processCollectionLoading]);
+
+  useEffect(() => {
+    if (!processCollectionLoading) return;
+
+    const handlePopState = (e) => {
+      if (processCollectionLoading) {
+        e.preventDefault();
+        setOpenNavigationConfirmDialog(true);
+        setIsBackNavigation(true); // Indicate back navigation attempt
+        // Push back to current location to prevent immediate navigation
+        window.history.pushState(null, null, location.pathname);
+      }
+    };
+
+    window.history.pushState(null, null, location.pathname);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [processCollectionLoading, location.pathname]);
 
   useEffect(() => {
     loadData();
@@ -177,6 +250,9 @@ const AddCollectionPage = () => {
   const onSubmit = useCallback(
     async (values, { resetForm }) => {
       try {
+        const isUpdate = !!values?.id;
+        setProcessingAction(isUpdate ? 'update' : 'create');
+
         const payload = {
           title: values?.title,
           type: values?.type === 'default' ? '' : values?.type,
@@ -190,17 +266,20 @@ const AddCollectionPage = () => {
           productIds: values?.selectedProductsList?.map((x) => x.id),
         };
 
-        if (values?.id) {
+        if (isUpdate) {
           payload.collectionId = values?.id;
         }
-        const action = values?.id ? updateCollection : createCollection;
+        const action = isUpdate ? updateCollection : createCollection;
         const res = await dispatch(action(payload));
+       setProcessingAction(null);
+
         if (res) {
           resetForm();
           navigate('/collection');
         }
       } catch (error) {
         console.error('Failed to submit collection:', error);
+        setProcessingAction(null);
       }
     },
     [dispatch, navigate]
@@ -260,408 +339,461 @@ const AddCollectionPage = () => {
   );
 
   return (
-    <Container>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h4">
-          {collectionId ? 'Update Collection' : 'Create Collection'}
-        </Typography>
-      </Box>
-      <Card sx={{ p: 3 }}>
-        <Grid container spacing={2}>
-          <Grid container xs={12} spacing={2}>
-            <Grid xs={12} md={6}>
-              <TextField
-                fullWidth
-                name="title"
-                label="Collection Title"
-                value={values?.title || ''}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={touched.title && !!errors.title}
-                helperText={touched.title && errors.title}
-              />
-            </Grid>
-            <Grid container xs={12} md={6} spacing={2}>
+    <>
+      <Container>
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h4">
+            {collectionId ? 'Update Collection' : 'Create Collection'}
+          </Typography>
+        </Box>
+        <Card sx={{ p: 3 }}>
+          <Grid container spacing={2}>
+            <Grid container xs={12} spacing={2}>
               <Grid xs={12} md={6}>
                 <TextField
-                  select
                   fullWidth
-                  name="type"
-                  label="Collection Type"
-                  value={values?.type || ''}
+                  name="title"
+                  label="Collection Title"
+                  value={values?.title || ''}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  error={touched.type && !!errors.type}
-                  helperText={touched.type && errors.type}
-                >
-                  {Object.values(COLLECTION_TYPES).map((type) => (
-                    <MenuItem key={type.label} value={type.value}>
-                      {type.label}
-                    </MenuItem>
-                  ))}
-                </TextField>
+                  error={touched.title && !!errors.title}
+                  helperText={touched.title && errors.title}
+                />
               </Grid>
-              <Grid xs={12} md={6}>
-                <TextField
-                  select
-                  fullWidth
-                  name="filterType"
-                  label="Filter Type"
-                  value={values?.filterType || 'setting_style'}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  error={touched.filterType && !!errors.filterType}
-                  helperText={touched.filterType && errors.filterType}
-                >
-                  {COLLECTION_FILTER_TYPES.map((option) => (
-                    <MenuItem key={option.value} value={option.value} className="capitalize">
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </TextField>
+              <Grid container xs={12} md={6} spacing={2}>
+                <Grid xs={12} md={6}>
+                  <TextField
+                    select
+                    fullWidth
+                    name="type"
+                    label="Collection Type"
+                    value={values?.type || ''}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={touched.type && !!errors.type}
+                    helperText={touched.type && errors.type}
+                  >
+                    {Object.values(COLLECTION_TYPES).map((type) => (
+                      <MenuItem key={type.label} value={type.value}>
+                        {type.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid xs={12} md={6}>
+                  <TextField
+                    select
+                    fullWidth
+                    name="filterType"
+                    label="Filter Type"
+                    value={values?.filterType || 'setting_style'}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={touched.filterType && !!errors.filterType}
+                    helperText={touched.filterType && errors.filterType}
+                  >
+                    {COLLECTION_FILTER_TYPES.map((option) => (
+                      <MenuItem key={option.value} value={option.value} className="capitalize">
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
               </Grid>
             </Grid>
-          </Grid>
-          <Grid xs={12} lg={4} mt={3}>
-            <Accordion defaultExpanded={false} onChange={handleAccordionChange('desktopBanner')}>
-              <AccordionSummary expandIcon={<Iconify icon="eva:chevron-down-fill" />}>
-                <Typography variant="subtitle2">Desktop Banner (1920x448)</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <FileDrop
-                  mediaLimit={1}
-                  formik={formik}
-                  productId={selectedCollection}
-                  fileKey="desktopBannerFile"
-                  previewKey="desktopBannerPreviewImage"
-                  deleteKey="desktopBannerUploadedDeletedImage"
-                  loading={crudCollectionLoading}
-                />
-              </AccordionDetails>
-            </Accordion>
-            {!expandedAccordions.desktopBanner &&
-              formik.touched.desktopBannerPreviewImage &&
-              formik.errors.desktopBannerPreviewImage && (
-                <Typography variant="caption" color="error" sx={{ mt: 1 }}>
-                  {formik.errors.desktopBannerPreviewImage}
-                </Typography>
-              )}
-          </Grid>
-          <Grid xs={12} lg={4} mt={3}>
-            <Accordion defaultExpanded={false} onChange={handleAccordionChange('mobileBanner')}>
-              <AccordionSummary expandIcon={<Iconify icon="eva:chevron-down-fill" />}>
-                <Typography variant="subtitle2">Mobile Banner (1500x738)</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <FileDrop
-                  mediaLimit={1}
-                  formik={formik}
-                  productId={selectedCollection}
-                  fileKey="mobileBannerFile"
-                  previewKey="mobileBannerPreviewImage"
-                  deleteKey="mobileBannerUploadedDeletedImage"
-                  loading={crudCollectionLoading}
-                />
-              </AccordionDetails>
-            </Accordion>
-            {!expandedAccordions.mobileBanner &&
-              formik.touched.mobileBannerPreviewImage &&
-              formik.errors.mobileBannerPreviewImage && (
-                <Typography variant="caption" color="error" sx={{ mt: 1 }}>
-                  {formik.errors.mobileBannerPreviewImage}
-                </Typography>
-              )}
-          </Grid>
-          <Grid xs={12} lg={4} mt={3}>
-            <Accordion defaultExpanded={false} onChange={handleAccordionChange('thumbnail')}>
-              <AccordionSummary expandIcon={<Iconify icon="eva:chevron-down-fill" />}>
-                <Typography variant="subtitle2">
-                  Thumbnail Images ({COLLECTION_TYPES[values.type]?.thumbnailDimensions})
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <FileDrop
-                  mediaLimit={1}
-                  formik={formik}
-                  productId={selectedCollection}
-                  fileKey="thumbnailFile"
-                  previewKey="thumbnailPreviewImage"
-                  deleteKey="thumbnailUploadedDeletedImage"
-                  loading={crudCollectionLoading}
-                />
-              </AccordionDetails>
-            </Accordion>
-            {!expandedAccordions.thumbnail &&
-              formik.touched.thumbnailPreviewImage &&
-              formik.errors.thumbnailPreviewImage && (
-                <Typography variant="caption" color="error" sx={{ mt: 1 }}>
-                  {formik.errors.thumbnailPreviewImage}
-                </Typography>
-              )}
-          </Grid>
-          <Grid xs={12} mt={3}>
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-              sx={{ mb: 2 }}
-            >
-              <Typography variant="h6">Add Products</Typography>
-              <LoadingButton
-                disabled={productLoading}
-                loading={productLoading}
-                variant="contained"
-                onClick={() => setBrowseDialog(true)}
-                startIcon={<Iconify icon="eva:search-fill" />}
+            <Grid xs={12} lg={4} mt={3}>
+              <Accordion defaultExpanded={false} onChange={handleAccordionChange('desktopBanner')}>
+                <AccordionSummary expandIcon={<Iconify icon="eva:chevron-down-fill" />}>
+                  <Typography variant="subtitle2">Desktop Banner (1920x448)</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <FileDrop
+                    mediaLimit={1}
+                    formik={formik}
+                    productId={selectedCollection}
+                    fileKey="desktopBannerFile"
+                    previewKey="desktopBannerPreviewImage"
+                    deleteKey="desktopBannerUploadedDeletedImage"
+                    loading={crudCollectionLoading}
+                  />
+                </AccordionDetails>
+              </Accordion>
+              {!expandedAccordions.desktopBanner &&
+                formik.touched.desktopBannerPreviewImage &&
+                formik.errors.desktopBannerPreviewImage && (
+                  <Typography variant="caption" color="error" sx={{ mt: 1 }}>
+                    {formik.errors.desktopBannerPreviewImage}
+                  </Typography>
+                )}
+            </Grid>
+            <Grid xs={12} lg={4} mt={3}>
+              <Accordion defaultExpanded={false} onChange={handleAccordionChange('mobileBanner')}>
+                <AccordionSummary expandIcon={<Iconify icon="eva:chevron-down-fill" />}>
+                  <Typography variant="subtitle2">Mobile Banner (1500x738)</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <FileDrop
+                    mediaLimit={1}
+                    formik={formik}
+                    productId={selectedCollection}
+                    fileKey="mobileBannerFile"
+                    previewKey="mobileBannerPreviewImage"
+                    deleteKey="mobileBannerUploadedDeletedImage"
+                    loading={crudCollectionLoading}
+                  />
+                </AccordionDetails>
+              </Accordion>
+              {!expandedAccordions.mobileBanner &&
+                formik.touched.mobileBannerPreviewImage &&
+                formik.errors.mobileBannerPreviewImage && (
+                  <Typography variant="caption" color="error" sx={{ mt: 1 }}>
+                    {formik.errors.mobileBannerPreviewImage}
+                  </Typography>
+                )}
+            </Grid>
+            <Grid xs={12} lg={4} mt={3}>
+              <Accordion defaultExpanded={false} onChange={handleAccordionChange('thumbnail')}>
+                <AccordionSummary expandIcon={<Iconify icon="eva:chevron-down-fill" />}>
+                  <Typography variant="subtitle2">
+                    Thumbnail Images ({COLLECTION_TYPES[values.type]?.thumbnailDimensions})
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <FileDrop
+                    mediaLimit={1}
+                    formik={formik}
+                    productId={selectedCollection}
+                    fileKey="thumbnailFile"
+                    previewKey="thumbnailPreviewImage"
+                    deleteKey="thumbnailUploadedDeletedImage"
+                    loading={crudCollectionLoading}
+                  />
+                </AccordionDetails>
+              </Accordion>
+              {!expandedAccordions.thumbnail &&
+                formik.touched.thumbnailPreviewImage &&
+                formik.errors.thumbnailPreviewImage && (
+                  <Typography variant="caption" color="error" sx={{ mt: 1 }}>
+                    {formik.errors.thumbnailPreviewImage}
+                  </Typography>
+                )}
+            </Grid>
+            <Grid xs={12} mt={3}>
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+                sx={{ mb: 2 }}
               >
-                Browse Products
-              </LoadingButton>
-            </Stack>
-            <Card sx={{ border: `1px solid ${grey[200]}`, maxHeight: 800 }}>
-              <Scrollbar>
-                <TableContainer sx={{ maxHeight: 800 }}>
-                  <Table stickyHeader>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell align="center" sx={{ width: 60 }}>
-                          ID
-                        </TableCell>
-                        <TableCell sx={{ minWidth: 150 }}>Product</TableCell>
-                        <TableCell sx={{ minWidth: 80 }}>Gender</TableCell>
-                        <TableCell sx={{ minWidth: 80 }}>SKU</TableCell>
-                        <TableCell sx={{ minWidth: 80 }}>Price</TableCell>
-                        <TableCell align="center">
-                          <button
-                            className="underline text-sm"
-                            onClick={() => {
-                              formik.setFieldValue('selectedProductsList', []);
-                              dispatch(
-                                setProductList(productList.map((p) => ({ ...p, selected: false })))
-                              );
-                            }}
-                          >
-                            Clear All
-                          </button>
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {values.selectedProductsList?.length ? (
-                        values.selectedProductsList.map((product, index) => (
-                          <TableRow key={`selected-product-${index}`} hover>
-                            <TableCell align="center">{index + 1}</TableCell>
-                            <TableCell
-                              sx={{ cursor: 'pointer', color: 'primary.main' }}
+                <Typography variant="h6">Add Products</Typography>
+                <LoadingButton
+                  disabled={productLoading}
+                  loading={productLoading}
+                  variant="contained"
+                  onClick={() => setBrowseDialog(true)}
+                  startIcon={<Iconify icon="eva:search-fill" />}
+                >
+                  Browse Products
+                </LoadingButton>
+              </Stack>
+              <Card sx={{ border: `1px solid ${grey[200]}`, maxHeight: 800 }}>
+                <Scrollbar>
+                  <TableContainer sx={{ maxHeight: 800 }}>
+                    <Table stickyHeader>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell align="center" sx={{ width: 60 }}>
+                            ID
+                          </TableCell>
+                          <TableCell sx={{ minWidth: 150 }}>Product</TableCell>
+                          <TableCell sx={{ minWidth: 80 }}>Gender</TableCell>
+                          <TableCell sx={{ minWidth: 80 }}>SKU</TableCell>
+                          <TableCell sx={{ minWidth: 80 }}>Price</TableCell>
+                          <TableCell align="center">
+                            <button
+                              className="underline text-sm"
                               onClick={() => {
-                                navigate(`/product/add?productId=${product.id}`);
+                                formik.setFieldValue('selectedProductsList', []);
+                                dispatch(
+                                  setProductList(
+                                    productList.map((p) => ({ ...p, selected: false }))
+                                  )
+                                );
                               }}
                             >
-                              {renderProductInfo(product)}
-                            </TableCell>
-                            <TableCell sx={{ textTransform: 'capitalize' }}>
-                              {product?.gender || 'N/A'}
-                            </TableCell>
-                            <TableCell>{product?.sku || 'N/A'}</TableCell>
-                            <TableCell>{fCurrency(product.baseSellingPrice)}</TableCell>
-                            <TableCell align="center">
-                              <IconButton
-                                size="small"
-                                onClick={(e) => removeSelectedProduct(e, product)}
-                              >
-                                <Iconify icon="ix:cancel" width={15} />
-                              </IconButton>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={7} align="center">
-                            <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
-                              No products selected
-                            </Typography>
+                              Clear All
+                            </button>
                           </TableCell>
                         </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Scrollbar>
-            </Card>
+                      </TableHead>
+                      <TableBody>
+                        {values.selectedProductsList?.length ? (
+                          values.selectedProductsList.map((product, index) => (
+                            <TableRow key={`selected-product-${index}`} hover>
+                              <TableCell align="center">{index + 1}</TableCell>
+                              <TableCell
+                                sx={{ cursor: 'pointer', color: 'primary.main' }}
+                                onClick={() => {
+                                  navigate(`/product/add?productId=${product.id}`);
+                                }}
+                              >
+                                {renderProductInfo(product)}
+                              </TableCell>
+                              <TableCell sx={{ textTransform: 'capitalize' }}>
+                                {product?.gender || 'N/A'}
+                              </TableCell>
+                              <TableCell>{product?.sku || 'N/A'}</TableCell>
+                              <TableCell>{fCurrency(product.baseSellingPrice)}</TableCell>
+                              <TableCell align="center">
+                                <IconButton
+                                  size="small"
+                                  onClick={(e) => removeSelectedProduct(e, product)}
+                                >
+                                  <Iconify icon="ix:cancel" width={15} />
+                                </IconButton>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={7} align="center">
+                              <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
+                                No products selected
+                              </Typography>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Scrollbar>
+              </Card>
+            </Grid>
           </Grid>
-        </Grid>
-        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 3 }}>
-          <Button
-            variant="outlined"
-            onClick={() => navigate('/collection')}
-            disabled={crudCollectionLoading}
-          >
-            Cancel
-          </Button>
-          <LoadingButton variant="contained" onClick={handleSubmit} loading={crudCollectionLoading}>
-            {collectionId ? 'Update' : 'Save'}
-          </LoadingButton>
-        </Box>
-      </Card>
-      <Dialog
-        fullWidth
-        maxWidth="lg"
-        open={browseDialog}
-        handleClose={() => setBrowseDialog(false)}
-        handleOpen={() => setBrowseDialog(true)}
-      >
-        <Box sx={{ p: 3 }}>
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            Select Products
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {selectedProductCount} product(s) selected
-            </Typography>
-          </Typography>
-          <Stack direction="row" spacing={2}>
-            <TextField
-              fullWidth
-              size="small"
-              type="search"
-              placeholder="Search by Title or SKU"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Iconify
-                      icon="eva:search-fill"
-                      sx={{ ml: 1, width: 20, height: 20, color: 'text.disabled' }}
-                    />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <TextField
-              select
-              size="small"
-              label="Filter by Gender"
-              value={selectedGender}
-              onChange={(e) => setSelectedGender(e.target.value)}
-              sx={{ minWidth: 180 }}
+          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 3 }}>
+            <Button
+              variant="outlined"
+              onClick={() => navigate('/collection')}
+              disabled={crudCollectionLoading}
             >
-              <MenuItem value="">All</MenuItem>
-              {uniqueGenders.map((gender) => (
-                <MenuItem key={gender} value={gender}>
-                  {gender.charAt(0).toUpperCase() + gender.slice(1)}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Stack>
-        </Box>
-        <Scrollbar>
-          <TableContainer sx={{ maxHeight: 400 }}>
-            <Table stickyHeader>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ pl: 4, width: 50 }}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={isAllSelected}
-                          indeterminate={
-                            productList.some((product) => product.selected) &&
-                            !productList.every((product) => product.selected)
-                          }
-                          onChange={toggleSelectAll}
-                        />
-                      }
-                    />
-                  </TableCell>
-                  <TableCell sx={{ minWidth: 150 }}>Product</TableCell>
-                  <TableCell sx={{ minWidth: 80 }}>Gender</TableCell>
-                  <TableCell sx={{ minWidth: 80 }}>SKU</TableCell>
-                  <TableCell sx={{ minWidth: 80 }}>Price</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {paginatedItems?.length ? (
-                  paginatedItems.map((product, i) => (
-                    <TableRow key={`product-${i}`} hover>
-                      <TableCell sx={{ pl: 3 }}>
-                        <FormControlLabel
-                          sx={{ ml: 0, mr: 0 }}
-                          control={
-                            <Checkbox
-                              checked={product.selected || false}
-                              onChange={(e) => handleProductSelection(e, product)}
-                            />
-                          }
-                        />
-                      </TableCell>
-                      <TableCell>{renderProductInfo(product)}</TableCell>
-                      <TableCell sx={{ textTransform: 'capitalize' }}>
-                        {product.gender || 'N/A'}
-                      </TableCell>
-                      <TableCell>{product.sku || 'N/A'}</TableCell>
-                      <TableCell>{fCurrency(product.baseSellingPrice)}</TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 2 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        No Data
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Scrollbar>
-        <Box
-          sx={{ p: 3, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 2 }}
+              Cancel
+            </Button>
+            <LoadingButton
+              variant="contained"
+              onClick={handleSubmit}
+              loading={crudCollectionLoading}
+            >
+              {collectionId ? 'Update' : 'Save'}
+            </LoadingButton>
+          </Box>
+        </Card>
+        <Dialog
+          fullWidth
+          maxWidth="lg"
+          open={browseDialog}
+          handleClose={() => setBrowseDialog(false)}
+          handleOpen={() => setBrowseDialog(true)}
         >
-          {filteredList.length > rowsPerPage && (
-            <TablePagination
-              page={productPage}
-              component="div"
-              count={filteredList.length}
-              rowsPerPage={rowsPerPage}
-              onPageChange={(e, newPage) => setProductPage(newPage)}
-              rowsPerPageOptions={[5, 10, 25]}
-              onRowsPerPageChange={(e) => {
-                setRowsPerPage(parseInt(e.target.value, 10));
-                setProductPage(0);
+          <Box sx={{ p: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Select Products
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                {selectedProductCount} product(s) selected
+              </Typography>
+            </Typography>
+            <Stack direction="row" spacing={2}>
+              <TextField
+                fullWidth
+                size="small"
+                type="search"
+                placeholder="Search by Title or SKU"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Iconify
+                        icon="eva:search-fill"
+                        sx={{ ml: 1, width: 20, height: 20, color: 'text.disabled' }}
+                      />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <TextField
+                select
+                size="small"
+                label="Filter by Gender"
+                value={selectedGender}
+                onChange={(e) => setSelectedGender(e.target.value)}
+                sx={{ minWidth: 180 }}
+              >
+                <MenuItem value="">All</MenuItem>
+                {uniqueGenders.map((gender) => (
+                  <MenuItem key={gender} value={gender}>
+                    {gender.charAt(0).toUpperCase() + gender.slice(1)}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Stack>
+          </Box>
+          <Scrollbar>
+            <TableContainer sx={{ maxHeight: 400 }}>
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ pl: 4, width: 50 }}>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={isAllSelected}
+                            indeterminate={
+                              productList.some((product) => product.selected) &&
+                              !productList.every((product) => product.selected)
+                            }
+                            onChange={toggleSelectAll}
+                          />
+                        }
+                      />
+                    </TableCell>
+                    <TableCell sx={{ minWidth: 150 }}>Product</TableCell>
+                    <TableCell sx={{ minWidth: 80 }}>Gender</TableCell>
+                    <TableCell sx={{ minWidth: 80 }}>SKU</TableCell>
+                    <TableCell sx={{ minWidth: 80 }}>Price</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {paginatedItems?.length ? (
+                    paginatedItems.map((product, i) => (
+                      <TableRow key={`product-${i}`} hover>
+                        <TableCell sx={{ pl: 3 }}>
+                          <FormControlLabel
+                            sx={{ ml: 0, mr: 0 }}
+                            control={
+                              <Checkbox
+                                checked={product.selected || false}
+                                onChange={(e) => handleProductSelection(e, product)}
+                              />
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>{renderProductInfo(product)}</TableCell>
+                        <TableCell sx={{ textTransform: 'capitalize' }}>
+                          {product.gender || 'N/A'}
+                        </TableCell>
+                        <TableCell>{product.sku || 'N/A'}</TableCell>
+                        <TableCell>{fCurrency(product.baseSellingPrice)}</TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={6} align="center" sx={{ py: 2 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          No Data
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Scrollbar>
+          <Box
+            sx={{ p: 3, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 2 }}
+          >
+            {filteredList.length > rowsPerPage && (
+              <TablePagination
+                page={productPage}
+                component="div"
+                count={filteredList.length}
+                rowsPerPage={rowsPerPage}
+                onPageChange={(e, newPage) => setProductPage(newPage)}
+                rowsPerPageOptions={[5, 10, 25]}
+                onRowsPerPageChange={(e) => {
+                  setRowsPerPage(parseInt(e.target.value, 10));
+                  setProductPage(0);
+                }}
+              />
+            )}
+            <Button className="h-fit" variant="outlined" onClick={() => setBrowseDialog(false)}>
+              Cancel
+            </Button>
+            <LoadingButton
+              className="h-fit"
+              variant="contained"
+              onClick={() => {
+                const allSelectedProducts = productList.filter((x) => x.selected);
+                if (allSelectedProducts.length) {
+                  setConfirmSelectProductDialog(true);
+                }
               }}
-            />
-          )}
-          <Button className="h-fit" variant="outlined" onClick={() => setBrowseDialog(false)}>
+              loading={productLoading}
+            >
+              Select
+            </LoadingButton>
+          </Box>
+        </Dialog>
+        {confirmSelectProductDialog && (
+          <ConfirmationDialog
+            loading={false}
+            open={confirmSelectProductDialog}
+            setOpen={setConfirmSelectProductDialog}
+            handleConfirm={handleConfirmSelectedProducts}
+          >
+            <Typography variant="button" sx={{ mt: 1, fontSize: '16px' }}>
+              Are you sure you want to proceed?
+            </Typography>
+            <p>By confirming, selected products will be added to the collection.</p>
+          </ConfirmationDialog>
+        )}
+      </Container>
+
+      <Backdrop
+        sx={{
+          color: '#fff',
+          zIndex: 1111,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        open={processCollectionLoading}
+      >
+        <CircularProgress color="inherit" />
+        <Typography variant="h5" sx={{ mt: 2, fontWeight: 'bold' }}>
+          {processingTitle}
+        </Typography>
+        <Typography variant="body1" sx={{ mt: 1, textAlign: 'center', maxWidth: 400 }}>
+          {processingBody}
+        </Typography>
+      </Backdrop>
+
+      <Dialog
+        open={openNavigationConfirmDialog}
+        onClose={handleCancelNavigation}
+        aria-labelledby="navigation-confirm-dialog-title"
+        aria-describedby="navigation-confirm-dialog-description"
+        sx={{ zIndex: 99999 }}
+      >
+        <DialogTitle id="navigation-confirm-dialog-title">Confirm Navigation</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="navigation-confirm-dialog-description">
+            {processingAction === 'create' &&
+              'A collection creation is in progress. Navigating away may interrupt the creation.'}
+            {processingAction === 'update' &&
+              'A collection update is in progress. Navigating away may interrupt the update.'}
+            {!processingAction &&
+              'Collection updates are in progress. Navigating away may interrupt the process.'}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="contained" onClick={handleCancelNavigation}>
             Cancel
           </Button>
-          <LoadingButton
-            className="h-fit"
-            variant="contained"
-            onClick={() => {
-              const allSelectedProducts = productList.filter((x) => x.selected);
-              if (allSelectedProducts.length) {
-                setConfirmSelectProductDialog(true);
-              }
-            }}
-            loading={productLoading}
-          >
-            Select
-          </LoadingButton>
-        </Box>
+        </DialogActions>
       </Dialog>
-      {confirmSelectProductDialog && (
-        <ConfirmationDialog
-          loading={false}
-          open={confirmSelectProductDialog}
-          setOpen={setConfirmSelectProductDialog}
-          handleConfirm={handleConfirmSelectedProducts}
-        >
-          <Typography variant="button" sx={{ mt: 1, fontSize: '16px' }}>
-            Are you sure you want to proceed?
-          </Typography>
-          <p>By confirming, selected products will be added to the collection.</p>
-        </ConfirmationDialog>
-      )}
-    </Container>
+    </>
   );
 };
 

@@ -188,9 +188,8 @@ const deleteFiles = async (urls) => {
   }
 };
 
-const updateProductCollections = async (productIds, collectionId, add = true) => {
+const updateProductCollections = async ({ products, productIds, collectionId, add = true }) => {
   try {
-    const products = await productService.getAllProductsWithPagging();
     const updatePromises = productIds.map(async (productId) => {
       const product = products.find((p) => p.id === productId);
       if (!product) return;
@@ -216,6 +215,25 @@ const updateProductCollections = async (productIds, collectionId, add = true) =>
   } catch (e) {
     throw new Error(`Failed to update product collections: ${e.message}`);
   }
+};
+
+const processBatchedProductUpdate = async ({ products, productIds, collectionId, isAdd, BATCH_SIZE = 10 }) => {
+  const failedProductIds = []
+  for (let i = 0; i < productIds.length; i += BATCH_SIZE) {
+    const batch = productIds.slice(i, i + BATCH_SIZE);
+    try {
+      await updateProductCollections({ products, productIds: batch, collectionId, add: isAdd });
+    } catch (e) {
+      console.error(
+        `Batch update failed for ${isAdd ? 'add' : 'remove'} (ids: ${batch.join(
+          ','
+        )}): ${e.message}`
+      );
+
+      failedProductIds.push(...batch);
+    }
+  }
+  return { failedProductIds }
 };
 
 const insertCollection = (params) => {
@@ -307,14 +325,18 @@ const insertCollection = (params) => {
         url: `${collectionUrl}/${uuid}`,
         insertPattern: insertPattern,
       };
+      const products = await productService.getAllProductsWithPagging();
+      let failedProductIds = [];
 
       await fetchWrapperService
         .create(createPattern)
         .then(async () => {
           if (productIds.length > 0) {
-            await updateProductCollections(productIds, uuid, true);
+            let { failedProductIds: failedProductIdsResp } = await processBatchedProductUpdate({ products, productIds, collectionId: uuid, isAdd: true });
+            failedProductIds = failedProductIdsResp
           }
-          resolve(insertPattern);
+
+          resolve({ ...insertPattern, failedProductIds });
         })
         .catch(async (e) => {
           await deleteFiles([desktopBannerUrl, mobileBannerUrl, thumbnailUrl]);
@@ -464,12 +486,17 @@ const updateCollection = (params) => {
         throw new Error(`Update failed: ${e.message}`);
       });
 
-      // Update product collections
+      let totalFailedProductIds = [];
+      const products = await productService.getAllProductsWithPagging();
+
+      // Process adds then removes
       if (productsToAdd.length > 0) {
-        await updateProductCollections(productsToAdd, collectionId, true);
+        const { failedProductIds } = await processBatchedProductUpdate({ products, productIds: productsToAdd, collectionId, isAdd: true });
+        totalFailedProductIds.push(...failedProductIds)
       }
       if (productsToRemove.length > 0) {
-        await updateProductCollections(productsToRemove, collectionId, false);
+        const { failedProductIds } = await processBatchedProductUpdate({ products, productIds: productsToRemove, collectionId, isAdd: false });
+        totalFailedProductIds.push(...failedProductIds)
       }
 
       await deleteFiles([
@@ -477,8 +504,7 @@ const updateCollection = (params) => {
         deletedMobileBannerImage,
         deletedThumbnailImage,
       ]);
-
-      resolve(payload);
+      resolve({ ...payload, failedProductIds: totalFailedProductIds });
     } catch (e) {
       reject(e);
     }
@@ -503,7 +529,9 @@ const deleteCollection = (params) => {
         // return reject(new Error('Collection cannot be deleted because it has products'));
         // Remove collectionId from associated products
         const productIds = productData.map((p) => p.id);
-        await updateProductCollections(productIds, collectionId, false);
+        const products = await productService.getAllProductsWithPagging();
+
+        await updateProductCollections({ products, productIds, collectionId, add: false });
       }
 
       await fetchWrapperService._delete(`${collectionUrl}/${collectionId}`);

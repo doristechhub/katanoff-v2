@@ -7,6 +7,7 @@ import {
   setCollectionList,
   setCollectionLoading,
   setCrudCollectionLoading,
+  setProcessCollectionLoading,
   setSelectedCollection,
 } from 'src/store/slices/collectionSlice';
 
@@ -125,34 +126,48 @@ export const deleteCollection = (payload) => async (dispatch) => {
 export const createCollection = (payload) => async (dispatch) => {
   try {
     dispatch(setCrudCollectionLoading(true));
+    dispatch(setProcessCollectionLoading(true));
     const res = await collectionService.insertCollection(payload);
 
-    if (res) {
-      toast.success('Collection added successfully');
-      return true;
+    if (res?.failedProductIds?.length > 0) {
+      toast.warning(
+        `Collection created, but some products could not be assigned`
+      );
+      return false;
     }
+    else {
+      toast.success('Collection added successfully');
+    }
+    return true;
   } catch (e) {
     toastError(e);
     return false;
   } finally {
     dispatch(setCrudCollectionLoading(false));
+    dispatch(setProcessCollectionLoading(false));
   }
 };
 
 export const updateCollection = (payload) => async (dispatch) => {
   try {
     dispatch(setCrudCollectionLoading(true));
+    dispatch(setProcessCollectionLoading(true));
     const res = await collectionService.updateCollection(payload);
-
-    if (res) {
+    if (res?.failedProductIds?.length > 0) {
+      toast.warning(
+        `Collection updated, but some products could not be assigned`
+      );
+      return false;
+    } else {
       toast.success('Collection updated successfully');
-      return true;
     }
+    return true;
   } catch (e) {
     toastError(e);
     return false;
   } finally {
     dispatch(setCrudCollectionLoading(false));
+    dispatch(setProcessCollectionLoading(false));
   }
 };
 
