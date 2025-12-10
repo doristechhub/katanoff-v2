@@ -7,6 +7,7 @@ import {
   isValidFileSize,
   isValidFileType,
   ordersUrl,
+  returnRequestStorageUrl,
   returnsUrl,
   sanitizeObject,
   sanitizeValue,
@@ -21,6 +22,8 @@ import fileSettings from '../_utils/fileSettings';
 import { refundStatuses } from 'src/store/slices/refundSlice';
 import { diamondShapeService } from './diamondShape.service';
 import { GOLD_COLOR_MAP } from 'src/_helpers/constants';
+
+const uploadImageFileType = fileSettings.IMAGE_FILE_NAME;
 
 const getAllReturnsList = () => {
   return new Promise(async (resolve, reject) => {
@@ -151,11 +154,11 @@ const getReturnDetailByReturnId = (returnId) => {
           variations,
           diamondDetail: item?.diamondDetail
             ? {
-                ...item.diamondDetail,
-                shapeName:
-                  diamondShapes.find((s) => s?.id === item.diamondDetail?.shapeId)?.title ||
-                  'Unknown',
-              }
+              ...item.diamondDetail,
+              shapeName:
+                diamondShapes.find((s) => s?.id === item.diamondDetail?.shapeId)?.title ||
+                'Unknown',
+            }
             : undefined,
         };
       });
@@ -261,14 +264,67 @@ const validateProducts = (products, orderProducts) =>
     return match && product.returnQuantity > 0 && product.returnQuantity <= match.cartQuantity;
   });
 
+const getStoragePath = (id) => {
+  return `${returnRequestStorageUrl}/${id}`;
+};
+
+const validateFiles = (files, filesLength, uploadFileType) => {
+  let fileLimit = 0;
+  let allowedFileTypes = [];
+  const totalSizeLimitMB = 25;
+
+  if (uploadFileType === uploadImageFileType) {
+    fileLimit = fileSettings.RETURN_REQUEST_IMAGE_FILE_LIMIT;
+    allowedFileTypes = fileSettings.IMAGE_ALLOW_MIME_TYPE;
+  }
+
+  if (!files.length) {
+    throw new Error(`At least one Image is required.`);
+  } else if (filesLength > fileLimit) {
+    throw new Error(`You can only upload up to ${fileLimit} Images.`);
+  }
+
+  const validFileType = isValidFileType(uploadFileType, files);
+  if (!validFileType) {
+    throw new Error(
+      `Invalid image type! Only the following formats are allowed: ${allowedFileTypes.join(', ')}`
+    );
+  }
+
+  const totalSizeBytes = files.reduce((sum, file) => sum + file.size, 0);
+
+  if (totalSizeBytes > fileSettings.RETURN_REQUEST_TOTAL_IMAGE_FILE_SIZE) {
+    throw new Error(`Total size of all images must be under ${totalSizeLimitMB} MB.`);
+  }
+};
+
+const handleFileUpload = async (path, files, fileType) => {
+  if (files.length === 0) return null;
+
+  try {
+    const uploadedFiles = await uploadFile(path, files);
+    return uploadedFiles;
+  } catch (error) {
+    throw new Error(`${fileType} upload failed. Error: ${error.message}`);
+  }
+};
+
 const createApprovedReturnRequest = (params) => {
   return new Promise(async (resolve, reject) => {
-    try {
-      let { orderId, products, imageFile, returnRequestReason } = sanitizeObject(params);
+    let imagesArray = [];
+    let storagePath = null;
 
-      orderId = orderId ? orderId?.trim() : null;
-      returnRequestReason = returnRequestReason ? returnRequestReason?.trim() : null;
-      imageFile = typeof imageFile === 'object' ? [imageFile] : [];
+    try {
+      let { orderId, products, returnRequestImageFiles, returnRequestReason } = sanitizeObject(params);
+
+      const uuid = uid();
+      storagePath = getStoragePath(uuid);
+
+      orderId = orderId?.trim() || null;
+      returnRequestReason = returnRequestReason?.trim() || null;
+
+      returnRequestImageFiles = Array.isArray(returnRequestImageFiles) ? returnRequestImageFiles : [];
+      //  imageFile = typeof imageFile === 'object' ? [imageFile] : [];
 
       const userData = helperFunctions.getCurrentUser();
       if (!userData?.id) {
@@ -281,9 +337,7 @@ const createApprovedReturnRequest = (params) => {
         return;
       }
 
-      const orderDetail = await fetchWrapperService.findOne(ordersUrl, {
-        id: orderId,
-      });
+      const orderDetail = await fetchWrapperService.findOne(ordersUrl, { id: orderId });
       if (!orderDetail) {
         reject(new Error('Order does not exist'));
         return;
@@ -326,45 +380,63 @@ const createApprovedReturnRequest = (params) => {
         reject(new Error('Invalid product data structure'));
         return;
       }
+
       const productsArray = getProductsArray(products);
       if (!validateProducts(productsArray, orderProducts)) {
         reject(new Error('Invalid product or quantity in return request'));
         return;
       }
 
-      let uploadedImage = '';
+      //   let uploadedImage = '';
 
-      if (imageFile.length) {
-        if (imageFile.length > fileSettings.RETURN_IMAGE_FILE_LIMIT) {
-          reject(
-            new Error(
-              `You can only ${fileSettings.RETURN_IMAGE_FILE_LIMIT} image or pdf upload here`
-            )
-          );
-          return;
-        }
+      // if (imageFile.length) {
+      //   if (imageFile.length > fileSettings.RETURN_IMAGE_FILE_LIMIT) {
+      //     reject(
+      //       new Error(
+      //         `You can only ${fileSettings.RETURN_IMAGE_FILE_LIMIT} image or pdf upload here`
+      //       )
+      //     );
+      //     return;
+      //   }
 
-        const imageValidFileType = isValidFileType(fileSettings.IMAGE_AND_PDF_FILE_NAME, imageFile);
-        if (!imageValidFileType) {
-          reject(new Error('Invalid file! (Only PNG, JPG, JPEG, WEBP, PDF files are allowed!)'));
-          return;
-        }
+      //   const imageValidFileType = isValidFileType(fileSettings.IMAGE_AND_PDF_FILE_NAME, imageFile);
+      //   if (!imageValidFileType) {
+      //     reject(new Error('Invalid file! (Only PNG, JPG, JPEG, WEBP, PDF files are allowed!)'));
+      //     return;
+      //   }
 
-        const imageValidFileSize = isValidFileSize(fileSettings.IMAGE_AND_PDF_FILE_NAME, imageFile);
-        if (!imageValidFileSize) {
-          reject(new Error('Invalid File Size! (Only 5 MB are allowed!)'));
-          return;
-        }
+      //   const imageValidFileSize = isValidFileSize(fileSettings.IMAGE_AND_PDF_FILE_NAME, imageFile);
+      //   if (!imageValidFileSize) {
+      //     reject(new Error('Invalid File Size! (Only 5 MB are allowed!)'));
+      //     return;
+      //   }
 
-        const filesPayload = [...imageFile];
-        await uploadFile(returnsUrl, filesPayload)
-          .then((fileNames) => {
-            uploadedImage = fileNames[0];
-          })
-          .catch((e) => {
-            reject(new Error('An error occurred during image uploading.'));
-          });
+      //   const filesPayload = [...imageFile];
+      //   await uploadFile(returnsUrl, filesPayload)
+      //     .then((fileNames) => {
+      //       uploadedImage = fileNames[0];
+      //     })
+      //     .catch((e) => {
+      //       reject(new Error('An error occurred during image uploading.'));
+      //     });
+
+      if (returnRequestImageFiles?.length) {
+        validateFiles(returnRequestImageFiles, returnRequestImageFiles.length, uploadImageFileType);
       }
+
+      if (returnRequestImageFiles?.length) {
+        const uploadedFileUrls = await handleFileUpload(
+          storagePath,
+          returnRequestImageFiles,
+          'Approved Return Media'
+        );
+
+        imagesArray =
+          uploadedFileUrls?.map((url) => ({
+            image: url,
+          })) || [];
+      }
+
       const { subTotal, discount, salesTax, returnRequestAmount } =
         helperFunctions?.calcReturnPayment(productsArray, orderDetail);
       if (
@@ -377,16 +449,16 @@ const createApprovedReturnRequest = (params) => {
         return;
       }
 
-      const uuid = uid();
       let insertPattern = {
         id: uuid,
         orderId,
-        orderNumber: orderNumber,
+        orderNumber,
         products: productsArray,
         returnRequestReason,
         status: 'approved',
         returnPaymentStatus: 'pending',
-        shippingLabel: imageFile.length ? uploadedImage : '',
+        // shippingLabel: imageFile.length ? uploadedImage : '',
+        images: imagesArray,
         createdDate: Date.now(),
         updatedDate: Date.now(),
         subTotal,
@@ -402,34 +474,32 @@ const createApprovedReturnRequest = (params) => {
         insertPattern,
       };
 
-      fetchWrapperService
-        .create(createPattern)
-        .then((response) => {
-          //update order for returnRequestIds
-          const prevReturnReqIds = returnRequestIds?.length ? returnRequestIds : [];
-          const orderUpdatePayload = {
-            returnRequestIds: [...prevReturnReqIds, insertPattern.id],
-          };
-          const orderUpdatePattern = {
-            url: `${ordersUrl}/${orderId}`,
-            payload: orderUpdatePayload,
-          };
-          fetchWrapperService._update(orderUpdatePattern);
-          axios.post(
-            '/returns/sendReturnStatusMail',
-            sanitizeObject({ returnId: insertPattern.id })
-          );
-          resolve(createPattern);
-        })
-        .catch((e) => {
-          reject(new Error('An error occurred during creating a new return request.'));
-          // whenever an error occurs for approved return request the uploaded file is deleted
-          if (uploadedImage) {
-            deleteFile(returnsUrl, uploadedImage);
-          }
-        });
+      await fetchWrapperService.create(createPattern);
+
+      const prevReturnReqIds = returnRequestIds?.length ? returnRequestIds : [];
+      await fetchWrapperService._update({
+        url: `${ordersUrl}/${orderId}`,
+        payload: { returnRequestIds: [...prevReturnReqIds, uuid] },
+      });
+
+      axios.post('/returns/sendReturnStatusMail', sanitizeObject({ returnId: uuid }));
+
+      resolve(createPattern);
     } catch (e) {
-      reject(e);
+      // whenever an error occurs for approved return request the uploaded file is deleted
+      if (imagesArray?.length && storagePath) {
+        const filesToDelete = imagesArray.map((i) => i.image);
+
+        await Promise.all(
+          filesToDelete.map((url) =>
+            deleteFile(storagePath, url).catch((err) => {
+              console.warn(`Failed to delete file ${url}: ${err.message}`);
+            })
+          )
+        );
+      }
+
+      reject(new Error(`Failed to create approved return: ${e?.message}`));
     }
   });
 };

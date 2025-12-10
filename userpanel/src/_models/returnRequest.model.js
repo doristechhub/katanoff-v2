@@ -75,6 +75,15 @@ export const returnRequestModel = {
     required: true,
     ref: "products",
   },
+  images: {
+    type: [
+      {
+        image: { type: String },
+      },
+    ],
+    required: false,
+    default: [],
+  },
   returnRequestReason: {
     type: String,
   },

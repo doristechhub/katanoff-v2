@@ -1,22 +1,33 @@
 import { uid } from "uid";
 import axios from "axios";
 import {
+  deleteFile,
   fetchWrapperService,
   GOLD_COLOR,
   GOLD_COLOR_MAP,
   helperFunctions,
+  isValidFileType,
   ordersUrl,
   productsUrl,
+  returnRequestStorageUrl,
   returnsUrl,
   sanitizeObject,
   sanitizeValue,
+  uploadFile,
 } from "../_helper";
 import { productService } from "./product.service";
 import { authenticationService } from "./authentication.service";
 import { diamondShapeService } from "./diamondShape.service";
+import { fileSettings } from "@/_utils/fileSettings";
+
+const uploadImageFileType = fileSettings.IMAGE_FILE_NAME;
 
 const validateKeys = (objects, keys) =>
   keys.every((key) => helperFunctions.isValidKeyName(objects, key));
+
+const getStoragePath = (id) => {
+  return `${returnRequestStorageUrl}/${id}`;
+};
 
 const hasInvalidProductsKey = (products) => {
   if (!Array.isArray(products) || products.length === 0) return true;
@@ -41,6 +52,18 @@ const hasInvalidProductsKey = (products) => {
     diamondDetail && !validateKeys([diamondDetail], requiredDiamondKeys);
 
   return isInvalidProduct || isInvalidVariation || isInvalidDiamond;
+};
+
+// Helper function to handle file uploads with error handling
+const handleFileUpload = async (path, files, fileType) => {
+  if (files.length === 0) return null; // Skip if no files
+
+  try {
+    const uploadedFiles = await uploadFile(path, files);
+    return uploadedFiles;
+  } catch (error) {
+    throw new Error(`${fileType} upload failed. Error: ${error.message}`);
+  }
 };
 
 export const getProductsArray = (products) =>
@@ -90,13 +113,50 @@ const validateProducts = (products, orderProducts) =>
     );
   });
 
+// Helper function to validate files (common for both images and videos)
+const validateFiles = (files, filesLength, uploadFileType) => {
+  let fileLimit = 0;
+  let allowedFileTypes = [];
+  const totalSizeLimitMB = 25;
+
+  if (uploadFileType === uploadImageFileType) {
+    fileLimit = fileSettings.RETURN_REQUEST_IMAGE_FILE_LIMIT;
+    allowedFileTypes = fileSettings.IMAGE_ALLOW_MIME_TYPE;
+  }
+
+  if (!files.length) {
+    throw new Error(`At least one file is required.`);
+  } else if (filesLength > fileLimit) {
+    throw new Error(`You can only upload up to ${fileLimit} files.`);
+  }
+
+  const validFileType = isValidFileType(uploadFileType, files);
+  if (!validFileType) {
+    throw new Error(
+      `Invalid file type! Only the following formats are allowed: ${allowedFileTypes.join(', ')}`
+    );
+  }
+
+  const totalSizeBytes = files.reduce((sum, file) => sum + file.size, 0);
+
+  if (totalSizeBytes > fileSettings.RETURN_REQUEST_TOTAL_IMAGE_FILE_SIZE) {
+    throw new Error(`Total size of all files must be under ${totalSizeLimitMB} MB.`);
+  }
+};
+
+
 const insertReturnRequest = (params) => {
   return new Promise(async (resolve, reject) => {
+
+    let imagesArray = [];
+    let storagePath = null;
     try {
-      let { orderId, products, returnRequestReason } = sanitizeObject(params);
+      const uuid = uid();
+      storagePath = getStoragePath(uuid);
+      let { orderId, products, returnRequestReason, returnRequestImageFiles } = sanitizeObject(params);
       orderId = orderId?.trim() || null;
       returnRequestReason = returnRequestReason?.trim() || null;
-
+      returnRequestImageFiles = Array.isArray(returnRequestImageFiles) ? returnRequestImageFiles : [];
       const userData = helperFunctions.getCurrentUser();
       if (!userData?.id) {
         reject(new Error("Unauthorized: User not authenticated"));
@@ -115,6 +175,10 @@ const insertReturnRequest = (params) => {
       if (!orderDetail) {
         reject(new Error("Order does not exist"));
         return;
+      }
+
+      if (returnRequestImageFiles?.length) {
+        validateFiles(returnRequestImageFiles, returnRequestImageFiles?.length, uploadImageFileType);
       }
 
       const {
@@ -175,8 +239,17 @@ const insertReturnRequest = (params) => {
         reject(new Error("Invalid data"));
         return;
       }
+      if (returnRequestImageFiles && Array.isArray(returnRequestImageFiles) && returnRequestImageFiles?.length) {
+        const uploadedFileUrls = await handleFileUpload(
+          storagePath,
+          returnRequestImageFiles,
+          "Return Request Media"
+        );
 
-      const uuid = uid();
+        imagesArray = uploadedFileUrls?.map((url) => ({
+          image: url,
+        })) || [];
+      }
       const insertPattern = {
         id: uuid,
         orderId,
@@ -184,6 +257,7 @@ const insertReturnRequest = (params) => {
         orderNumber,
         products: productsArray,
         returnRequestReason,
+        images: imagesArray,
         status: "pending",
         returnPaymentStatus: "pending",
         createdDate: Date.now(),
@@ -213,6 +287,23 @@ const insertReturnRequest = (params) => {
 
       resolve(createPattern);
     } catch (e) {
+      // whenever an error occurs for create return request the uploaded file is deleted
+      if (imagesArray?.length) {
+        const filesToDelete = [];
+        if (imagesArray.length) {
+          filesToDelete.push(...imagesArray.map((i) => i.image));
+        }
+
+        if (filesToDelete.length && storagePath) {
+          await Promise.all(
+            filesToDelete.map((url) =>
+              deleteFile(storagePath, url).catch((err) => {
+                console.warn(`Failed to delete file ${url}: ${err.message}`);
+              })
+            )
+          );
+        }
+      }
       reject(new Error(`Failed to create return request: ${e?.message}`));
     }
   });
@@ -556,11 +647,11 @@ const processReturnProductItem = ({
 
   const diamondDetail = returnProductItem?.diamondDetail
     ? {
-        ...returnProductItem?.diamondDetail,
-        shapeName: diamondShapeList?.find(
-          (shape) => shape.id === returnProductItem?.diamondDetail?.shapeId
-        )?.title,
-      }
+      ...returnProductItem?.diamondDetail,
+      shapeName: diamondShapeList?.find(
+        (shape) => shape.id === returnProductItem?.diamondDetail?.shapeId
+      )?.title,
+    }
     : null;
 
   const goldColor = variationArray

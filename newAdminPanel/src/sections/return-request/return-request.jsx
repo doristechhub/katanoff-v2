@@ -30,6 +30,7 @@ import { getSingleOrderById } from 'src/actions/ordersActions';
 import { submitReturnRequest } from 'src/actions/returnActions';
 import ProgressiveImg from 'src/components/progressive-img';
 import { getProductsArray } from 'src/_services';
+import { FileDrop } from 'src/components/file-drop';
 
 // Utility function to create a unique identifier for a product configuration
 const generateProductConfigId = (product, index) => {
@@ -96,6 +97,8 @@ const ReturnRequestPage = () => {
     returnReason: Yup.string()
       .required('Return reason is required')
       .min(10, 'Reason must be at least 10 characters'),
+    returnRequestImageFiles: Yup.array()
+      .max(5, "You can upload maximum 5 images")
   });
 
   const getSelectedProducts = (returnItems) => {
@@ -121,13 +124,15 @@ const ReturnRequestPage = () => {
       returnItems:
         selectedOrder?.products?.length > 0
           ? deepCopyProducts(selectedOrder.products).map((product, index) => ({
-              configId: generateProductConfigId(product, index),
-              productId: product?.productId,
-              returnQuantity: product?.cartQuantity || 1,
-              isSelected: false,
-            }))
+            configId: generateProductConfigId(product, index),
+            productId: product?.productId,
+            returnQuantity: product?.cartQuantity || 1,
+            isSelected: false,
+          }))
           : [],
       returnReason: '',
+      returnRequestImageFiles: [],
+      returnRequestPreviewImages: [],
     },
     validationSchema,
     enableReinitialize: true,
@@ -138,6 +143,7 @@ const ReturnRequestPage = () => {
           orderId: selectedOrder?.id,
           products: getProductsArray(selectedProducts),
           returnRequestReason: values.returnReason,
+          returnRequestImageFiles: values.returnRequestImageFiles,
         };
         const response = await dispatch(submitReturnRequest(returnData));
 
@@ -501,7 +507,7 @@ const ReturnRequestPage = () => {
                                         itemIndex === -1 ||
                                         !values.returnItems[itemIndex]?.isSelected ||
                                         values.returnItems[itemIndex]?.returnQuantity >=
-                                          product?.cartQuantity
+                                        product?.cartQuantity
                                       }
                                       size="small"
                                       sx={{
@@ -596,6 +602,20 @@ const ReturnRequestPage = () => {
                             },
                           }}
                         />
+
+                        <Grid xs={12} sm={12} md={12} sx={{ marginTop: '0 !important' }}>
+                          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                            Attach Images
+                          </Typography>
+                          <FileDrop
+                            formik={formik}
+                            mediaLimit={5}
+                            mediaType="image"
+                            fileKey="returnRequestImageFiles"
+                            previewKey="returnRequestPreviewImages"
+                            loading={crudReturnLoading}
+                          />
+                        </Grid>
 
                         {/* Total Summary */}
 

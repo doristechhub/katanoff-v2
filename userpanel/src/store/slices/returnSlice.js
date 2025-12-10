@@ -12,6 +12,8 @@ const initialState = {
   cancelReturnReqLoader: false,
   returnMessage: { message: "", type: "" },
   selectedProducts: [],
+  preview: [],
+  returnRequestImageMessage: "",
   returnOrder: "",
 };
 
@@ -55,6 +57,12 @@ const returnSlice = createSlice({
     setTrackReturnLoading: (state, action) => {
       state.trackReturnLoading = action.payload;
     },
+    setReturnRequestImageMessage: (state, action) => {
+      state.returnRequestImageMessage = action.payload;
+    },
+    setPreview: (state, action) => {
+      state.preview = action.payload;
+    },
   },
 });
 
@@ -71,6 +79,8 @@ export const {
   setSelectedProducts,
   setReturnOrder,
   setTrackReturnLoading,
+  setReturnRequestImageMessage,
+  setPreview,
 } = returnSlice.actions;
 
 export default returnSlice.reducer;
