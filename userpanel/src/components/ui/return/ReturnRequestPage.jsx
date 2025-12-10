@@ -18,7 +18,7 @@ import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ProgressiveImg } from "@/components/dynamiComponents";
+import { ImageUploader, ProgressiveImg } from "@/components/dynamiComponents";
 import {
   ESTIMATE_AMOUNT_NOTE,
   helperFunctions,
@@ -39,7 +39,6 @@ import FixedAlert from "../FixedAlert";
 import SkeletonLoader from "../skeletonLoader";
 import CommonNotFound from "../CommonNotFound";
 import CustomImg from "../custom-img";
-import ImageUploader from "../ImageUploader";
 import { fileSettings } from "@/_utils/fileSettings";
 
 const validationSchema = Yup.object().shape({

@@ -482,3 +482,7 @@ export const DynamicBlogPage = dynamic(
     ssr: false,
   }
 );
+
+export const ImageUploader = dynamic(() => import("./ui/ImageUploader.jsx"), {
+  ssr: false,
+});
