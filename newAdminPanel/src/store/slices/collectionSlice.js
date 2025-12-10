@@ -19,6 +19,7 @@ export const initCollection = {
 const initialState = {
   collectionList: [],
   collectionLoading: false,
+  processCollectionLoading: false,
   crudCollectionLoading: false,
   selectedCollection: initCollection,
 };
@@ -36,6 +37,9 @@ const collectionSlice = createSlice({
     setCrudCollectionLoading: (state, action) => {
       state.crudCollectionLoading = action.payload;
     },
+    setProcessCollectionLoading: (state, action) => {
+      state.processCollectionLoading = action.payload;
+    },
     setSelectedCollection: (state, action) => {
       state.selectedCollection = action.payload;
     },
@@ -47,5 +51,6 @@ export const {
   setCollectionLoading,
   setSelectedCollection,
   setCrudCollectionLoading,
+  setProcessCollectionLoading
 } = collectionSlice.actions;
 export default collectionSlice.reducer;
