@@ -64,8 +64,3 @@ node_modules/
 
 # dotenv environment variables file
 .env
-
-# next js project
-.next
-public
-next-package.json
