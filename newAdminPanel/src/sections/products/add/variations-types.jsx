@@ -142,10 +142,12 @@ const VariantionTypes = memo(({ index, formik, updateCombinations }) => {
   return (
     <FieldArray name={`variations[${index}].variationTypes`}>
       {({ remove, push }) => {
-        const normalizedVariationTypes = values?.variations?.[index]?.variationTypes?.map((vt, idx) => ({
-          ...vt,
-          position: vt?.position ?? idx + 1,
-        }));
+        const normalizedVariationTypes = values?.variations?.[index]?.variationTypes?.map(
+          (vt, idx) => ({
+            ...vt,
+            position: vt?.position ?? idx + 1,
+          })
+        );
 
         return normalizedVariationTypes?.length > 0 ? (
           <DragDropContext onDragEnd={handleDragEnd}>
@@ -188,7 +190,7 @@ const VariantionTypes = memo(({ index, formik, updateCombinations }) => {
                                   onBlur={handleBlur}
                                   onChange={(e) => handleVariationTypeChange(e, j)}
                                   name={`variations.${index}.variationTypes.${j}.variationTypeId`}
-                                  value={variType.variationTypeId}
+                                  value={variType.variationTypeId || ''}
                                   error={
                                     !!getIn(
                                       errors,

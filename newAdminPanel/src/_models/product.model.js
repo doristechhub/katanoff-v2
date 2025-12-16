@@ -14,60 +14,6 @@ export const productModel = {
     type: String,
     unique: true,
   },
-  // New fields for Rose Gold media
-  roseGoldThumbnailImage: {
-    type: String,
-    required: true,
-  },
-  roseGoldImages: {
-    type: [
-      {
-        image: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
-  },
-  roseGoldVideo: {
-    type: String,
-  },
-  // New fields for Yellow Gold media
-  yellowGoldThumbnailImage: {
-    type: String,
-    required: true,
-  },
-  yellowGoldImages: {
-    type: [
-      {
-        image: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
-  },
-  yellowGoldVideo: {
-    type: String,
-  },
-  // New fields for White Gold media
-  whiteGoldThumbnailImage: {
-    type: String,
-    required: true,
-  },
-  whiteGoldImages: {
-    type: [
-      {
-        image: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
-  },
-  whiteGoldVideo: {
-    type: String,
-  },
   sku: {
     type: String,
     required: true,
@@ -172,6 +118,37 @@ export const productModel = {
       },
     ],
   },
+  mediaMapping: {
+    type: [
+      {
+        mediaSetId: {
+          type: String,
+          required: true,
+        },
+        name: {
+          type: String,
+          required: true,
+        },
+
+        thumbnailImage: {
+          type: String,
+          required: true,
+        },
+        images: [
+          {
+            image: {
+              type: String,
+              required: true,
+            },
+          },
+        ],
+        video: {
+          type: String,
+        },
+      },
+    ],
+    default: [],
+  },
   variComboWithQuantity: {
     type: [
       {
@@ -188,12 +165,16 @@ export const productModel = {
               },
             },
           ],
+          required: true,
         },
         price: {
           type: Number,
         },
         quantity: {
           type: Number,
+        },
+        mediaSetId: {
+          type: String,
         },
       },
     ],

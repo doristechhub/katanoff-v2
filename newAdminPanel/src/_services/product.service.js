@@ -42,6 +42,8 @@ import { homeService } from './home.service';
 import { adminController } from 'src/_controller';
 import CustomError from 'src/_helpers/customError';
 
+const productStoragePath = productsUrl
+
 export const validateProductName = (productName) => {
   // Check if the length is higher than 60 characters
   if (productName.length > 60) {
@@ -154,66 +156,349 @@ const validateDiamondFilters = (diamondFilters) => {
   return null;
 };
 
+// thumbnail image File settings
+const uploadThumbnailImageFileType = fileSettings.THUMBNAIL_IMAGE_FILE_NAME; // thumbnail image
+
+// image File settings
+const uploadImageFileType = fileSettings.IMAGE_FILE_NAME; // image
+
+// video File settings
+const uploadVideoFileType = fileSettings.VIDEO_FILE_NAME; // video
+
+const validateFiles = ({ files, filesLength, uploadFileType }) => {
+  let fileLimit = 0;
+  let allowedFileTypes = [];
+  let fileSizeLimitInMB = 0;
+
+  // ── THUMBNAIL IMAGE ─────────────────────────────────────
+  if (uploadFileType === uploadThumbnailImageFileType) {
+    fileLimit = fileSettings.PRODUCT_THUMBNAIL_IMAGE_FILE_LIMIT || 1;
+    allowedFileTypes = fileSettings.IMAGE_ALLOW_MIME_TYPE;
+    fileSizeLimitInMB = fileSettings.MAX_FILE_SIZE_MB; //in MB
+  }
+
+  // ── REGULAR IMAGES ──────────────────────────────────────
+  else if (uploadFileType === uploadImageFileType) {
+    //for image
+    fileLimit = fileSettings.PRODUCT_IMAGE_FILE_LIMIT;
+    allowedFileTypes = fileSettings.IMAGE_ALLOW_MIME_TYPE;
+    fileSizeLimitInMB = fileSettings.MAX_FILE_SIZE_MB; //in MB
+  }
+
+  // ── VIDEO ─────────────────────────────
+  else if (uploadFileType === uploadVideoFileType) {
+    fileLimit = fileSettings.PRODUCT_VIDEO_FILE_LIMIT;
+    allowedFileTypes = fileSettings.VIDEO_ALLOW_MIME_TYPE;
+    fileSizeLimitInMB = helperFunctions.bytesToMB(fileSettings.VIDEO_ALLOW_FILE_SIZE); // inMB
+  } else {
+    throw new Error('Invalid uploadFileType provided to validate Files');
+  }
+
+  if (!files.length) {
+    throw new Error(`At least one file is required.`);
+  } else if (filesLength > fileLimit) {
+    throw new Error(`You can only upload up to ${fileLimit} files.`);
+  }
+
+  const validFileType = isValidFileType(uploadFileType, files);
+  if (!validFileType) {
+    throw new Error(
+      `Invalid file type! Only the following formats are allowed: ${allowedFileTypes.join(', ')}`
+    );
+  }
+
+  const validFileSize = isValidFileSize(uploadFileType, files);
+  if (!validFileSize) {
+    throw new Error(`Invalid file size! Each file must be under ${fileSizeLimitInMB} MB.`);
+  }
+};
+
+// Helper function to handle file uploads with error handling
+const handleFileUpload = async ({ path, files, fileType }) => {
+  if (files.length === 0) return null; // Skip if no files
+
+  try {
+    const uploadedFiles = await uploadFile(path, files);
+    return uploadedFiles;
+  } catch (error) {
+    throw new Error(`${fileType} upload failed. Error: ${error.message}`);
+  }
+};
+
+/* ===================================================================
+   PROCESS mediaMapping FROM ADMIN PANEL – PARAMETERS AS OBJECT
+   =================================================================== */
+const processMediaMappingFromParams = async ({
+  mediaMappingParam = [],
+  variCombos = [],
+  productId = null,
+  existingMediaMapping = [],
+}) => {
+  // Early return if no media sets
+  if (!Array.isArray(mediaMappingParam) || mediaMappingParam.length === 0) {
+    throw new Error('At least one media set is required.');
+  }
+
+  const filesToUpload = [];
+  const errors = [];
+  const filesToDelete = new Set();
+  const newlyUploadedUrls = new Set();
+
+  const existingMediaMap = new Map();
+  existingMediaMapping.forEach((set) => existingMediaMap.set(set.mediaSetId, set));
+
+
+  const MAX_IMAGES = fileSettings.PRODUCT_IMAGE_FILE_LIMIT || 8;
+
+  const incomingMediaSetIds = new Set(
+    mediaMappingParam.map((item) => item.mediaSetId).filter(Boolean)
+  );
+
+  // Detect removed media sets → delete all their files
+  existingMediaMapping.forEach((existingSet) => {
+    if (!incomingMediaSetIds.has(existingSet.mediaSetId)) {
+      if (existingSet.thumbnailImage) filesToDelete.add(existingSet.thumbnailImage);
+      if (existingSet.video) filesToDelete.add(existingSet.video);
+      existingSet.images?.forEach((img) => img.image && filesToDelete.add(img.image));
+    }
+  });
+
+  // First pass: collect all files in exact upload order
+  const uploadOrder = []; // Will store { mediaSetId, type: 'thumb' | 'image' | 'video', index? }
+
+  mediaMappingParam.forEach((item) => {
+    const { mediaSetId, name = 'Unnamed Set' } = item;
+    const existingSet = existingMediaMap.get(mediaSetId) || {};
+
+    // Thumbnail
+    if (item.thumbnailImageFile instanceof File) {
+      validateFiles({
+        files: [item.thumbnailImageFile],
+        filesLength: 1,
+        uploadFileType: uploadThumbnailImageFileType,
+      });
+      filesToUpload.push(item.thumbnailImageFile);
+      uploadOrder.push({ mediaSetId, type: 'thumb' });
+      if (existingSet.thumbnailImage) filesToDelete.add(existingSet.thumbnailImage);
+    }
+
+    // Images (multiple)
+    const newImageFiles = Array.isArray(item.imageFiles)
+      ? item.imageFiles.filter((f) => f instanceof File)
+      : [];
+
+    if (newImageFiles.length > 0) {
+      validateFiles({
+        files: newImageFiles,
+        filesLength: newImageFiles.length,
+        uploadFileType: uploadImageFileType,
+      });
+      newImageFiles.forEach((file) => {
+        filesToUpload.push(file);
+        uploadOrder.push({ mediaSetId, type: 'image' });
+      });
+    }
+
+    // Video
+    if (item.videoFile instanceof File) {
+      validateFiles({
+        files: [item.videoFile],
+        filesLength: 1,
+        uploadFileType: uploadVideoFileType,
+      });
+      filesToUpload.push(item.videoFile);
+      uploadOrder.push({ mediaSetId, type: 'video' });
+      if (existingSet.video) filesToDelete.add(existingSet.video);
+    } else if (item.deleteUploadedVideo && existingSet.video) {
+      filesToDelete.add(existingSet.video);
+    }
+  });
+
+  // Second pass: validate required fields (after knowing what will be kept)
+  mediaMappingParam.forEach((item) => {
+    const { mediaSetId, name = '' } = item;
+    const existingSet = existingMediaMap.get(mediaSetId) || {};
+
+    // Thumbnail required
+    const hasNewThumb = item.thumbnailImageFile instanceof File;
+    const hasExistingThumb = !!existingSet.thumbnailImage;
+    if (!hasNewThumb && !hasExistingThumb) {
+      errors.push(`Media Set "${name}": Thumbnail is required.`);
+    }
+
+    // Images: count kept + new
+    const deletedUrls = Array.isArray(item.deletedImages) ? item.deletedImages : [];
+    deletedUrls.forEach((url) => filesToDelete.add(url));
+
+    const keptImages = (existingSet.images || [])
+      .map((i) => i.image)
+      .filter((url) => url && !deletedUrls.includes(url)).length;
+
+    const newImages = Array.isArray(item.imageFiles)
+      ? item.imageFiles.filter((f) => f instanceof File).length
+      : 0;
+
+    const totalImages = keptImages + newImages;
+    if (totalImages === 0) {
+      errors.push(`Media Set "${name}": At least one image is required.`);
+    }
+    if (totalImages > MAX_IMAGES) {
+      errors.push(
+        `Media Set "${name}": Maximum ${MAX_IMAGES} images allowed (you have ${totalImages}).`
+      );
+    }
+  });
+
+  if (errors.length > 0) {
+    throw new Error(errors.join(' | '));
+  }
+
+  // Upload all new files
+  let uploadedUrls = [];
+  if (filesToUpload.length > 0) {
+    try {
+      uploadedUrls = await handleFileUpload({
+        path: productStoragePath,
+        files: filesToUpload,
+        fileType: 'product media',
+      });
+      uploadedUrls.forEach((url) => newlyUploadedUrls.add(url));
+    } catch (err) {
+      throw new Error(`Media upload failed: ${err.message}`);
+    }
+  }
+
+  // Third pass: build final mapping using uploadOrder
+  let uploadIndex = 0;
+  const finalMediaMapping = mediaMappingParam.map((item) => {
+    const { mediaSetId, name = '' } = item;
+    const existingSet = existingMediaMap.get(mediaSetId) || {};
+
+    let thumbnailImage = '';
+    const images = [];
+    let video = '';
+
+    // Reconstruct in correct order using uploadOrder
+    const deletedUrls = Array.isArray(item.deletedImages) ? new Set(item.deletedImages) : new Set();
+    let existingImageIndex = 0;
+
+    // Process all uploads for this mediaSetId
+    for (const entry of uploadOrder) {
+      if (entry.mediaSetId !== mediaSetId) continue;
+
+      const url = uploadedUrls[uploadIndex++];
+
+      if (entry.type === 'thumb') {
+        thumbnailImage = url;
+      } else if (entry.type === 'image') {
+        images.push({ image: url });
+      } else if (entry.type === 'video') {
+        video = url;
+      }
+    }
+
+    // Add kept existing images (if no new ones replaced them all)
+    if (images.length === 0) {
+      const existingImages = existingSet.images || [];
+      for (const imgObj of existingImages) {
+        const url = imgObj.image;
+        if (url && !deletedUrls.has(url)) {
+          images.push({ image: url });
+        }
+      }
+    }
+
+    // Use existing thumbnail if no new one
+    if (!thumbnailImage && existingSet.thumbnailImage) {
+      thumbnailImage = existingSet.thumbnailImage;
+    }
+
+    // Use existing video if no new one and not deleted
+    if (!video && existingSet.video && !item.deleteUploadedVideo) {
+      video = existingSet.video;
+    }
+
+    return {
+      mediaSetId,
+      name,
+      thumbnailImage,
+      images,
+      video: video || '',
+    };
+  });
+
+  // ── Assign mediaSetId to variation combinations ───────────────────
+  const updatedCombos = helperFunctions.applyMediaSetIdByMatching(mediaMappingParam, variCombos);
+
+  return {
+    mediaMapping: finalMediaMapping,
+    updatedCombos,
+    filesToDelete: Array.from(filesToDelete),
+    newlyUploadedUrls: Array.from(newlyUploadedUrls),
+  };
+};
+
+/**
+ * Extracts ONLY media URLs from the new mediaMapping field
+ * Used for rollback when insert/update fails
+ * @param {Array} mediaMapping
+ * @returns {string[]} Unique URLs
+ */
+const extractUrlsFromMediaMapping = (mediaMapping) => {
+  const urls = new Set();
+  if (!Array.isArray(mediaMapping)) return [];
+
+  mediaMapping.forEach((set) => {
+    if (set?.thumbnailImage) urls.add(set.thumbnailImage);
+    (set?.images || []).forEach((i) => i?.image && urls.add(i.image));
+    if (set?.video) urls.add(set.video);
+  });
+
+  return Array.from(urls);
+};
+
 const insertProduct = (params) => {
   return new Promise(async (resolve, reject) => {
+    let uploadedMediaUrls = [];
     try {
       const uuid = uid();
       let {
         productName,
-        productNamePrefix,
-        roseGoldThumbnailImageFile,
-        roseGoldImageFiles,
-        roseGoldVideoFile,
-        yellowGoldThumbnailImageFile,
-        yellowGoldImageFiles,
-        yellowGoldVideoFile,
-        whiteGoldThumbnailImageFile,
-        whiteGoldImageFiles,
-        whiteGoldVideoFile,
+        productNamePrefix = 'none',
         sku,
         saltSKU,
-        discount,
-        collectionIds,
-        settingStyleIds,
+        discount = 0,
+        collectionIds = [],
+        settingStyleIds = [],
         categoryId,
-        subCategoryIds,
-        productTypeIds,
+        subCategoryIds = [],
+        productTypeIds = [],
         gender,
-        netWeight,
+        netWeight = 0,
         grossWeight,
-        centerDiamondWeight,
+        centerDiamondWeight = 0,
         totalCaratWeight,
-        sideDiamondWeight,
+        sideDiamondWeight = 0,
         Length,
         width,
-        lengthUnit,
-        widthUnit,
+        lengthUnit = 'mm',
+        widthUnit = 'mm',
         shortDescription,
         description,
-        variations,
-        specifications,
-        variComboWithQuantity,
-        active,
-        isDiamondFilter,
-        diamondFilters,
-        priceCalculationMode,
+        variations = [],
+        specifications = [],
+        variComboWithQuantity = [],
+        active = false,
+        isDiamondFilter = false,
+        diamondFilters = {},
+        priceCalculationMode = PRICE_CALCULATION_MODES.AUTOMATIC,
+        // New: mediaMapping from admin
+        mediaMapping: mediaMappingParam = [],
       } = sanitizeObject(params);
 
       // Sanitize and process inputs
       productName = productName ? productName.trim() : null;
       productNamePrefix = productNamePrefix ? productNamePrefix.trim() : 'none';
-      roseGoldThumbnailImageFile =
-        typeof roseGoldThumbnailImageFile === 'object' ? [roseGoldThumbnailImageFile] : [];
-      roseGoldImageFiles = Array.isArray(roseGoldImageFiles) ? roseGoldImageFiles : [];
-      roseGoldVideoFile = typeof roseGoldVideoFile === 'object' ? [roseGoldVideoFile] : [];
-      yellowGoldThumbnailImageFile =
-        typeof yellowGoldThumbnailImageFile === 'object' ? [yellowGoldThumbnailImageFile] : [];
-      yellowGoldImageFiles = Array.isArray(yellowGoldImageFiles) ? yellowGoldImageFiles : [];
-      yellowGoldVideoFile = typeof yellowGoldVideoFile === 'object' ? [yellowGoldVideoFile] : [];
-      whiteGoldThumbnailImageFile =
-        typeof whiteGoldThumbnailImageFile === 'object' ? [whiteGoldThumbnailImageFile] : [];
-      whiteGoldImageFiles = Array.isArray(whiteGoldImageFiles) ? whiteGoldImageFiles : [];
-      whiteGoldVideoFile = typeof whiteGoldVideoFile === 'object' ? [whiteGoldVideoFile] : [];
       sku = sku ? sku.trim() : null;
       saltSKU = saltSKU ? saltSKU.trim() : null;
       discount = !isNaN(discount) ? Number(discount) : 0;
@@ -293,605 +578,237 @@ const insertProduct = (params) => {
 
       // Validate inputs
       if (
-        productName &&
-        roseGoldThumbnailImageFile.length &&
-        yellowGoldThumbnailImageFile.length &&
-        whiteGoldThumbnailImageFile.length &&
-        sku &&
-        categoryId &&
-        // subCategoryId &&
-        // productTypeIds?.length &&
-        description &&
-        variations.length &&
-        variComboWithQuantity.length &&
-        [true, false].includes(active) &&
-        uuid &&
-        grossWeight &&
-        totalCaratWeight &&
-        [PRICE_CALCULATION_MODES.AUTOMATIC, PRICE_CALCULATION_MODES.MANUAL].includes(
+        !productName ||
+        !sku ||
+        !categoryId ||
+        // !subCategoryId ||
+        // !productTypeIds?.length ||
+        !description ||
+        !variations.length ||
+        !variComboWithQuantity.length ||
+        ![true, false].includes(active) ||
+        !uuid ||
+        !grossWeight ||
+        !totalCaratWeight ||
+        ![PRICE_CALCULATION_MODES.AUTOMATIC, PRICE_CALCULATION_MODES.MANUAL].includes(
           priceCalculationMode
         )
       ) {
-        const pNameErrorMsg = validateProductName(productName);
-        if (pNameErrorMsg) {
-          reject(new Error(pNameErrorMsg));
-          return;
-        }
-
-        const productNamePrefixErrorMsg = validateProductNamePrefix(productNamePrefix);
-        if (productNamePrefixErrorMsg) {
-          reject(new Error(productNamePrefixErrorMsg));
-          return;
-        }
-
-        const shortDescErrorMsg = validateShortDescription(shortDescription);
-        if (shortDescErrorMsg) {
-          reject(new Error(shortDescErrorMsg));
-          return;
-        }
-
-        if (isInValidVariationsArray(variations)) {
-          reject(new Error('variations data not valid'));
-          return;
-        }
-
-        const variationsArray = getVariationsArray(variations);
-
-        if (isInValidVariComboWithQuantityArray(variComboWithQuantity)) {
-          reject(new Error('combination data not valid'));
-          return;
-        }
-
-        let variComboWithQuantityArray = getVariComboWithQuantityArray(variComboWithQuantity);
-
-        // Apply automatic price calculations if enabled
-        if (priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC) {
-          const customizationSubTypesList = await customizationSubTypeService.getAllSubTypes();
-          const priceMultiplier = await settingsService.fetchPriceMultiplier();
-          variComboWithQuantityArray = helperFunctions.calculateAutomaticPrices({
-            combinations: variComboWithQuantityArray,
-            customizationSubTypesList,
-            grossWeight,
-            totalCaratWeight,
-            priceMultiplier,
-          });
-        }
-
-        if (collectionIds?.length) {
-          const hasInvalidValues = collectionIds.some((id) => !id);
-          if (hasInvalidValues) throw new Error('Invalid value found in collectionIds array');
-        }
-
-        if (settingStyleIds?.length) {
-          const hasInvalidValues = settingStyleIds.some((id) => !id);
-          if (hasInvalidValues) throw new Error('Invalid value found in settingStyleIds array');
-        }
-
-        if (subCategoryIds?.length) {
-          const hasInvalidValues = subCategoryIds.some((id) => !id);
-          if (hasInvalidValues) throw new Error('Invalid value found in subCategoryIds array');
-        }
-
-        if (productTypeIds?.length) {
-          const hasInvalidValues = productTypeIds.some((id) => !id);
-          if (hasInvalidValues) throw new Error('Invalid value found in productTypeIds array');
-        }
-
-        if (specifications.length) {
-          const isSpecTitleValid = helperFunctions.isValidKeyName(specifications, 'title');
-          const isSpecDescValid = helperFunctions.isValidKeyName(specifications, 'description');
-          if (!isSpecTitleValid || !isSpecDescValid) {
-            reject(new Error('specifications data not valid'));
-            return;
-          }
-        }
-
-        if (netWeight && netWeight <= 0) {
-          reject(new Error('Invalid Net Weight: Must be a positive number'));
-          return;
-        }
-
-        if (grossWeight <= 0) {
-          reject(new Error('Invalid Gross Weight: Must be a positive number'));
-          return;
-        }
-
-        if (centerDiamondWeight && centerDiamondWeight <= 0) {
-          reject(new Error('Invalid Center Diamond Weight: Must be a positive number'));
-          return;
-        }
-        if (totalCaratWeight <= 0) {
-          reject(new Error('Invalid Total Carat Weight: Must be a positive number'));
-          return;
-        }
-
-        if (sideDiamondWeight && sideDiamondWeight < 0) {
-          reject(new Error('Invalid Side Diamond Weight: Must be a positive number'));
-          return;
-        }
-
-        const lengthUnitErrorMsg = validateDimensionUnit(lengthUnit);
-        if (lengthUnitErrorMsg) {
-          reject(new Error(lengthUnitErrorMsg));
-          return;
-        }
-
-        const widthUnitErrorMsg = validateDimensionUnit(widthUnit);
-        if (widthUnitErrorMsg) {
-          reject(new Error(widthUnitErrorMsg));
-          return;
-        }
-
-        if (Length && Length <= 0) {
-          reject(new Error('Invalid Length: Must be a positive number'));
-          return;
-        }
-        if (width && width <= 0) {
-          reject(new Error('Invalid Width: Must be a positive number'));
-          return;
-        }
-
-        if (isDiamondFilter) {
-          const diamondFilterErrorMsg = validateDiamondFilters(diamondFilters);
-          if (diamondFilterErrorMsg) {
-            reject(new Error(diamondFilterErrorMsg));
-            return;
-          }
-          if (!netWeight || isNaN(netWeight)) {
-            reject(new Error('Invalid Net Weight: Must be a valid number'));
-            return;
-          }
-          // Ensure netWeight has exactly 2 decimal places
-          const netWeightString = netWeight.toFixed(2);
-          if (!/^\d+\.\d{2}$/.test(netWeightString)) {
-            reject(new Error('Net Weight must have exactly two decimal places'));
-            return;
-          }
-
-          // Ensure sideDiamondWeight has exactly 2 decimal places
-          const sideDiamondWeightString = sideDiamondWeight.toFixed(2);
-          if (sideDiamondWeight && !/^\d+\.\d{2}$/.test(sideDiamondWeightString)) {
-            reject(new Error('Side Diamond Weight must have exactly two decimal places'));
-            return;
-          }
-        }
-
-        const lengthString = Length ? Length?.toFixed(2) : null;
-        if (Length && !/^\d+\.\d{2}$/.test(lengthString)) {
-          reject(new Error('Length must have exactly two decimal places'));
-          return;
-        }
-        const widthString = width ? width?.toFixed(2) : null;
-        if (width && !/^\d+\.\d{2}$/.test(widthString)) {
-          reject(new Error('Width must have exactly two decimal places'));
-          return;
-        }
-
-        const filterParams = {
-          productName: productName,
-          sku: sku,
-        };
-        const productFindPattern = {
-          url: productsUrl,
-          filterParams: filterParams,
-        };
-        const productData = await fetchWrapperService.findMany(productFindPattern);
-
-        if (!productData.length) {
-          if (!roseGoldThumbnailImageFile.length) {
-            reject(new Error(`It's necessary to have a Rose Gold thumbnail image`));
-            return;
-          } else if (
-            roseGoldThumbnailImageFile.length > fileSettings.PRODUCT_THUMBNAIL_IMAGE_FILE_LIMIT
-          ) {
-            reject(
-              new Error(
-                `You can only upload ${fileSettings.PRODUCT_THUMBNAIL_IMAGE_FILE_LIMIT} Rose Gold thumbnail image`
-              )
-            );
-            return;
-          } else if (!yellowGoldThumbnailImageFile.length) {
-            reject(new Error(`It's necessary to have a Yellow Gold thumbnail image`));
-            return;
-          } else if (
-            yellowGoldThumbnailImageFile.length > fileSettings.PRODUCT_THUMBNAIL_IMAGE_FILE_LIMIT
-          ) {
-            reject(
-              new Error(
-                `You can only upload ${fileSettings.PRODUCT_THUMBNAIL_IMAGE_FILE_LIMIT} Yellow Gold thumbnail image`
-              )
-            );
-            return;
-          } else if (!whiteGoldThumbnailImageFile.length) {
-            reject(new Error(`It's necessary to have a White Gold thumbnail image`));
-            return;
-          } else if (
-            whiteGoldThumbnailImageFile.length > fileSettings.PRODUCT_THUMBNAIL_IMAGE_FILE_LIMIT
-          ) {
-            reject(
-              new Error(
-                `You can only upload ${fileSettings.PRODUCT_THUMBNAIL_IMAGE_FILE_LIMIT} White Gold thumbnail image`
-              )
-            );
-            return;
-          } else if (roseGoldImageFiles.length > fileSettings.PRODUCT_IMAGE_FILE_LIMIT) {
-            reject(
-              new Error(
-                `You can only upload ${fileSettings.PRODUCT_IMAGE_FILE_LIMIT} Rose Gold images`
-              )
-            );
-            return;
-          } else if (yellowGoldImageFiles.length > fileSettings.PRODUCT_IMAGE_FILE_LIMIT) {
-            reject(
-              new Error(
-                `You can only upload ${fileSettings.PRODUCT_IMAGE_FILE_LIMIT} Yellow Gold images`
-              )
-            );
-            return;
-          } else if (whiteGoldImageFiles.length > fileSettings.PRODUCT_IMAGE_FILE_LIMIT) {
-            reject(
-              new Error(
-                `You can only upload ${fileSettings.PRODUCT_IMAGE_FILE_LIMIT} White Gold images`
-              )
-            );
-            return;
-          } else if (
-            roseGoldVideoFile.length &&
-            roseGoldVideoFile.length > fileSettings.PRODUCT_VIDEO_FILE_LIMIT
-          ) {
-            reject(
-              new Error(
-                `You can only upload ${fileSettings.PRODUCT_VIDEO_FILE_LIMIT} Rose Gold video`
-              )
-            );
-            return;
-          } else if (
-            yellowGoldVideoFile.length &&
-            yellowGoldVideoFile.length > fileSettings.PRODUCT_VIDEO_FILE_LIMIT
-          ) {
-            reject(
-              new Error(
-                `You can only upload ${fileSettings.PRODUCT_VIDEO_FILE_LIMIT} Yellow Gold video`
-              )
-            );
-            return;
-          } else if (
-            whiteGoldVideoFile.length &&
-            whiteGoldVideoFile.length > fileSettings.PRODUCT_VIDEO_FILE_LIMIT
-          ) {
-            reject(
-              new Error(
-                `You can only upload ${fileSettings.PRODUCT_VIDEO_FILE_LIMIT} White Gold video`
-              )
-            );
-            return;
-          } else {
-            const roseGoldThumbnailValidFileType = isValidFileType(
-              fileSettings.IMAGE_FILE_NAME,
-              roseGoldThumbnailImageFile
-            );
-            const roseGoldImagesValidFileType = isValidFileType(
-              fileSettings.IMAGE_FILE_NAME,
-              roseGoldImageFiles
-            );
-            const yellowGoldThumbnailValidFileType = isValidFileType(
-              fileSettings.IMAGE_FILE_NAME,
-              yellowGoldThumbnailImageFile
-            );
-            const yellowGoldImagesValidFileType = isValidFileType(
-              fileSettings.IMAGE_FILE_NAME,
-              yellowGoldImageFiles
-            );
-            const whiteGoldThumbnailValidFileType = isValidFileType(
-              fileSettings.IMAGE_FILE_NAME,
-              whiteGoldThumbnailImageFile
-            );
-            const whiteGoldImagesValidFileType = isValidFileType(
-              fileSettings.IMAGE_FILE_NAME,
-              whiteGoldImageFiles
-            );
-            if (
-              !roseGoldThumbnailValidFileType ||
-              !roseGoldImagesValidFileType ||
-              !yellowGoldThumbnailValidFileType ||
-              !yellowGoldImagesValidFileType ||
-              !whiteGoldThumbnailValidFileType ||
-              !whiteGoldImagesValidFileType
-            ) {
-              reject(new Error('Invalid file! (Only JPG, JPEG, PNG, WEBP files are allowed!)'));
-              return;
-            }
-
-            const roseGoldThumbnailValidFileSize = isValidFileSize(
-              fileSettings.IMAGE_FILE_NAME,
-              roseGoldThumbnailImageFile
-            );
-            const roseGoldImagesValidFileSize = isValidFileSize(
-              fileSettings.IMAGE_FILE_NAME,
-              roseGoldImageFiles
-            );
-            const yellowGoldThumbnailValidFileSize = isValidFileSize(
-              fileSettings.IMAGE_FILE_NAME,
-              yellowGoldThumbnailImageFile
-            );
-            const yellowGoldImagesValidFileSize = isValidFileSize(
-              fileSettings.IMAGE_FILE_NAME,
-              yellowGoldImageFiles
-            );
-            const whiteGoldThumbnailValidFileSize = isValidFileSize(
-              fileSettings.IMAGE_FILE_NAME,
-              whiteGoldThumbnailImageFile
-            );
-            const whiteGoldImagesValidFileSize = isValidFileSize(
-              fileSettings.IMAGE_FILE_NAME,
-              whiteGoldImageFiles
-            );
-            if (
-              !roseGoldThumbnailValidFileSize ||
-              !roseGoldImagesValidFileSize ||
-              !yellowGoldThumbnailValidFileSize ||
-              !yellowGoldImagesValidFileSize ||
-              !whiteGoldThumbnailValidFileSize ||
-              !whiteGoldImagesValidFileSize
-            ) {
-              reject(new Error('Invalid File Size! (Only 5 MB are allowed!)'));
-              return;
-            }
-
-            if (roseGoldVideoFile.length) {
-              const roseGoldVideoValidFileType = isValidFileType(
-                fileSettings.VIDEO_FILE_NAME,
-                roseGoldVideoFile
-              );
-              if (!roseGoldVideoValidFileType) {
-                reject(
-                  new Error(
-                    'Invalid file! (Only MP4, WEBM, OGG files are allowed for Rose Gold video!)'
-                  )
-                );
-                return;
-              }
-              const roseGoldVideoValidFileSize = isValidFileSize(
-                fileSettings.VIDEO_FILE_NAME,
-                roseGoldVideoFile
-              );
-              if (!roseGoldVideoValidFileSize) {
-                reject(
-                  new Error('Invalid File Size! (Only 10 MB are allowed for Rose Gold video!)')
-                );
-                return;
-              }
-            }
-
-            if (yellowGoldVideoFile.length) {
-              const yellowGoldVideoValidFileType = isValidFileType(
-                fileSettings.VIDEO_FILE_NAME,
-                yellowGoldVideoFile
-              );
-              if (!yellowGoldVideoValidFileType) {
-                reject(
-                  new Error(
-                    'Invalid file! (Only MP4, WEBM, OGG files are allowed for Yellow Gold video!)'
-                  )
-                );
-                return;
-              }
-              const yellowGoldVideoValidFileSize = isValidFileSize(
-                fileSettings.VIDEO_FILE_NAME,
-                yellowGoldVideoFile
-              );
-              if (!yellowGoldVideoValidFileSize) {
-                reject(
-                  new Error('Invalid File Size! (Only 10 MB are allowed for Yellow Gold video!)')
-                );
-                return;
-              }
-            }
-
-            if (whiteGoldVideoFile.length) {
-              const whiteGoldVideoValidFileType = isValidFileType(
-                fileSettings.VIDEO_FILE_NAME,
-                whiteGoldVideoFile
-              );
-              if (!whiteGoldVideoValidFileType) {
-                reject(
-                  new Error(
-                    'Invalid file! (Only MP4, WEBM, OGG files are allowed for White Gold video!)'
-                  )
-                );
-                return;
-              }
-              const whiteGoldVideoValidFileSize = isValidFileSize(
-                fileSettings.VIDEO_FILE_NAME,
-                whiteGoldVideoFile
-              );
-              if (!whiteGoldVideoValidFileSize) {
-                reject(
-                  new Error('Invalid File Size! (Only 10 MB are allowed for White Gold video!)')
-                );
-                return;
-              }
-            }
-
-            // Create filesPayload as a flat array
-            const filesPayload = [
-              ...roseGoldThumbnailImageFile,
-              ...roseGoldImageFiles,
-              ...roseGoldVideoFile,
-              ...yellowGoldThumbnailImageFile,
-              ...yellowGoldImageFiles,
-              ...yellowGoldVideoFile,
-              ...whiteGoldThumbnailImageFile,
-              ...whiteGoldImageFiles,
-              ...whiteGoldVideoFile,
-            ];
-
-            // Create a mapping of categories to their start and end indices in filesPayload
-            const categoryIndices = {};
-            let currentIndex = 0;
-
-            const addCategoryIndices = (category, fileArray) => {
-              if (fileArray.length) {
-                categoryIndices[category] = {
-                  start: currentIndex,
-                  end: currentIndex + fileArray.length,
-                  length: fileArray.length,
-                };
-                currentIndex += fileArray.length;
-              } else {
-                categoryIndices[category] = { start: currentIndex, end: currentIndex, length: 0 };
-              }
-            };
-
-            addCategoryIndices('roseGoldThumbnailImage', roseGoldThumbnailImageFile);
-            addCategoryIndices('roseGoldImages', roseGoldImageFiles);
-            addCategoryIndices('roseGoldVideo', roseGoldVideoFile);
-            addCategoryIndices('yellowGoldThumbnailImage', yellowGoldThumbnailImageFile);
-            addCategoryIndices('yellowGoldImages', yellowGoldImageFiles);
-            addCategoryIndices('yellowGoldVideo', yellowGoldVideoFile);
-            addCategoryIndices('whiteGoldThumbnailImage', whiteGoldThumbnailImageFile);
-            addCategoryIndices('whiteGoldImages', whiteGoldImageFiles);
-            addCategoryIndices('whiteGoldVideo', whiteGoldVideoFile);
-
-            // Calculate expected total number of files
-            const expectedFileCount = currentIndex;
-
-            await uploadFile(productsUrl, filesPayload)
-              .then((fileNames) => {
-                // Validate the number of returned URLs
-                if (fileNames.length !== expectedFileCount) {
-                  reject(
-                    new Error(
-                      `Upload mismatch: Expected ${expectedFileCount} files, but received ${fileNames.length}`
-                    )
-                  );
-                  return;
-                }
-
-                // Initialize variables for URLs
-                let roseGoldThumbnailImage = '';
-                let roseGoldImages = [];
-                let roseGoldVideo = '';
-                let yellowGoldThumbnailImage = '';
-                let yellowGoldImages = [];
-                let yellowGoldVideo = '';
-                let whiteGoldThumbnailImage = '';
-                let whiteGoldImages = [];
-                let whiteGoldVideo = '';
-
-                // Assign URLs using category indices
-                const assignUrls = (category, isSingle = false) => {
-                  const { start, length } = categoryIndices[category];
-                  if (length > 0) {
-                    const urls = fileNames.slice(start, start + length);
-                    return isSingle ? urls[0] : urls.map((url) => ({ image: url }));
-                  }
-                  return isSingle ? '' : [];
-                };
-
-                roseGoldThumbnailImage = assignUrls('roseGoldThumbnailImage', true);
-                roseGoldImages = assignUrls('roseGoldImages');
-                roseGoldVideo = assignUrls('roseGoldVideo', true);
-                yellowGoldThumbnailImage = assignUrls('yellowGoldThumbnailImage', true);
-                yellowGoldImages = assignUrls('yellowGoldImages');
-                yellowGoldVideo = assignUrls('yellowGoldVideo', true);
-                whiteGoldThumbnailImage = assignUrls('whiteGoldThumbnailImage', true);
-                whiteGoldImages = assignUrls('whiteGoldImages');
-                whiteGoldVideo = assignUrls('whiteGoldVideo', true);
-
-                // Validate required files
-                if (!roseGoldThumbnailImage) {
-                  reject(new Error('Rose Gold thumbnail image upload failed'));
-                  return;
-                }
-                if (!yellowGoldThumbnailImage) {
-                  reject(new Error('Yellow Gold thumbnail image upload failed'));
-                  return;
-                }
-                if (!whiteGoldThumbnailImage) {
-                  reject(new Error('White Gold thumbnail image upload failed'));
-                  return;
-                }
-
-                // Proceed with creating the insertPattern
-                const insertPattern = {
-                  id: uuid,
-                  productName,
-                  productNamePrefix,
-                  roseGoldThumbnailImage,
-                  roseGoldImages,
-                  roseGoldVideo,
-                  yellowGoldThumbnailImage,
-                  yellowGoldImages,
-                  yellowGoldVideo,
-                  whiteGoldThumbnailImage,
-                  whiteGoldImages,
-                  whiteGoldVideo,
-                  sku,
-                  saltSKU,
-                  discount,
-                  collectionIds: collectionIds.map((id) => id?.trim()),
-                  settingStyleIds: settingStyleIds.map((id) => id?.trim()),
-                  categoryId,
-                  subCategoryIds: subCategoryIds.map((id) => id?.trim()),
-                  productTypeIds: productTypeIds.map((id) => id?.trim()),
-                  gender,
-                  netWeight,
-                  grossWeight,
-                  totalCaratWeight,
-                  centerDiamondWeight,
-                  sideDiamondWeight,
-                  Length,
-                  width,
-                  lengthUnit,
-                  widthUnit,
-                  shortDescription,
-                  description,
-                  variations: variationsArray,
-                  variComboWithQuantity: variComboWithQuantityArray,
-                  isDiamondFilter,
-                  diamondFilters: isDiamondFilter ? diamondFilters : null,
-                  specifications,
-                  priceCalculationMode,
-                  active,
-                  salesTaxPercentage: 0,
-                  shippingCharge: 0,
-                  totalReviews: 0,
-                  starRating: 0,
-                  totalStar: 0,
-                  createdDate: Date.now(),
-                  updatedDate: Date.now(),
-                };
-
-                const createPattern = {
-                  url: `${productsUrl}/${uuid}`,
-                  insertPattern,
-                };
-
-                fetchWrapperService
-                  .create(createPattern)
-                  .then((response) => {
-                    resolve(true);
-                  })
-                  .catch((e) => {
-                    reject(new Error('An error occurred during product creation.'));
-                    if (fileNames && fileNames.length) {
-                      fileNames.forEach((url) => deleteFile(productsUrl, url));
-                    }
-                  });
-              })
-              .catch((e) => {
-                reject(new Error('An error occurred during product image uploading.'));
-              });
-          }
-        } else {
-          reject(new Error('Product name or sku already exists'));
-        }
-      } else {
-        reject(new Error('Invalid Data'));
+        return reject(new Error('Invalid Data'));
       }
+
+      const pNameErrorMsg = validateProductName(productName);
+      if (pNameErrorMsg) {
+        reject(new Error(pNameErrorMsg));
+        return;
+      }
+
+      const productNamePrefixErrorMsg = validateProductNamePrefix(productNamePrefix);
+      if (productNamePrefixErrorMsg) {
+        reject(new Error(productNamePrefixErrorMsg));
+        return;
+      }
+
+      const shortDescErrorMsg = validateShortDescription(shortDescription);
+      if (shortDescErrorMsg) {
+        reject(new Error(shortDescErrorMsg));
+        return;
+      }
+
+      if (isInValidVariationsArray(variations)) {
+        reject(new Error('variations data not valid'));
+        return;
+      }
+
+      const variationsArray = getVariationsArray(variations);
+
+      if (isInValidVariComboWithQuantityArray(variComboWithQuantity)) {
+        reject(new Error('combination data not valid'));
+        return;
+      }
+
+      let variComboWithQuantityArray = getVariComboWithQuantityArray(variComboWithQuantity);
+
+      // Apply automatic price calculations if enabled
+      if (priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC) {
+        const customizationSubTypesList = await customizationSubTypeService.getAllSubTypes();
+        const priceMultiplier = await settingsService.fetchPriceMultiplier();
+        variComboWithQuantityArray = helperFunctions.calculateAutomaticPrices({
+          combinations: variComboWithQuantityArray,
+          customizationSubTypesList,
+          grossWeight,
+          totalCaratWeight,
+          priceMultiplier,
+        });
+      }
+
+      if (collectionIds?.length) {
+        const hasInvalidValues = collectionIds.some((id) => !id);
+        if (hasInvalidValues) throw new Error('Invalid value found in collectionIds array');
+      }
+
+      if (settingStyleIds?.length) {
+        const hasInvalidValues = settingStyleIds.some((id) => !id);
+        if (hasInvalidValues) throw new Error('Invalid value found in settingStyleIds array');
+      }
+
+      if (subCategoryIds?.length) {
+        const hasInvalidValues = subCategoryIds.some((id) => !id);
+        if (hasInvalidValues) throw new Error('Invalid value found in subCategoryIds array');
+      }
+
+      if (productTypeIds?.length) {
+        const hasInvalidValues = productTypeIds.some((id) => !id);
+        if (hasInvalidValues) throw new Error('Invalid value found in productTypeIds array');
+      }
+
+      if (specifications.length) {
+        const isSpecTitleValid = helperFunctions.isValidKeyName(specifications, 'title');
+        const isSpecDescValid = helperFunctions.isValidKeyName(specifications, 'description');
+        if (!isSpecTitleValid || !isSpecDescValid) {
+          return reject(new Error('specifications data not valid'));
+        }
+      }
+
+      if (netWeight && netWeight <= 0) {
+        return reject(new Error('Invalid Net Weight: Must be a positive number'));
+      }
+
+      if (grossWeight <= 0) {
+        return reject(new Error('Invalid Gross Weight: Must be a positive number'));
+      }
+
+      if (centerDiamondWeight && centerDiamondWeight <= 0) {
+        return reject(new Error('Invalid Center Diamond Weight: Must be a positive number'));
+      }
+      if (totalCaratWeight <= 0) {
+        return reject(new Error('Invalid Total Carat Weight: Must be a positive number'));
+      }
+
+      if (sideDiamondWeight && sideDiamondWeight < 0) {
+        return reject(new Error('Invalid Side Diamond Weight: Must be a positive number'));
+      }
+
+      const lengthUnitErrorMsg = validateDimensionUnit(lengthUnit);
+      if (lengthUnitErrorMsg) {
+        return reject(new Error(lengthUnitErrorMsg));
+      }
+
+      const widthUnitErrorMsg = validateDimensionUnit(widthUnit);
+      if (widthUnitErrorMsg) {
+        return reject(new Error(widthUnitErrorMsg));
+      }
+
+      if (Length && Length <= 0) {
+        return reject(new Error('Invalid Length: Must be a positive number'));
+      }
+      if (width && width <= 0) {
+        return reject(new Error('Invalid Width: Must be a positive number'));
+      }
+
+      if (isDiamondFilter) {
+        const diamondFilterErrorMsg = validateDiamondFilters(diamondFilters);
+        if (diamondFilterErrorMsg) {
+          return reject(new Error(diamondFilterErrorMsg));
+        }
+        if (!netWeight || isNaN(netWeight)) {
+          return reject(new Error('Invalid Net Weight: Must be a valid number'));
+        }
+        // Ensure netWeight has exactly 2 decimal places
+        const netWeightString = netWeight.toFixed(2);
+        if (!/^\d+\.\d{2}$/.test(netWeightString)) {
+          return reject(new Error('Net Weight must have exactly two decimal places'));
+        }
+
+        // Ensure sideDiamondWeight has exactly 2 decimal places
+        const sideDiamondWeightString = sideDiamondWeight.toFixed(2);
+        if (sideDiamondWeight && !/^\d+\.\d{2}$/.test(sideDiamondWeightString)) {
+          return reject(new Error('Side Diamond Weight must have exactly two decimal places'));
+        }
+      }
+
+      const lengthString = Length ? Length?.toFixed(2) : null;
+      if (Length && !/^\d+\.\d{2}$/.test(lengthString)) {
+        return reject(new Error('Length must have exactly two decimal places'));
+      }
+      const widthString = width ? width?.toFixed(2) : null;
+      if (width && !/^\d+\.\d{2}$/.test(widthString)) {
+        return reject(new Error('Width must have exactly two decimal places'));
+      }
+
+      const filterParams = {
+        productName: productName,
+        sku: sku,
+      };
+      const productFindPattern = {
+        url: productsUrl,
+        filterParams: filterParams,
+      };
+
+      const existing = await fetchWrapperService.findMany(productFindPattern);
+      if (existing.length) {
+        return reject(new Error('Product name or SKU already exists'));
+      }
+
+      // Process mediaMapping from params (files)
+      const { mediaMapping, updatedCombos } = await processMediaMappingFromParams({
+        mediaMappingParam,
+        variCombos: variComboWithQuantityArray,
+      });
+
+      if (!mediaMapping?.length) {
+        return reject(new Error('Provide Atleast one media'));
+      }
+
+      uploadedMediaUrls = extractUrlsFromMediaMapping(mediaMapping);
+
+      const insertPattern = {
+        id: uuid,
+        productName,
+        productNamePrefix,
+        sku,
+        saltSKU,
+        discount,
+        collectionIds: collectionIds.map((id) => id?.trim()),
+        settingStyleIds: settingStyleIds.map((id) => id?.trim()),
+        categoryId,
+        subCategoryIds: subCategoryIds.map((id) => id?.trim()),
+        productTypeIds: productTypeIds.map((id) => id?.trim()),
+        gender,
+        netWeight,
+        grossWeight,
+        totalCaratWeight,
+        centerDiamondWeight,
+        sideDiamondWeight,
+        Length,
+        width,
+        lengthUnit,
+        widthUnit,
+        shortDescription,
+        description,
+        variations: variationsArray,
+        variComboWithQuantity: updatedCombos,
+        mediaMapping,
+        isDiamondFilter,
+        diamondFilters: isDiamondFilter ? diamondFilters : null,
+        specifications,
+        priceCalculationMode,
+        active: false,
+        createdDate: Date.now(),
+        updatedDate: Date.now(),
+      };
+
+      const createPattern = { url: `${productsUrl}/${uuid}`, insertPattern };
+      await fetchWrapperService.create(createPattern);
+      resolve(true);
     } catch (e) {
-      reject(e);
+      if (uploadedMediaUrls?.length) {
+        console.warn('Insert failed → deleting uploaded media:', uploadedMediaUrls);
+        uploadedMediaUrls.forEach((url) =>
+          deleteFile(productStoragePath, url).catch((e) => console.error(`Cleanup failed: ${url}`, e))
+        );
+      }
+      reject(e instanceof Error ? e : new Error('Failed to insert product'));
     }
   });
 };
@@ -900,12 +817,28 @@ const getAllProductsWithPagging = () => {
   return new Promise(async (resolve, reject) => {
     try {
       const productData = await fetchWrapperService.getPaginatdData(productsUrl);
+      const customizations = await getAllCustomizations();
+
       const updatedProductData = productData.map((item) => {
         const { price = 0 } = helperFunctions.getMinPriceVariCombo(item.variComboWithQuantity);
+
+        const variations = helperFunctions.getVariationsArray(
+          item.variations,
+          customizations
+        );
+        const enrichedProduct = {
+          ...item,
+          variations,
+        };
+
+        const thumbnailImage = helperFunctions?.getProductThumbnail(enrichedProduct);
+
         return {
+          ...enrichedProduct,
           ...item,
           basePrice: roundOffPrice(price),
           baseSellingPrice: helperFunctions.getSellingPrice(price, item.discount),
+          thumbnailImage,
         };
       });
       resolve(updatedProductData);
@@ -956,16 +889,16 @@ const getAllProcessedProducts = () => {
 
           diamondFilters: product.isDiamondFilter
             ? {
-                ...product?.diamondFilters,
-                diamondShapes: product?.diamondFilters.diamondShapeIds?.map((shapeId) => {
-                  const foundedShape = diamondShapeList?.find((shape) => shape?.id === shapeId);
-                  return {
-                    title: foundedShape?.title,
-                    image: foundedShape?.image,
-                    id: foundedShape?.id,
-                  };
-                }),
-              }
+              ...product?.diamondFilters,
+              diamondShapes: product?.diamondFilters.diamondShapeIds?.map((shapeId) => {
+                const foundedShape = diamondShapeList?.find((shape) => shape?.id === shapeId);
+                return {
+                  title: foundedShape?.title,
+                  image: foundedShape?.image,
+                  id: foundedShape?.id,
+                };
+              }),
+            }
             : product?.diamondFilters,
           categoryName:
             menuData.categories.find((category) => category.id === product.categoryId)?.title || '',
@@ -1013,10 +946,9 @@ const deleteProduct = (productId) => {
         adminId: currentUser?.id,
       };
       const permissionData = await adminController.getPermissionsByAdminId(payload);
-      const productPermissions = permissionData.find((perm) => perm.pageId === PRODUCT);
-
-      const canDelete = productPermissions?.actions?.some((action) => action.actionId === DELETE);
-
+      const canDelete = permissionData.some(
+        (p) => p.pageId === PRODUCT && p.actions.some((a) => a.actionId === DELETE)
+      );
       if (!canDelete) {
         return reject(new Error('You do not have permission to delete this product.'));
       }
@@ -1024,8 +956,7 @@ const deleteProduct = (productId) => {
       // Sanitize and validate productId
       productId = sanitizeValue(productId) ? productId.trim() : null;
       if (!productId) {
-        reject(new Error('Invalid Id'));
-        return;
+        return reject(new Error('Invalid Id'));
       }
 
       // Fetch product data
@@ -1033,8 +964,7 @@ const deleteProduct = (productId) => {
         id: productId,
       });
       if (!productData) {
-        reject(new Error('Product does not exist'));
-        return;
+        return reject(new Error('Product does not exist'));
       }
 
       // Check for showcase banner
@@ -1042,8 +972,7 @@ const deleteProduct = (productId) => {
         productId: productId,
       });
       if (showCaseBannerData) {
-        reject(new Error('Product cannot be deleted because it has a showcase banner'));
-        return;
+        return reject(new Error('Product cannot be deleted because it has a showcase banner'));
       }
 
       // Check for product slider
@@ -1051,8 +980,7 @@ const deleteProduct = (productId) => {
         productId: productId,
       });
       if (productSliderData) {
-        reject(new Error('Product cannot be deleted because it has a product slider'));
-        return;
+        return reject(new Error('Product cannot be deleted because it has a product slider'));
       }
 
       // Check if product exists in any orders
@@ -1065,41 +993,13 @@ const deleteProduct = (productId) => {
           order?.products?.some((product) => product?.productId === productId)
       );
       if (isProductInOrder) {
-        reject(
+        return reject(
           new Error('Product cannot be deleted because it is associated with an existing order')
         );
-        return;
       }
 
       // Collect all file URLs to delete
-      const filesToDelete = [];
-      if (productData?.roseGoldThumbnailImage) {
-        filesToDelete.push(productData.roseGoldThumbnailImage);
-      }
-      if (productData?.roseGoldImages?.length) {
-        filesToDelete.push(...productData.roseGoldImages.map((item) => item.image));
-      }
-      if (productData?.roseGoldVideo) {
-        filesToDelete.push(productData.roseGoldVideo);
-      }
-      if (productData?.yellowGoldThumbnailImage) {
-        filesToDelete.push(productData.yellowGoldThumbnailImage);
-      }
-      if (productData?.yellowGoldImages?.length) {
-        filesToDelete.push(...productData.yellowGoldImages.map((item) => item.image));
-      }
-      if (productData?.yellowGoldVideo) {
-        filesToDelete.push(productData.yellowGoldVideo);
-      }
-      if (productData?.whiteGoldThumbnailImage) {
-        filesToDelete.push(productData.whiteGoldThumbnailImage);
-      }
-      if (productData?.whiteGoldImages?.length) {
-        filesToDelete.push(...productData.whiteGoldImages.map((item) => item.image));
-      }
-      if (productData?.whiteGoldVideo) {
-        filesToDelete.push(productData.whiteGoldVideo);
-      }
+      const filesToDelete = extractUrlsFromMediaMapping(productData.mediaMapping || []);
 
       // Delete the product
       await fetchWrapperService._delete(`${productsUrl}/${productId}`);
@@ -1108,10 +1008,9 @@ const deleteProduct = (productId) => {
       if (filesToDelete.length) {
         await Promise.all(
           filesToDelete.map((url) =>
-            deleteFile(productsUrl, url).catch((e) => {
-              console.warn(`Failed to delete file ${url}: ${e.message}`);
-              // Continue with other deletions even if one fails
-            })
+            deleteFile(productStoragePath, url).catch((e) =>
+              console.warn(`Failed to delete file ${url}: ${e.message}`)
+            )
           )
         );
       }
@@ -1208,767 +1107,14 @@ const activeDeactiveProduct = (params) => {
   });
 };
 
-const updateRoseGoldMedia = (params) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let {
-        productId,
-        roseGoldThumbnailImageFile,
-        roseGoldImageFiles,
-        roseGoldVideoFile,
-        deletedRoseGoldImages,
-        deletedRoseGoldVideo,
-      } = sanitizeObject(params);
-
-      if (productId) {
-        const productData = await fetchWrapperService.findOne(productsUrl, {
-          id: productId,
-        });
-        if (productData) {
-          // Sanitize file inputs
-          roseGoldThumbnailImageFile =
-            typeof roseGoldThumbnailImageFile === 'object' ? [roseGoldThumbnailImageFile] : [];
-          roseGoldImageFiles = Array.isArray(roseGoldImageFiles) ? roseGoldImageFiles : [];
-          roseGoldVideoFile = typeof roseGoldVideoFile === 'object' ? [roseGoldVideoFile] : [];
-          deletedRoseGoldImages = Array.isArray(deletedRoseGoldImages) ? deletedRoseGoldImages : [];
-          deletedRoseGoldVideo = deletedRoseGoldVideo ? deletedRoseGoldVideo.trim() : null;
-
-          // Handle image deletions
-          let tempRoseGoldImages = productData.roseGoldImages || [];
-          if (deletedRoseGoldImages.length) {
-            deletedRoseGoldImages.forEach((url) => {
-              const index = tempRoseGoldImages.findIndex((item) => url === item.image);
-              if (index !== -1) {
-                tempRoseGoldImages.splice(index, 1);
-              }
-            });
-          }
-
-          // Validate and upload files
-          let uploadedRoseGoldThumbnailImage = null;
-          let uploadedRoseGoldImages = [];
-          let uploadedRoseGoldVideo = null;
-
-          const filesPayload = [
-            ...roseGoldThumbnailImageFile,
-            ...roseGoldImageFiles,
-            ...roseGoldVideoFile,
-          ];
-
-          // Create index mapping for file categories
-          const categoryIndices = {};
-          let currentIndex = 0;
-
-          const addCategoryIndices = (category, fileArray) => {
-            if (fileArray.length) {
-              categoryIndices[category] = {
-                start: currentIndex,
-                end: currentIndex + fileArray.length,
-                length: fileArray.length,
-              };
-              currentIndex += fileArray.length;
-            } else {
-              categoryIndices[category] = { start: currentIndex, end: currentIndex, length: 0 };
-            }
-          };
-
-          addCategoryIndices('roseGoldThumbnailImage', roseGoldThumbnailImageFile);
-          addCategoryIndices('roseGoldImages', roseGoldImageFiles);
-          addCategoryIndices('roseGoldVideo', roseGoldVideoFile);
-
-          const expectedFileCount = currentIndex;
-
-          // Validate file counts and types
-          if (filesPayload.length) {
-            if (
-              roseGoldThumbnailImageFile.length > fileSettings.PRODUCT_THUMBNAIL_IMAGE_FILE_LIMIT
-            ) {
-              reject(
-                new Error(
-                  `You can only upload ${fileSettings.PRODUCT_THUMBNAIL_IMAGE_FILE_LIMIT} Rose Gold thumbnail image`
-                )
-              );
-              return;
-            }
-            if (
-              tempRoseGoldImages.length + roseGoldImageFiles.length >
-              fileSettings.PRODUCT_IMAGE_FILE_LIMIT
-            ) {
-              reject(
-                new Error(
-                  `You can only upload ${fileSettings.PRODUCT_IMAGE_FILE_LIMIT} Rose Gold images`
-                )
-              );
-              return;
-            }
-            if (roseGoldVideoFile.length > fileSettings.PRODUCT_VIDEO_FILE_LIMIT) {
-              reject(
-                new Error(
-                  `You can only upload ${fileSettings.PRODUCT_VIDEO_FILE_LIMIT} Rose Gold video`
-                )
-              );
-              return;
-            }
-
-            // Validate file types and sizes
-            const fileCategories = [
-              {
-                files: roseGoldThumbnailImageFile,
-                type: 'IMAGE_FILE_NAME',
-                name: 'Rose Gold thumbnail image',
-              },
-              { files: roseGoldImageFiles, type: 'IMAGE_FILE_NAME', name: 'Rose Gold images' },
-              { files: roseGoldVideoFile, type: 'VIDEO_FILE_NAME', name: 'Rose Gold video' },
-            ];
-
-            for (const { files, type, name } of fileCategories) {
-              if (files.length) {
-                const validFileType = isValidFileType(fileSettings[type], files);
-                if (!validFileType) {
-                  reject(
-                    new Error(
-                      `Invalid file for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'} files are allowed!)`
-                    )
-                  );
-                  return;
-                }
-                const validFileSize = isValidFileSize(fileSettings[type], files);
-                if (!validFileSize) {
-                  reject(
-                    new Error(
-                      `Invalid file size for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? '5 MB' : '10 MB'} are allowed!)`
-                    )
-                  );
-                  return;
-                }
-              }
-            }
-
-            // Upload files
-            await uploadFile(productsUrl, filesPayload)
-              .then((fileNames) => {
-                if (fileNames.length !== expectedFileCount) {
-                  throw new Error(
-                    `Upload mismatch: Expected ${expectedFileCount} files, received ${fileNames.length}`
-                  );
-                }
-
-                const assignUrls = (category, isSingle = false) => {
-                  const { start, length } = categoryIndices[category];
-                  if (length > 0) {
-                    const urls = fileNames.slice(start, start + length);
-                    return isSingle ? urls[0] : urls.map((url) => ({ image: url }));
-                  }
-                  return isSingle ? null : [];
-                };
-
-                uploadedRoseGoldThumbnailImage = assignUrls('roseGoldThumbnailImage', true);
-                uploadedRoseGoldImages = assignUrls('roseGoldImages');
-                uploadedRoseGoldVideo = assignUrls('roseGoldVideo', true);
-              })
-              .catch((e) => {
-                reject(new Error(`File upload failed: ${e.message}`));
-                return;
-              });
-          }
-
-          // Combine existing and new images
-          const roseGoldImagesArray = [...tempRoseGoldImages, ...uploadedRoseGoldImages];
-
-          // Validate required images
-          if (!uploadedRoseGoldThumbnailImage && !productData.roseGoldThumbnailImage) {
-            reject(new Error('Rose Gold thumbnail image is required'));
-            return;
-          }
-          // Prepare payload
-          const payload = {
-            roseGoldThumbnailImage:
-              uploadedRoseGoldThumbnailImage || productData.roseGoldThumbnailImage,
-            roseGoldImages: roseGoldImagesArray,
-            roseGoldVideo: roseGoldVideoFile.length
-              ? uploadedRoseGoldVideo
-              : deletedRoseGoldVideo
-                ? ''
-                : productData.roseGoldVideo || '',
-            updatedDate: Date.now(),
-          };
-
-          // Update product
-          const updatePattern = {
-            url: `${productsUrl}/${productId}`,
-            payload: payload,
-          };
-
-          await fetchWrapperService
-            ._update(updatePattern)
-            .then(async () => {
-              // Delete old files
-              const filesToDelete = [
-                ...deletedRoseGoldImages,
-                deletedRoseGoldVideo || '',
-                uploadedRoseGoldThumbnailImage ? productData.roseGoldThumbnailImage : '',
-              ].filter(Boolean);
-
-              if (filesToDelete.length) {
-                await Promise.all(
-                  filesToDelete.map((url) =>
-                    deleteFile(productsUrl, url).catch((e) => {
-                      console.warn(`Failed to delete file ${url}: ${e.message}`);
-                    })
-                  )
-                );
-              }
-
-              resolve(true);
-            })
-            .catch(async (e) => {
-              // Clean up uploaded files on failure
-              const uploadedFiles = [
-                uploadedRoseGoldThumbnailImage,
-                ...uploadedRoseGoldImages.map((img) => img.image),
-                uploadedRoseGoldVideo,
-              ].filter(Boolean);
-
-              if (uploadedFiles.length) {
-                await Promise.all(
-                  uploadedFiles.map((url) =>
-                    deleteFile(productsUrl, url).catch((e) => {
-                      console.warn(`Failed to delete file ${url}: ${e.message}`);
-                    })
-                  )
-                );
-              }
-
-              reject(new Error(`Failed to update product: ${e.message}`));
-            });
-        } else {
-          reject(new Error('Product data not found'));
-        }
-      } else {
-        reject(new Error('Invalid Id'));
-      }
-    } catch (e) {
-      reject(new Error(`Update failed: ${e?.message}`));
-    }
-  });
-};
-
-const updateYellowGoldMedia = (params) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let {
-        productId,
-        yellowGoldThumbnailImageFile,
-        yellowGoldImageFiles,
-        yellowGoldVideoFile,
-        deletedYellowGoldImages,
-        deletedYellowGoldVideo,
-      } = sanitizeObject(params);
-
-      if (!productId) {
-        reject(new Error('Invalid Id'));
-        return;
-      }
-
-      const productData = await fetchWrapperService.findOne(productsUrl, {
-        id: productId,
-      });
-      if (!productData) {
-        reject(new Error('Product data not found'));
-        return;
-      }
-
-      // Sanitize file inputs
-      yellowGoldThumbnailImageFile =
-        typeof yellowGoldThumbnailImageFile === 'object' && yellowGoldThumbnailImageFile
-          ? [yellowGoldThumbnailImageFile]
-          : [];
-      yellowGoldImageFiles = Array.isArray(yellowGoldImageFiles) ? yellowGoldImageFiles : [];
-      yellowGoldVideoFile =
-        typeof yellowGoldVideoFile === 'object' && yellowGoldVideoFile ? [yellowGoldVideoFile] : [];
-      deletedYellowGoldImages = Array.isArray(deletedYellowGoldImages)
-        ? deletedYellowGoldImages
-        : [];
-      deletedYellowGoldVideo = deletedYellowGoldVideo ? deletedYellowGoldVideo.trim() : null;
-
-      // Handle image deletions
-      let tempYellowGoldImages = productData.yellowGoldImages || [];
-      if (deletedYellowGoldImages.length) {
-        deletedYellowGoldImages.forEach((url) => {
-          const index = tempYellowGoldImages.findIndex((item) => item?.image === url);
-          if (index !== -1) {
-            tempYellowGoldImages.splice(index, 1);
-          }
-        });
-      }
-
-      // Validate and upload files
-      let uploadedYellowGoldThumbnailImage = null;
-      let uploadedYellowGoldImages = [];
-      let uploadedYellowGoldVideo = null;
-
-      const filesPayload = [
-        ...yellowGoldThumbnailImageFile,
-        ...yellowGoldImageFiles,
-        ...yellowGoldVideoFile,
-      ];
-
-      // Create index mapping for file categories
-      const categoryIndices = {};
-      let currentIndex = 0;
-
-      const addCategoryIndices = (category, fileArray) => {
-        categoryIndices[category] = {
-          start: currentIndex,
-          end: currentIndex + fileArray.length,
-          length: fileArray.length,
-        };
-        currentIndex += fileArray.length;
-      };
-
-      addCategoryIndices('yellowGoldThumbnailImage', yellowGoldThumbnailImageFile);
-      addCategoryIndices('yellowGoldImages', yellowGoldImageFiles);
-      addCategoryIndices('yellowGoldVideo', yellowGoldVideoFile);
-
-      const expectedFileCount = currentIndex;
-
-      // Validate file counts and types
-      if (filesPayload.length) {
-        if (yellowGoldThumbnailImageFile.length > fileSettings.PRODUCT_THUMBNAIL_IMAGE_FILE_LIMIT) {
-          reject(
-            new Error(
-              `You can only upload ${fileSettings.PRODUCT_THUMBNAIL_IMAGE_FILE_LIMIT} Yellow Gold thumbnail image`
-            )
-          );
-          return;
-        }
-        if (
-          tempYellowGoldImages.length + yellowGoldImageFiles.length >
-          fileSettings.PRODUCT_IMAGE_FILE_LIMIT
-        ) {
-          reject(
-            new Error(
-              `You can only upload ${fileSettings.PRODUCT_IMAGE_FILE_LIMIT} Yellow Gold images`
-            )
-          );
-          return;
-        }
-        if (yellowGoldVideoFile.length > fileSettings.PRODUCT_VIDEO_FILE_LIMIT) {
-          reject(
-            new Error(
-              `You can only upload ${fileSettings.PRODUCT_VIDEO_FILE_LIMIT} Yellow Gold video`
-            )
-          );
-          return;
-        }
-
-        // Validate file types and sizes
-        const fileCategories = [
-          {
-            files: yellowGoldThumbnailImageFile,
-            type: 'IMAGE_FILE_NAME',
-            name: 'Yellow Gold thumbnail image',
-          },
-          { files: yellowGoldImageFiles, type: 'IMAGE_FILE_NAME', name: 'Yellow Gold images' },
-          { files: yellowGoldVideoFile, type: 'VIDEO_FILE_NAME', name: 'Yellow Gold video' },
-        ];
-
-        for (const { files, type, name } of fileCategories) {
-          if (files.length) {
-            const validFileType = isValidFileType(fileSettings[type], files);
-            if (!validFileType) {
-              reject(
-                new Error(
-                  `Invalid file for ${name}! (Only ${
-                    type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
-                  } files are allowed!)`
-                )
-              );
-              return;
-            }
-            const validFileSize = isValidFileSize(fileSettings[type], files);
-            if (!validFileSize) {
-              reject(
-                new Error(
-                  `Invalid file size for ${name}! (Only ${
-                    type === 'IMAGE_FILE_NAME' ? '5 MB' : '10 MB'
-                  } are allowed!)`
-                )
-              );
-              return;
-            }
-          }
-        }
-
-        // Upload files
-        const fileNames = await uploadFile(productsUrl, filesPayload).catch((e) => {
-          reject(new Error(`File upload failed: ${e.message}`));
-          return null;
-        });
-
-        if (!fileNames) return;
-
-        if (fileNames.length !== expectedFileCount) {
-          reject(
-            new Error(
-              `Upload mismatch: Expected ${expectedFileCount} files, received ${fileNames.length}`
-            )
-          );
-          return;
-        }
-
-        const assignUrls = (category, isSingle = false) => {
-          const { start, length } = categoryIndices[category];
-          if (length > 0) {
-            const urls = fileNames.slice(start, start + length);
-            return isSingle ? urls[0] : urls.map((url) => ({ image: url }));
-          }
-          return isSingle ? null : [];
-        };
-
-        uploadedYellowGoldThumbnailImage = assignUrls('yellowGoldThumbnailImage', true);
-        uploadedYellowGoldImages = assignUrls('yellowGoldImages');
-        uploadedYellowGoldVideo = assignUrls('yellowGoldVideo', true);
-      }
-
-      // Combine existing and new images
-      const yellowGoldImagesArray = [...tempYellowGoldImages, ...uploadedYellowGoldImages];
-
-      // Validate required thumbnail
-      if (!uploadedYellowGoldThumbnailImage && !productData.yellowGoldThumbnailImage) {
-        reject(new Error('Yellow Gold thumbnail image is required'));
-        return;
-      }
-
-      // Prepare payload
-      const payload = {
-        yellowGoldThumbnailImage:
-          uploadedYellowGoldThumbnailImage || productData.yellowGoldThumbnailImage,
-        yellowGoldImages: yellowGoldImagesArray,
-        yellowGoldVideo: yellowGoldVideoFile.length
-          ? uploadedYellowGoldVideo
-          : deletedYellowGoldVideo
-            ? ''
-            : productData.yellowGoldVideo || '',
-        updatedDate: Date.now(),
-      };
-
-      // Update product
-      const updatePattern = {
-        url: `${productsUrl}/${productId}`,
-        payload: payload,
-      };
-
-      await fetchWrapperService._update(updatePattern).then(async () => {
-        // Delete old files
-        const filesToDelete = [
-          ...deletedYellowGoldImages,
-          deletedYellowGoldVideo || '',
-          uploadedYellowGoldThumbnailImage && productData.yellowGoldThumbnailImage
-            ? productData.yellowGoldThumbnailImage
-            : '',
-        ].filter(Boolean);
-
-        if (filesToDelete.length) {
-          await Promise.all(
-            filesToDelete.map((url) =>
-              deleteFile(productsUrl, url).catch((e) => {
-                console.warn(`Failed to delete file ${url}: ${e.message}`);
-              })
-            )
-          );
-        }
-
-        resolve(true);
-      });
-    } catch (e) {
-      // Clean up uploaded files on failure
-      const uploadedFiles = [
-        uploadedYellowGoldThumbnailImage,
-        ...uploadedYellowGoldImages.map((img) => img.image),
-        uploadedYellowGoldVideo,
-      ].filter(Boolean);
-
-      if (uploadedFiles.length) {
-        await Promise.all(
-          uploadedFiles.map((url) =>
-            deleteFile(productsUrl, url).catch((e) => {
-              console.warn(`Failed to delete file ${url}: ${e.message}`);
-            })
-          )
-        );
-      }
-
-      reject(new Error(`Failed to update Yellow Gold media: ${e.message}`));
-    }
-  });
-};
-
-const updateWhiteGoldMedia = (params) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let {
-        productId,
-        whiteGoldThumbnailImageFile,
-        whiteGoldImageFiles,
-        whiteGoldVideoFile,
-        deletedWhiteGoldImages,
-        deletedWhiteGoldVideo,
-      } = sanitizeObject(params);
-
-      if (!productId) {
-        reject(new Error('Invalid Id'));
-        return;
-      }
-
-      const productData = await fetchWrapperService.findOne(productsUrl, {
-        id: productId,
-      });
-      if (!productData) {
-        reject(new Error('Product data not found'));
-        return;
-      }
-
-      // Sanitize file inputs
-      whiteGoldThumbnailImageFile =
-        typeof whiteGoldThumbnailImageFile === 'object' && whiteGoldThumbnailImageFile
-          ? [whiteGoldThumbnailImageFile]
-          : [];
-      whiteGoldImageFiles = Array.isArray(whiteGoldImageFiles) ? whiteGoldImageFiles : [];
-      whiteGoldVideoFile =
-        typeof whiteGoldVideoFile === 'object' && whiteGoldVideoFile ? [whiteGoldVideoFile] : [];
-      deletedWhiteGoldImages = Array.isArray(deletedWhiteGoldImages) ? deletedWhiteGoldImages : [];
-      deletedWhiteGoldVideo = deletedWhiteGoldVideo ? deletedWhiteGoldVideo.trim() : null;
-
-      // Handle image deletions
-      let tempWhiteGoldImages = productData.whiteGoldImages || [];
-      if (deletedWhiteGoldImages.length) {
-        deletedWhiteGoldImages.forEach((url) => {
-          const index = tempWhiteGoldImages.findIndex((item) => item?.image === url);
-          if (index !== -1) {
-            tempWhiteGoldImages.splice(index, 1);
-          }
-        });
-      }
-
-      // Validate and upload files
-      let uploadedWhiteGoldThumbnailImage = null;
-      let uploadedWhiteGoldImages = [];
-      let uploadedWhiteGoldVideo = null;
-
-      const filesPayload = [
-        ...whiteGoldThumbnailImageFile,
-        ...whiteGoldImageFiles,
-        ...whiteGoldVideoFile,
-      ];
-
-      // Create index mapping for file categories
-      const categoryIndices = {};
-      let currentIndex = 0;
-
-      const addCategoryIndices = (category, fileArray) => {
-        categoryIndices[category] = {
-          start: currentIndex,
-          end: currentIndex + fileArray.length,
-          length: fileArray.length,
-        };
-        currentIndex += fileArray.length;
-      };
-
-      addCategoryIndices('whiteGoldThumbnailImage', whiteGoldThumbnailImageFile);
-      addCategoryIndices('whiteGoldImages', whiteGoldImageFiles);
-      addCategoryIndices('whiteGoldVideo', whiteGoldVideoFile);
-
-      const expectedFileCount = currentIndex;
-
-      // Validate file counts and types
-      if (filesPayload.length) {
-        if (whiteGoldThumbnailImageFile.length > fileSettings.PRODUCT_THUMBNAIL_IMAGE_FILE_LIMIT) {
-          reject(
-            new Error(
-              `You can only upload ${fileSettings.PRODUCT_THUMBNAIL_IMAGE_FILE_LIMIT} White Gold thumbnail image`
-            )
-          );
-          return;
-        }
-        if (
-          tempWhiteGoldImages.length + whiteGoldImageFiles.length >
-          fileSettings.PRODUCT_IMAGE_FILE_LIMIT
-        ) {
-          reject(
-            new Error(
-              `You can only upload ${fileSettings.PRODUCT_IMAGE_FILE_LIMIT} White Gold images`
-            )
-          );
-          return;
-        }
-        if (whiteGoldVideoFile.length > fileSettings.PRODUCT_VIDEO_FILE_LIMIT) {
-          reject(
-            new Error(
-              `You can only upload ${fileSettings.PRODUCT_VIDEO_FILE_LIMIT} White Gold video`
-            )
-          );
-          return;
-        }
-
-        // Validate file types and sizes
-        const fileCategories = [
-          {
-            files: whiteGoldThumbnailImageFile,
-            type: 'IMAGE_FILE_NAME',
-            name: 'White Gold thumbnail image',
-          },
-          { files: whiteGoldImageFiles, type: 'IMAGE_FILE_NAME', name: 'White Gold images' },
-          { files: whiteGoldVideoFile, type: 'VIDEO_FILE_NAME', name: 'White Gold video' },
-        ];
-
-        for (const { files, type, name } of fileCategories) {
-          if (files.length) {
-            const validFileType = isValidFileType(fileSettings[type], files);
-            if (!validFileType) {
-              reject(
-                new Error(
-                  `Invalid file for ${name}! (Only ${
-                    type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'
-                  } files are allowed!)`
-                )
-              );
-              return;
-            }
-            const validFileSize = isValidFileSize(fileSettings[type], files);
-            if (!validFileSize) {
-              reject(
-                new Error(
-                  `Invalid file size for ${name}! (Only ${
-                    type === 'IMAGE_FILE_NAME' ? '5 MB' : '10 MB'
-                  } are allowed!)`
-                )
-              );
-              return;
-            }
-          }
-        }
-
-        // Upload files
-        const fileNames = await uploadFile(productsUrl, filesPayload).catch((e) => {
-          reject(new Error(`File upload failed: ${e.message}`));
-          return null;
-        });
-
-        if (!fileNames) return;
-
-        if (fileNames.length !== expectedFileCount) {
-          reject(
-            new Error(
-              `Upload mismatch: Expected ${expectedFileCount} files, received ${fileNames.length}`
-            )
-          );
-          return;
-        }
-
-        const assignUrls = (category, isSingle = false) => {
-          const { start, length } = categoryIndices[category];
-          if (length > 0) {
-            const urls = fileNames.slice(start, start + length);
-            return isSingle ? urls[0] : urls.map((url) => ({ image: url }));
-          }
-          return isSingle ? null : [];
-        };
-
-        uploadedWhiteGoldThumbnailImage = assignUrls('whiteGoldThumbnailImage', true);
-        uploadedWhiteGoldImages = assignUrls('whiteGoldImages');
-        uploadedWhiteGoldVideo = assignUrls('whiteGoldVideo', true);
-      }
-
-      // Combine existing and new images
-      const whiteGoldImagesArray = [...tempWhiteGoldImages, ...uploadedWhiteGoldImages];
-
-      // Validate required thumbnail
-      if (!uploadedWhiteGoldThumbnailImage && !productData.whiteGoldThumbnailImage) {
-        reject(new Error('White Gold thumbnail image is required'));
-        return;
-      }
-
-      // Prepare payload
-      const payload = {
-        whiteGoldThumbnailImage:
-          uploadedWhiteGoldThumbnailImage || productData.whiteGoldThumbnailImage,
-        whiteGoldImages: whiteGoldImagesArray,
-        whiteGoldVideo: whiteGoldVideoFile.length
-          ? uploadedWhiteGoldVideo
-          : deletedWhiteGoldVideo
-            ? ''
-            : productData.whiteGoldVideo || '',
-        updatedDate: Date.now(),
-      };
-
-      // Update product
-      const updatePattern = {
-        url: `${productsUrl}/${productId}`,
-        payload: payload,
-      };
-
-      await fetchWrapperService._update(updatePattern).then(async () => {
-        // Delete old files
-        const filesToDelete = [
-          ...deletedWhiteGoldImages,
-          deletedWhiteGoldVideo || '',
-          uploadedWhiteGoldThumbnailImage && productData.whiteGoldThumbnailImage
-            ? productData.whiteGoldThumbnailImage
-            : '',
-        ].filter(Boolean);
-
-        if (filesToDelete.length) {
-          await Promise.all(
-            filesToDelete.map((url) =>
-              deleteFile(productsUrl, url).catch((e) => {
-                console.warn(`Failed to delete file ${url}: ${e.message}`);
-              })
-            )
-          );
-        }
-
-        resolve(true);
-      });
-    } catch (e) {
-      // Clean up uploaded files on failure
-      const uploadedFiles = [
-        uploadedWhiteGoldThumbnailImage,
-        ...uploadedWhiteGoldImages.map((img) => img.image),
-        uploadedWhiteGoldVideo,
-      ].filter(Boolean);
-
-      if (uploadedFiles.length) {
-        await Promise.all(
-          uploadedFiles.map((url) =>
-            deleteFile(productsUrl, url).catch((e) => {
-              console.warn(`Failed to delete file ${url}: ${e.message}`);
-            })
-          )
-        );
-      }
-
-      reject(new Error(`Failed to update White Gold media: ${e.message}`));
-    }
-  });
-};
-
 const updateProduct = (params) => {
   return new Promise(async (resolve, reject) => {
+    let newlyUploadedUrls = [];
     try {
       let {
         productId,
         productName,
         productNamePrefix,
-        roseGoldThumbnailImageFile,
-        roseGoldImageFiles,
-        roseGoldVideoFile,
-        yellowGoldThumbnailImageFile,
-        yellowGoldImageFiles,
-        yellowGoldVideoFile,
-        whiteGoldThumbnailImageFile,
-        whiteGoldImageFiles,
-        whiteGoldVideoFile,
         sku,
         saltSKU,
         discount,
@@ -1992,12 +1138,6 @@ const updateProduct = (params) => {
         variations,
         variComboWithQuantity,
         specifications,
-        deletedRoseGoldImages,
-        deletedRoseGoldVideo,
-        deletedYellowGoldImages,
-        deletedYellowGoldVideo,
-        deletedWhiteGoldImages,
-        deletedWhiteGoldVideo,
         active,
         isDiamondFilter,
         diamondFilters,
@@ -2006,686 +1146,299 @@ const updateProduct = (params) => {
 
       // Check if the current admin has permission to update products, and reject if not
       const currentUser = helperFunctions.getCurrentUser();
-      if (!currentUser) {
+      if (!currentUser)
         return reject(
           new Error('You must be logged in with appropriate permissions to update a product.')
         );
-      }
-      const payload = {
+
+      const permissionData = await adminController.getPermissionsByAdminId({
         adminId: currentUser?.id,
-      };
-      const permissionData = await adminController.getPermissionsByAdminId(payload);
+      });
       const productPermissions = permissionData.find((perm) => perm.pageId === PRODUCT);
-
       const canUpdate = productPermissions?.actions?.some((action) => action.actionId === UPDATE);
-
-      if (!canUpdate) {
+      if (!canUpdate)
         return reject(new Error('You do not have permission to update this product.'));
+
+      if (!productId) return reject(new Error('Invalid Id'));
+
+      const productData = await fetchWrapperService.findOne(productsUrl, {
+        id: productId,
+      });
+      if (!productData) return reject(new Error('Product data not found'));
+
+      // Sanitize and fallback to existing data
+      productName = productName ? productName.trim() : productData.productName;
+      productNamePrefix = productNamePrefix
+        ? productNamePrefix.trim()
+        : productData?.productNamePrefix || 'none';
+      sku = sku ? sku.trim() : productData.sku;
+      saltSKU = saltSKU ? saltSKU.trim() : productData.saltSKU;
+      discount = !isNaN(discount) ? Number(discount) : productData.discount;
+      netWeight =
+        !isNaN(netWeight) && netWeight !== '' && netWeight !== null
+          ? Math.round(parseFloat(netWeight) * 100) / 100
+          : 0;
+      grossWeight =
+        !isNaN(grossWeight) && grossWeight !== '' && grossWeight !== null
+          ? Math.round(parseFloat(grossWeight) * 100) / 100
+          : productData?.grossWeight;
+      centerDiamondWeight =
+        !isNaN(centerDiamondWeight) && centerDiamondWeight !== '' && centerDiamondWeight !== null
+          ? Math.round(parseFloat(centerDiamondWeight) * 100) / 100
+          : 0;
+      totalCaratWeight =
+        !isNaN(totalCaratWeight) && totalCaratWeight !== '' && totalCaratWeight !== null
+          ? Math.round(parseFloat(totalCaratWeight) * 100) / 100
+          : productData?.totalCaratWeight;
+      sideDiamondWeight =
+        !isNaN(sideDiamondWeight) && sideDiamondWeight !== '' && sideDiamondWeight !== null
+          ? Math.round(parseFloat(sideDiamondWeight) * 100) / 100
+          : 0;
+      Length =
+        !isNaN(Length) && Length !== '' && Length !== null
+          ? Math.round(parseFloat(Length) * 100) / 100
+          : null;
+      width =
+        !isNaN(width) && width !== '' && width !== null
+          ? Math.round(parseFloat(width) * 100) / 100
+          : null;
+      lengthUnit = lengthUnit ? lengthUnit.trim() : productData?.lengthUnit || 'mm';
+      widthUnit = widthUnit ? widthUnit.trim() : productData?.widthUnit || 'mm';
+      isDiamondFilter = isBoolean(isDiamondFilter)
+        ? isDiamondFilter
+        : productData.isDiamondFilter || false;
+      diamondFilters =
+        typeof diamondFilters === 'object' ? diamondFilters : productData.diamondFilters || {};
+      priceCalculationMode = [
+        PRICE_CALCULATION_MODES.AUTOMATIC,
+        PRICE_CALCULATION_MODES.MANUAL,
+      ].includes(priceCalculationMode)
+        ? priceCalculationMode
+        : productData.priceCalculationMode;
+      subCategoryIds = Array.isArray(subCategoryIds)
+        ? subCategoryIds.map((id) => id?.trim())
+        : productData.subCategoryIds || [];
+
+      // Validate inputs
+      const pNameErrorMsg = validateProductName(productName);
+      if (pNameErrorMsg) return reject(new Error(pNameErrorMsg));
+
+      const productNamePrefixErrorMsg = validateProductNamePrefix(productNamePrefix);
+      if (productNamePrefixErrorMsg) return reject(new Error(productNamePrefixErrorMsg));
+
+      const shortDescErrorMsg = validateShortDescription(shortDescription);
+      if (shortDescErrorMsg) return reject(new Error(shortDescErrorMsg));
+
+      if (netWeight && netWeight <= 0)
+        return reject(new Error('Invalid Net Weight: Must be a positive number'));
+
+      if (grossWeight <= 0)
+        return reject(new Error('Invalid Gross Weight: Must be a positive number'));
+      if (centerDiamondWeight && centerDiamondWeight <= 0)
+        return reject(new Error('Invalid Center Diamond Weight: Must be a positive number'));
+
+      if (totalCaratWeight <= 0)
+        return reject(new Error('Invalid Total Carat Weight: Must be a positive number'));
+
+      if (sideDiamondWeight && sideDiamondWeight < 0)
+        return reject(new Error('Invalid Side Diamond Weight: Must be a positive number'));
+
+      const lengthUnitErrorMsg = validateDimensionUnit(lengthUnit);
+      if (lengthUnitErrorMsg) return reject(new Error(lengthUnitErrorMsg));
+
+      const widthUnitErrorMsg = validateDimensionUnit(widthUnit);
+      if (widthUnitErrorMsg) return reject(new Error(widthUnitErrorMsg));
+
+      if (Length && Length <= 0)
+        return reject(new Error('Invalid Length: Must be a positive number'));
+      if (width && width <= 0) return reject(new Error('Invalid Width: Must be a positive number'));
+
+      const lengthString = Length ? Length?.toFixed(2) : null;
+      if (Length && !/^\d+\.\d{2}$/.test(lengthString)) {
+        return reject(new Error('Length must have exactly two decimal places'));
+      }
+      const widthString = width ? width?.toFixed(2) : null;
+      if (width && !/^\d+\.\d{2}$/.test(widthString)) {
+        return reject(new Error('Width must have exactly two decimal places'));
       }
 
-      if (productId) {
-        const productData = await fetchWrapperService.findOne(productsUrl, {
-          id: productId,
-        });
-        if (productData) {
-          // Sanitize and fallback to existing data
-          productName = productName ? productName.trim() : productData.productName;
-          productNamePrefix = productNamePrefix
-            ? productNamePrefix.trim()
-            : productData?.productNamePrefix || 'none';
-          sku = sku ? sku.trim() : productData.sku;
-          saltSKU = saltSKU ? saltSKU.trim() : productData.saltSKU;
-          discount = !isNaN(discount) ? Number(discount) : productData.discount;
-          netWeight =
-            !isNaN(netWeight) && netWeight !== '' && netWeight !== null
-              ? Math.round(parseFloat(netWeight) * 100) / 100
-              : 0;
-          grossWeight =
-            !isNaN(grossWeight) && grossWeight !== '' && grossWeight !== null
-              ? Math.round(parseFloat(grossWeight) * 100) / 100
-              : productData?.grossWeight;
-          centerDiamondWeight =
-            !isNaN(centerDiamondWeight) &&
-            centerDiamondWeight !== '' &&
-            centerDiamondWeight !== null
-              ? Math.round(parseFloat(centerDiamondWeight) * 100) / 100
-              : 0;
-          totalCaratWeight =
-            !isNaN(totalCaratWeight) && totalCaratWeight !== '' && totalCaratWeight !== null
-              ? Math.round(parseFloat(totalCaratWeight) * 100) / 100
-              : productData?.totalCaratWeight;
-          sideDiamondWeight =
-            !isNaN(sideDiamondWeight) && sideDiamondWeight !== '' && sideDiamondWeight !== null
-              ? Math.round(parseFloat(sideDiamondWeight) * 100) / 100
-              : 0;
-          Length =
-            !isNaN(Length) && Length !== '' && Length !== null
-              ? Math.round(parseFloat(Length) * 100) / 100
-              : null;
-          width =
-            !isNaN(width) && width !== '' && width !== null
-              ? Math.round(parseFloat(width) * 100) / 100
-              : null;
-          lengthUnit = lengthUnit ? lengthUnit.trim() : productData?.lengthUnit || 'mm';
-          widthUnit = widthUnit ? widthUnit.trim() : productData?.widthUnit || 'mm';
-          isDiamondFilter = isBoolean(isDiamondFilter)
-            ? isDiamondFilter
-            : productData.isDiamondFilter || false;
-          diamondFilters =
-            typeof diamondFilters === 'object' ? diamondFilters : productData.diamondFilters || {};
-          priceCalculationMode = [
-            PRICE_CALCULATION_MODES.AUTOMATIC,
-            PRICE_CALCULATION_MODES.MANUAL,
-          ].includes(priceCalculationMode)
-            ? priceCalculationMode
-            : productData.priceCalculationMode;
-          subCategoryIds = Array.isArray(subCategoryIds)
-            ? subCategoryIds.map((id) => id?.trim())
-            : productData.subCategoryIds || [];
-
-          // Validate inputs
-          const pNameErrorMsg = validateProductName(productName);
-          if (pNameErrorMsg) {
-            reject(new Error(pNameErrorMsg));
-            return;
-          }
-
-          const productNamePrefixErrorMsg = validateProductNamePrefix(productNamePrefix);
-          if (productNamePrefixErrorMsg) {
-            reject(new Error(productNamePrefixErrorMsg));
-            return;
-          }
-
-          const shortDescErrorMsg = validateShortDescription(shortDescription);
-          if (shortDescErrorMsg) {
-            reject(new Error(shortDescErrorMsg));
-            return;
-          }
-
-          if (netWeight && netWeight <= 0) {
-            reject(new Error('Invalid Net Weight: Must be a positive number'));
-            return;
-          }
-
-          if (grossWeight <= 0) {
-            reject(new Error('Invalid Gross Weight: Must be a positive number'));
-            return;
-          }
-          if (centerDiamondWeight && centerDiamondWeight <= 0) {
-            reject(new Error('Invalid Center Diamond Weight: Must be a positive number'));
-            return;
-          }
-
-          if (totalCaratWeight <= 0) {
-            reject(new Error('Invalid Total Carat Weight: Must be a positive number'));
-            return;
-          }
-
-          if (sideDiamondWeight && sideDiamondWeight < 0) {
-            reject(new Error('Invalid Side Diamond Weight: Must be a positive number'));
-            return;
-          }
-
-          const lengthUnitErrorMsg = validateDimensionUnit(lengthUnit);
-          if (lengthUnitErrorMsg) {
-            reject(new Error(lengthUnitErrorMsg));
-            return;
-          }
-
-          const widthUnitErrorMsg = validateDimensionUnit(widthUnit);
-          if (widthUnitErrorMsg) {
-            reject(new Error(widthUnitErrorMsg));
-            return;
-          }
-
-          if (Length && Length <= 0) {
-            reject(new Error('Invalid Length: Must be a positive number'));
-            return;
-          }
-          if (width && width <= 0) {
-            reject(new Error('Invalid Width: Must be a positive number'));
-            return;
-          }
-
-          const lengthString = Length ? Length?.toFixed(2) : null;
-          if (Length && !/^\d+\.\d{2}$/.test(lengthString)) {
-            reject(new Error('Length must have exactly two decimal places'));
-            return;
-          }
-          const widthString = width ? width?.toFixed(2) : null;
-          if (width && !/^\d+\.\d{2}$/.test(widthString)) {
-            reject(new Error('Width must have exactly two decimal places'));
-            return;
-          }
-
-          if (isDiamondFilter) {
-            const diamondFilterErrorMsg = validateDiamondFilters(diamondFilters);
-            if (diamondFilterErrorMsg) {
-              reject(new Error(diamondFilterErrorMsg));
-              return;
-            }
-            if (!netWeight || isNaN(netWeight)) {
-              reject(new Error('Invalid Net Weight: Must be a valid number'));
-              return;
-            }
-            const netWeightString = netWeight.toFixed(2);
-            if (!/^\d+\.\d{2}$/.test(netWeightString)) {
-              reject(new Error('Net Weight must have exactly two decimal places'));
-              return;
-            }
-
-            const sideDiamondWeightString = sideDiamondWeight.toFixed(2);
-            if (sideDiamondWeight && !/^\d+\.\d{2}$/.test(sideDiamondWeightString)) {
-              reject(new Error('Side Diamond Weight must have exactly two decimal places'));
-              return;
-            }
-          }
-
-          // Check for duplicate productName or sku
-          const filterParams = {
-            productName: productName,
-            sku: sku,
-          };
-          const findPattern = {
-            url: productsUrl,
-            id: productId,
-            filterParams: filterParams,
-          };
-          const duplicateData = await fetchWrapperService.findManyWithNotEqual(findPattern);
-          if (duplicateData.length) {
-            reject(new Error('Product name or SKU already exists'));
-            return;
-          }
-
-          // Validate arrays
-          if (collectionIds?.length) {
-            const hasInvalidValues = collectionIds.some((id) => !id);
-            if (hasInvalidValues) throw new Error('Invalid value found in collectionIds array');
-          }
-          if (settingStyleIds?.length) {
-            const hasInvalidValues = settingStyleIds.some((id) => !id);
-            if (hasInvalidValues) throw new Error('Invalid value found in settingStyleIds array');
-          }
-
-          if (subCategoryIds?.length) {
-            const hasInvalidValues = subCategoryIds.some((id) => !id);
-            if (hasInvalidValues) throw new Error('Invalid value found in subCategoryIds array');
-          }
-
-          if (productTypeIds?.length) {
-            const hasInvalidValues = productTypeIds.some((id) => !id);
-            if (hasInvalidValues) throw new Error('Invalid value found in productTypeIds array');
-          }
-          if (specifications?.length) {
-            const isSpecTitleValid = helperFunctions.isValidKeyName(specifications, 'title');
-            const isSpecDescValid = helperFunctions.isValidKeyName(specifications, 'description');
-            if (!isSpecTitleValid || !isSpecDescValid) {
-              reject(new Error('Specifications data not valid'));
-              return;
-            }
-          }
-
-          // Sanitize file inputs
-          roseGoldThumbnailImageFile =
-            typeof roseGoldThumbnailImageFile === 'object' ? [roseGoldThumbnailImageFile] : [];
-          roseGoldImageFiles = Array.isArray(roseGoldImageFiles) ? roseGoldImageFiles : [];
-          roseGoldVideoFile = typeof roseGoldVideoFile === 'object' ? [roseGoldVideoFile] : [];
-          yellowGoldThumbnailImageFile =
-            typeof yellowGoldThumbnailImageFile === 'object' ? [yellowGoldThumbnailImageFile] : [];
-          yellowGoldImageFiles = Array.isArray(yellowGoldImageFiles) ? yellowGoldImageFiles : [];
-          yellowGoldVideoFile =
-            typeof yellowGoldVideoFile === 'object' ? [yellowGoldVideoFile] : [];
-          whiteGoldThumbnailImageFile =
-            typeof whiteGoldThumbnailImageFile === 'object' ? [whiteGoldThumbnailImageFile] : [];
-          whiteGoldImageFiles = Array.isArray(whiteGoldImageFiles) ? whiteGoldImageFiles : [];
-          whiteGoldVideoFile = typeof whiteGoldVideoFile === 'object' ? [whiteGoldVideoFile] : [];
-          deletedRoseGoldImages = Array.isArray(deletedRoseGoldImages) ? deletedRoseGoldImages : [];
-          deletedRoseGoldVideo = deletedRoseGoldVideo ? deletedRoseGoldVideo.trim() : null;
-          deletedYellowGoldImages = Array.isArray(deletedYellowGoldImages)
-            ? deletedYellowGoldImages
-            : [];
-          deletedYellowGoldVideo = deletedYellowGoldVideo ? deletedYellowGoldVideo.trim() : null;
-          deletedWhiteGoldImages = Array.isArray(deletedWhiteGoldImages)
-            ? deletedWhiteGoldImages
-            : [];
-          deletedWhiteGoldVideo = deletedWhiteGoldVideo ? deletedWhiteGoldVideo.trim() : null;
-
-          // Handle image deletions
-          let tempRoseGoldImages = productData.roseGoldImages || [];
-          if (deletedRoseGoldImages.length) {
-            deletedRoseGoldImages.forEach((url) => {
-              const index = tempRoseGoldImages.findIndex((item) => url === item.image);
-              if (index !== -1) {
-                tempRoseGoldImages.splice(index, 1);
-              }
-            });
-          }
-
-          let tempYellowGoldImages = productData.yellowGoldImages || [];
-          if (deletedYellowGoldImages.length) {
-            deletedYellowGoldImages.forEach((url) => {
-              const index = tempYellowGoldImages.findIndex((item) => url === item.image);
-              if (index !== -1) {
-                tempYellowGoldImages.splice(index, 1);
-              }
-            });
-          }
-
-          let tempWhiteGoldImages = productData.whiteGoldImages || [];
-          if (deletedWhiteGoldImages.length) {
-            deletedWhiteGoldImages.forEach((url) => {
-              const index = tempWhiteGoldImages.findIndex((item) => url === item.image);
-              if (index !== -1) {
-                tempWhiteGoldImages.splice(index, 1);
-              }
-            });
-          }
-
-          // Validate and upload files
-          let uploadedRoseGoldThumbnailImage = null;
-          let uploadedRoseGoldImages = [];
-          let uploadedRoseGoldVideo = null;
-          let uploadedYellowGoldThumbnailImage = null;
-          let uploadedYellowGoldImages = [];
-          let uploadedYellowGoldVideo = null;
-          let uploadedWhiteGoldThumbnailImage = null;
-          let uploadedWhiteGoldImages = [];
-          let uploadedWhiteGoldVideo = null;
-
-          const filesPayload = [
-            ...roseGoldThumbnailImageFile,
-            ...roseGoldImageFiles,
-            ...roseGoldVideoFile,
-            ...yellowGoldThumbnailImageFile,
-            ...yellowGoldImageFiles,
-            ...yellowGoldVideoFile,
-            ...whiteGoldThumbnailImageFile,
-            ...whiteGoldImageFiles,
-            ...whiteGoldVideoFile,
-          ];
-
-          // Create index mapping for file categories
-          const categoryIndices = {};
-          let currentIndex = 0;
-
-          const addCategoryIndices = (category, fileArray) => {
-            if (fileArray.length) {
-              categoryIndices[category] = {
-                start: currentIndex,
-                end: currentIndex + fileArray.length,
-                length: fileArray.length,
-              };
-              currentIndex += fileArray.length;
-            } else {
-              categoryIndices[category] = { start: currentIndex, end: currentIndex, length: 0 };
-            }
-          };
-
-          addCategoryIndices('roseGoldThumbnailImage', roseGoldThumbnailImageFile);
-          addCategoryIndices('roseGoldImages', roseGoldImageFiles);
-          addCategoryIndices('roseGoldVideo', roseGoldVideoFile);
-          addCategoryIndices('yellowGoldThumbnailImage', yellowGoldThumbnailImageFile);
-          addCategoryIndices('yellowGoldImages', yellowGoldImageFiles);
-          addCategoryIndices('yellowGoldVideo', yellowGoldVideoFile);
-          addCategoryIndices('whiteGoldThumbnailImage', whiteGoldThumbnailImageFile);
-          addCategoryIndices('whiteGoldImages', whiteGoldImageFiles);
-          addCategoryIndices('whiteGoldVideo', whiteGoldVideoFile);
-
-          const expectedFileCount = currentIndex;
-
-          // Validate file counts and types
-          if (filesPayload.length) {
-            if (
-              roseGoldThumbnailImageFile.length > fileSettings.PRODUCT_THUMBNAIL_IMAGE_FILE_LIMIT
-            ) {
-              reject(
-                new Error(
-                  `You can only upload ${fileSettings.PRODUCT_THUMBNAIL_IMAGE_FILE_LIMIT} Rose Gold thumbnail image`
-                )
-              );
-              return;
-            }
-            if (
-              tempRoseGoldImages.length + roseGoldImageFiles.length >
-              fileSettings.PRODUCT_IMAGE_FILE_LIMIT
-            ) {
-              reject(
-                new Error(
-                  `You can only upload ${fileSettings.PRODUCT_IMAGE_FILE_LIMIT} Rose Gold images`
-                )
-              );
-              return;
-            }
-            if (roseGoldVideoFile.length > fileSettings.PRODUCT_VIDEO_FILE_LIMIT) {
-              reject(
-                new Error(
-                  `You can only upload ${fileSettings.PRODUCT_VIDEO_FILE_LIMIT} Rose Gold video`
-                )
-              );
-              return;
-            }
-            if (
-              yellowGoldThumbnailImageFile.length > fileSettings.PRODUCT_THUMBNAIL_IMAGE_FILE_LIMIT
-            ) {
-              reject(
-                new Error(
-                  `You can only upload ${fileSettings.PRODUCT_THUMBNAIL_IMAGE_FILE_LIMIT} Yellow Gold thumbnail image`
-                )
-              );
-              return;
-            }
-            if (
-              tempYellowGoldImages.length + yellowGoldImageFiles.length >
-              fileSettings.PRODUCT_IMAGE_FILE_LIMIT
-            ) {
-              reject(
-                new Error(
-                  `You can only upload ${fileSettings.PRODUCT_IMAGE_FILE_LIMIT} Yellow Gold images`
-                )
-              );
-              return;
-            }
-            if (yellowGoldVideoFile.length > fileSettings.PRODUCT_VIDEO_FILE_LIMIT) {
-              reject(
-                new Error(
-                  `You can only upload ${fileSettings.PRODUCT_VIDEO_FILE_LIMIT} Yellow Gold video`
-                )
-              );
-              return;
-            }
-            if (
-              whiteGoldThumbnailImageFile.length > fileSettings.PRODUCT_THUMBNAIL_IMAGE_FILE_LIMIT
-            ) {
-              reject(
-                new Error(
-                  `You can only upload ${fileSettings.PRODUCT_THUMBNAIL_IMAGE_FILE_LIMIT} White Gold thumbnail image`
-                )
-              );
-              return;
-            }
-            if (
-              tempWhiteGoldImages.length + whiteGoldImageFiles.length >
-              fileSettings.PRODUCT_IMAGE_FILE_LIMIT
-            ) {
-              reject(
-                new Error(
-                  `You can only upload ${fileSettings.PRODUCT_IMAGE_FILE_LIMIT} White Gold images`
-                )
-              );
-              return;
-            }
-            if (whiteGoldVideoFile.length > fileSettings.PRODUCT_VIDEO_FILE_LIMIT) {
-              reject(
-                new Error(
-                  `You can only upload ${fileSettings.PRODUCT_VIDEO_FILE_LIMIT} White Gold video`
-                )
-              );
-              return;
-            }
-
-            // Validate file types and sizes
-            const fileCategories = [
-              {
-                files: roseGoldThumbnailImageFile,
-                type: 'IMAGE_FILE_NAME',
-                name: 'Rose Gold thumbnail image',
-              },
-              { files: roseGoldImageFiles, type: 'IMAGE_FILE_NAME', name: 'Rose Gold images' },
-              { files: roseGoldVideoFile, type: 'VIDEO_FILE_NAME', name: 'Rose Gold video' },
-              {
-                files: yellowGoldThumbnailImageFile,
-                type: 'IMAGE_FILE_NAME',
-                name: 'Yellow Gold thumbnail image',
-              },
-              { files: yellowGoldImageFiles, type: 'IMAGE_FILE_NAME', name: 'Yellow Gold images' },
-              { files: yellowGoldVideoFile, type: 'VIDEO_FILE_NAME', name: 'Yellow Gold video' },
-              {
-                files: whiteGoldThumbnailImageFile,
-                type: 'IMAGE_FILE_NAME',
-                name: 'White Gold thumbnail image',
-              },
-              { files: whiteGoldImageFiles, type: 'IMAGE_FILE_NAME', name: 'White Gold images' },
-              { files: whiteGoldVideoFile, type: 'VIDEO_FILE_NAME', name: 'White Gold video' },
-            ];
-
-            for (const { files, type, name } of fileCategories) {
-              if (files.length) {
-                const validFileType = isValidFileType(fileSettings[type], files);
-                if (!validFileType) {
-                  reject(
-                    new Error(
-                      `Invalid file for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? 'JPG, JPEG, PNG, WEBP' : 'MP4, WEBM, OGG'} files are allowed!)`
-                    )
-                  );
-                  return;
-                }
-                const validFileSize = isValidFileSize(fileSettings[type], files);
-                if (!validFileSize) {
-                  reject(
-                    new Error(
-                      `Invalid file size for ${name}! (Only ${type === 'IMAGE_FILE_NAME' ? '5 MB' : '10 MB'} are allowed!)`
-                    )
-                  );
-                  return;
-                }
-              }
-            }
-
-            // Upload files
-            await uploadFile(productsUrl, filesPayload)
-              .then((fileNames) => {
-                if (fileNames.length !== expectedFileCount) {
-                  throw new Error(
-                    `Upload mismatch: Expected ${expectedFileCount} files, received ${fileNames.length}`
-                  );
-                }
-
-                const assignUrls = (category, isSingle = false) => {
-                  const { start, length } = categoryIndices[category];
-                  if (length > 0) {
-                    const urls = fileNames.slice(start, start + length);
-                    return isSingle ? urls[0] : urls.map((url) => ({ image: url }));
-                  }
-                  return isSingle ? null : [];
-                };
-
-                uploadedRoseGoldThumbnailImage = assignUrls('roseGoldThumbnailImage', true);
-                uploadedRoseGoldImages = assignUrls('roseGoldImages');
-                uploadedRoseGoldVideo = assignUrls('roseGoldVideo', true);
-                uploadedYellowGoldThumbnailImage = assignUrls('yellowGoldThumbnailImage', true);
-                uploadedYellowGoldImages = assignUrls('yellowGoldImages');
-                uploadedYellowGoldVideo = assignUrls('yellowGoldVideo', true);
-                uploadedWhiteGoldThumbnailImage = assignUrls('whiteGoldThumbnailImage', true);
-                uploadedWhiteGoldImages = assignUrls('whiteGoldImages');
-                uploadedWhiteGoldVideo = assignUrls('whiteGoldVideo', true);
-              })
-              .catch((e) => {
-                reject(new Error(`File upload failed: ${e.message}`));
-                return;
-              });
-          }
-
-          // Combine existing and new images
-          const roseGoldImagesArray = [...tempRoseGoldImages, ...uploadedRoseGoldImages];
-          const yellowGoldImagesArray = [...tempYellowGoldImages, ...uploadedYellowGoldImages];
-          const whiteGoldImagesArray = [...tempWhiteGoldImages, ...uploadedWhiteGoldImages];
-
-          // Validate required images
-          if (!uploadedRoseGoldThumbnailImage && !productData.roseGoldThumbnailImage) {
-            reject(new Error('Rose Gold thumbnail image is required'));
-            return;
-          }
-          if (!uploadedYellowGoldThumbnailImage && !productData.yellowGoldThumbnailImage) {
-            reject(new Error('Yellow Gold thumbnail image is required'));
-            return;
-          }
-          if (!uploadedWhiteGoldThumbnailImage && !productData.whiteGoldThumbnailImage) {
-            reject(new Error('White Gold thumbnail image is required'));
-            return;
-          }
-
-          // Handle variations and combinations
-          variations = Array.isArray(variations) ? variations : [];
-          const variationsArray =
-            variations.length && !isInValidVariationsArray(variations)
-              ? getVariationsArray(variations)
-              : productData.variations;
-
-          variComboWithQuantity = Array.isArray(variComboWithQuantity) ? variComboWithQuantity : [];
-          let variComboWithQuantityArray =
-            variComboWithQuantity.length &&
-            !isInValidVariComboWithQuantityArray(variComboWithQuantity)
-              ? getVariComboWithQuantityArray(variComboWithQuantity)
-              : productData.variComboWithQuantity;
-
-          // Apply automatic price calculations if enabled
-          if (priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC) {
-            const customizationSubTypesList = await customizationSubTypeService.getAllSubTypes();
-            const priceMultiplier = await settingsService.fetchPriceMultiplier();
-            variComboWithQuantityArray = helperFunctions.calculateAutomaticPrices({
-              combinations: variComboWithQuantityArray,
-              customizationSubTypesList,
-              grossWeight,
-              totalCaratWeight,
-              priceMultiplier,
-            });
-          }
-
-          // Prepare payload
-          const payload = {
-            productName,
-            productNamePrefix,
-            roseGoldThumbnailImage:
-              uploadedRoseGoldThumbnailImage || productData.roseGoldThumbnailImage,
-            roseGoldImages: roseGoldImagesArray,
-            roseGoldVideo: roseGoldVideoFile.length
-              ? uploadedRoseGoldVideo
-              : deletedRoseGoldVideo
-                ? ''
-                : productData.roseGoldVideo || '',
-            yellowGoldThumbnailImage:
-              uploadedYellowGoldThumbnailImage || productData.yellowGoldThumbnailImage,
-            yellowGoldImages: yellowGoldImagesArray,
-            yellowGoldVideo: yellowGoldVideoFile.length
-              ? uploadedYellowGoldVideo
-              : deletedYellowGoldVideo
-                ? ''
-                : productData.yellowGoldVideo || '',
-            whiteGoldThumbnailImage:
-              uploadedWhiteGoldThumbnailImage || productData.whiteGoldThumbnailImage,
-            whiteGoldImages: whiteGoldImagesArray,
-            whiteGoldVideo: whiteGoldVideoFile.length
-              ? uploadedWhiteGoldVideo
-              : deletedWhiteGoldVideo
-                ? ''
-                : productData.whiteGoldVideo || '',
-            sku,
-            saltSKU,
-            discount,
-            collectionIds: Array.isArray(collectionIds)
-              ? collectionIds?.map((id) => id?.trim())
-              : productData.collectionIds,
-            settingStyleIds: Array.isArray(settingStyleIds)
-              ? settingStyleIds?.map((id) => id?.trim())
-              : productData.settingStyleIds,
-            categoryId: categoryId ? categoryId.trim() : productData.categoryId,
-            subCategoryIds,
-            productTypeIds: Array.isArray(productTypeIds)
-              ? productTypeIds?.map((id) => id?.trim())
-              : productData.productTypeIds,
-            gender,
-            netWeight,
-            grossWeight,
-            totalCaratWeight,
-            centerDiamondWeight,
-            sideDiamondWeight,
-            Length,
-            width,
-            lengthUnit,
-            widthUnit,
-            shortDescription: shortDescription
-              ? shortDescription.trim()
-              : productData?.shortDescription || '',
-            description: description ? description.trim() : productData.description,
-            variations: variationsArray,
-            variComboWithQuantity: variComboWithQuantityArray,
-            specifications: Array.isArray(specifications)
-              ? specifications
-              : productData.specifications,
-            active: [true, false].includes(active) ? active : productData.active,
-            priceCalculationMode,
-            isDiamondFilter,
-            diamondFilters: isDiamondFilter ? diamondFilters : null,
-            updatedDate: Date.now(),
-          };
-          // Update product
-          const updatePattern = {
-            url: `${productsUrl}/${productId}`,
-            payload: payload,
-          };
-
-          await fetchWrapperService
-            ._update(updatePattern)
-            .then(async () => {
-              // Delete old files
-              const filesToDelete = [
-                ...deletedRoseGoldImages,
-                deletedRoseGoldVideo || '',
-                ...deletedYellowGoldImages,
-                deletedYellowGoldVideo || '',
-                ...deletedWhiteGoldImages,
-                deletedWhiteGoldVideo || '',
-                uploadedRoseGoldThumbnailImage ? productData.roseGoldThumbnailImage : '',
-                uploadedYellowGoldThumbnailImage ? productData.yellowGoldThumbnailImage : '',
-                uploadedWhiteGoldThumbnailImage ? productData.whiteGoldThumbnailImage : '',
-              ].filter(Boolean);
-
-              if (filesToDelete.length) {
-                await Promise.all(
-                  filesToDelete.map((url) =>
-                    deleteFile(productsUrl, url).catch((e) => {
-                      console.warn(`Failed to delete file ${url}: ${e.message}`);
-                    })
-                  )
-                );
-              }
-
-              resolve(true);
-            })
-            .catch(async (e) => {
-              // Clean up uploaded files on failure
-              const uploadedFiles = [
-                uploadedRoseGoldThumbnailImage,
-                ...uploadedRoseGoldImages.map((img) => img.image),
-                uploadedRoseGoldVideo,
-                uploadedYellowGoldThumbnailImage,
-                ...uploadedYellowGoldImages.map((img) => img.image),
-                uploadedYellowGoldVideo,
-                uploadedWhiteGoldThumbnailImage,
-                ...uploadedWhiteGoldImages.map((img) => img.image),
-                uploadedWhiteGoldVideo,
-              ].filter(Boolean);
-
-              if (uploadedFiles.length) {
-                await Promise.all(
-                  uploadedFiles.map((url) =>
-                    deleteFile(productsUrl, url).catch((e) => {
-                      console.warn(`Failed to delete file ${url}: ${e.message}`);
-                    })
-                  )
-                );
-              }
-
-              reject(new Error(`Failed to update product: ${e.message}`));
-            });
-        } else {
-          reject(new Error('Product data not found'));
+      if (isDiamondFilter) {
+        const diamondFilterErrorMsg = validateDiamondFilters(diamondFilters);
+        if (diamondFilterErrorMsg) {
+          return reject(new Error(diamondFilterErrorMsg));
         }
-      } else {
-        reject(new Error('Invalid Id'));
+        if (!netWeight || isNaN(netWeight)) {
+          return reject(new Error('Invalid Net Weight: Must be a valid number'));
+        }
+        const netWeightString = netWeight.toFixed(2);
+        if (!/^\d+\.\d{2}$/.test(netWeightString)) {
+          return reject(new Error('Net Weight must have exactly two decimal places'));
+        }
+
+        const sideDiamondWeightString = sideDiamondWeight.toFixed(2);
+        if (sideDiamondWeight && !/^\d+\.\d{2}$/.test(sideDiamondWeightString)) {
+          return reject(new Error('Side Diamond Weight must have exactly two decimal places'));
+        }
       }
+
+      // Check for duplicate productName or sku
+      const filterParams = {
+        productName: productName,
+        sku: sku,
+      };
+      const findPattern = {
+        url: productsUrl,
+        id: productId,
+        filterParams: filterParams,
+      };
+      const duplicateData = await fetchWrapperService.findManyWithNotEqual(findPattern);
+      if (duplicateData.length) {
+        return reject(new Error('Product name or SKU already exists'));
+      }
+
+      // Validate arrays
+      if (collectionIds?.length) {
+        const hasInvalidValues = collectionIds.some((id) => !id);
+        if (hasInvalidValues)
+          return reject(new Error('Invalid value found in collectionIds array'));
+      }
+      if (settingStyleIds?.length) {
+        const hasInvalidValues = settingStyleIds.some((id) => !id);
+        if (hasInvalidValues)
+          return reject(new Error('Invalid value found in settingStyleIds array'));
+      }
+
+      if (subCategoryIds?.length) {
+        const hasInvalidValues = subCategoryIds.some((id) => !id);
+        if (hasInvalidValues)
+          return reject(new Error('Invalid value found in subCategoryIds array'));
+      }
+
+      if (productTypeIds?.length) {
+        const hasInvalidValues = productTypeIds.some((id) => !id);
+        if (hasInvalidValues)
+          return reject(new Error('Invalid value found in productTypeIds array'));
+      }
+      if (specifications?.length) {
+        const isSpecTitleValid = helperFunctions.isValidKeyName(specifications, 'title');
+        const isSpecDescValid = helperFunctions.isValidKeyName(specifications, 'description');
+        if (!isSpecTitleValid || !isSpecDescValid) {
+          return reject(new Error('Specifications data not valid'));
+        }
+      }
+
+      // Handle variations and combinations
+      variations = Array.isArray(variations) ? variations : [];
+      const variationsArray =
+        variations.length && !isInValidVariationsArray(variations)
+          ? getVariationsArray(variations)
+          : productData.variations;
+
+      variComboWithQuantity = Array.isArray(variComboWithQuantity) ? variComboWithQuantity : [];
+      let variComboWithQuantityArray =
+        variComboWithQuantity.length && !isInValidVariComboWithQuantityArray(variComboWithQuantity)
+          ? getVariComboWithQuantityArray(variComboWithQuantity)
+          : productData.variComboWithQuantity;
+
+      // Apply automatic price calculations if enabled
+      if (priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC) {
+        const customizationSubTypesList = await customizationSubTypeService.getAllSubTypes();
+        const priceMultiplier = await settingsService.fetchPriceMultiplier();
+        variComboWithQuantityArray = helperFunctions.calculateAutomaticPrices({
+          combinations: variComboWithQuantityArray,
+          customizationSubTypesList,
+          grossWeight,
+          totalCaratWeight,
+          priceMultiplier,
+        });
+      }
+
+      const existingMediaMapping = productData.mediaMapping || [];
+
+      const {
+        mediaMapping: newMediaMapping,
+        updatedCombos,
+        filesToDelete,
+        newlyUploadedUrls: NewUrls, // ← Use this for rollback
+      } = await processMediaMappingFromParams({
+        mediaMappingParam: params.mediaMapping || [],
+        variCombos: variComboWithQuantityArray,
+        productId,
+        existingMediaMapping,
+      });
+
+      newlyUploadedUrls = NewUrls;
+
+      // Prepare payload
+      const payload = {
+        productName,
+        productNamePrefix,
+        sku,
+        saltSKU,
+        discount,
+        collectionIds: Array.isArray(collectionIds)
+          ? collectionIds?.map((id) => id?.trim())
+          : productData.collectionIds,
+        settingStyleIds: Array.isArray(settingStyleIds)
+          ? settingStyleIds?.map((id) => id?.trim())
+          : productData.settingStyleIds,
+        categoryId: categoryId ? categoryId.trim() : productData.categoryId,
+        subCategoryIds,
+        productTypeIds: Array.isArray(productTypeIds)
+          ? productTypeIds?.map((id) => id?.trim())
+          : productData.productTypeIds,
+        gender,
+        netWeight,
+        grossWeight,
+        totalCaratWeight,
+        centerDiamondWeight,
+        sideDiamondWeight,
+        Length,
+        width,
+        lengthUnit,
+        widthUnit,
+        shortDescription: shortDescription
+          ? shortDescription.trim()
+          : productData?.shortDescription || '',
+        description: description ? description.trim() : productData.description,
+        variations: variationsArray,
+        variComboWithQuantity: variComboWithQuantityArray,
+        specifications: Array.isArray(specifications) ? specifications : productData.specifications,
+        active: [true, false].includes(active) ? active : productData.active,
+        priceCalculationMode,
+        isDiamondFilter,
+        diamondFilters: isDiamondFilter ? diamondFilters : null,
+        mediaMapping: newMediaMapping,
+        variComboWithQuantity: updatedCombos,
+        updatedDate: Date.now(),
+      };
+
+      // Update product
+      await fetchWrapperService._update({ url: `${productsUrl}/${productId}`, payload });
+
+      // Delete old files
+      if (filesToDelete.length) {
+        await Promise.all(
+          filesToDelete.map((url) =>
+            deleteFile(productStoragePath, url).catch((e) => {
+              console.warn(`Failed to delete file ${url}: ${e.message}`);
+            })
+          )
+        );
+      }
+
+      resolve(true);
     } catch (e) {
-      reject(new Error(`Update failed: ${e?.message}`));
+      if (newlyUploadedUrls?.length) {
+        await Promise.all(
+          newlyUploadedUrls.map((url) =>
+            deleteFile(productStoragePath, url).catch((e) => {
+              console.warn(`Failed to delete file ${url}: ${e.message}`);
+            })
+          )
+        );
+      }
+      reject(new Error(`Update failed: ${e?.message || e}`));
     }
   });
 };
@@ -4664,9 +3417,6 @@ export const productService = {
   deleteProduct,
   getSingleProduct,
   activeDeactiveProduct,
-  updateRoseGoldMedia,
-  updateYellowGoldMedia,
-  updateWhiteGoldMedia,
   updateProduct,
   searchProducts,
   updateProductQtyForReturn,

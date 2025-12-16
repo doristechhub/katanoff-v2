@@ -14,7 +14,7 @@ import { helperFunctions } from 'src/_helpers';
 import { createProduct, updateProduct } from 'src/actions';
 import { Button, LoadingButton } from 'src/components/button';
 import { TextField, TableCell, TableRow, Stack, Typography } from '@mui/material';
-import { PRICE_CALCULATION_MODES } from 'src/_helpers/constants';
+import { DIAMOND_SHAPE, GOLD_COLOR, PRICE_CALCULATION_MODES } from 'src/_helpers/constants';
 import InfiniteScrollTable from 'src/components/Infinite-scroll-table/InfiniteScrollTable';
 
 // ----------------------------------------------------------------------
@@ -82,20 +82,58 @@ const CombinationDialog = ({
     }
   }, []);
 
+  const extractFiles = (previewArray) => {
+    if (!Array.isArray(previewArray)) return [];
+    return previewArray
+      .map((item) => item?.file || item) // FileDrop stores raw File in .file
+      .filter(Boolean);
+  };
+
+  const extractSingleFile = (previewArray) => {
+    return previewArray?.[0]?.file || previewArray?.[0] || null;
+  };
+
   const onSubmit = async (values, { setStatus }) => {
+    // Build mediaMapping with files + generate mediaSetId from variationTypeIds
+    const mediaMappingPayload = fields?.mediaMapping?.map((mediaSet) => {
+      const matchingCombinations =
+        values?.variComboWithQuantity
+          ?.filter((combo) => {
+            const hasGold = combo.combination.some(
+              (c) =>
+                c.variationName === GOLD_COLOR.title && c.variationTypeName === mediaSet.goldColor
+            );
+            const hasDiamond = combo.combination.some(
+              (c) =>
+                c.variationName === DIAMOND_SHAPE.title &&
+                c.variationTypeName === mediaSet.diamondShape.name
+            );
+
+            return hasGold && hasDiamond;
+          })
+          .map((combo) => ({ combination: combo.combination })) ?? [];
+
+      // Extract actual File objects from FileDrop components
+      const thumbnailImageFile = extractSingleFile(mediaSet.thumbnailImageFile);
+      const imageFiles = extractFiles(mediaSet.imageFiles);
+      const videoFile = extractSingleFile(mediaSet.videoFile);
+
+      return {
+        mediaSetId: mediaSet.mediaSetId,
+        name: mediaSet.name,
+        matchingCombinations,
+        thumbnailImageFile,
+        imageFiles,
+        deletedImages: mediaSet.deletedImages?.map((item) => item?.image),
+        videoFile,
+        deleteUploadedVideo: mediaSet.deleteUploadedVideo[0]?.video,
+      };
+    });
+
     const payload = {
       saltSKU: fields?.saltSKU,
       sku: fields?.sku,
       discount: fields?.discount,
-      roseGoldImageFiles: fields?.roseGoldImageFiles,
-      roseGoldThumbnailImageFile: fields?.roseGoldThumbnailImageFile?.[0],
-      roseGoldVideoFile: fields?.roseGoldVideoFile?.[0],
-      yellowGoldImageFiles: fields?.yellowGoldImageFiles,
-      yellowGoldThumbnailImageFile: fields?.yellowGoldThumbnailImageFile?.[0],
-      yellowGoldVideoFile: fields?.yellowGoldVideoFile?.[0],
-      whiteGoldImageFiles: fields?.whiteGoldImageFiles,
-      whiteGoldThumbnailImageFile: fields?.whiteGoldThumbnailImageFile?.[0],
-      whiteGoldVideoFile: fields?.whiteGoldVideoFile?.[0],
       variations: fields?.variations,
       categoryId: fields?.categoryId,
       productName: fields?.productName,
@@ -122,12 +160,7 @@ const CombinationDialog = ({
       isDiamondFilter: fields?.isDiamondFilter,
       diamondFilters: fields?.diamondFilters,
       priceCalculationMode: fields?.priceCalculationMode,
-      deletedRoseGoldImages: fields?.roseGoldUploadedDeletedImages?.map((item) => item?.image),
-      deletedRoseGoldVideo: fields?.roseGoldDeleteUploadedVideo?.[0]?.video,
-      deletedYellowGoldImages: fields?.yellowGoldUploadedDeletedImages?.map((item) => item?.image),
-      deletedYellowGoldVideo: fields?.yellowGoldDeleteUploadedVideo?.[0]?.video,
-      deletedWhiteGoldImages: fields?.whiteGoldUploadedDeletedImages?.map((item) => item?.image),
-      deletedWhiteGoldVideo: fields?.whiteGoldDeleteUploadedVideo?.[0]?.video,
+      mediaMapping: mediaMappingPayload,
     };
     setStatus();
 

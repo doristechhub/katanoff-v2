@@ -1,8 +1,6 @@
 import axios from "axios";
 import {
   fetchWrapperService,
-  GOLD_COLOR,
-  GOLD_COLOR_MAP,
   helperFunctions,
   ordersUrl,
   productsUrl,
@@ -57,7 +55,7 @@ const getAllOrderList = () => {
           ).length;
           const hasActiveReturns =
             isPendingOrApprovedOrReceivedReturnsCount ||
-            (rejectedCount > 0 && rejectedCount > 2)
+              (rejectedCount > 0 && rejectedCount > 2)
               ? false
               : true;
           return {
@@ -392,19 +390,15 @@ const processOrderProductItem = ({
   });
   const diamondDetail = orderProductItem?.diamondDetail
     ? {
-        ...orderProductItem?.diamondDetail,
-        shapeName: diamondShapeList?.find(
-          (shape) => shape.id === orderProductItem?.diamondDetail?.shapeId
-        )?.title,
-      }
+      ...orderProductItem?.diamondDetail,
+      shapeName: diamondShapeList?.find(
+        (shape) => shape.id === orderProductItem?.diamondDetail?.shapeId
+      )?.title,
+    }
     : null;
 
-  const goldColor = variationArray
-    .find((v) => v.variationName === GOLD_COLOR)
-    ?.variationTypeName?.toLowerCase();
-  const thumbnailField =
-    GOLD_COLOR_MAP[goldColor] || "yellowGoldThumbnailImage";
-  const thumbnailImage = findedProduct[thumbnailField];
+  const thumbnailImage = helperFunctions.getThumbnailForSelectedVariations(findedProduct, variationArray);
+
   return {
     ...orderProductItem,
     productSku: findedProduct.saltSKU,

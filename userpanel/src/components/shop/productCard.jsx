@@ -5,6 +5,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 
 export default function ProductCard({
   goldColorVariations = [],
+  diamondShapeVariations = [],
   goldTypeVariations = [],
   title,
   discount,
@@ -69,37 +70,57 @@ export default function ProductCard({
   );
 
   useEffect(() => {
-    if (goldColorVariations?.length > 0) {
+    if (!selectedGoldColor && goldColorVariations?.length > 0) {
       if (selectedFilterGoldColor.length > 0) {
-        // pick the last added filter color
         const lastSelected =
           selectedFilterGoldColor[selectedFilterGoldColor.length - 1];
+
         const match = goldColorVariations.find(
           (x) => x.variationTypeName === lastSelected
         );
+
         if (match) {
           setSelectedGoldColor(match.variationTypeName);
           return;
         }
       }
-      // fallback if no filter
-      setSelectedGoldColor(goldColorVariations?.[0].variationTypeName);
-    }
-  }, [goldColorVariations, selectedFilterGoldColor]);
 
-  const computedProductLink = useMemo(
-    () =>
-      productLink
-        ? `${productLink}?goldColor=${helperFunctions.stringReplacedWithUnderScore(
-            selectedGoldColor
-          )}`
-        : `/products/${helperFunctions.stringReplacedWithUnderScore(
-            title
-          )}?goldColor=${helperFunctions.stringReplacedWithUnderScore(
-            selectedGoldColor
-          )}`,
-    [productLink, title, selectedGoldColor]
-  );
+      setSelectedGoldColor(goldColorVariations[0].variationTypeName);
+    }
+  }, [goldColorVariations]);
+
+  const computedProductLink = useMemo(() => {
+    const baseUrl = productLink
+      ? productLink
+      : `/products/${helperFunctions.stringReplacedWithUnderScore(title)}`;
+
+    const params = new URLSearchParams();
+
+    if (selectedGoldColor) {
+      params.set(
+        "goldColor",
+        helperFunctions.stringReplacedWithUnderScore(selectedGoldColor)
+      );
+    }
+
+    if (!isDiamondSettingPage && diamondShapeVariations?.length) {
+      params.set(
+        "diamondShape",
+        helperFunctions.stringReplacedWithUnderScore(
+          diamondShapeVariations[0]?.variationTypeName
+        )
+      );
+    }
+
+    const queryString = params.toString();
+    return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+  }, [
+    productLink,
+    title,
+    selectedGoldColor,
+    isDiamondSettingPage,
+    diamondShapeVariations,
+  ]);
 
   // Compute image source
   const imageSrc = useMemo(() => {

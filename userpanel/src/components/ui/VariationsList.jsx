@@ -14,6 +14,7 @@ import {
   GOLD_COLOR,
   GOLD_TYPES,
   helperFunctions,
+  HOVER_PREVIEW_VARIATION_NAMES,
   LENGTH,
   RING_SIZE,
 } from "@/_helper";
@@ -85,8 +86,8 @@ const VariationsList = ({
   productDetail = {},
   selectedVariations,
   handleSelect,
-  setHoveredColor,
-  hoveredColor,
+  setHoveredVariation,
+  hoveredVariation,
   isCustomizePage,
 }) => {
   const searchParams = useSearchParams();
@@ -94,7 +95,7 @@ const VariationsList = ({
 
   const { variations, diamondFilters } = productDetail;
   const dispatch = useDispatch();
-  const debouncedSetHoveredColor = useDebounce(setHoveredColor, 100);
+  // const debouncedSetHoveredColor = useDebounce(setHoveredColor, 100);
   const { customProductDetails } = useSelector(({ common }) => common);
   const { customizeProductSettings } = useSelector(
     ({ selectedDiamond }) => selectedDiamond
@@ -471,6 +472,15 @@ const VariationsList = ({
               // Render buttons/color/image for other types
               <div className="flex flex-wrap gap-4 md:gap-6 items-start lg:items-center">
                 {variation?.variationTypes?.map((type) => {
+                  const isHoverEnabled = HOVER_PREVIEW_VARIATION_NAMES.includes(
+                    variation?.variationName
+                  );
+
+                  const isHovered =
+                    isHoverEnabled &&
+                    hoveredVariation?.variationId === variation.variationId &&
+                    hoveredVariation?.variationTypeId === type.variationTypeId;
+
                   const selected = isSelected(
                     variation?.variationId,
                     type?.variationTypeId
@@ -482,18 +492,14 @@ const VariationsList = ({
                         <div className="relative flex flex-col items-center">
                           <button
                             className={`relative w-16 3xl:w-[72px] h-8 transition-all flex items-center justify-center outline-1 ${
-                              selected ||
-                              hoveredColor?.toLowerCase() ===
-                                type.variationTypeName?.toLowerCase()
+                              selected || isHovered
                                 ? "outline outline-grayborder"
                                 : "outline-none"
                             }`}
                             style={{
                               backgroundColor: type?.variationTypeHexCode,
                               boxShadow:
-                                selected ||
-                                hoveredColor?.toLowerCase() ===
-                                  type.variationTypeName?.toLowerCase()
+                                selected || isHovered
                                   ? "0 0 5px 2px #fff"
                                   : "none",
                               outlineOffset: "4px",
@@ -505,6 +511,7 @@ const VariationsList = ({
                                 variationName: variation?.variationName,
                                 variationTypeName: type?.variationTypeName,
                               });
+
                               const params = new URLSearchParams(
                                 searchParams.toString()
                               );
@@ -522,10 +529,17 @@ const VariationsList = ({
                                 : window.location.pathname;
                               router.replace(newURL, { scroll: false });
                             }}
-                            onMouseEnter={() =>
-                              debouncedSetHoveredColor(type.variationTypeName)
-                            }
-                            onMouseLeave={() => debouncedSetHoveredColor("")}
+                            onMouseEnter={() => {
+                              if (!isHoverEnabled) return;
+                              setHoveredVariation({
+                                variationId: variation.variationId,
+                                variationTypeId: type.variationTypeId,
+                              });
+                            }}
+                            onMouseLeave={() => {
+                              if (!isHoverEnabled) return;
+                              setHoveredVariation(null);
+                            }}
                           />
                         </div>
                       ) : type?.type === "image" ? (
@@ -536,14 +550,46 @@ const VariationsList = ({
                                 ? "border-grayborder text-baseblack border"
                                 : "border-transparent border"
                             } hover:!border-grayborder`}
-                            onClick={() =>
+                            onClick={() => {
                               handleSelect({
                                 variationId: variation?.variationId,
                                 variationTypeId: type?.variationTypeId,
                                 variationName: variation?.variationName,
                                 variationTypeName: type?.variationTypeName,
-                              })
-                            }
+                              });
+
+                              if (variation?.variationName === DIAMOND_SHAPE && !isCustomizePage) {
+                                const params = new URLSearchParams(
+                                  searchParams.toString()
+                                );
+
+                                params.set(
+                                  "diamondShape",
+                                  helperFunctions?.stringReplacedWithUnderScore(
+                                    type?.variationTypeName
+                                  )
+                                );
+
+                                const queryString = params.toString();
+                                router.replace(
+                                  queryString
+                                    ? `?${queryString}`
+                                    : window.location.pathname,
+                                  { scroll: false }
+                                );
+                              }
+                            }}
+                            onMouseEnter={() => {
+                              if (!isHoverEnabled) return;
+                              setHoveredVariation({
+                                variationId: variation.variationId,
+                                variationTypeId: type.variationTypeId,
+                              });
+                            }}
+                            onMouseLeave={() => {
+                              if (!isHoverEnabled) return;
+                              setHoveredVariation(null);
+                            }}
                           >
                             <CustomImg
                               srcAttr={type?.variationTypeImage}

@@ -7,7 +7,7 @@ import {
   sanitizeObject,
 } from "../_helper";
 import { productService } from "./product.service";
-import { GOLD_COLOR, GOLD_TYPES } from "../_helper/constants";
+import { DIAMOND_SHAPE, GOLD_COLOR, GOLD_TYPES } from "../_helper/constants";
 
 // const productsUrl = process.env.REACT_APP_PRODUCTS;
 // const recentlyViewedUrl = process.env.REACT_APP_RECENTLY_VIEWED;
@@ -42,16 +42,17 @@ const getAllRecentlyViewedWithProduct = () => {
           const { price = 0 } = helperFunctions.getMinPriceVariCombo(
             foundProduct?.variComboWithQuantity
           );
+          const { white, yellow, rose } = helperFunctions?.getGoldColorWiseMedia(foundProduct);
           return {
             id: recentlyViewedItem.id,
             productId: recentlyViewedItem.productId,
             productName: foundProduct?.productName,
-            whiteGoldImages: foundProduct?.whiteGoldImages,
-            yellowGoldImages: foundProduct?.yellowGoldImages,
-            roseGoldImages: foundProduct?.roseGoldImages,
-            whiteGoldThumbnailImage: foundProduct?.whiteGoldThumbnailImage,
-            yellowGoldThumbnailImage: foundProduct?.yellowGoldThumbnailImage,
-            roseGoldThumbnailImage: foundProduct?.roseGoldThumbnailImage,
+            whiteGoldThumbnailImage: white?.thumbnail,
+            yellowGoldThumbnailImage: yellow?.thumbnail,
+            roseGoldThumbnailImage: rose?.thumbnail,
+            whiteGoldImages: white?.images,
+            yellowGoldImages: yellow?.images,
+            roseGoldImages: rose?.images,
             basePrice: price,
             baseSellingPrice: helperFunctions.getSellingPrice({
               price,
@@ -65,6 +66,10 @@ const getAllRecentlyViewedWithProduct = () => {
             )?.variationTypes,
             goldColorVariations: foundProduct?.variations?.find(
               (x) => x?.variationName.toLowerCase() === GOLD_COLOR.toLowerCase()
+            )?.variationTypes,
+            diamondShapeVariations: product?.variations?.find(
+              (x) =>
+                x?.variationName?.toLowerCase() === DIAMOND_SHAPE?.toLowerCase()
             )?.variationTypes,
             gender: foundProduct?.gender,
             productTypeNames: foundProduct?.productTypeNames,

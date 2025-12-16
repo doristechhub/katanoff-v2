@@ -21,7 +21,6 @@ import { productService } from './product.service';
 import fileSettings from '../_utils/fileSettings';
 import { refundStatuses } from 'src/store/slices/refundSlice';
 import { diamondShapeService } from './diamondShape.service';
-import { GOLD_COLOR_MAP } from 'src/_helpers/constants';
 
 const uploadImageFileType = fileSettings.IMAGE_FILE_NAME;
 
@@ -123,11 +122,8 @@ const getReturnDetailByReturnId = (returnId) => {
             customizationSubTypes.find((s) => s?.id === v?.variationTypeId)?.title || 'Unknown',
         }));
 
-        const goldColor = variations
-          .find((v) => v.variationName === 'Gold Color')
-          ?.variationTypeName?.toLowerCase();
-        const thumbnailField = GOLD_COLOR_MAP[goldColor] || 'yellowGoldThumbnailImage';
-        const thumbnailImage = product[thumbnailField];
+        const thumbnailImage = helperFunctions.getThumbnailForSelectedVariations(product, variations)
+
 
         const perQuantityDiscountAmount = Number(
           helperFunctions?.splitDiscountAmongProducts({

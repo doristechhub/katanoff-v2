@@ -9,7 +9,6 @@ import {
 import { productService } from "./product.service";
 import {
   GOLD_COLOR,
-  GOLD_COLOR_MAP,
   GOLD_TYPES,
   LENGTH,
   MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT,
@@ -236,19 +235,15 @@ const getAllCartWithProduct = () => {
 
           const diamondDetail = cartItem?.diamondDetail
             ? {
-                ...cartItem?.diamondDetail,
-                shapeName: findedProduct?.diamondFilters?.diamondShapes?.find(
-                  (shape) => shape?.id === cartItem?.diamondDetail?.shapeId
-                )?.title,
-              }
+              ...cartItem?.diamondDetail,
+              shapeName: findedProduct?.diamondFilters?.diamondShapes?.find(
+                (shape) => shape?.id === cartItem?.diamondDetail?.shapeId
+              )?.title,
+            }
             : null;
 
-          const goldColor = variationArray
-            .find((v) => v.variationName === GOLD_COLOR)
-            ?.variationTypeName?.toLowerCase();
-          const thumbnailField =
-            GOLD_COLOR_MAP[goldColor] || "yellowGoldThumbnailImage";
-          const thumbnailImage = findedProduct[thumbnailField];
+          const thumbnailImage = helperFunctions.getThumbnailForSelectedVariations(findedProduct, variationArray);
+
           return {
             ...cartItem,
             productNamePrefix: findedProduct?.productNamePrefix,
@@ -389,7 +384,7 @@ const insertProductIntoCart = (params) => {
             return (
               cartItem?.diamondDetail?.shapeId === diamondDetail?.shapeId &&
               cartItem?.diamondDetail?.caratWeight ===
-                diamondDetail?.caratWeight &&
+              diamondDetail?.caratWeight &&
               cartItem?.diamondDetail?.clarity === diamondDetail?.clarity &&
               cartItem?.diamondDetail?.color === diamondDetail?.color
             );
@@ -572,7 +567,7 @@ const insertMultipleProductsIntoCart = (params) => {
               return (
                 cartItem?.diamondDetail?.shapeId === diamondDetail?.shapeId &&
                 cartItem?.diamondDetail?.caratWeight ===
-                  diamondDetail?.caratWeight &&
+                diamondDetail?.caratWeight &&
                 cartItem?.diamondDetail?.clarity === diamondDetail?.clarity &&
                 cartItem?.diamondDetail?.color === diamondDetail?.color
               );

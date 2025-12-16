@@ -7,6 +7,7 @@ import {
   sanitizeObject,
 } from "../_helper";
 import {
+  DIAMOND_SHAPE,
   GENERAL,
   GIFTS_FOR_HER,
   GIFTS_FOR_HIM,
@@ -52,20 +53,20 @@ const getAllActiveProducts = () => {
 
           diamondFilters: product.isDiamondFilter
             ? {
-                ...product?.diamondFilters,
-                diamondShapes: product?.diamondFilters.diamondShapeIds?.map(
-                  (shapeId) => {
-                    const foundedShape = diamondShapeList?.find(
-                      (shape) => shape?.id === shapeId
-                    );
-                    return {
-                      title: foundedShape?.title,
-                      image: foundedShape?.image,
-                      id: foundedShape?.id,
-                    };
-                  }
-                ),
-              }
+              ...product?.diamondFilters,
+              diamondShapes: product?.diamondFilters.diamondShapeIds?.map(
+                (shapeId) => {
+                  const foundedShape = diamondShapeList?.find(
+                    (shape) => shape?.id === shapeId
+                  );
+                  return {
+                    title: foundedShape?.title,
+                    image: foundedShape?.image,
+                    id: foundedShape?.id,
+                  };
+                }
+              ),
+            }
             : product?.diamondFilters,
           categoryName:
             menuData.categories.find(
@@ -124,31 +125,31 @@ const getActiveProductsByIds = (productIds) => {
         .map((product) => {
           const diamondShapes = product.isDiamondFilter
             ? product?.diamondFilters?.diamondShapeIds?.map((shapeId) => {
-                const foundedShape = diamondShapeList?.find(
-                  (shape) => shape?.id === shapeId
-                );
-                if (!foundedShape) {
-                  return {
-                    title: "Unknown Shape",
-                    image: null,
-                    id: shapeId,
-                  };
-                }
+              const foundedShape = diamondShapeList?.find(
+                (shape) => shape?.id === shapeId
+              );
+              if (!foundedShape) {
                 return {
-                  title: foundedShape?.title,
-                  image: foundedShape?.image,
-                  id: foundedShape?.id,
+                  title: "Unknown Shape",
+                  image: null,
+                  id: shapeId,
                 };
-              }) || []
+              }
+              return {
+                title: foundedShape?.title,
+                image: foundedShape?.image,
+                id: foundedShape?.id,
+              };
+            }) || []
             : [];
 
           return {
             ...product,
             diamondFilters: product.isDiamondFilter
               ? {
-                  ...product?.diamondFilters,
-                  diamondShapes,
-                }
+                ...product?.diamondFilters,
+                diamondShapes,
+              }
               : product?.diamondFilters || {},
           };
         });
@@ -168,17 +169,18 @@ const getLatestProducts = (length = 8) => {
         .sortByField(allActiveProductsData)
         .slice(0, length)
         .map((product) => {
+          const { white, yellow, rose } = helperFunctions?.getGoldColorWiseMedia(product);
           const { price = 0 } = helperFunctions.getMinPriceVariCombo(
             product.variComboWithQuantity
           );
           return {
             productName: product.productName,
-            whiteGoldThumbnailImage: product?.whiteGoldThumbnailImage,
-            yellowGoldThumbnailImage: product?.yellowGoldThumbnailImage,
-            roseGoldThumbnailImage: product?.roseGoldThumbnailImage,
-            whiteGoldImages: product?.whiteGoldImages,
-            yellowGoldImages: product?.yellowGoldImages,
-            roseGoldImages: product?.roseGoldImages,
+            whiteGoldThumbnailImage: white?.thumbnail,
+            yellowGoldThumbnailImage: yellow?.thumbnail,
+            roseGoldThumbnailImage: rose?.thumbnail,
+            whiteGoldImages: white?.images,
+            yellowGoldImages: yellow?.images,
+            roseGoldImages: rose?.images,
             id: product.id,
             basePrice: helperFunctions?.roundOffPrice(price),
             baseSellingPrice: helperFunctions?.getSellingPrice({
@@ -193,6 +195,10 @@ const getLatestProducts = (length = 8) => {
             goldColorVariations: product?.variations?.find(
               (x) =>
                 x?.variationName?.toLowerCase() === GOLD_COLOR?.toLowerCase()
+            )?.variationTypes,
+            diamondShapeVariations: product?.variations?.find(
+              (x) =>
+                x?.variationName?.toLowerCase() === DIAMOND_SHAPE?.toLowerCase()
             )?.variationTypes,
             gender: product?.gender,
             productTypeNames: product?.productTypeNames,
@@ -420,19 +426,24 @@ const getCollectionsTypeWiseProduct = (
       const collectionTypeWiseProductsList = helperFunctions
         .sortByField(filteredData)
         .map((product) => {
+          const { white, yellow, rose } = helperFunctions?.getGoldColorWiseMedia(product);
+
           const { price = 0 } = helperFunctions.getMinPriceVariCombo(
             product.variComboWithQuantity
           );
           return {
             productName: product.productName,
+            mediaMapping: product.mediaMapping ? product.mediaMapping : [],
             productNamePrefix: product.productNamePrefix,
             isDiamondFilter: product?.isDiamondFilter || false,
-            whiteGoldThumbnailImage: product?.whiteGoldThumbnailImage,
-            yellowGoldThumbnailImage: product?.yellowGoldThumbnailImage,
-            roseGoldThumbnailImage: product?.roseGoldThumbnailImage,
-            whiteGoldImages: product?.whiteGoldImages,
-            yellowGoldImages: product?.yellowGoldImages,
-            roseGoldImages: product?.roseGoldImages,
+
+            whiteGoldThumbnailImage: white?.thumbnail,
+            yellowGoldThumbnailImage: yellow?.thumbnail,
+            roseGoldThumbnailImage: rose?.thumbnail,
+            whiteGoldImages: white?.images,
+            yellowGoldImages: yellow?.images,
+            roseGoldImages: rose?.images,
+
             id: product.id,
             gender: product.gender,
             basePrice: helperFunctions?.roundOffPrice(price),
@@ -450,6 +461,10 @@ const getCollectionsTypeWiseProduct = (
             goldColorVariations: product?.variations?.find(
               (x) =>
                 x?.variationName?.toLowerCase() === GOLD_COLOR?.toLowerCase()
+            )?.variationTypes,
+            diamondShapeVariations: product?.variations?.find(
+              (x) =>
+                x?.variationName?.toLowerCase() === DIAMOND_SHAPE?.toLowerCase()
             )?.variationTypes,
             settingStyleNamesWithImg: product?.settingStyleNamesWithImg,
             categoryName: product.categoryName,
@@ -645,13 +660,13 @@ const getProcessProducts = async (singleProductData) => {
 
     convertedProductData.subCategoryNames = subCategoryIds.length
       ? subCategoryIds
-          .map((id) => {
-            const subCategory = menuData.subCategories.find(
-              (subCategory) => subCategory.id === id
-            );
-            return subCategory ? subCategory : null;
-          })
-          .filter(Boolean)
+        .map((id) => {
+          const subCategory = menuData.subCategories.find(
+            (subCategory) => subCategory.id === id
+          );
+          return subCategory ? subCategory : null;
+        })
+        .filter(Boolean)
       : [];
 
     if (convertedProductData?.productTypeIds?.length) {
@@ -683,10 +698,10 @@ const getProcessProducts = async (singleProductData) => {
             );
             return foundShape
               ? {
-                  title: foundShape?.title,
-                  image: foundShape?.image,
-                  id: foundShape?.id,
-                }
+                title: foundShape?.title,
+                image: foundShape?.image,
+                id: foundShape?.id,
+              }
               : null;
           })
           .filter(Boolean),
@@ -765,16 +780,16 @@ const getSimilarProducts = (productName) => {
               const { price = 0 } = helperFunctions.getMinPriceVariCombo(
                 foundProduct.variComboWithQuantity
               );
+              const { white, yellow, rose } = helperFunctions?.getGoldColorWiseMedia(foundProduct);
               return {
                 id: foundProduct.id,
                 productName: foundProduct?.productName,
-                whiteGoldImages: foundProduct?.whiteGoldImages,
-                yellowGoldImages: foundProduct?.yellowGoldImages,
-                roseGoldImages: foundProduct?.roseGoldImages,
-                whiteGoldThumbnailImage: foundProduct?.whiteGoldThumbnailImage,
-                yellowGoldThumbnailImage:
-                  foundProduct?.yellowGoldThumbnailImage,
-                roseGoldThumbnailImage: foundProduct?.roseGoldThumbnailImage,
+                whiteGoldThumbnailImage: white?.thumbnail,
+                yellowGoldThumbnailImage: yellow?.thumbnail,
+                roseGoldThumbnailImage: rose?.thumbnail,
+                whiteGoldImages: white?.images,
+                yellowGoldImages: yellow?.images,
+                roseGoldImages: rose?.images,
                 basePrice: price,
                 baseSellingPrice: helperFunctions.getSellingPrice({
                   price,
@@ -790,6 +805,10 @@ const getSimilarProducts = (productName) => {
                   (x) =>
                     x?.variationName?.toLowerCase() ===
                     GOLD_COLOR?.toLowerCase()
+                )?.variationTypes,
+                diamondShapeVariations: foundProduct?.variations?.find(
+                  (x) =>
+                    x?.variationName?.toLowerCase() === DIAMOND_SHAPE?.toLowerCase()
                 )?.variationTypes,
                 gender: foundProduct?.gender,
                 productTypeNames: foundProduct?.productTypeNames,
@@ -924,17 +943,17 @@ const getFilteredDiamondProducts = (params) => {
           // Filter by product type
           const isProductTypeValid = selectedProductTypes?.length
             ? selectedProductTypes.some((type) =>
-                product?.productTypeNames.some(
-                  (pt) => pt?.title === type?.value
-                )
+              product?.productTypeNames.some(
+                (pt) => pt?.title === type?.value
               )
+            )
             : true;
 
           // Filter by collection
           const isCollectionValid = selectedCollections?.length
             ? selectedCollections.some((collection) =>
-                product?.collectionNames?.includes(collection?.value)
-              )
+              product?.collectionNames?.includes(collection?.value)
+            )
             : true;
 
           // Filter by setting style
@@ -943,32 +962,32 @@ const getFilteredDiamondProducts = (params) => {
           );
           const isSettingStyleValid = selectedSettingStyles?.length
             ? selectedSettingStyles.some((style) =>
-                settingStyleNames?.includes(style?.value)
-              )
+              settingStyleNames?.includes(style?.value)
+            )
             : true;
 
           // Filter by variations
           const isVariationValid = selectedVariations?.length
             ? selectedVariations.every((selectedVariation) => {
-                const productVariation = product?.variations?.find(
-                  (v) =>
-                    v?.variationName?.toLowerCase() ===
-                    selectedVariation?.title?.toLowerCase()
-                );
+              const productVariation = product?.variations?.find(
+                (v) =>
+                  v?.variationName?.toLowerCase() ===
+                  selectedVariation?.title?.toLowerCase()
+              );
 
-                if (!productVariation) return false;
+              if (!productVariation) return false;
 
-                // Check if any selected value matches the product's variation types
-                return selectedVariation.selectedValues.length
-                  ? selectedVariation.selectedValues.some((selectedValue) =>
-                      productVariation.variationTypes.some(
-                        (variationType) =>
-                          variationType?.variationTypeName?.toLowerCase() ===
-                          selectedValue?.value?.toLowerCase()
-                      )
-                    )
-                  : true;
-              })
+              // Check if any selected value matches the product's variation types
+              return selectedVariation.selectedValues.length
+                ? selectedVariation.selectedValues.some((selectedValue) =>
+                  productVariation.variationTypes.some(
+                    (variationType) =>
+                      variationType?.variationTypeName?.toLowerCase() ===
+                      selectedValue?.value?.toLowerCase()
+                  )
+                )
+                : true;
+            })
             : true;
 
           // Filter by price range
@@ -977,10 +996,10 @@ const getFilteredDiamondProducts = (params) => {
           );
           const isPriceValid = priceRangeValues?.length
             ? productPrices.some(
-                (price) =>
-                  price >= (priceRangeValues[0] || 0) &&
-                  price <= (priceRangeValues[1] || Infinity)
-              )
+              (price) =>
+                price >= (priceRangeValues[0] || 0) &&
+                price <= (priceRangeValues[1] || Infinity)
+            )
             : true;
 
           return (
@@ -1020,6 +1039,10 @@ const getFilteredDiamondProducts = (params) => {
             goldColorVariations: product?.variations?.find(
               (x) =>
                 x?.variationName?.toLowerCase() === GOLD_COLOR?.toLowerCase()
+            )?.variationTypes,
+            diamondShapeVariations: product?.variations?.find(
+              (x) =>
+                x?.variationName?.toLowerCase() === DIAMOND_SHAPE?.toLowerCase()
             )?.variationTypes,
           };
         }
@@ -1170,15 +1193,17 @@ const getCustomizeProduct = (params) => {
               customizeProductSettingsData,
             });
 
+          const { white, yellow, rose } = helperFunctions?.getGoldColorWiseMedia(product);
+
           return {
             productName: product?.productName,
             isDiamondFilter: product?.isDiamondFilter || false,
-            whiteGoldImages: product?.whiteGoldImages,
-            yellowGoldImages: product?.yellowGoldImages,
-            roseGoldImages: product?.roseGoldImages,
-            whiteGoldThumbnailImage: product?.whiteGoldThumbnailImage,
-            yellowGoldThumbnailImage: product?.yellowGoldThumbnailImage,
-            roseGoldThumbnailImage: product?.roseGoldThumbnailImage,
+            whiteGoldThumbnailImage: white?.thumbnail,
+            yellowGoldThumbnailImage: yellow?.thumbnail,
+            roseGoldThumbnailImage: rose?.thumbnail,
+            whiteGoldImages: white?.images,
+            yellowGoldImages: yellow?.images,
+            roseGoldImages: rose?.images,
             diamondFilters: product?.diamondFilters,
             id: product.id,
             basePrice: helperFunctions?.roundOffPrice(totalBasePrice),
@@ -1192,6 +1217,10 @@ const getCustomizeProduct = (params) => {
             goldColorVariations: product?.variations?.find(
               (x) =>
                 x?.variationName?.toLowerCase() === GOLD_COLOR?.toLowerCase()
+            )?.variationTypes,
+            diamondShapeVariations: product?.variations?.find(
+              (x) =>
+                x?.variationName?.toLowerCase() === DIAMOND_SHAPE?.toLowerCase()
             )?.variationTypes,
             settingStyleNamesWithImg: product?.settingStyleNamesWithImg,
             gender: product?.gender,
@@ -1279,6 +1308,8 @@ const searchProducts = (params) => {
         const { price = 0 } = helperFunctions.getMinPriceVariCombo(
           product.variComboWithQuantity
         );
+        const { white, yellow, rose } = helperFunctions?.getGoldColorWiseMedia(product);
+
         return {
           ...product,
           basePrice: helperFunctions?.roundOffPrice(price),
@@ -1293,7 +1324,17 @@ const searchProducts = (params) => {
           goldColorVariations: product?.variations?.find(
             (x) => x?.variationName?.toLowerCase() === GOLD_COLOR?.toLowerCase()
           )?.variationTypes,
+          diamondShapeVariations: product?.variations?.find(
+            (x) =>
+              x?.variationName?.toLowerCase() === DIAMOND_SHAPE?.toLowerCase()
+          )?.variationTypes,
           caratWeight: product.totalCaratWeight,
+          whiteGoldThumbnailImage: white?.thumbnail,
+          yellowGoldThumbnailImage: yellow?.thumbnail,
+          roseGoldThumbnailImage: rose?.thumbnail,
+          whiteGoldImages: white?.images,
+          yellowGoldImages: yellow?.images,
+          roseGoldImages: rose?.images,
         };
       });
 

@@ -154,158 +154,75 @@ export const getSingleProduct = (productId) => async (dispatch) => {
     const res = await productService.getSingleProduct(productId);
 
     if (res) {
+
+      const customizationSubTypesList = await customizationSubTypeService.getAllCustomizationSubTypes()
       let product = { ...productInitDetails, ...res };
 
-      // Rose Gold Images
-      if (res?.roseGoldImages?.length) {
-        const roseGoldImagesArray = res.roseGoldImages.map((image) => ({
-          type: 'old',
-          image: image.image,
-        }));
-        product = {
-          ...product,
-          roseGoldImageFiles: [],
-          roseGoldPreviewImages: roseGoldImagesArray,
-          roseGoldUploadedDeletedImages: [],
-        };
-      }
+      const formattedMediaMapping = product.mediaMapping.map((item) => {
+        const [shapeId, colorId] = item.mediaSetId.split('_');
 
-      // Rose Gold Thumbnail Image
-      const roseGoldThumbnailImageUrl = res?.roseGoldThumbnailImage;
-      if (roseGoldThumbnailImageUrl) {
-        const url = new URL(roseGoldThumbnailImageUrl);
-        const fileExtension = url.pathname.split('.').pop();
-        const roseGoldPreviewThumbnailImageObj = {
-          type: 'old',
-          mimeType: `image/${fileExtension}`,
-          image: roseGoldThumbnailImageUrl,
-        };
-        product = {
-          ...product,
-          roseGoldThumbnailImageFile: [],
-          roseGoldUploadedDeletedThumbnailImage: [],
-          roseGoldPreviewThumbnailImage: [roseGoldPreviewThumbnailImageObj],
-        };
-      }
+        const shapeObj = customizationSubTypesList.find(
+          (sub) => sub.id === shapeId
+        ) || { id: shapeId, name: 'Unknown Shape' };
 
-      // Rose Gold Video
-      const roseGoldVideoUrl = res?.roseGoldVideo;
-      if (roseGoldVideoUrl) {
-        const url = new URL(roseGoldVideoUrl);
-        const fileExtension = url.pathname.split('.').pop();
-        const roseGoldPreviewVideoObj = {
-          type: 'old',
-          mimeType: `video/${fileExtension}`,
-          video: roseGoldVideoUrl,
-        };
-        product = {
-          ...product,
-          roseGoldVideoFile: [],
-          roseGoldDeleteUploadedVideo: [],
-          roseGoldPreviewVideo: [roseGoldPreviewVideoObj],
-        };
-      }
+        const colorObj = customizationSubTypesList.find((sub) => sub.id === colorId);
+        const goldColor = colorObj?.title || 'Unknown Color';
 
-      // Yellow Gold Images
-      if (res?.yellowGoldImages?.length) {
-        const yellowGoldImagesArray = res.yellowGoldImages.map((image) => ({
-          type: 'old',
-          image: image.image,
-        }));
-        product = {
-          ...product,
-          yellowGoldImageFiles: [],
-          yellowGoldPreviewImages: yellowGoldImagesArray,
-          yellowGoldUploadedDeletedImages: [],
-        };
-      }
+        // thumbnail preview
+        let previewThumbnailImage = [];
+        if (item.thumbnailImage) {
+          const url = new URL(item.thumbnailImage);
+          const ext = url.pathname.split('.').pop();
+          previewThumbnailImage = [
+            {
+              type: 'old',
+              mimeType: `image/${ext}`,
+              image: item.thumbnailImage,
+            },
+          ];
+        }
 
-      // Yellow Gold Thumbnail Image
-      const yellowGoldThumbnailImageUrl = res?.yellowGoldThumbnailImage;
-      if (yellowGoldThumbnailImageUrl) {
-        const url = new URL(yellowGoldThumbnailImageUrl);
-        const fileExtension = url.pathname.split('.').pop();
-        const yellowGoldPreviewThumbnailImageObj = {
-          type: 'old',
-          mimeType: `image/${fileExtension}`,
-          image: yellowGoldThumbnailImageUrl,
-        };
-        product = {
-          ...product,
-          yellowGoldThumbnailImageFile: [],
-          yellowGoldUploadedDeletedThumbnailImage: [],
-          yellowGoldPreviewThumbnailImage: [yellowGoldPreviewThumbnailImageObj],
-        };
-      }
+        // images preview
+        const previewImages = item.images.map((img) => {
+          const url = new URL(img.image);
+          const ext = url.pathname.split('.').pop();
+          return {
+            type: 'old',
+            mimeType: `image/${ext}`,
+            image: img.image,
+          };
+        });
 
-      // Yellow Gold Video
-      const yellowGoldVideoUrl = res?.yellowGoldVideo;
-      if (yellowGoldVideoUrl) {
-        const url = new URL(yellowGoldVideoUrl);
-        const fileExtension = url.pathname.split('.').pop();
-        const yellowGoldPreviewVideoObj = {
-          type: 'old',
-          mimeType: `video/${fileExtension}`,
-          video: yellowGoldVideoUrl,
-        };
-        product = {
-          ...product,
-          yellowGoldVideoFile: [],
-          yellowGoldDeleteUploadedVideo: [],
-          yellowGoldPreviewVideo: [yellowGoldPreviewVideoObj],
-        };
-      }
+        // video preview
+        let previewVideo = [];
+        if (item.video) {
+          previewVideo = [
+            {
+              type: 'old',
+              mimeType: 'video/mp4',
+              video: item.video,
+            },
+          ];
+        }
 
-      // White Gold Images
-      if (res?.whiteGoldImages?.length) {
-        const whiteGoldImagesArray = res.whiteGoldImages.map((image) => ({
-          type: 'old',
-          image: image.image,
-        }));
-        product = {
-          ...product,
-          whiteGoldImageFiles: [],
-          whiteGoldPreviewImages: whiteGoldImagesArray,
-          whiteGoldUploadedDeletedImages: [],
+        return {
+          mediaSetId: item.mediaSetId,
+          name: item.name,
+          diamondShape: { id: shapeObj.id, name: shapeObj.title || shapeObj.name },
+          goldColor,
+          thumbnailImageFile: [],
+          previewThumbnailImage,
+          deletedThumbnailImage: [],
+          imageFiles: [],
+          previewImages,
+          deletedImages: [],
+          videoFile: [],
+          previewVideo,
+          deleteUploadedVideo: [],
         };
-      }
+      });
 
-      // White Gold Thumbnail Image
-      const whiteGoldThumbnailImageUrl = res?.whiteGoldThumbnailImage;
-      if (whiteGoldThumbnailImageUrl) {
-        const url = new URL(whiteGoldThumbnailImageUrl);
-        const fileExtension = url.pathname.split('.').pop();
-        const whiteGoldPreviewThumbnailImageObj = {
-          type: 'old',
-          mimeType: `image/${fileExtension}`,
-          image: whiteGoldThumbnailImageUrl,
-        };
-        product = {
-          ...product,
-          whiteGoldThumbnailImageFile: [],
-          whiteGoldUploadedDeletedThumbnailImage: [],
-          whiteGoldPreviewThumbnailImage: [whiteGoldPreviewThumbnailImageObj],
-        };
-      }
-
-      // White Gold Video
-      const whiteGoldVideoUrl = res?.whiteGoldVideo;
-      if (whiteGoldVideoUrl) {
-        const url = new URL(whiteGoldVideoUrl);
-        const fileExtension = url.pathname.split('.').pop();
-        const whiteGoldPreviewVideoObj = {
-          type: 'old',
-          mimeType: `video/${fileExtension}`,
-          video: whiteGoldVideoUrl,
-        };
-        product = {
-          ...product,
-          whiteGoldVideoFile: [],
-          whiteGoldDeleteUploadedVideo: [],
-          whiteGoldPreviewVideo: [whiteGoldPreviewVideoObj],
-        };
-      }
-
+      product = { ...product, mediaMapping: formattedMediaMapping }
       dispatch(setSelectedProduct(product));
       return res;
     }
@@ -338,57 +255,6 @@ export const updateProduct = (payload) => async (dispatch) => {
 
     if (res) {
       toast.success('Product updated successfully');
-      return true;
-    }
-  } catch (e) {
-    toastError(e);
-    return false;
-  } finally {
-    dispatch(setCrudProductLoading(false));
-  }
-};
-
-export const updateRoseGoldMediaAction = (payload) => async (dispatch) => {
-  try {
-    dispatch(setCrudProductLoading(true));
-    const res = await productService.updateRoseGoldMedia(payload);
-
-    if (res) {
-      toast.success('Rose Gold media updated successfully');
-      return true;
-    }
-  } catch (e) {
-    toastError(e);
-    return false;
-  } finally {
-    dispatch(setCrudProductLoading(false));
-  }
-};
-
-export const updateYellowGoldMediaAction = (payload) => async (dispatch) => {
-  try {
-    dispatch(setCrudProductLoading(true));
-    const res = await productService.updateYellowGoldMedia(payload);
-
-    if (res) {
-      toast.success('Yellow Gold media updated successfully');
-      return true;
-    }
-  } catch (e) {
-    toastError(e);
-    return false;
-  } finally {
-    dispatch(setCrudProductLoading(false));
-  }
-};
-
-export const updateWhiteGoldMediaAction = (payload) => async (dispatch) => {
-  try {
-    dispatch(setCrudProductLoading(true));
-    const res = await productService.updateWhiteGoldMedia(payload);
-
-    if (res) {
-      toast.success('White Gold media updated successfully');
       return true;
     }
   } catch (e) {

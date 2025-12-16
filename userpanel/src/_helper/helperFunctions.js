@@ -1204,6 +1204,82 @@ const formatLabel = (rawValue = "") => {
   return cleaned;
 }
 
+const getGoldColorWiseMedia = (product = {}) => {
+  const result = {
+    yellow: { thumbnail: null, images: [] },
+    white: { thumbnail: null, images: [] },
+    rose: { thumbnail: null, images: [] },
+  };
+
+  if (!product?.variations || !product?.variComboWithQuantity || !product?.mediaMapping) {
+    return result;
+  }
+
+  const goldColorVariation = product.variations.find(
+    (v) => v?.variationName?.toLowerCase() === GOLD_COLOR.toLowerCase()
+  );
+
+  if (!goldColorVariation?.variationTypes?.length) return result;
+
+  const colorKeyMap = {
+    "yellow gold": "yellow",
+    "white gold": "white",
+    "rose gold": "rose",
+  };
+
+  goldColorVariation.variationTypes.forEach((type) => {
+    const colorKey = colorKeyMap[type?.variationTypeName?.toLowerCase()];
+    if (!colorKey) return;
+
+    const matchedCombo = product.variComboWithQuantity.find((combo) =>
+      combo?.combination?.some(
+        (c) => c?.variationTypeId === type.variationTypeId
+      )
+    );
+
+    if (!matchedCombo?.mediaSetId) return;
+
+    const media = product.mediaMapping.find(
+      (m) => m?.mediaSetId === matchedCombo.mediaSetId
+    ) || product.mediaMapping[0];
+
+    if (!media) return;
+
+    result[colorKey] = {
+      thumbnail: media.thumbnailImage || null,
+      images: media.images || [],
+    };
+  });
+
+  return result;
+};
+
+const getThumbnailForSelectedVariations = (product = {}, variationArray = []) => {
+  if (
+    !product?.mediaMapping ||
+    !product?.variComboWithQuantity ||
+    !variationArray?.length
+  ) {
+    return null;
+  }
+
+  const selectedTypeIds = variationArray.map(v => v.variationTypeId);
+
+  const matchedCombo = product.variComboWithQuantity.find(combo => {
+    const comboTypeIds = combo.combination.map(c => c.variationTypeId);
+
+    return selectedTypeIds.every(id => comboTypeIds.includes(id));
+  });
+
+  if (!matchedCombo?.mediaSetId) return null;
+
+  const media = product.mediaMapping.find(
+    m => m.mediaSetId === matchedCombo.mediaSetId
+  );
+
+  return media?.thumbnailImage || null;
+};
+
 export const helperFunctions = {
   debounce,
   removeAphostrophe,
@@ -1262,5 +1338,7 @@ export const helperFunctions = {
   scrollToRefWithExtraSpacing,
   generateProductImgAltTitle,
   stringReplacedWithDash,
-  formatLabel
+  formatLabel,
+  getGoldColorWiseMedia,
+  getThumbnailForSelectedVariations,
 };

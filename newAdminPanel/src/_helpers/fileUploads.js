@@ -73,7 +73,7 @@ const deleteFile = (folder, url) => {
         })
         .catch((err) => {
           console.log(err.message);
-          // reject(err)
+          reject(err)
         });
     } else {
       reject(new Error('folder name and url required'));

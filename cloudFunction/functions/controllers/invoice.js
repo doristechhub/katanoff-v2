@@ -1,4 +1,4 @@
-const { RING_SIZE, LENGTH } = require("../helpers/common");
+const { RING_SIZE, LENGTH, getThumbnailForSelectedVariations } = require("../helpers/common");
 const sanitizeValue = require("../helpers/sanitizeParams");
 const {
   orderService,
@@ -36,7 +36,9 @@ const enrichProducts = async ({
         );
       return {
         variationName: customizationType?.title || "Unknown",
+        variationId: v?.variationId,
         variationTypeName: customizationSubType?.title || "Unknown",
+        variationTypeId: v?.variationTypeId,
       };
     });
 
@@ -52,13 +54,12 @@ const enrichProducts = async ({
       };
     }
 
+    const thumbnailImage = getThumbnailForSelectedVariations(productDetail, variations);
+
     return {
       ...product,
       productImage:
-        productDetail?.yellowGoldThumbnailImage ||
-        productDetail?.roseGoldThumbnailImage ||
-        productDetail?.whiteGoldThumbnailImage ||
-        "",
+        thumbnailImage,
       productName: productDetail?.productName || "Unknown Product",
       productNamePrefix: productDetail?.productNamePrefix,
       totalCaratWeight: productDetail?.totalCaratWeight || 0,
@@ -214,8 +215,7 @@ const invoiceController = async (req, res, type = "order") => {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename=${
-        type === "order" ? "invoice" : "return-invoice"
+      `attachment; filename=${type === "order" ? "invoice" : "return-invoice"
       }.pdf`
     );
     res.status(200).end(pdfBuffer);

@@ -3,8 +3,6 @@ import axios from "axios";
 import {
   deleteFile,
   fetchWrapperService,
-  GOLD_COLOR,
-  GOLD_COLOR_MAP,
   helperFunctions,
   isValidFileType,
   ordersUrl,
@@ -654,12 +652,7 @@ const processReturnProductItem = ({
     }
     : null;
 
-  const goldColor = variationArray
-    .find((v) => v.variationName === GOLD_COLOR)
-    ?.variationTypeName?.toLowerCase();
-  const thumbnailField =
-    GOLD_COLOR_MAP[goldColor] || "yellowGoldThumbnailImage";
-  const thumbnailImage = findedProduct[thumbnailField];
+  const thumbnailImage = helperFunctions.getThumbnailForSelectedVariations(findedProduct, variationArray);
 
   return {
     ...returnProductItem,
@@ -688,7 +681,7 @@ const downloadReturnInvoice = async ({ returnId, orderNumber }) => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `Return-${orderNumber}.pdf`; // Set filename
+      link.download = `Return-${orderNumber}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
