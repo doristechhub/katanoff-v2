@@ -33,8 +33,10 @@ import {
 } from 'src/actions';
 import { Button, LoadingButton } from 'src/components/button';
 import {
+  DIAMOND_SHAPE,
   EXPORT,
   GENDER_LIST,
+  GOLD_COLOR,
   IMPORT_PRODUCTS,
   perPageCountOptions,
   PRODUCT,
@@ -276,60 +278,128 @@ export default function ProductsView() {
 
     const matchedList = processedProducts?.filter((item) => filteredIds.has(item.id));
 
-    const tempArry = matchedList?.map((pItem) => ({
-      'Product Name': pItem.productName || '',
-      SKU: pItem.sku || '',
-      'Salt SKU': pItem.saltSKU || '',
-      'Gross Wt (g)': pItem?.grossWeight || '',
-      'Net Wt (g)': pItem?.netWeight || '',
-      'Center Dia Wt (ctw)': pItem?.centerDiamondWeight || '',
-      'Side Dia Wt (ctw)': pItem?.sideDiamondWeight || '',
-      'Total Carat Wt (ctw)': pItem?.totalCaratWeight || '',
-      'Discount (%)': pItem?.discount || '',
+    const buildMediaMappingColumns = (product) => {
+      const variationTypeMap = new Map();
+      product.variations?.forEach((variation) => {
+        variation.variationTypes?.forEach((type) => {
+          variationTypeMap.set(type.variationTypeId, {
+            variationName: variation.variationName,
+            variationTypeName: type.variationTypeName,
+          });
+        });
+      });
 
-      // Category & Collection
-      'Category Name': pItem?.categoryName || '',
-      'Sub Categories': pItem?.subCategoryNames?.map((s) => s.title).join(', ') || '',
-      'Product Types': pItem?.productTypeNames?.map((t) => t.title).join(', ') || '',
-      Collections: pItem?.collectionNames?.join(', ') || '',
-      'Setting Styles': pItem?.settingStyleNamesWithImg?.map((t) => t.title).join(', ') || '',
+      // Helper: Extract Gold Color + Diamond Shape from mediaSetId via variComboWithQuantity
+      const getComboDisplayName = (mediaSetId) => {
+        if (!mediaSetId || !product.variComboWithQuantity) return null;
 
-      Gender: pItem?.gender || '',
-      Length: pItem?.Length || '',
-      'Length Unit': pItem?.lengthUnit || '',
-      Width: pItem?.width || '',
-      'Width Unit': pItem?.widthUnit || '',
-      'Short Description': pItem?.shortDescription || '',
-      Description: pItem?.description || '',
+        const combo = product.variComboWithQuantity.find((c) => c.mediaSetId === mediaSetId);
+        if (!combo) return null;
 
-      // Variations simplified for readability
-      Variations:
-        pItem?.variations
-          ?.map((v) => {
-            const types = v.variationTypes.map((t) => t.variationTypeName).join('/');
-            return `${v.variationName}: ${types}`;
-          })
-          .join(' | ') || '',
+        let goldColor = null;
+        let diamondShape = null;
 
-      Specifications:
-        pItem?.specifications?.map((spec) => `${spec.title}: ${spec.description}`).join(' | ') ||
-        '',
+        combo.combination.forEach((item) => {
+          const info = variationTypeMap.get(item.variationTypeId);
+          if (info) {
+            if (info.variationName === GOLD_COLOR.title) {
+              goldColor = info.variationTypeName;
+            } else if (info.variationName === DIAMOND_SHAPE.title) {
+              diamondShape = info.variationTypeName;
+            }
+          }
+        });
+        if (!goldColor || !diamondShape) return null;
+        return `${diamondShape} + ${goldColor}`;
+      };
 
-      Status: pItem?.active ? 'Active' : 'Inactive',
-      'Created Date': pItem?.createdDate ? new Date(pItem.createdDate).toLocaleString() : '',
-      'Updated Date': pItem?.updatedDate ? new Date(pItem.updatedDate).toLocaleString() : '',
+      // Collect data for each type
+      const thumbnails = [];
+      const videos = [];
+      const imagesList = [];
 
-      // Media fields
-      'Rose Gold Thumbnail': pItem?.roseGoldThumbnailImage || '',
-      'Rose Gold Images': pItem?.roseGoldImages?.map((i) => i.image).join(', ') || '',
-      'Rose Gold Video': pItem?.roseGoldVideo || '',
-      'Yellow Gold Thumbnail': pItem?.yellowGoldThumbnailImage || '',
-      'Yellow Gold Images': pItem?.yellowGoldImages?.map((i) => i.image).join(', ') || '',
-      'Yellow Gold Video': pItem?.yellowGoldVideo || '',
-      'White Gold Thumbnail': pItem?.whiteGoldThumbnailImage || '',
-      'White Gold Images': pItem?.whiteGoldImages?.map((i) => i.image).join(', ') || '',
-      'White Gold Video': pItem?.whiteGoldVideo || '',
-    }));
+      if (product.mediaMapping && product.mediaMapping.length > 0) {
+        product.mediaMapping.forEach((set) => {
+          const displayName = getComboDisplayName(set.mediaSetId) || set.name;
+
+          // Thumbnail
+          if (set.thumbnailImage) {
+            thumbnails.push(`${displayName}: ${set.thumbnailImage}`);
+          }
+
+          // Video
+          if (set.video) {
+            videos.push(`${displayName}: ${set.video}`);
+          }
+
+          // Images
+          const imageUrls = set.images.length
+            ? set.images.map((img) => img.image).filter(Boolean)
+            : [];
+          if (imageUrls.length > 0) {
+            imagesList.push(`${displayName}: ${imageUrls.join(', ')}`);
+          }
+        });
+      }
+
+      // Join with line breaks for Excel cell readability
+      return {
+        Thumbnail: thumbnails.join('\n') || '',
+        Video: videos.join('\n') || '',
+        Images: imagesList.join('\n') || '',
+      };
+    };
+
+    const tempArry = matchedList?.map((pItem) => {
+      const mediaMappingColumns = buildMediaMappingColumns(pItem);
+
+      return {
+        'Product Name': pItem.productName || '',
+        SKU: pItem.sku || '',
+        'Salt SKU': pItem.saltSKU || '',
+        'Gross Wt (g)': pItem?.grossWeight || '',
+        'Net Wt (g)': pItem?.netWeight || '',
+        'Center Dia Wt (ctw)': pItem?.centerDiamondWeight || '',
+        'Side Dia Wt (ctw)': pItem?.sideDiamondWeight || '',
+        'Total Carat Wt (ctw)': pItem?.totalCaratWeight || '',
+        'Discount (%)': pItem?.discount || '',
+
+        // Category & Collection
+        'Category Name': pItem?.categoryName || '',
+        'Sub Categories': pItem?.subCategoryNames?.map((s) => s.title).join(', ') || '',
+        'Product Types': pItem?.productTypeNames?.map((t) => t.title).join(', ') || '',
+        Collections: pItem?.collectionNames?.join(', ') || '',
+        'Setting Styles': pItem?.settingStyleNamesWithImg?.map((t) => t.title).join(', ') || '',
+
+        Gender: pItem?.gender || '',
+        Length: pItem?.Length || '',
+        'Length Unit': pItem?.lengthUnit || '',
+        Width: pItem?.width || '',
+        'Width Unit': pItem?.widthUnit || '',
+        'Short Description': pItem?.shortDescription || '',
+        Description: pItem?.description || '',
+
+        // Variations
+        Variations:
+          pItem?.variations
+            ?.map((v) => {
+              const types = v.variationTypes.map((t) => t.variationTypeName).join('/');
+              return `${v.variationName}: ${types}`;
+            })
+            .join(' | ') || '',
+
+        Specifications:
+          pItem?.specifications?.map((spec) => `${spec.title}: ${spec.description}`).join(' | ') ||
+          '',
+
+        Status: pItem?.active ? 'Active' : 'Inactive',
+        'Created Date': pItem?.createdDate ? new Date(pItem.createdDate).toLocaleString() : '',
+        'Updated Date': pItem?.updatedDate ? new Date(pItem.updatedDate).toLocaleString() : '',
+
+        // Media Mapping Images & Videos
+        ...mediaMappingColumns,
+      };
+    });
 
     await generateExcel(tempArry, 'Product_List');
     dispatch(setExportExcelLoading(false));
@@ -387,7 +457,7 @@ export default function ProductsView() {
             }}
           />
 
-          {/* <Button
+          <Button
             color="success"
             variant="contained"
             onClick={async () => {
@@ -414,7 +484,7 @@ export default function ProductsView() {
             startIcon={<Iconify icon={'vscode-icons:file-type-excel'} width={25} />}
           >
             Import
-          </Button> */}
+          </Button>
           <LoadingButton
             variant="contained"
             color="success"
@@ -612,7 +682,7 @@ export default function ProductsView() {
                       openDialog={openDialog}
                       setOpenDialog={setOpenDialog}
                       setActiveProduct={setActiveProduct}
-                      imagePath={product?.roseGoldThumbnailImage}
+                      imagePath={product?.thumbnailImage}
                     />
                   </Grid>
                 ))}

@@ -96,12 +96,6 @@ export const ENGAGEMENT = "Engagement";
 export const PAYPAL = "paypal";
 export const STRIPE = "stripe";
 export const CARD = "card";
-// Object map for gold color to thumbnail field
-export const GOLD_COLOR_MAP = {
-  "rose gold": "roseGoldThumbnailImage",
-  "yellow gold": "yellowGoldThumbnailImage",
-  "white gold": "whiteGoldThumbnailImage",
-};
 
 // For Coupons
 export const FIXED = "Fixed";
@@ -255,3 +249,8 @@ export const FILTER_TO_OPTIONS_MAP = {
 export const SPECIAL_CASE_MAP = {
   "mens jewelry": "Men's Jewelry",
 };
+
+export const HOVER_PREVIEW_VARIATION_NAMES = [
+  GOLD_COLOR,
+  DIAMOND_SHAPE,
+];

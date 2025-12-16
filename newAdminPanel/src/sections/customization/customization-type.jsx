@@ -40,7 +40,7 @@ import Iconify from 'src/components/iconify';
 import Spinner from 'src/components/spinner';
 import Scrollbar from 'src/components/scrollbar';
 import { Button, LoadingButton } from 'src/components/button';
-import { GOLD_TYPE, GOLD_COLOR } from 'src/_helpers/constants';
+import { GOLD_TYPE, GOLD_COLOR, DIAMOND_SHAPE } from 'src/_helpers/constants';
 
 // ----------------------------------------------------------------------
 
@@ -49,7 +49,7 @@ const validationSchema = Yup.object().shape({
 });
 
 // ----------------------------------------------------------------------
-const NON_EDITABLE_DELETABLE_TYPE = [GOLD_TYPE.title, GOLD_COLOR.title];
+const NON_EDITABLE_DELETABLE_TYPE = [GOLD_TYPE.title, GOLD_COLOR.title, DIAMOND_SHAPE.title];
 const CustomizationType = () => {
   const dispatch = useDispatch();
   const [page, setPage] = useState(0);

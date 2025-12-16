@@ -93,7 +93,7 @@ const ProductDetailPage = ({ customizePage }) => {
   const searchParams = useSearchParams();
   const dispatch = useDispatch();
   const router = useRouter();
-  const [hoveredColor, setHoveredColor] = useState("");
+  const [hoveredVariation, setHoveredVariation] = useState(null);
 
   const {
     productDetail,
@@ -473,7 +473,7 @@ const ProductDetailPage = ({ customizePage }) => {
               <ProductDetailPageImage
                 productDetail={productDetail}
                 selectedVariations={selectedVariations}
-                hoveredColor={hoveredColor}
+                hoveredVariation={hoveredVariation}
               />
             </div>
 
@@ -567,8 +567,8 @@ const ProductDetailPage = ({ customizePage }) => {
                 productDetail={productDetail}
                 selectedVariations={selectedVariations}
                 handleSelect={handleSelect}
-                setHoveredColor={setHoveredColor}
-                hoveredColor={hoveredColor}
+                setHoveredVariation={setHoveredVariation}
+                hoveredVariation={hoveredVariation}
                 isCustomizePage={isCustomizePage}
               />
 
@@ -669,6 +669,7 @@ const ProductDetailPage = ({ customizePage }) => {
                 productList={similarProductsList}
                 loading={similarProductsLoading}
                 title="Similar Products"
+                isDiamondSettingPage={isCustomizePage}
               />
             </section>
           )}

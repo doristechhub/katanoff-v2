@@ -99,9 +99,8 @@ const formatProductNameWithCarat = ({
         break;
     }
   }
-  return `${formattedCarat}${
-    productName ? productName : "Unknown Product"
-  }`.trim();
+  return `${formattedCarat}${productName ? productName : "Unknown Product"
+    }`.trim();
 };
 
 const formatCurrency = (amount) => {
@@ -248,26 +247,25 @@ const generateProductTable = (products, quantityKey = "cartQuantity") => {
         </thead>
         <tbody class="text-black text-xs leading-4">
           ${products
-            .map((x) => {
-              const variations = displayVariationsLabel(x.variations);
+      .map((x) => {
+        const variations = displayVariationsLabel(x.variations);
 
-              const nameLine = formatProductNameWithCarat({
-                caratWeight: Object.keys(x?.diamondDetail || {}).length
-                  ? x?.diamondDetail?.caratWeight
-                  : x?.totalCaratWeight,
-                productName: x.productName,
-                productNamePrefix: x?.productNamePrefix,
-              });
+        const nameLine = formatProductNameWithCarat({
+          caratWeight: Object.keys(x?.diamondDetail || {}).length
+            ? x?.diamondDetail?.caratWeight
+            : x?.totalCaratWeight,
+          productName: x.productName,
+          productNamePrefix: x?.productNamePrefix,
+        });
 
-              const diamondDetail = displayDiamondDetailsLabel(x.diamondDetail);
-              return `
+        const diamondDetail = displayDiamondDetailsLabel(x.diamondDetail);
+        return `
                 <tr class="border-b border-gray-300">
                   <td class="p-2 text-center">
-                    ${
-                      x.productImage
-                        ? `<img src="${x.productImage}" class="w-16 h-full object-contain mx-auto" alt="" />`
-                        : ""
-                    }
+                    ${x.productImage
+            ? `<img src="${x.productImage}" class="w-16 h-full object-contain mx-auto" alt="" />`
+            : ""
+          }
                   </td>
                   <td class="p-2 pl-4">
                     <span class="font-semibold text-sm">${nameLine}</span>
@@ -278,15 +276,15 @@ const generateProductTable = (products, quantityKey = "cartQuantity") => {
                   </td>
                   <td class="p-2 text-center">${x[quantityKey]}</td>
                   <td class="p-2 text-right">${formatCurrency(
-                    x.productPrice
-                  )}</td>
+            x.productPrice
+          )}</td>
                   <td class="p-2 text-right">${formatCurrency(
-                    x.unitAmount
-                  )}</td>
+            x.unitAmount
+          )}</td>
                 </tr>
               `;
-            })
-            .join("")}
+      })
+      .join("")}
         </tbody>
       </table>
     </div>
@@ -409,6 +407,31 @@ const isValidVariationsArray = ({
   });
 };
 
+const getThumbnailForSelectedVariations = (product = {}, variationArray = []) => {
+  if (
+    !product?.mediaMapping ||
+    !product?.variComboWithQuantity ||
+    !variationArray?.length
+  ) {
+    return null;
+  }
+  const selectedTypeIds = variationArray.map(v => v.variationTypeId);
+
+  const matchedCombo = product.variComboWithQuantity.find(combo => {
+    const comboTypeIds = combo.combination.map(c => c.variationTypeId);
+
+    return selectedTypeIds.every(id => comboTypeIds.includes(id));
+  });
+
+  if (!matchedCombo?.mediaSetId) return null;
+
+  const media = product.mediaMapping.find(
+    m => m.mediaSetId === matchedCombo.mediaSetId
+  );
+
+  return media?.thumbnailImage || null;
+};
+
 const MAX_ALLOW_QTY_FOR_CUSTOM_PRODUCT = 5;
 const NEW_YORK = "New York";
 const NEW_YORK_CODE = "NY";
@@ -479,4 +502,5 @@ module.exports = {
   processProducts,
   addNamesToVariationsArray,
   isValidVariationsArray,
+  getThumbnailForSelectedVariations
 };

@@ -11,7 +11,6 @@ import { helperFunctions } from '../_helpers/helperFunctions';
 import { refundStatuses, setOrderRefundLoader } from '../store/slices/refundSlice';
 import { diamondShapeService } from './diamondShape.service';
 import { returnService } from './return.service';
-import { GOLD_COLOR_MAP } from 'src/_helpers/constants';
 
 // const getAllOrderList = () => {
 //   return new Promise(async (resolve, reject) => {
@@ -124,12 +123,6 @@ const getOrderDetailByOrderId = (orderId) => {
           variationTypeName: customizationSubTypes.find((s) => s.id === v.variationTypeId)?.title,
         }));
 
-        const goldColor = variations
-          .find((v) => v.variationName === 'Gold Color')
-          ?.variationTypeName?.toLowerCase();
-        const thumbnailField = GOLD_COLOR_MAP[goldColor] || 'yellowGoldThumbnailImage';
-        const thumbnailImage = product[thumbnailField];
-
         const perQuantityDiscountAmount = Number(
           helperFunctions?.splitDiscountAmongProducts({
             quantityWiseProductPrice: orderProductItem.productPrice,
@@ -146,6 +139,7 @@ const getOrderDetailByOrderId = (orderId) => {
             totalTaxAmount: orderDetail.salesTax,
           })
         );
+        const thumbnailImage = helperFunctions.getThumbnailForSelectedVariations(product, variations)
 
         return {
           ...orderProductItem,
@@ -156,11 +150,11 @@ const getOrderDetailByOrderId = (orderId) => {
           perQuantitySalesTaxAmount,
           diamondDetail: orderProductItem.diamondDetail
             ? {
-                ...orderProductItem.diamondDetail,
-                shapeName: diamondShapes.find(
-                  (s) => s.id === orderProductItem.diamondDetail.shapeId
-                )?.title,
-              }
+              ...orderProductItem.diamondDetail,
+              shapeName: diamondShapes.find(
+                (s) => s.id === orderProductItem.diamondDetail.shapeId
+              )?.title,
+            }
             : undefined,
         };
       });
@@ -715,12 +709,7 @@ const getTopSellingProducts = (params) => {
             findedProduct.variComboWithQuantity,
             sellingProductItem.variations
           );
-          const goldColor = variationArray
-            .find((v) => v.variationName === 'Gold Color')
-            ?.variationTypeName?.toLowerCase();
-
-          const thumbnailField = GOLD_COLOR_MAP[goldColor] || 'yellowGoldThumbnailImage';
-          const thumbnailImage = findedProduct[thumbnailField];
+          const thumbnailImage = helperFunctions?.getThumbnailForSelectedVariations(findedProduct, variationArray)
 
           return {
             ...sellingProductItem,

@@ -10,17 +10,6 @@ import leftArrow from "@/assets/icons/leftArrow.svg";
 import rightArrow from "@/assets/icons/rightArrow.svg";
 import CustomImg from "./custom-img";
 
-const toCamelCase = (str) => {
-  if (!str) return "";
-  const [first, ...rest] = str.trim().split(" ");
-  return (
-    first.toLowerCase() +
-    rest.map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase()).join("")
-  );
-};
-
-const colorOptions = ["yellowGold", "roseGold", "whiteGold"];
-
 const useDebounce = (callback, delay) => {
   const timeoutRef = useRef(null);
   return useCallback(
@@ -48,15 +37,16 @@ const MemoizedSlide = memo(({ src, title, alt, isVideo, videoType }) => (
 ));
 
 const MemoizedProgressBar = memo(
-  ({ totalSlides, activeIndex, swiperRef, activeColorKey }) => (
+  ({ totalSlides, activeIndex, swiperRef, activeMediaKey }) => (
     <div className="flex justify-center items-center">
       <div className="flex gap-1 w-full cursor-pointer">
         {Array.from({ length: totalSlides }).map((_, i) => (
           <div
-            key={`${activeColorKey}-${i}`}
+            key={`${activeMediaKey}-${i}`}
             onClick={() => swiperRef.current?.slideTo(i)}
-            className={`h-1 flex-1 transition-colors duration-300 ${i === activeIndex ? "bg-black" : "bg-gray-300"
-              }`}
+            className={`h-1 flex-1 transition-colors duration-300 ${
+              i === activeIndex ? "bg-black" : "bg-gray-300"
+            }`}
           />
         ))}
       </div>
@@ -65,10 +55,12 @@ const MemoizedProgressBar = memo(
 );
 
 const ProductDetailPageImage = memo(
-  ({ productDetail, selectedVariations, hoveredColor }) => {
+  ({ productDetail, selectedVariations = [], hoveredVariation }) => {
     const [preloadedData, setPreloadedData] = useState({});
-    const [activeColorKey, setActiveColorKey] = useState("");
+    const [activeMediaKey, setActiveMediaKey] = useState("");
+    const [selectedMediaSetId, setSelectedMediaSetId] = useState(null);
     const [activeIndex, setActiveIndex] = useState(0);
+
     const swiperRef = useRef(null);
     const preloadElementsRef = useRef([]);
     const hasPreloadedRef = useRef(new Set());
@@ -79,15 +71,21 @@ const ProductDetailPageImage = memo(
           ?.variationTypeName,
       [selectedVariations]
     );
-    const selectedKey = useMemo(
-      () =>
-        toCamelCase(hoveredColor) ||
-        toCamelCase(selectedColor) ||
-        colorOptions[0],
-      [hoveredColor, selectedColor]
-    );
 
-    const debouncedSetActiveColorKey = useDebounce(setActiveColorKey, 100);
+    // Helper: exact-match check
+    const isExactCombinationMatch = (comboCombination = [], selected = []) => {
+      if (!Array.isArray(comboCombination) || !Array.isArray(selected))
+        return false;
+      if (comboCombination.length !== selected.length) return false;
+
+      return comboCombination.every((pair) =>
+        selected.some(
+          (s) =>
+            s?.variationId === pair?.variationId &&
+            s?.variationTypeId === pair?.variationTypeId
+        )
+      );
+    };
     const getProductDiamondShape = () => {
       const diamondVariations = productDetail?.variations?.find(
         (v) => v?.variationName === DIAMOND_SHAPE
@@ -103,119 +101,150 @@ const ProductDetailPageImage = memo(
       metalColor: selectedColor,
     });
 
+    // Helper: find media set
+    const getMediaSet = (id) => {
+      if (!productDetail?.mediaMapping) return undefined;
+      return productDetail.mediaMapping.find((m) => m.mediaSetId === id);
+    };
+
+    // Step1: Determine which mediaSetId to use
     useEffect(() => {
-      if (
-        !productDetail ||
-        !selectedKey ||
-        hasPreloadedRef.current.has(selectedKey)
-      ) {
+      if (!productDetail) {
+        setSelectedMediaSetId(null);
         return;
       }
 
-      hasPreloadedRef.current.add(selectedKey);
+      const mapping = productDetail.mediaMapping || [];
+      if (!mapping.length) {
+        setSelectedMediaSetId(null);
+        return;
+      }
 
-      const thumbnail = productDetail[`${selectedKey}ThumbnailImage`];
+      let effectiveVariations = selectedVariations;
+
+      // ✅ APPLY HOVERED VARIATION (ANY TYPE)
+      if (hoveredVariation?.variationId && hoveredVariation?.variationTypeId) {
+        effectiveVariations = [
+          ...selectedVariations.filter(
+            (v) => v.variationId !== hoveredVariation.variationId
+          ),
+          hoveredVariation,
+        ];
+      }
+
+      const combos = productDetail.variComboWithQuantity || [];
+      const matchedCombo = combos.find((combo) =>
+        isExactCombinationMatch(combo?.combination, effectiveVariations)
+      );
+
+      setSelectedMediaSetId(matchedCombo?.mediaSetId || mapping[0].mediaSetId);
+    }, [productDetail, selectedVariations, hoveredVariation]);
+
+    const debouncedSetActiveMediaKey = useDebounce(setActiveMediaKey, 100);
+
+    // Step2: Preload images for selected media set
+    useEffect(() => {
+      if (!productDetail) return;
+      const mapping = productDetail.mediaMapping || [];
+
+      if (mapping.length === 0) return;
+
+      const key = selectedMediaSetId;
+      if (!key || hasPreloadedRef.current.has(key)) return;
+
+      hasPreloadedRef.current.add(key);
+
+      const mediaSet = getMediaSet(key);
+      const thumbnail = mediaSet?.thumbnailImage || null;
+      const images = mediaSet?.images || [];
+      const video = mediaSet?.video || null;
+
+      // preload thumbnail
       if (thumbnail) {
         const img = new Image();
         img.src = thumbnail;
-        img.onerror = () =>
-          console.error(`Thumbnail failed to load: ${thumbnail}`);
         preloadElementsRef.current.push(img);
       }
 
-      const images = productDetail[`${selectedKey}Images`] || [];
-      images.forEach((imgObj, idx) => {
+      images?.forEach((imgObj) => {
         if (imgObj?.image) {
           const img = new Image();
           img.src = imgObj.image;
-          img.onerror = () =>
-            console.error(`Image failed to load: ${imgObj.image}`);
           preloadElementsRef.current.push(img);
         }
       });
 
-      const video = productDetail[`${selectedKey}Video`] || null;
       if (video) {
         const videoEl = document.createElement("video");
         videoEl.src = video;
         videoEl.preload = "auto";
-        videoEl.onerror = () => console.error(`Video failed to load: ${video}`);
         preloadElementsRef.current.push(videoEl);
       }
 
       setPreloadedData((prev) => ({
         ...prev,
-        [selectedKey]: {
-          thumbnail: thumbnail || null,
-          images,
-          video,
-        },
+        [key]: { thumbnail, images, video },
       }));
 
+      // Preload other media sets softly
       setTimeout(() => {
-        colorOptions
-          .filter(
-            (colorKey) =>
-              colorKey !== selectedKey && !hasPreloadedRef.current.has(colorKey)
-          )
-          .forEach((colorKey) => {
-            hasPreloadedRef.current.add(colorKey);
+        mapping
+          .filter((m) => m?.mediaSetId !== key)
+          .forEach((other) => {
+            if (!hasPreloadedRef.current.has(other?.mediaSetId)) {
+              hasPreloadedRef.current.add(other?.mediaSetId);
 
-            const otherThumbnail =
-              productDetail[`${colorKey}ThumbnailImage`] || null;
-            const otherImages = productDetail[`${colorKey}Images`] || [];
-            const otherVideo = productDetail[`${colorKey}Video`] || null;
+              const otherThumb = other?.thumbnailImage;
+              const otherImages = other?.images || [];
+              const otherVideo = other?.video || null;
 
-            if (otherThumbnail) {
-              const img = new Image();
-              img.src = otherThumbnail;
-              preloadElementsRef.current.push(img);
-            }
-
-            otherImages.forEach((imgObj) => {
-              if (imgObj?.image) {
+              if (otherThumb) {
                 const img = new Image();
-                img.src = imgObj.image;
+                img.src = otherThumb;
                 preloadElementsRef.current.push(img);
               }
-            });
 
-            if (otherVideo) {
-              const videoEl = document.createElement("video");
-              videoEl.src = otherVideo;
-              videoEl.preload = "auto";
-              preloadElementsRef.current.push(videoEl);
+              otherImages.forEach((imgObj) => {
+                if (imgObj?.image) {
+                  const img = new Image();
+                  img.src = imgObj.image;
+                  preloadElementsRef.current.push(img);
+                }
+              });
+
+              if (otherVideo) {
+                const videoEl = document.createElement("video");
+                videoEl.src = otherVideo;
+                videoEl.preload = "auto";
+                preloadElementsRef.current.push(videoEl);
+              }
+
+              setPreloadedData((prev) => ({
+                ...prev,
+                [other.mediaSetId]: {
+                  thumbnail: otherThumb,
+                  images: otherImages,
+                  video: otherVideo,
+                },
+              }));
             }
-
-            setPreloadedData((prev) => ({
-              ...prev,
-              [colorKey]: {
-                thumbnail: otherThumbnail,
-                images: otherImages,
-                video: otherVideo,
-              },
-            }));
           });
-      }, 500);
+      }, 300);
+    }, [productDetail, selectedMediaSetId]);
 
-      return () => {
-        preloadElementsRef.current.forEach((el) => el.remove());
-        preloadElementsRef.current = [];
-      };
-    }, [productDetail, selectedKey]);
-
+    // Step3: Switch active media set when preloaded
     useEffect(() => {
-      if (selectedKey && preloadedData[selectedKey]) {
-        debouncedSetActiveColorKey(selectedKey);
+      if (!selectedMediaSetId) return;
+      if (preloadedData[selectedMediaSetId]) {
+        debouncedSetActiveMediaKey(selectedMediaSetId);
         if (swiperRef.current) {
-          swiperRef.current.disable();
           swiperRef.current.slideTo(0);
-          setTimeout(() => swiperRef.current.enable(), 0);
         }
       }
-    }, [selectedKey, preloadedData, debouncedSetActiveColorKey]);
+    }, [preloadedData, selectedMediaSetId]);
 
-    const currentData = preloadedData[activeColorKey] || {
+    // Step4: Build slides
+    const currentData = preloadedData[activeMediaKey] || {
       thumbnail: null,
       images: [],
       video: null,
@@ -225,31 +254,33 @@ const ProductDetailPageImage = memo(
       ...(currentData.thumbnail
         ? [{ src: currentData.thumbnail, isVideo: false }]
         : []),
-      ...(Array.isArray(currentData.images)
-        ? currentData.images.map((img) => ({
-          src: img?.image,
-          isVideo: false,
-        }))
-        : []),
-      ...(currentData.video
-        ? [
-          {
-            src: currentData.video,
-            isVideo: true,
-          },
-        ]
-        : []),
+      ...currentData.images.map((img) => ({
+        src: img?.image,
+        isVideo: false,
+      })),
+      ...(currentData.video ? [{ src: currentData.video, isVideo: true }] : []),
     ];
+
     const totalSlides = allSlides.length;
 
     return (
       <div className="w-full h-full relative">
+        {productDetail?.mediaMapping?.length === 0 && (
+          <ProgressiveImg
+            src={null}
+            alt="fallback"
+            className="w-full h-full object-cover"
+            style={{ aspectRatio: "4/4" }}
+          />
+        )}
+
         <div
           className="swiper-button-prev !text-black !left-2 !top-1/2 z-10 absolute"
           id="custom-swiper-prev"
         >
           <CustomImg srcAttr={leftArrow} altAttr="left-arrow" />
         </div>
+
         <div
           className="swiper-button-next !text-black !right-2 !top-1/2 z-10 absolute"
           id="custom-swiper-next"
@@ -264,19 +295,16 @@ const ProductDetailPageImage = memo(
             prevEl: "#custom-swiper-prev",
           }}
           onSwiper={(swiper) => (swiperRef.current = swiper)}
-          onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
+          onSlideChange={(s) => setActiveIndex(s.activeIndex)}
           className="w-full h-full aspect-[4/4]"
         >
-          {allSlides.map((slide, index) => (
-            <SwiperSlide
-              key={`${activeColorKey}-${slide.src}-${index}`}
-              className="flex items-center justify-center w-full h-full"
-            >
+          {allSlides.map((slide, idx) => (
+            <SwiperSlide key={`${activeMediaKey}-${idx}`}>
               <MemoizedSlide
                 src={slide.src}
+                isVideo={slide.isVideo}
                 title={titleAttr}
                 alt={altAttr}
-                isVideo={slide.isVideo}
                 videoType={
                   slide.isVideo
                     ? helperFunctions?.getVideoType(slide.src)
@@ -285,11 +313,12 @@ const ProductDetailPageImage = memo(
               />
             </SwiperSlide>
           ))}
+
           {totalSlides === 0 && (
-            <SwiperSlide className="flex items-center justify-center w-full h-full">
+            <SwiperSlide>
               <ProgressiveImg
                 src={null}
-                alt="Fallback Image"
+                alt="fallback"
                 className="w-full h-full object-cover"
                 style={{ aspectRatio: "4/4" }}
               />
@@ -301,7 +330,7 @@ const ProductDetailPageImage = memo(
           totalSlides={totalSlides}
           activeIndex={activeIndex}
           swiperRef={swiperRef}
-          activeColorKey={activeColorKey}
+          activeMediaKey={activeMediaKey}
         />
       </div>
     );

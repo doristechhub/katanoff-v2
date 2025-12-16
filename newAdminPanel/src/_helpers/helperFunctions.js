@@ -777,6 +777,150 @@ const findDuplicates = (array, key) => {
   return Array.from(duplicateKeys);
 };
 
+
+/* ===================================================================
+   MEDIA SET ID GENERATOR – RECOMMENDED FINAL VERSION
+   Format: 14k_yellow_round_483920  (sorted IDs + 6-digit random)
+   =================================================================== */
+const generateMediaSetId = (combination = []) => {
+  if (!Array.isArray(combination) || combination.length === 0) {
+    return `default_${Math.floor(100000 + Math.random() * 900000)}`;
+  }
+
+  const idPart = combination
+    .map((item) => item.variationTypeId)
+    .filter(Boolean)
+    .sort() // makes order irrelevant
+    .join('_')
+    .toLowerCase();
+
+  const random6 = Math.floor(100000 + Math.random() * 900000);
+  // return `${idPart}_${random6}`;
+  return `${idPart}`;
+};
+
+const bytesToMB = (bytes) => {
+  if (!bytes) return 0;
+  const mb = bytes / (1024 * 1024);
+  return mb;
+};
+
+// Assign mediaSetId to each combo using matchingCombinations
+const applyMediaSetIdByMatching = (mediaMappingParam = [], variCombos = []) => {
+  return variCombos.map((combo) => {
+    let matchedMediaSetId = "";
+
+    // Loop through each media set
+    for (const media of mediaMappingParam) {
+      const { mediaSetId, matchingCombinations = [] } = media;
+
+      // Try to match with ANY matchingCombination of this mediaSet
+      for (const matchObj of matchingCombinations) {
+        const matchArr = matchObj.combination || [];
+
+        // Compare using your areArraysEqual helper
+        // Must clone arrays to avoid in-place sorting mutation issues
+        const comboClone = [...combo.combination];
+        const matchClone = [...matchArr];
+
+        if (areArraysEqual(comboClone, matchClone)) {
+          matchedMediaSetId = mediaSetId;
+          break;
+        }
+      }
+
+      if (matchedMediaSetId) break; // stop if we found match
+    }
+
+    return {
+      ...combo,
+      mediaSetId: matchedMediaSetId || "" // empty if no match found
+    };
+  });
+};
+
+const getThumbnailForSelectedVariations = (product = {}, variationArray = []) => {
+  if (
+    !product?.mediaMapping ||
+    !product?.variComboWithQuantity ||
+    !variationArray?.length
+  ) {
+    return null;
+  }
+  const selectedTypeIds = variationArray.map(v => v.variationTypeId);
+
+  const matchedCombo = product.variComboWithQuantity.find(combo => {
+    const comboTypeIds = combo.combination.map(c => c.variationTypeId);
+
+    return selectedTypeIds.every(id => comboTypeIds.includes(id));
+  });
+
+  if (!matchedCombo?.mediaSetId) return null;
+
+  const media = product.mediaMapping.find(
+    m => m.mediaSetId === matchedCombo.mediaSetId
+  );
+
+  return media?.thumbnailImage || null;
+};
+
+const getGoldColorWiseMedia = (product = {}) => {
+  const result = {
+    yellow: { thumbnail: null, images: [] },
+    white: { thumbnail: null, images: [] },
+    rose: { thumbnail: null, images: [] },
+  };
+
+  if (!product?.variations || !product?.variComboWithQuantity || !product?.mediaMapping) {
+    return result;
+  }
+  const goldColorVariation = product.variations.find(
+    (v) => v?.variationName?.toLowerCase() === 'gold color'
+  );
+
+  if (!goldColorVariation?.variationTypes?.length) return result;
+
+  const colorKeyMap = {
+    'yellow gold': 'yellow',
+    'white gold': 'white',
+    'rose gold': 'rose',
+  };
+
+  goldColorVariation.variationTypes.forEach((type) => {
+    const colorKey = colorKeyMap[type?.variationTypeName?.toLowerCase()];
+    if (!colorKey) return;
+
+    const matchedCombo = product.variComboWithQuantity.find((combo) =>
+      combo?.combination?.some((c) => c?.variationTypeId === type.variationTypeId)
+    );
+
+    if (!matchedCombo?.mediaSetId) return;
+
+    const media = product.mediaMapping.find((m) => m?.mediaSetId === matchedCombo.mediaSetId);
+
+    if (!media) return;
+
+    result[colorKey] = {
+      thumbnail: media.thumbnailImage || null,
+      images: media.images || [],
+    };
+  });
+
+  return result;
+};
+
+const getProductThumbnail = (product) => {
+  const { yellow, rose, white } = getGoldColorWiseMedia(product);
+  return (
+    yellow?.thumbnail ||
+    rose?.thumbnail ||
+    white?.thumbnail ||
+    product?.mediaMapping?.[0]?.thumbnailImage ||
+    null
+  );
+};
+
+
 export const helperFunctions = {
   getCurrentUser,
   getVariationsArray,
@@ -825,4 +969,10 @@ export const helperFunctions = {
   splitAndTrim,
   checkKeys,
   findDuplicates,
+  generateMediaSetId,
+  bytesToMB,
+  applyMediaSetIdByMatching,
+  getThumbnailForSelectedVariations,
+  getGoldColorWiseMedia,
+  getProductThumbnail
 };

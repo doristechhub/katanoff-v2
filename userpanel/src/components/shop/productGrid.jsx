@@ -8,7 +8,15 @@ import SkeletonLoader from "../ui/skeletonLoader";
 import ProductNotFound from "./productNotFound";
 import { ITEMS_PER_PAGE } from "@/_utils/common";
 import { HeaderLinkButton } from "../ui/button";
-import { DEALS_OF_THE_WEEK, DIAMOND_SHAPE, EARRINGS, FLASH_DEALS, GOLD_COLOR, helperFunctions, STUDS } from "@/_helper";
+import {
+  DEALS_OF_THE_WEEK,
+  DIAMOND_SHAPE,
+  EARRINGS,
+  FLASH_DEALS,
+  GOLD_COLOR,
+  helperFunctions,
+  STUDS,
+} from "@/_helper";
 import dealsOfTheWeekEarringBanner from "@/assets/images/collections/deals-of-the-week-banner-earring.webp";
 import dealsOfTheWeekFlashDealsBanner from "@/assets/images/collections/deals-of-the-week-banner-flash-deals.webp";
 import CustomImg from "../ui/custom-img";
@@ -48,20 +56,25 @@ const ProductGrid = memo(
     const bannerConfig = {
       [STUDS]: {
         image: dealsOfTheWeekEarringBanner,
-        link: `/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(DEALS_OF_THE_WEEK)}`,
+        link: `/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
+          DEALS_OF_THE_WEEK
+        )}`,
       },
       [EARRINGS]: {
         image: dealsOfTheWeekEarringBanner,
-        link: `/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(DEALS_OF_THE_WEEK)}`,
+        link: `/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
+          DEALS_OF_THE_WEEK
+        )}`,
       },
       [FLASH_DEALS]: {
         image: dealsOfTheWeekFlashDealsBanner,
-        link: `/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(DEALS_OF_THE_WEEK)}`,
+        link: `/collections/collection/${helperFunctions?.stringReplacedWithUnderScore(
+          DEALS_OF_THE_WEEK
+        )}`,
       },
     };
     const bannerData = bannerConfig[collectionTitle];
     const shouldShowBanner = !!bannerData;
-
 
     const currentProducts = productsList.slice(0, visibleItemCount);
 
@@ -87,7 +100,6 @@ const ProductGrid = memo(
       const canInsertBanner =
         shouldShowBanner && currentProducts.length >= requiredProductsForBanner;
 
-
       if (!canInsertBanner) {
         return currentProducts.map((product) => (
           <ProductCard
@@ -98,16 +110,25 @@ const ProductGrid = memo(
             basePrice={product?.basePrice}
             price={product?.baseSellingPrice}
             goldColorVariations={product?.goldColorVariations}
+            diamondShapeVariations={product?.diamondShapeVariations}
             goldTypeVariations={product?.goldTypeVariations}
             whiteGoldThumbnailImage={product?.whiteGoldThumbnailImage}
             yellowGoldThumbnailImage={product?.yellowGoldThumbnailImage}
             roseGoldThumbnailImage={product?.roseGoldThumbnailImage}
             hoveredWhiteGoldImage={product?.whiteGoldImages?.[0]?.image ?? null}
-            hoveredYellowGoldImage={product?.yellowGoldImages?.[0]?.image ?? null}
+            hoveredYellowGoldImage={
+              product?.yellowGoldImages?.[0]?.image ?? null
+            }
             hoveredRoseGoldImage={product?.roseGoldImages?.[0]?.image ?? null}
-            productLink={getProductLink({ queryParams, isDiamondSettingPage, product })}
+            productLink={getProductLink({
+              queryParams,
+              isDiamondSettingPage,
+              product,
+            })}
             productId={product?.id}
-            selectedFilterGoldColor={selectedFilterVariations?.[GOLD_COLOR] ?? []}
+            selectedFilterGoldColor={
+              selectedFilterVariations?.[GOLD_COLOR] ?? []
+            }
             gender={product?.gender}
             productType={product?.productTypeNames?.[0]?.title}
             diamondShape={getProductDiamondShape(product) || ""}
@@ -127,16 +148,25 @@ const ProductGrid = memo(
             basePrice={product?.basePrice}
             price={product?.baseSellingPrice}
             goldColorVariations={product?.goldColorVariations}
+            diamondShapeVariations={product?.diamondShapeVariations}
             goldTypeVariations={product?.goldTypeVariations}
             whiteGoldThumbnailImage={product?.whiteGoldThumbnailImage}
             yellowGoldThumbnailImage={product?.yellowGoldThumbnailImage}
             roseGoldThumbnailImage={product?.roseGoldThumbnailImage}
             hoveredWhiteGoldImage={product?.whiteGoldImages?.[0]?.image ?? null}
-            hoveredYellowGoldImage={product?.yellowGoldImages?.[0]?.image ?? null}
+            hoveredYellowGoldImage={
+              product?.yellowGoldImages?.[0]?.image ?? null
+            }
             hoveredRoseGoldImage={product?.roseGoldImages?.[0]?.image ?? null}
-            productLink={getProductLink({ queryParams, isDiamondSettingPage, product })}
+            productLink={getProductLink({
+              queryParams,
+              isDiamondSettingPage,
+              product,
+            })}
             productId={product?.id}
-            selectedFilterGoldColor={selectedFilterVariations?.[GOLD_COLOR] ?? []}
+            selectedFilterGoldColor={
+              selectedFilterVariations?.[GOLD_COLOR] ?? []
+            }
             gender={product?.gender}
             productType={product?.productTypeNames?.[0]?.title}
             diamondShape={getProductDiamondShape(product) || ""}
@@ -148,8 +178,9 @@ const ProductGrid = memo(
       elements.push(
         <div
           key="banner-placeholder"
-          className={`${columnCount <= 2 ? "col-span-2" : "col-span-2"
-            } h-full md:h-full`}
+          className={`${
+            columnCount <= 2 ? "col-span-2" : "col-span-2"
+          } h-full md:h-full`}
         >
           <Link href={bannerData.link} aria-label="Collection banner">
             <CustomImg
@@ -172,16 +203,25 @@ const ProductGrid = memo(
             basePrice={product?.basePrice}
             price={product?.baseSellingPrice}
             goldColorVariations={product?.goldColorVariations}
+            diamondShapeVariations={product?.diamondShapeVariations}
             goldTypeVariations={product?.goldTypeVariations}
             whiteGoldThumbnailImage={product?.whiteGoldThumbnailImage}
             yellowGoldThumbnailImage={product?.yellowGoldThumbnailImage}
             roseGoldThumbnailImage={product?.roseGoldThumbnailImage}
             hoveredWhiteGoldImage={product?.whiteGoldImages?.[0]?.image ?? null}
-            hoveredYellowGoldImage={product?.yellowGoldImages?.[0]?.image ?? null}
+            hoveredYellowGoldImage={
+              product?.yellowGoldImages?.[0]?.image ?? null
+            }
             hoveredRoseGoldImage={product?.roseGoldImages?.[0]?.image ?? null}
-            productLink={getProductLink({ queryParams, isDiamondSettingPage, product })}
+            productLink={getProductLink({
+              queryParams,
+              isDiamondSettingPage,
+              product,
+            })}
             productId={product?.id}
-            selectedFilterGoldColor={selectedFilterVariations?.[GOLD_COLOR] ?? []}
+            selectedFilterGoldColor={
+              selectedFilterVariations?.[GOLD_COLOR] ?? []
+            }
             gender={product?.gender}
             productType={product?.productTypeNames?.[0]?.title}
             diamondShape={getProductDiamondShape(product) || ""}
@@ -191,7 +231,12 @@ const ProductGrid = memo(
       });
 
       return elements;
-    }, [currentProducts, columnCount, selectedFilterVariations, shouldShowBanner]);
+    }, [
+      currentProducts,
+      columnCount,
+      selectedFilterVariations,
+      shouldShowBanner,
+    ]);
 
     return (
       <>

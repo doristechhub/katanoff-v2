@@ -75,12 +75,7 @@ export const INIT_DIAMOND_QUALITY_SUB_TYPES_LIST = [
 ];
 
 export const INIT_DIAMOND_SHAPE_SUB_TYPES_LIST = [{ title: '', type: 'default' }];
-// Object map for gold color to thumbnail field
-export const GOLD_COLOR_MAP = {
-  'rose gold': 'roseGoldThumbnailImage',
-  'yellow gold': 'yellowGoldThumbnailImage',
-  'white gold': 'whiteGoldThumbnailImage',
-};
+
 
 export const ALLOW_MIN_CARAT_WEIGHT = 1.5;
 export const ALLOW_MAX_CARAT_WEIGHT = 7;

@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import { Form, Formik } from 'formik';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -33,9 +33,8 @@ import {
   updateStatusProduct,
   getSettingStyleList,
   getDiamondShapeList,
-  updateRoseGoldMediaAction,
-  updateWhiteGoldMediaAction,
-  updateYellowGoldMediaAction,
+  updateProduct,
+  createProduct,
 } from 'src/actions';
 import {
   productInitDetails,
@@ -57,10 +56,8 @@ import Iconify from 'src/components/iconify';
 import Specifications from './specifications';
 import { Editor } from 'src/components/editor';
 import { helperFunctions, prefixSaltSku } from 'src/_helpers';
-import { FileDrop } from 'src/components/file-drop';
 import { Button, LoadingButton } from 'src/components/button';
 import { getCollectionList } from 'src/actions/collectionActions';
-import CombinationDialog from './combination-dialog';
 import DiamondFilters from './diamond-filters';
 import DuplicateProductDialog from './duplicate-product-dialog';
 import {
@@ -86,17 +83,11 @@ import ClearIcon from '@mui/icons-material/Clear';
 import GroupBySection from './GroupBySection';
 import { fetchPriceMultiplier } from 'src/actions/settingsAction';
 import { debounce } from 'lodash';
+import MediaMappingManager from './media-mapping-manager';
 
 // ----------------------------------------------------------------------
 
 const validationSchema = Yup.object({
-  previewThumbnailImage: Yup.array().min(1, 'Thumbnail image is required'),
-  roseGoldPreviewImages: Yup.array().min(1, 'At least one rose gold image is required'),
-  roseGoldPreviewThumbnailImage: Yup.array().min(1, 'Rose gold thumbnail image is required'),
-  yellowGoldPreviewImages: Yup.array().min(1, 'At least one yellow gold image is required'),
-  yellowGoldPreviewThumbnailImage: Yup.array().min(1, 'Yellow gold thumbnail image is required'),
-  whiteGoldPreviewImages: Yup.array().min(1, 'At least one white gold image is required'),
-  whiteGoldPreviewThumbnailImage: Yup.array().min(1, 'White gold thumbnail image is required'),
   productName: Yup.string()
     .required('Product name is required')
     .max(60, 'Product name should not exceed 60 characters.')
@@ -115,6 +106,18 @@ const validationSchema = Yup.object({
     .min(0.01, 'Total carat weight must be positive'),
   categoryId: Yup.string().required('Category is required'),
   description: Yup.string().required('Description is required'),
+  mediaMapping: Yup.array()
+    .of(
+      Yup.object().shape({
+        mediaSetId: Yup.string().required(),
+        name: Yup.string().required(),
+        previewThumbnailImage: Yup.array().min(1, 'Thumbnail image is required'),
+        previewImages: Yup.array()
+          .of(Yup.object().shape({ image: Yup.string().required() }))
+          .min(1, 'At least one image required'),
+      })
+    )
+    .min(1, 'Upload thumbnail + images for at least one Gold Color + Diamond Shape combination'),
   variations: Yup.array()
     .min(1, 'Variation is required')
     .of(
@@ -171,10 +174,10 @@ const validationSchema = Yup.object({
 
 export default function AddProductPage() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const productId = searchParams.get('productId');
   const [duplicateDialog, setDuplicateDialog] = useState(false);
-  const [openCombinationDialog, setCombinantionDialog] = useState(false);
   const [statusConfirmationDialog, setStatusConfirmationDialog] = useState(false);
   const [hasZeroPrice, setHasZeroPrice] = useState(false);
 
@@ -216,11 +219,107 @@ export default function AddProductPage() {
     },
   };
 
-  const onSubmit = useCallback((fields, { setStatus, setSubmitting }) => {
-    setStatus();
-    setSubmitting(false);
-    setCombinantionDialog(true);
-  }, []);
+  const extractFiles = (previewArray) => {
+    if (!Array.isArray(previewArray)) return [];
+    return previewArray
+      .map((item) => item?.file || item) // FileDrop stores raw File in .file
+      .filter(Boolean);
+  };
+
+  const extractSingleFile = (previewArray) => {
+    return previewArray?.[0]?.file || previewArray?.[0] || null;
+  };
+
+  const handleFinalSubmit = async (values, { setSubmitting }) => {
+    try {
+      // -------- MEDIA MAPPING PAYLOAD --------
+      const mediaMappingPayload = values.mediaMapping?.map((mediaSet) => {
+        const matchingCombinations =
+          values.tempVariComboWithQuantity
+            ?.filter((combo) => {
+              const hasGold = combo.combination.some(
+                (c) =>
+                  c.variationName === GOLD_COLOR.title && c.variationTypeName === mediaSet.goldColor
+              );
+
+              const hasDiamond = combo.combination.some(
+                (c) =>
+                  c.variationName === DIAMOND_SHAPE.title &&
+                  c.variationTypeName === mediaSet.diamondShape?.name
+              );
+
+              return hasGold && hasDiamond;
+            })
+            .map((combo) => ({ combination: combo.combination })) ?? [];
+
+        // Extract actual File objects from FileDrop components
+        const thumbnailImageFile = extractSingleFile(mediaSet.thumbnailImageFile);
+        const imageFiles = extractFiles(mediaSet.imageFiles);
+        const videoFile = extractSingleFile(mediaSet.videoFile);
+
+        return {
+          mediaSetId: mediaSet.mediaSetId,
+          name: mediaSet.name,
+          matchingCombinations,
+          thumbnailImageFile,
+          imageFiles,
+          deletedImages: mediaSet.deletedImages?.map((item) => item?.image),
+          videoFile,
+          deleteUploadedVideo: mediaSet.deleteUploadedVideo[0]?.video,
+        };
+      });
+
+      // -------- FINAL PAYLOAD --------
+
+      const payload = {
+        saltSKU: values?.saltSKU,
+        sku: values?.sku,
+        discount: values?.discount,
+        variations: values?.variations,
+        categoryId: values?.categoryId,
+        productName: values?.productName,
+        productNamePrefix: values?.productNamePrefix,
+        description: values?.description,
+        collectionIds: values?.collectionIds,
+        settingStyleIds: values?.settingStyleIds,
+        productTypeIds: values?.productTypeIds,
+        gender: values?.gender,
+        netWeight: values?.netWeight,
+        grossWeight: values?.grossWeight,
+        centerDiamondWeight: values?.centerDiamondWeight,
+        totalCaratWeight: values?.totalCaratWeight,
+        sideDiamondWeight: values?.sideDiamondWeight,
+        Length: values?.Length,
+        width: values?.width,
+        lengthUnit: values?.lengthUnit,
+        widthUnit: values?.widthUnit,
+        subCategoryIds: values?.subCategoryIds,
+        specifications: values?.specifications,
+        shortDescription: values?.shortDescription,
+        variComboWithQuantity: values.tempVariComboWithQuantity,
+        active: hasZeroPrice ? false : values?.active,
+        isDiamondFilter: values?.isDiamondFilter,
+        diamondFilters: values?.diamondFilters,
+        priceCalculationMode: values?.priceCalculationMode,
+        mediaMapping: mediaMappingPayload,
+      };
+      let res;
+      if (productId) {
+        payload.productId = productId;
+        res = await dispatch(updateProduct(payload));
+      } else {
+        res = await dispatch(createProduct(payload));
+      }
+
+      if (res) {
+        navigate('/product');
+      }
+    } catch (e) {
+      console.error('Error :', e.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const randomNumber = useMemo(() => helperFunctions.getRandomNumberLimitedDigits(), []);
 
@@ -272,63 +371,6 @@ export default function AddProductPage() {
     },
     [dispatch, productId]
   );
-
-  const updateRoseGoldMedia = async (formik) => {
-    const payload = {
-      productId,
-      roseGoldThumbnailImageFile: formik?.values?.roseGoldThumbnailImageFile?.[0],
-      roseGoldImageFiles: formik?.values?.roseGoldImageFiles,
-      roseGoldVideoFile: formik?.values?.roseGoldVideoFile?.[0],
-      deletedRoseGoldImages: formik?.values?.roseGoldUploadedDeletedImages?.map(
-        (item) => item?.image
-      ),
-      deletedRoseGoldVideo: formik?.values?.roseGoldDeleteUploadedVideo?.[0]?.video,
-    };
-
-    const res = await dispatch(updateRoseGoldMediaAction(payload));
-
-    if (res) {
-      dispatch(getSingleProduct(productId));
-    }
-  };
-
-  const updateYellowGoldMedia = async (formik) => {
-    const payload = {
-      productId,
-      yellowGoldThumbnailImageFile: formik?.values?.yellowGoldThumbnailImageFile?.[0],
-      yellowGoldImageFiles: formik?.values?.yellowGoldImageFiles,
-      yellowGoldVideoFile: formik?.values?.yellowGoldVideoFile?.[0],
-      deletedYellowGoldImages: formik?.values?.yellowGoldUploadedDeletedImages?.map(
-        (item) => item?.image
-      ),
-      deletedYellowGoldVideo: formik?.values?.yellowGoldDeleteUploadedVideo?.[0]?.video,
-    };
-
-    const res = await dispatch(updateYellowGoldMediaAction(payload));
-
-    if (res) {
-      dispatch(getSingleProduct(productId));
-    }
-  };
-
-  const updateWhiteGoldMedia = async (formik) => {
-    const payload = {
-      productId,
-      whiteGoldThumbnailImageFile: formik?.values?.whiteGoldThumbnailImageFile?.[0],
-      whiteGoldImageFiles: formik?.values?.whiteGoldImageFiles,
-      whiteGoldVideoFile: formik?.values?.whiteGoldVideoFile?.[0],
-      deletedWhiteGoldImages: formik?.values?.whiteGoldUploadedDeletedImages?.map(
-        (item) => item?.image
-      ),
-      deletedWhiteGoldVideo: formik?.values?.whiteGoldDeleteUploadedVideo?.[0]?.video,
-    };
-
-    const res = await dispatch(updateWhiteGoldMediaAction(payload));
-
-    if (res) {
-      dispatch(getSingleProduct(productId));
-    }
-  };
 
   // set  default variations selected
   const setInitVariation = useCallback(
@@ -550,7 +592,7 @@ export default function AddProductPage() {
           ) : (
             <Formik
               enableReinitialize
-              onSubmit={onSubmit}
+              onSubmit={handleFinalSubmit}
               validateOnChange={false}
               initialValues={selectedProduct}
               validationSchema={validationSchema}
@@ -1334,221 +1376,6 @@ export default function AddProductPage() {
                           </Card>
                         </Grid>
                       </Grid>
-                      {/* Rose Gold Media */}
-                      <Grid container spacing={3}>
-                        <Grid xs={12} sm={4} md={4}>
-                          <Typography variant="h6">Rose Gold Media</Typography>
-                          <Typography variant="body2">
-                            Add thumbnails, images, or videos.
-                          </Typography>
-                        </Grid>
-                        <Grid xs={12} sm={8} md={8}>
-                          <Card component={Stack} spacing={2} sx={{ p: 1.5, borderRadius: 2 }}>
-                            <Grid container spacing={2}>
-                              <Grid xs={12} sm={6} md={6}>
-                                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                  Rose Gold Thumbnail Image
-                                </Typography>
-                                <FileDrop
-                                  mediaLimit={1}
-                                  formik={formik}
-                                  productId={productId}
-                                  fileKey="roseGoldThumbnailImageFile"
-                                  previewKey="roseGoldPreviewThumbnailImage"
-                                  deleteKey="roseGoldUploadedDeletedThumbnailImage"
-                                  loading={crudProductLoading || productLoading}
-                                />
-                              </Grid>
-                              <Grid xs={12} sm={6} md={6}>
-                                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                  Rose Gold Video
-                                </Typography>
-                                <FileDrop
-                                  mediaLimit={1}
-                                  formik={formik}
-                                  mediaType="video"
-                                  fileKey="roseGoldVideoFile"
-                                  productId={productId}
-                                  previewKey="roseGoldPreviewVideo"
-                                  deleteKey="roseGoldDeleteUploadedVideo"
-                                  loading={crudProductLoading || productLoading}
-                                />
-                              </Grid>
-                            </Grid>
-                            <Grid xs={12} sm={12} md={12} sx={{ marginTop: '0 !important' }}>
-                              <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                Rose Gold Images
-                              </Typography>
-                              <FileDrop
-                                mediaLimit={8}
-                                formik={formik}
-                                productId={productId}
-                                fileKey="roseGoldImageFiles"
-                                previewKey="roseGoldPreviewImages"
-                                deleteKey="roseGoldUploadedDeletedImages"
-                                loading={crudProductLoading || productLoading}
-                              />
-                            </Grid>
-                            {productId && (
-                              <Stack sx={{ my: 0 }} justifyContent="end" direction="row">
-                                <LoadingButton
-                                  variant="contained"
-                                  loading={crudProductLoading}
-                                  disabled={crudProductLoading}
-                                  onClick={() => updateRoseGoldMedia(formik)}
-                                  startIcon={<Iconify icon="line-md:upload-loop" />}
-                                >
-                                  Upload Rose Gold Media
-                                </LoadingButton>
-                              </Stack>
-                            )}
-                          </Card>
-                        </Grid>
-                      </Grid>
-
-                      {/* Yellow Gold Media */}
-                      <Grid container spacing={3}>
-                        <Grid xs={12} sm={4} md={4}>
-                          <Typography variant="h6">Yellow Gold Media</Typography>
-                          <Typography variant="body2">
-                            Add thumbnails, images, or videos.
-                          </Typography>
-                        </Grid>
-                        <Grid xs={12} sm={8} md={8}>
-                          <Card component={Stack} spacing={2} sx={{ p: 1.5, borderRadius: 2 }}>
-                            <Grid container spacing={2}>
-                              <Grid xs={12} sm={6} md={6}>
-                                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                  Yellow Gold Thumbnail Image
-                                </Typography>
-                                <FileDrop
-                                  mediaLimit={1}
-                                  formik={formik}
-                                  productId={productId}
-                                  fileKey="yellowGoldThumbnailImageFile"
-                                  previewKey="yellowGoldPreviewThumbnailImage"
-                                  deleteKey="yellowGoldUploadedDeletedThumbnailImage"
-                                  loading={crudProductLoading || productLoading}
-                                />
-                              </Grid>
-                              <Grid xs={12} sm={6} md={6}>
-                                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                  Yellow Gold Video
-                                </Typography>
-                                <FileDrop
-                                  mediaLimit={1}
-                                  formik={formik}
-                                  mediaType="video"
-                                  fileKey="yellowGoldVideoFile"
-                                  productId={productId}
-                                  previewKey="yellowGoldPreviewVideo"
-                                  deleteKey="yellowGoldDeleteUploadedVideo"
-                                  loading={crudProductLoading || productLoading}
-                                />
-                              </Grid>
-                            </Grid>
-                            <Grid xs={12} sm={12} md={12} sx={{ marginTop: '0 !important' }}>
-                              <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                Yellow Gold Images
-                              </Typography>
-                              <FileDrop
-                                mediaLimit={8}
-                                formik={formik}
-                                productId={productId}
-                                fileKey="yellowGoldImageFiles"
-                                previewKey="yellowGoldPreviewImages"
-                                deleteKey="yellowGoldUploadedDeletedImages"
-                                loading={crudProductLoading || productLoading}
-                              />
-                            </Grid>
-                            {productId && (
-                              <Stack sx={{ my: 0 }} justifyContent="end" direction="row">
-                                <LoadingButton
-                                  variant="contained"
-                                  loading={crudProductLoading}
-                                  disabled={crudProductLoading}
-                                  onClick={() => updateYellowGoldMedia(formik)}
-                                  startIcon={<Iconify icon="line-md:upload-loop" />}
-                                >
-                                  Upload Yellow Gold Media
-                                </LoadingButton>
-                              </Stack>
-                            )}
-                          </Card>
-                        </Grid>
-                      </Grid>
-
-                      {/* White Gold Media */}
-                      <Grid container spacing={3}>
-                        <Grid xs={12} sm={4} md={4}>
-                          <Typography variant="h6">White Gold Media</Typography>
-                          <Typography variant="body2">
-                            Add thumbnails, images, or videos.
-                          </Typography>
-                        </Grid>
-                        <Grid xs={12} sm={8} md={8}>
-                          <Card component={Stack} spacing={2} sx={{ p: 1.5, borderRadius: 2 }}>
-                            <Grid container spacing={2}>
-                              <Grid xs={12} sm={6} md={6}>
-                                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                  White Gold Thumbnail Image
-                                </Typography>
-                                <FileDrop
-                                  mediaLimit={1}
-                                  formik={formik}
-                                  productId={productId}
-                                  fileKey="whiteGoldThumbnailImageFile"
-                                  previewKey="whiteGoldPreviewThumbnailImage"
-                                  deleteKey="whiteGoldUploadedDeletedThumbnailImage"
-                                  loading={crudProductLoading || productLoading}
-                                />
-                              </Grid>
-                              <Grid xs={12} sm={6} md={6}>
-                                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                  White Gold Video
-                                </Typography>
-                                <FileDrop
-                                  mediaLimit={1}
-                                  formik={formik}
-                                  mediaType="video"
-                                  fileKey="whiteGoldVideoFile"
-                                  productId={productId}
-                                  previewKey="whiteGoldPreviewVideo"
-                                  deleteKey="whiteGoldDeleteUploadedVideo"
-                                  loading={crudProductLoading || productLoading}
-                                />
-                              </Grid>
-                            </Grid>
-                            <Grid xs={12} sm={12} md={12} sx={{ marginTop: '0 !important' }}>
-                              <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                White Gold Images
-                              </Typography>
-                              <FileDrop
-                                mediaLimit={8}
-                                formik={formik}
-                                productId={productId}
-                                fileKey="whiteGoldImageFiles"
-                                previewKey="whiteGoldPreviewImages"
-                                deleteKey="whiteGoldUploadedDeletedImages"
-                                loading={crudProductLoading || productLoading}
-                              />
-                            </Grid>
-                            {productId && (
-                              <Stack sx={{ my: 0 }} justifyContent="end" direction="row">
-                                <LoadingButton
-                                  variant="contained"
-                                  loading={crudProductLoading}
-                                  disabled={crudProductLoading}
-                                  onClick={() => updateWhiteGoldMedia(formik)}
-                                  startIcon={<Iconify icon="line-md:upload-loop" />}
-                                >
-                                  Upload White Gold Media
-                                </LoadingButton>
-                              </Stack>
-                            )}
-                          </Card>
-                        </Grid>
-                      </Grid>
 
                       <Grid container spacing={3}>
                         <Grid xs={12} sm={4} md={4}>
@@ -1566,6 +1393,31 @@ export default function AddProductPage() {
                           >
                             <Variations formik={formik} />
                             <GroupBySection formik={formik} groupTableHeight={400} />
+                          </Card>
+                        </Grid>
+                      </Grid>
+
+                      {/* Media Maping Manager */}
+                      <Grid container spacing={3}>
+                        <Grid xs={12} sm={4} md={4}>
+                          <Typography variant="h6">Media Maping</Typography>
+                          <Typography variant="body2">
+                            Add media for each color and shape variant.
+                          </Typography>
+                        </Grid>
+
+                        <Grid xs={12} sm={8} md={8}>
+                          <Card sx={{ p: 1.5, borderRadius: 2 }}>
+                            <MediaMappingManager
+                              formik={formik}
+                              productId={productId}
+                              loading={crudProductLoading || productLoading}
+                            />
+                            {touched?.mediaMapping && typeof errors?.mediaMapping === 'string' ? (
+                              <FormHelperText sx={{ color: 'error.main', px: 1, mt: 1 }}>
+                                {errors?.mediaMapping}
+                              </FormHelperText>
+                            ) : null}
                           </Card>
                         </Grid>
                       </Grid>
@@ -1653,16 +1505,7 @@ export default function AddProductPage() {
                         </Grid>
                       </Grid>
                     </Form>
-                    {openCombinationDialog && (
-                      <CombinationDialog
-                        fields={values}
-                        productId={productId}
-                        openDialog={openCombinationDialog}
-                        onCloseDialog={setCombinantionDialog}
-                        combinationsDetail={values?.tempVariComboWithQuantity}
-                        priceCalculationMode={values.priceCalculationMode}
-                      />
-                    )}
+
                     {statusConfirmationDialog && (
                       <Dialog
                         open={statusConfirmationDialog}

@@ -17,7 +17,7 @@ export default function ProductSwiper({
   productList,
   title = "",
   loading,
-  isDiamondSettingPage,
+  isDiamondSettingPage = false,
 }) {
   const queryParams = useQueryParams();
   const { columnCount } = useWindowSize();
@@ -100,14 +100,15 @@ export default function ProductSwiper({
         >
           {productList &&
             productList.map((product) => (
-              <SwiperSlide key={`product-key-${product?.productName}`}>
+              <SwiperSlide key={`product-key-swipper-slide-${product?.id}`}>
                 <ProductCard
-                  key={`product-key-${product?.id}`}
                   title={product?.productName}
+                  isDiamondSettingPage={isDiamondSettingPage}
                   discount={product?.discount}
                   basePrice={product?.basePrice}
                   price={product?.baseSellingPrice}
                   goldColorVariations={product?.goldColorVariations}
+                  diamondShapeVariations={product?.diamondShapeVariations}
                   goldTypeVariations={product?.goldTypeVariations}
                   whiteGoldThumbnailImage={product?.whiteGoldThumbnailImage}
                   yellowGoldThumbnailImage={product?.yellowGoldThumbnailImage}
