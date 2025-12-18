@@ -1,7 +1,7 @@
 import { toastError } from '.';
-import { usersService } from 'src/_services';
+import { toast, usersService } from 'src/_services';
 import { helperFunctions } from 'src/_helpers';
-import { setUserList, setUserLoading } from 'src/store/slices/userSlice';
+import { setCrudUserLoading, setUserList, setUserLoading } from 'src/store/slices/userSlice';
 
 // ----------------------------------------------------------------------
 
@@ -21,5 +21,23 @@ export const getUserList = () => async (dispatch) => {
     return false;
   } finally {
     dispatch(setUserLoading(false));
+  }
+};
+
+export const deleteUser = (payload) => async (dispatch) => {
+  try {
+    dispatch(setCrudUserLoading(true));
+
+    const res = await usersService.deleteUser(payload);
+
+    if (res) {
+      toast.success('User deleted successfully');
+      return true;
+    }
+  } catch (e) {
+    toastError(e);
+    return false;
+  } finally {
+    dispatch(setCrudUserLoading(false));
   }
 };

@@ -16,12 +16,15 @@ import {
   TableContainer,
   InputAdornment,
   TablePagination,
+  Popover,
+  MenuItem,
 } from '@mui/material';
 
 import Iconify from 'src/components/iconify';
 import Spinner from 'src/components/spinner';
 import Scrollbar from 'src/components/scrollbar';
-import { getUserList } from 'src/actions/userActions';
+import ConfirmationDialog from 'src/components/confirmation-dialog';
+import { deleteUser, getUserList } from 'src/actions/userActions';
 
 // ----------------------------------------------------------------------
 
@@ -30,8 +33,11 @@ const User = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchedValue, setSearchedValue] = useState('');
+  const [open, setOpen] = useState(null);
+  const [deleteDialog, setDeleteDialog] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState();
 
-  const { userLoading, userList } = useSelector(({ user }) => user);
+  const { userLoading, crudUserLoading, userList } = useSelector(({ user }) => user);
 
   const searchedKey = searchedValue?.toLowerCase()?.trim();
   const filteredItems = useMemo(() => {
@@ -41,9 +47,16 @@ const User = () => {
         ? moment(item.createdDate).format('MM-DD-YYYY hh:mm a').includes(searchedKey)
         : false;
       const matchesEmail = item.email?.toLowerCase()?.includes(searchedKey);
+      const matchesPhoneNumber = item.phoneNumber?.toLowerCase()?.includes(searchedKey);
       const matchesFirstName = item.firstName?.toString()?.toLowerCase().includes(searchedKey);
       const matchesLastName = item.lastName?.toString()?.toLowerCase().includes(searchedKey);
-      return matchesEmail || matchesFirstName || matchesLastName || matchesCreatedDate;
+      return (
+        matchesEmail ||
+        matchesPhoneNumber ||
+        matchesFirstName ||
+        matchesLastName ||
+        matchesCreatedDate
+      );
     });
   }, [userList, searchedKey]);
 
@@ -73,6 +86,46 @@ const User = () => {
     setPage(0);
     setRowsPerPage(parseInt(e.target.value, 10));
   }, []);
+
+  const handlePopup = useCallback((e, reason) => {
+    setOpen(null);
+    setSelectedUserId(undefined);
+  }, []);
+
+  const handleDelete = useCallback(async () => {
+    const res = await dispatch(
+      deleteUser({
+        userId: selectedUserId,
+      })
+    );
+
+    if (res) {
+      const cPage = page !== 0 && paginatedItems?.length === 1 ? page - 1 : page;
+
+      setPage(cPage);
+      loadData();
+      handlePopup();
+      setDeleteDialog(false);
+    }
+  }, [selectedUserId, paginatedItems, page]);
+
+  const renderPopup = useMemo(() => {
+    return !!open ? (
+      <Popover
+        open={!!open}
+        anchorEl={open}
+        PaperProps={{ sx: { width: 140 } }}
+        onClose={handlePopup}
+        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <MenuItem sx={{ color: 'error.main' }} onClick={() => setDeleteDialog(true)}>
+          <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
+          Delete
+        </MenuItem>
+      </Popover>
+    ) : null;
+  }, [open]);
 
   return (
     <>
@@ -125,7 +178,9 @@ const User = () => {
                       <TableCell>First Name</TableCell>
                       <TableCell>Last Name</TableCell>
                       <TableCell>Email</TableCell>
-                      <TableCell>Date & Time</TableCell>
+                      <TableCell>Phone Number</TableCell>
+                      <TableCell>Date & Time (MM-DD-YYYY)</TableCell>
+                      <TableCell></TableCell>
                     </TableRow>
                   </TableHead>
 
@@ -137,8 +192,19 @@ const User = () => {
                           <TableCell>{x?.firstName}</TableCell>
                           <TableCell>{x?.lastName}</TableCell>
                           <TableCell>{x?.email}</TableCell>
+                          <TableCell>{x?.phoneNumber || '-'}</TableCell>
                           <TableCell sx={{ minWidth: '180px' }}>
                             {moment(x?.createdDate).format('MM-DD-YYYY hh:mm a')}
+                          </TableCell>
+                          <TableCell sx={{ width: '50px' }}>
+                            <Iconify
+                              className="cursor-pointer"
+                              icon="iconamoon:menu-kebab-vertical-bold"
+                              onClick={(e) => {
+                                setOpen(e.currentTarget);
+                                setSelectedUserId(x?.id);
+                              }}
+                            />
                           </TableCell>
                         </TableRow>
                       ))
@@ -167,6 +233,17 @@ const User = () => {
           </Card>
         </Container>
       )}
+
+      {renderPopup}
+
+      <ConfirmationDialog
+        open={deleteDialog}
+        setOpen={setDeleteDialog}
+        handleConfirm={handleDelete}
+        loading={crudUserLoading}
+      >
+        Do you want to delete this user?
+      </ConfirmationDialog>
     </>
   );
 };

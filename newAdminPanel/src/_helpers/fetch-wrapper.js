@@ -25,6 +25,7 @@ import {
   storageApp,
   defaultApp,
   returnsApp,
+  cartsApp,
 } from '../firebase';
 import { helperFunctions } from './helperFunctions';
 import {
@@ -56,13 +57,15 @@ import {
   storageUrl,
   returnsUrl,
   contactsUrl,
+  recentlyViewedUrl,
+  cartsUrl,
 } from './environment';
 
 // Get the default database instance
 // const db = getDatabase(defaultApp);
 
 const getDBFromUrl = (url) => {
-  if ([userUrl, contactsUrl].includes(url)) {
+  if ([userUrl, contactsUrl, recentlyViewedUrl].includes(url)) {
     return getDatabase(cmsApp);
   } else if (
     [
@@ -87,6 +90,8 @@ const getDBFromUrl = (url) => {
     ].includes(url)
   ) {
     return getDatabase(amsApp);
+  } else if ([cartsUrl].includes(url)) {
+    return getDatabase(cartsApp);
   } else if ([productsUrl].includes(url)) {
     return getDatabase(productsApp);
   } else if ([ordersUrl].includes(url)) {
@@ -107,7 +112,7 @@ const getDBFromUrl = (url) => {
 };
 
 const getAppFromUrl = (url) => {
-  if ([userUrl, contactsUrl].includes(url)) {
+  if ([userUrl, contactsUrl, recentlyViewedUrl].includes(url)) {
     return cmsApp;
   } else if (
     [
@@ -132,6 +137,8 @@ const getAppFromUrl = (url) => {
     ].includes(url)
   ) {
     return amsApp;
+  } else if ([cartsUrl].includes(url)) {
+    return cartsApp;
   } else if ([productsUrl].includes(url)) {
     return productsApp;
   } else if ([ordersUrl].includes(url)) {

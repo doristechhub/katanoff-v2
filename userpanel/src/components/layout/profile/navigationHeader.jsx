@@ -39,13 +39,22 @@ export default function NavigationHeader() {
 
   let currentUser = helperFunctions?.getCurrentUser();
 
-  const logOutHandler = () => {
-    localStorage.removeItem("currentUser");
-    Cookies.remove("token");
-    dispatch(fetchCart());
-    setIsHeaderVisible(false);
-    router.push("/");
+  const logOutHandler = async () => {
+    try {
+      await fetch("/api/logout", { method: "POST" });
+
+      localStorage.removeItem("currentUser");
+
+      dispatch(fetchCart());
+      setIsHeaderVisible(false);
+
+      // Hard navigation ensures middleware re-runs
+      window.location.href = "/";
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
   };
+
   const handleLoginClick = () => {
     if (pathname === "/checkout") {
       localStorage.setItem("postLoginRedirect", "/checkout");

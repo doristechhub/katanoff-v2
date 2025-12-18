@@ -222,7 +222,7 @@ const Contacts = () => {
                       <TableCell>Name</TableCell>
                       <TableCell>Email</TableCell>
                       <TableCell>Mobile</TableCell>
-                      <TableCell>Date & Time</TableCell>
+                      <TableCell>Date & Time (MM-DD-YYYY)</TableCell>
                       <TableCell></TableCell>
                     </TableRow>
                   </TableHead>

@@ -479,7 +479,7 @@ const Appointments = () => {
                       <TableCell>Name</TableCell>
                       <TableCell>Email</TableCell>
                       <TableCell>Mobile</TableCell>
-                      <TableCell>Date & Time</TableCell>
+                      <TableCell>Date & Time (MM-DD-YYYY)</TableCell>
                       <TableCell>Status</TableCell>
                       <TableCell></TableCell>
                     </TableRow>

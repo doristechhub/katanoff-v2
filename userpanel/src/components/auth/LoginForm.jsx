@@ -104,8 +104,9 @@ const LoginForm = () => {
           type="email"
           name="email"
           placeholder="Email ID"
-          className={`custom-input w-full ${touched?.email && errors?.email ? "border border-red-500" : ""
-            }`}
+          className={`custom-input w-full ${
+            touched?.email && errors?.email ? "border border-red-500" : ""
+          }`}
           onChange={handleChange}
           onBlur={handleBlur}
           value={values?.email}
@@ -145,19 +146,17 @@ const LoginForm = () => {
           type={sendOtpMessage?.type}
         />
       ) : null}
-      {/* <FixedAlert
+      <FixedAlert
         message={userRegisterMessage?.message}
         type={userRegisterMessage?.type}
-      /> */}
+      />
       {/* Privacy Policy */}
-      <p className="absolute bottom-14 md:bottom-20 lg:bottom-10 2xl:bottom-20 2xl:right-28 md:right-28 right-14 lg:right-14">
-        <Link
-          href="/privacy-policy"
-          className="underline text-sm sm:text-base 2xl:text-lg text-basegray hover:text-primary transition-all duration-300"
-        >
-          Privacy Policy
-        </Link>
-      </p>
+      <Link
+        href="/privacy-policy"
+        className="absolute bottom-[16%] md:bottom-[21tt%] md:right-40 right-10 lg:fixed lg:bottom-6 lg:right-[6%] underline text-sm sm:text-base 2xl:text-lg text-basegray hover:text-primary transition-all duration-300"
+      >
+        Privacy Policy
+      </Link>
     </div>
   );
 };

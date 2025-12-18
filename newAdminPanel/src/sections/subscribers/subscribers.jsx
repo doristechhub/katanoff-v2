@@ -192,7 +192,7 @@ const Subscribers = () => {
                     <TableRow>
                       <TableCell>Id</TableCell>
                       <TableCell>Email</TableCell>
-                      <TableCell>Date & Time</TableCell>
+                      <TableCell>Date & Time (MM-DD-YYYY)</TableCell>
                       <TableCell></TableCell>
                     </TableRow>
                   </TableHead>

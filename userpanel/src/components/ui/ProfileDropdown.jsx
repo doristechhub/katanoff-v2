@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { HeaderLinkButton } from "./button";
 import { fetchCart } from "@/_actions/cart.action";
 import { useEffect } from "react";
+
 export default function ProfileDropdown({ className = "", uniqueId }) {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -37,11 +38,20 @@ export default function ProfileDropdown({ className = "", uniqueId }) {
     }
   };
 
-  const logOutHandler = () => {
-    localStorage.removeItem("currentUser");
-    Cookies.remove("token");
-    dispatch(fetchCart());
-    router.push("/");
+  const logOutHandler = async () => {
+    try {
+      await fetch("/api/logout", { method: "POST" });
+
+      localStorage.removeItem("currentUser");
+
+      dispatch(fetchCart());
+      dispatch(setOpenProfileDropdown(null));
+
+      // Hard navigation ensures middleware re-runs
+      window.location.href = "/";
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
   };
 
   useEffect(() => {

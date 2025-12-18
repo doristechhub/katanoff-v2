@@ -455,7 +455,7 @@ const OrderList = () => {
                     <TableCell>Email</TableCell>
                     <TableCell>Mobile</TableCell>
                     <TableCell>Order Number</TableCell>
-                    <TableCell>Date & Time</TableCell>
+                    <TableCell>Date & Time (MM-DD-YYYY)</TableCell>
                     <TableCell>Payment Method</TableCell>
                     <TableCell>Payment Status</TableCell>
                     <TableCell>Order Status</TableCell>
