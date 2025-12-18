@@ -22,7 +22,7 @@ const Login = () => {
               srcAttr={textLogo}
               altAttr="lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff"
               titleAttr="Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York"
-              className="w-40 md:w-60 lg:w-70 2xl:w-80 "
+              className="w-40 md:w-44 4xl:w-52 2xl:w-44"
             />
           </Link>
           <LoginForm />

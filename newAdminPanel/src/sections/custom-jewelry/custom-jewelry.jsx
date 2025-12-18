@@ -224,7 +224,7 @@ const CustomJewelry = () => {
           <Grid container spacing={2} mb={1}>
             <Grid xs={12} sm={6}>
               <Box mb={1}>
-                {getTypoGraphy('Created Date & Time')}
+                {getTypoGraphy('Created Date & Time (MM-DD-YYYY)')}
                 {moment(item?.createdDate).format('MM-DD-YYYY hh:mm A')}
               </Box>
             </Grid>

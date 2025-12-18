@@ -777,6 +777,7 @@ const findDuplicates = (array, key) => {
   return Array.from(duplicateKeys);
 };
 
+
 /* ===================================================================
    MEDIA SET ID GENERATOR – RECOMMENDED FINAL VERSION
    Format: 14k_yellow_round_483920  (sorted IDs + 6-digit random)
@@ -806,7 +807,7 @@ const bytesToMB = (bytes) => {
 // Assign mediaSetId to each combo using matchingCombinations
 const applyMediaSetIdByMatching = (mediaMappingParam = [], variCombos = []) => {
   return variCombos.map((combo) => {
-    let matchedMediaSetId = '';
+    let matchedMediaSetId = "";
 
     // Loop through each media set
     for (const media of mediaMappingParam) {
@@ -832,26 +833,32 @@ const applyMediaSetIdByMatching = (mediaMappingParam = [], variCombos = []) => {
 
     return {
       ...combo,
-      mediaSetId: matchedMediaSetId || '', // empty if no match found
+      mediaSetId: matchedMediaSetId || "" // empty if no match found
     };
   });
 };
 
 const getThumbnailForSelectedVariations = (product = {}, variationArray = []) => {
-  if (!product?.mediaMapping || !product?.variComboWithQuantity || !variationArray?.length) {
+  if (
+    !product?.mediaMapping ||
+    !product?.variComboWithQuantity ||
+    !variationArray?.length
+  ) {
     return null;
   }
-  const selectedTypeIds = variationArray.map((v) => v.variationTypeId);
+  const selectedTypeIds = variationArray.map(v => v.variationTypeId);
 
-  const matchedCombo = product.variComboWithQuantity.find((combo) => {
-    const comboTypeIds = combo.combination.map((c) => c.variationTypeId);
+  const matchedCombo = product.variComboWithQuantity.find(combo => {
+    const comboTypeIds = combo.combination.map(c => c.variationTypeId);
 
-    return selectedTypeIds.every((id) => comboTypeIds.includes(id));
+    return selectedTypeIds.every(id => comboTypeIds.includes(id));
   });
 
   if (!matchedCombo?.mediaSetId) return null;
 
-  const media = product.mediaMapping.find((m) => m.mediaSetId === matchedCombo.mediaSetId);
+  const media = product.mediaMapping.find(
+    m => m.mediaSetId === matchedCombo.mediaSetId
+  );
 
   return media?.thumbnailImage || null;
 };
@@ -912,6 +919,7 @@ const getProductThumbnail = (product) => {
   );
 };
 
+
 export const helperFunctions = {
   getCurrentUser,
   getVariationsArray,
@@ -965,5 +973,5 @@ export const helperFunctions = {
   applyMediaSetIdByMatching,
   getThumbnailForSelectedVariations,
   getGoldColorWiseMedia,
-  getProductThumbnail,
+  getProductThumbnail
 };

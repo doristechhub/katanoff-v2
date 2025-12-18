@@ -157,7 +157,9 @@ export default function ReturnHistoryPage() {
 
       <div className="container mt-10">
         {returnLoader ? (
-          <div className={`w-full h-[300px] animate-pulse`}>
+          <div
+            className={`w-full h-1/2 animate-pulse overflow-x-auto md:overflow-x-visible`}
+          >
             <table className="w-full text-sm text-left rtl:text-right shadow-[0px_0px_12px_0px_#0000001A]">
               {renderTableHeading()}
 
@@ -233,10 +235,7 @@ export default function ReturnHistoryPage() {
             </table>
           </div>
         ) : (
-          <CommonNotFound
-            message="Sorry, No Return Found"
-            showButton={true}
-          />
+          <CommonNotFound message="Sorry, No Return Found" showButton={true} />
         )}
         {openId !== null && (
           <div

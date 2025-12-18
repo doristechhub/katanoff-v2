@@ -226,7 +226,7 @@ const Review = () => {
           </Grid>
           <Grid container spacing={2} mb={1}>
             <Grid xs={12} sm={6}>
-              {getTypoGraphy('Created Date & Time')}
+              {getTypoGraphy('Created Date & Time(MM-DD-YYYY)')}
               {moment(item?.createdDate).format('MM-DD-YYYY hh:mm A')}
             </Grid>
             <Grid xs={12} sm={6}>
@@ -321,7 +321,7 @@ const Review = () => {
                       <TableCell>Email</TableCell>
                       <TableCell>Product</TableCell>
                       <TableCell>Ratings</TableCell>
-                      <TableCell>Date & Time</TableCell>
+                      <TableCell>Date & Time (MM-DD-YYYY)</TableCell>
                       <TableCell></TableCell>
                     </TableRow>
                   </TableHead>

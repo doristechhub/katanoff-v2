@@ -622,7 +622,7 @@ const ReturnList = () => {
                   <TableRow>
                     <TableCell>Id</TableCell>
                     <TableCell>Order Number</TableCell>
-                    <TableCell>Date & Time</TableCell>
+                    <TableCell>Date & Time (MM-DD-YYYY)</TableCell>
                     <TableCell>Payment Method</TableCell>
 
                     <TableCell>Return Payment Status</TableCell>

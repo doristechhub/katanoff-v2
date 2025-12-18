@@ -44,6 +44,7 @@ const insertUser = (params) => {
         firstName,
         lastName,
         email,
+        phoneNumber,
         password,
         confirmPassword,
         isSignUpOffer,
@@ -51,8 +52,10 @@ const insertUser = (params) => {
       firstName = firstName ? firstName.trim() : null;
       lastName = lastName ? lastName.trim() : null;
       email = email ? email.trim() : null;
+      phoneNumber = phoneNumber ? phoneNumber?.trim() : null;
       password = password ? password.trim() : null;
       confirmPassword = confirmPassword ? confirmPassword.trim() : null;
+
       if (
         firstName &&
         lastName &&
@@ -61,15 +64,25 @@ const insertUser = (params) => {
         confirmPassword &&
         uuid
       ) {
-        const findPattern = { email: email };
+        const findEmailPattern = { email };
+
         const userData = await fetchWrapperService.findOne(
           userUrl,
-          findPattern
+          findEmailPattern
         );
+
+        if (phoneNumber) {
+          const phoneExists = await fetchWrapperService.findOne(userUrl, {
+            phoneNumber,
+          });
+
+          if (phoneExists) return reject(new Error("Phone number already registered"));
+        }
         const adminData = await fetchWrapperService.findOne(
           adminUrl,
-          findPattern
+          findEmailPattern
         );
+
         if (adminData) {
           reject(
             new Error(
@@ -87,6 +100,7 @@ const insertUser = (params) => {
               firstName,
               lastName,
               email,
+              phoneNumber,
               password: hash,
               createdDate: Date.now(),
               updatedDate: Date.now(),

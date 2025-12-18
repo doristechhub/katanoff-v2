@@ -235,7 +235,7 @@ ul {
 }
 
 .custom-input {
-  @apply w-full p-3 2xl:p-5 focus:outline-none focus:ring-blue-500 text-sm md:text-lg;
+  @apply w-full p-3 2xl:p-3 4xl:p-5 focus:outline-none focus:ring-blue-500 text-sm md:text-base 2xl:text-lg;
 }
 
 /* Ensure pagination is outside the Swiper */

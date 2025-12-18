@@ -30,6 +30,8 @@ export const discountsUrl = process.env.REACT_APP_DISCOUNTS;
 export const settingsUrl = process.env.REACT_APP_SETTINGS;
 export const priceMultiplierUrl = process.env.REACT_APP_PRICE_MULTIPLIER;
 export const customProductsSettingsUrl = process.env.REACT_APP_CUSTOM_PRODUCTS_SETTINGS;
+export const cartsUrl = process.env.REACT_APP_CART;
+export const recentlyViewedUrl = process.env.REACT_APP_RECENTLY_VIEWED;
 
 export const returnRequestStorageUrl = process.env.REACT_APP_RETURN_REQUEST;
 

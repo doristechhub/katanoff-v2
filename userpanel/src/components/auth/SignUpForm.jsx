@@ -12,10 +12,7 @@ import {
   setSendOtpMessage,
   setUserRegisterMessage,
 } from "@/store/slices/userSlice";
-import {
-  createUser,
-  SendOTPForEmailVerification,
-} from "@/_actions/user.action";
+import { createUser } from "@/_actions/user.action";
 import { setIsHovered } from "@/store/slices/commonSlice";
 import { LoadingPrimaryButton } from "../ui/button";
 import FixedAlert from "../ui/FixedAlert";
@@ -24,6 +21,9 @@ import openEye from "@/assets/icons/open-eye.svg";
 import closeEye from "@/assets/icons/close-eye.svg";
 import ErrorMessage from "../ui/ErrorMessage";
 import CustomImg from "../ui/custom-img";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import textLogo from "@/assets/images/logo-text.webp";
 
 // ----------------------------------------------------------------------
 
@@ -56,34 +56,28 @@ const SignUpForm = () => {
   useAlertTimeout(sendOtpMessage, () =>
     dispatch(setSendOtpMessage({ message: "", type: "" }))
   );
-  const onSubmit = useCallback(async (fields, { resetForm }) => {
-    const payload = {
-      firstName: fields.firstName,
-      lastName: fields.lastName,
-      email: fields.email,
-      password: fields.password,
-      confirmPassword: fields.confirmPassword,
-      isSignUpOffer: signUpOfferEmail ? true : false,
-    };
-
-    const response = await dispatch(createUser(payload));
-    if (response) {
-      resetForm();
-      localStorage.removeItem("signUpOfferEmail");
+  const onSubmit = useCallback(
+    async (fields, { resetForm }) => {
       const payload = {
+        firstName: fields.firstName,
+        lastName: fields.lastName,
         email: fields.email,
+        phoneNumber: fields?.phoneNumber,
+        password: fields.password,
+        confirmPassword: fields.confirmPassword,
+        isSignUpOffer: !!signUpOfferEmail,
       };
 
-      const response = await dispatch(SendOTPForEmailVerification(payload));
+      const response = await dispatch(createUser(payload));
+
       if (response) {
-        localStorage.setItem("email", fields.email);
-        router.push("/auth/verify-otp");
-      }
-      {
+        resetForm();
+        localStorage.removeItem("signUpOfferEmail");
         router.push("/auth/login");
       }
-    }
-  }, []);
+    },
+    [signUpOfferEmail, dispatch, router]
+  );
 
   useEffect(() => {
     return () => {
@@ -100,17 +94,25 @@ const SignUpForm = () => {
     firstName: "",
     lastName: "",
     email: signUpOfferEmail ? signUpOfferEmail : "",
+    phoneNumber: "",
     password: "",
     confirmPassword: "",
   };
 
-  const { values, errors, touched, handleChange, handleBlur, handleSubmit } =
-    useFormik({
-      onSubmit,
-      validationSchema,
-      enableReinitialize: true,
-      initialValues,
-    });
+  const {
+    values,
+    errors,
+    touched,
+    handleChange,
+    handleBlur,
+    setFieldValue,
+    handleSubmit,
+  } = useFormik({
+    onSubmit,
+    validationSchema,
+    enableReinitialize: true,
+    initialValues,
+  });
 
   const currentUser = helperFunctions.getCurrentUser();
   useEffect(() => {
@@ -142,31 +144,43 @@ const SignUpForm = () => {
   );
 
   return (
-    <div className="w-full 2xl:w-[100%] flex flex-col items-center justify-center h-full py-20 md:py-20 2xl:py-28">
-      <h1 className="text-3xl md:text-3xl 2xl:text-4xl text-baseblack font-gelasio">
+    <div className="w-[90%] mx-auto flex flex-col items-center justify-center h-full">
+      <Link href={"/"} className="flex justify-center mb-5 4xl:mb-8">
+        <CustomImg
+          srcAttr={textLogo}
+          altAttr="lab grown diamond jewelry, custom jewelry, fine jewelry, ethical diamond jewelry, engagement rings, wedding rings, tennis bracelets, diamond earrings, diamond necklaces, pendants, men’s jewelry, New York, USA, Katanoff"
+          titleAttr="Katanoff | Lab Grown Diamond & Custom Fine Jewelry in New York"
+          className="w-40 md:w-44 4xl:w-52 2xl:w-44"
+        />
+      </Link>
+      <h1 className="text-2xl md:text-3xl 4xl:text-4xl text-baseblack font-gelasio">
         Create Your Account
       </h1>
-      <p className="text-sm sm:text-base 2xl:text-lg text-basegray mt-2 font-Poppins">
+      <p className="text-sm sm:text-base 4xl:text-lg text-basegray mt-2 font-Poppins">
         Sign up for your new account
       </p>
 
-      <div className="mt-10 lg:mt-8 2xl:mt-10 w-full">
+      <div className="mt-10 lg:mt-6 4xl:mt-10 w-full">
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-1">
             <input
               type="text"
               name="firstName"
               placeholder="First name"
-              className={`custom-input w-full ${touched?.firstName && errors?.firstName
-                ? "border border-red-500"
-                : ""
-                }`}
+              className={`custom-input w-full ${
+                touched?.firstName && errors?.firstName
+                  ? "border border-red-500"
+                  : ""
+              }`}
               onChange={handleChange}
               onBlur={handleBlur}
               value={values?.firstName}
             />
             {touched?.firstName && errors?.firstName ? (
-              <ErrorMessage message={errors?.firstName} />
+              <ErrorMessage
+                className="lg:!text-sm"
+                message={errors?.firstName}
+              />
             ) : null}
           </div>
 
@@ -175,16 +189,20 @@ const SignUpForm = () => {
               type="text"
               name="lastName"
               placeholder="Last name"
-              className={`custom-input w-full ${touched?.lastName && errors?.lastName
-                ? "border border-red-500"
-                : ""
-                }`}
+              className={`custom-input w-full ${
+                touched?.lastName && errors?.lastName
+                  ? "border border-red-500"
+                  : ""
+              }`}
               onChange={handleChange}
               onBlur={handleBlur}
               value={values?.lastName}
             />
             {touched?.lastName && errors?.lastName ? (
-              <ErrorMessage message={errors?.lastName} />
+              <ErrorMessage
+                className="lg:!text-sm"
+                message={errors?.lastName}
+              />
             ) : null}
           </div>
 
@@ -194,28 +212,47 @@ const SignUpForm = () => {
               type="email"
               name="email"
               placeholder="Email ID"
-              className={`custom-input w-full ${touched?.email && errors?.email ? "border border-red-500" : ""
-                }`}
+              className={`custom-input w-full ${
+                touched?.email && errors?.email ? "border border-red-500" : ""
+              }`}
               onChange={handleChange}
               onBlur={handleBlur}
               value={values?.email}
             />
             {touched?.email && errors?.email ? (
-              <ErrorMessage message={errors?.email} />
+              <ErrorMessage className="lg:!text-sm" message={errors?.email} />
             ) : null}
           </div>
 
+          {/* Phone Number */}
+          <div className="col-span-2">
+            <div className="bg-white px-2 lg:px-4">
+              <PhoneInput
+                country={"us"}
+                value={values.phoneNumber}
+                onChange={(value) => setFieldValue("phoneNumber", value)}
+                inputClass="!w-full !h-[44px] lg:!h-[48px] 2xl:!h-[52px] 4xl:!h-[68px] !ms-1 !border-none !text-base 2xl:!text-lg"
+                containerClass={`!w-full [&_.flag]:scale-[1.4] [&_.flag]:origin-center [&_.selected-flag]:w-[56px] [&_.selected-flag]:px-2`}
+                buttonClass="!border-none !bg-transparent "
+                inputProps={{
+                  name: "phoneNumber",
+                }}
+              />
+            </div>
+          </div>
+
           {/* Password */}
-          <div className="col-span-1">
+          <div className="col-span-2 lg:col-span-1">
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Password"
-                className={`custom-input w-full ${touched?.password && errors?.password
-                  ? "border border-red-500"
-                  : ""
-                  }`}
+                className={`custom-input !pe-8 w-full ${
+                  touched?.password && errors?.password
+                    ? "border border-red-500"
+                    : ""
+                }`}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={values?.password}
@@ -223,21 +260,25 @@ const SignUpForm = () => {
               {ShowHidePassword}
             </div>
             {touched?.password && errors?.password ? (
-              <ErrorMessage message={errors?.password} />
+              <ErrorMessage
+                className="lg:!text-sm"
+                message={errors?.password}
+              />
             ) : null}
           </div>
 
           {/* Confirm Password */}
-          <div className="col-span-1">
+          <div className="col-span-2 lg:col-span-1">
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 name="confirmPassword"
                 placeholder="Confirm Password"
-                className={`custom-input w-full ${touched?.confirmPassword && errors?.confirmPassword
-                  ? "border border-red-500"
-                  : ""
-                  }`}
+                className={`custom-input !pe-8 w-full ${
+                  touched?.confirmPassword && errors?.confirmPassword
+                    ? "border border-red-500"
+                    : ""
+                }`}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={values?.confirmPassword}
@@ -245,7 +286,10 @@ const SignUpForm = () => {
               {ShowHidePassword}
             </div>
             {touched?.confirmPassword && errors?.confirmPassword ? (
-              <ErrorMessage message={errors?.confirmPassword} />
+              <ErrorMessage
+                className="lg:!text-sm"
+                message={errors?.confirmPassword}
+              />
             ) : null}
           </div>
         </div>
@@ -290,14 +334,12 @@ const SignUpForm = () => {
       ) : null}
 
       {/* Privacy Policy */}
-      <p className="absolute bottom-8 md:bottom-12 lg:bottom-4 2xl:bottom-16 2xl:right-28 md:right-28 right-10 lg:right-10  ">
-        <Link
-          href="/privacy-policy"
-          className="underline text-sm sm:text-base 2xl:text-lg text-basegray hover:text-primary transition-all duration-300"
-        >
-          Privacy Policy
-        </Link>
-      </p>
+      <Link
+        href="/privacy-policy"
+        className="absolute bottom-6 md:bottom-[16%] md:right-40 right-10 lg:fixed lg:bottom-6 lg:right-[6%] underline text-sm sm:text-base 2xl:text-lg text-basegray hover:text-primary transition-all duration-300"
+      >
+        Privacy Policy
+      </Link>
     </div>
   );
 };
