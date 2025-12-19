@@ -32,12 +32,26 @@ export const createPaymentIntent = (payload, abortController) => {
         payload,
         abortController
       );
+
       if (response?.success) {
         return response.encoded;
       } else {
+        let userMessage = response?.message || "Something went wrong";
+
+        // Detect Stripe API key errors (common in 500 responses)
+        if (
+          response?.errorMessage?.includes("Expired API Key") ||
+          response?.errorMessage?.includes("Invalid API Key") ||
+          response?.errorMessage?.includes("sk_live_")
+        ) {
+          userMessage =
+            "Payment processing is currently unavailable. " +
+            "Please try again later or contact support.";
+        }
+
         dispatch(
           setPaymentIntentMessage({
-            message: response?.message || "Something went wrong",
+            message: userMessage,
             type: messageType.ERROR,
           })
         );
@@ -64,7 +78,8 @@ export const createOrderForPaypal = (payload, abortController) => {
       dispatch(setPaypalPaymentMessage({ type: "", message: "" }));
       dispatch(setPaypalPaymentLoader(true));
       const response = await paymentService.createOrderForPaypal(
-        payload, abortController
+        payload,
+        abortController
       );
       if (response?.success) {
         return response.encoded;
@@ -186,10 +201,9 @@ export const updatePaymentStatus = (payload) => async (dispatch) => {
   }
 };
 
-
 export const insertPaypalOrder = (payload) => async (dispatch) => {
   try {
-    const response = await paymentService.insertPaypalOrder(payload)
+    const response = await paymentService.insertPaypalOrder(payload);
     if (response?.success) {
       return response;
     }
@@ -200,7 +214,7 @@ export const insertPaypalOrder = (payload) => async (dispatch) => {
         type: messageType.ERROR,
       })
     );
-    return false
+    return false;
   } catch (error) {
     dispatch(
       setPaymentMessage({
@@ -210,13 +224,11 @@ export const insertPaypalOrder = (payload) => async (dispatch) => {
     );
     throw error;
   }
-}
-
+};
 
 export const paypalCaptureOrder = (payload) => async (dispatch) => {
   try {
     dispatch(setPaypalPaymentLoader(true));
-
 
     const response = await paymentService.paypalCaptureOrder(payload);
 
