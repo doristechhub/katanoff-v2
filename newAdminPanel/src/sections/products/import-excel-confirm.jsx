@@ -122,15 +122,6 @@ const ImportExcelConfirm = () => {
 
       const {
         productName,
-        roseGoldThumbnailImage,
-        roseGoldImages,
-        roseGoldVideo,
-        yellowGoldThumbnailImage,
-        yellowGoldImages,
-        yellowGoldVideo,
-        whiteGoldThumbnailImage,
-        whiteGoldImages,
-        whiteGoldVideo,
         sku,
         discount,
         collectionNames,
@@ -152,9 +143,12 @@ const ImportExcelConfirm = () => {
         description,
         variations,
         specifications,
+        thumbnail,
+        images,
+        video,
       } = mappedItem;
 
-      // Parse variations string
+      // Parse variations
       const variationsArray = variations
         ? variations.split(' | ').map((variationString) => {
             const parts = variationString.split(': ').map((s) => s.trim());
@@ -170,7 +164,7 @@ const ImportExcelConfirm = () => {
           })
         : [];
 
-      // Parse specifications safely
+      // Parse specifications
       const specificationsArray = specifications
         ? specifications.split(' | ').map((specString) => {
             const parts = specString.split(': ').map((s) => s.trim());
@@ -185,24 +179,6 @@ const ImportExcelConfirm = () => {
 
       const product = {
         productName,
-        roseGoldThumbnailImage,
-        roseGoldImages: helperFunctions.splitAndTrim(roseGoldImages, {
-          toObjects: true,
-          keyName: 'image',
-        }),
-        roseGoldVideo,
-        yellowGoldThumbnailImage,
-        yellowGoldImages: helperFunctions.splitAndTrim(yellowGoldImages, {
-          toObjects: true,
-          keyName: 'image',
-        }),
-        yellowGoldVideo,
-        whiteGoldThumbnailImage,
-        whiteGoldImages: helperFunctions.splitAndTrim(whiteGoldImages, {
-          toObjects: true,
-          keyName: 'image',
-        }),
-        whiteGoldVideo,
         sku,
         discount,
         collectionNames: helperFunctions.splitAndTrim(collectionNames),
@@ -224,15 +200,18 @@ const ImportExcelConfirm = () => {
         description,
         variations: variationsArray,
         specifications: specificationsArray,
+        thumbnail,
+        images,
+        video,
       };
 
-      // Use SKU as the unique key for deduplication
-      const key = `${sku.toUpperCase()}:${productName.toUpperCase()}`;
+      // Deduplication key
+      const key = `${sku?.toUpperCase() || ''}:${productName?.toUpperCase() || ''}`;
       productsMap.set(key, product);
     });
 
     return Array.from(productsMap.values());
-  }, [importedFilesData, givenData, helperFunctions]);
+  }, [importedFilesData, givenData]);
 
   const handleSubmit = useCallback(
     async (e) => {
