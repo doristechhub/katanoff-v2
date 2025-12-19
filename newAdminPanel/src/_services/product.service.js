@@ -42,7 +42,7 @@ import { homeService } from './home.service';
 import { adminController } from 'src/_controller';
 import CustomError from 'src/_helpers/customError';
 
-const productStoragePath = productsUrl
+const productStoragePath = productsUrl;
 
 export const validateProductName = (productName) => {
   // Check if the length is higher than 60 characters
@@ -247,7 +247,6 @@ const processMediaMappingFromParams = async ({
   const existingMediaMap = new Map();
   existingMediaMapping.forEach((set) => existingMediaMap.set(set.mediaSetId, set));
 
-
   const MAX_IMAGES = fileSettings.PRODUCT_IMAGE_FILE_LIMIT || 8;
 
   const incomingMediaSetIds = new Set(
@@ -378,11 +377,21 @@ const processMediaMappingFromParams = async ({
     const images = [];
     let video = '';
 
-    // Reconstruct in correct order using uploadOrder
-    const deletedUrls = Array.isArray(item.deletedImages) ? new Set(item.deletedImages) : new Set();
-    let existingImageIndex = 0;
+    // Deleted images for this set (URLs to remove)
+    const deletedUrlsSet = Array.isArray(item.deletedImages)
+      ? new Set(item.deletedImages)
+      : new Set();
 
-    // Process all uploads for this mediaSetId
+    // 1. First, add all kept existing images (in original order)
+    const existingImages = existingSet.images || [];
+    for (const imgObj of existingImages) {
+      const url = imgObj.image;
+      if (url && !deletedUrlsSet.has(url)) {
+        images.push({ image: url });
+      }
+    }
+
+    // Then, add all newly uploaded files for this mediaSetId (in upload order)
     for (const entry of uploadOrder) {
       if (entry.mediaSetId !== mediaSetId) continue;
 
@@ -394,17 +403,6 @@ const processMediaMappingFromParams = async ({
         images.push({ image: url });
       } else if (entry.type === 'video') {
         video = url;
-      }
-    }
-
-    // Add kept existing images (if no new ones replaced them all)
-    if (images.length === 0) {
-      const existingImages = existingSet.images || [];
-      for (const imgObj of existingImages) {
-        const url = imgObj.image;
-        if (url && !deletedUrls.has(url)) {
-          images.push({ image: url });
-        }
       }
     }
 
@@ -805,7 +803,9 @@ const insertProduct = (params) => {
       if (uploadedMediaUrls?.length) {
         console.warn('Insert failed → deleting uploaded media:', uploadedMediaUrls);
         uploadedMediaUrls.forEach((url) =>
-          deleteFile(productStoragePath, url).catch((e) => console.error(`Cleanup failed: ${url}`, e))
+          deleteFile(productStoragePath, url).catch((e) =>
+            console.error(`Cleanup failed: ${url}`, e)
+          )
         );
       }
       reject(e instanceof Error ? e : new Error('Failed to insert product'));
@@ -822,10 +822,7 @@ const getAllProductsWithPagging = () => {
       const updatedProductData = productData.map((item) => {
         const { price = 0 } = helperFunctions.getMinPriceVariCombo(item.variComboWithQuantity);
 
-        const variations = helperFunctions.getVariationsArray(
-          item.variations,
-          customizations
-        );
+        const variations = helperFunctions.getVariationsArray(item.variations, customizations);
         const enrichedProduct = {
           ...item,
           variations,
@@ -889,16 +886,16 @@ const getAllProcessedProducts = () => {
 
           diamondFilters: product.isDiamondFilter
             ? {
-              ...product?.diamondFilters,
-              diamondShapes: product?.diamondFilters.diamondShapeIds?.map((shapeId) => {
-                const foundedShape = diamondShapeList?.find((shape) => shape?.id === shapeId);
-                return {
-                  title: foundedShape?.title,
-                  image: foundedShape?.image,
-                  id: foundedShape?.id,
-                };
-              }),
-            }
+                ...product?.diamondFilters,
+                diamondShapes: product?.diamondFilters.diamondShapeIds?.map((shapeId) => {
+                  const foundedShape = diamondShapeList?.find((shape) => shape?.id === shapeId);
+                  return {
+                    title: foundedShape?.title,
+                    image: foundedShape?.image,
+                    id: foundedShape?.id,
+                  };
+                }),
+              }
             : product?.diamondFilters,
           categoryName:
             menuData.categories.find((category) => category.id === product.categoryId)?.title || '',
