@@ -22,6 +22,7 @@ const createPaymentIntent = (payload, abortController) => {
         status,
         clientSecret,
         message,
+        errorMessage,
         paymentIntentId,
         paymentMethod,
       } = response.data;
@@ -37,7 +38,7 @@ const createPaymentIntent = (payload, abortController) => {
         resolve({ success: true, encoded });
         return encoded;
       } else {
-        resolve({ success: false, message });
+        resolve({ success: false, message, errorMessage });
       }
     } catch (error) {
       resolve({ success: false, message: error?.message });
