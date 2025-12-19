@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { authenticationService } from '../_services';
 import navConfig from 'src/layouts/dashboard/config-navigation';
-import { DATE_FORMAT, DEFAULT_QTY, UNIT_TYPES } from './constants';
+import { DATE_FORMAT, DEFAULT_QTY, DIAMOND_SHAPE, GOLD_COLOR, UNIT_TYPES } from './constants';
 
 const getCurrentUser = () => {
   const currentUserJson = localStorage.getItem('adminCurrentUser');
@@ -777,7 +777,6 @@ const findDuplicates = (array, key) => {
   return Array.from(duplicateKeys);
 };
 
-
 /* ===================================================================
    MEDIA SET ID GENERATOR – RECOMMENDED FINAL VERSION
    Format: 14k_yellow_round_483920  (sorted IDs + 6-digit random)
@@ -807,7 +806,7 @@ const bytesToMB = (bytes) => {
 // Assign mediaSetId to each combo using matchingCombinations
 const applyMediaSetIdByMatching = (mediaMappingParam = [], variCombos = []) => {
   return variCombos.map((combo) => {
-    let matchedMediaSetId = "";
+    let matchedMediaSetId = '';
 
     // Loop through each media set
     for (const media of mediaMappingParam) {
@@ -833,32 +832,26 @@ const applyMediaSetIdByMatching = (mediaMappingParam = [], variCombos = []) => {
 
     return {
       ...combo,
-      mediaSetId: matchedMediaSetId || "" // empty if no match found
+      mediaSetId: matchedMediaSetId || '', // empty if no match found
     };
   });
 };
 
 const getThumbnailForSelectedVariations = (product = {}, variationArray = []) => {
-  if (
-    !product?.mediaMapping ||
-    !product?.variComboWithQuantity ||
-    !variationArray?.length
-  ) {
+  if (!product?.mediaMapping || !product?.variComboWithQuantity || !variationArray?.length) {
     return null;
   }
-  const selectedTypeIds = variationArray.map(v => v.variationTypeId);
+  const selectedTypeIds = variationArray.map((v) => v.variationTypeId);
 
-  const matchedCombo = product.variComboWithQuantity.find(combo => {
-    const comboTypeIds = combo.combination.map(c => c.variationTypeId);
+  const matchedCombo = product.variComboWithQuantity.find((combo) => {
+    const comboTypeIds = combo.combination.map((c) => c.variationTypeId);
 
-    return selectedTypeIds.every(id => comboTypeIds.includes(id));
+    return selectedTypeIds.every((id) => comboTypeIds.includes(id));
   });
 
   if (!matchedCombo?.mediaSetId) return null;
 
-  const media = product.mediaMapping.find(
-    m => m.mediaSetId === matchedCombo.mediaSetId
-  );
+  const media = product.mediaMapping.find((m) => m.mediaSetId === matchedCombo.mediaSetId);
 
   return media?.thumbnailImage || null;
 };
@@ -919,6 +912,137 @@ const getProductThumbnail = (product) => {
   );
 };
 
+/**
+ * Parses a multi-line media string into an array of { namePart, urlPart }
+ * Handles comma-separated URLs in Images column.
+ */
+const parseMediaLines = (text) => {
+  if (!text || typeof text !== 'string') return [];
+
+  return text
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .flatMap((line) => {
+      const separatorIndex = line.indexOf(': ');
+      if (separatorIndex === -1) return [];
+
+      const namePart = line.substring(0, separatorIndex).trim();
+      const urlPartRaw = line.substring(separatorIndex + 2).trim();
+
+      // Split comma-separated URLs (for Images column)
+      const urlParts = urlPartRaw
+        .split(', ')
+        .map((u) => u.trim())
+        .filter((u) => u.length > 0);
+
+      // Return one entry per URL, all sharing the same namePart
+      return urlParts.map((urlPart) => ({ namePart, urlPart }));
+    });
+};
+
+const generateMediaMappingForExcel = ({ thumbnail, images, video, variations }) => {
+  const thumbnailLines = parseMediaLines(thumbnail); // [{ namePart, urlPart }]
+  const imageLines = parseMediaLines(images);
+  const videoLines = parseMediaLines(video);
+
+  // Required variations for mediaSetId generation
+  const diamondShapeVariation = variations.find((v) => v.variationName === DIAMOND_SHAPE.title);
+  const goldColorVariation = variations.find((v) => v.variationName === GOLD_COLOR.title);
+
+  if (!diamondShapeVariation || !goldColorVariation) {
+    console.warn(
+      'Missing Diamond Shape or Gold Color variation – no media sets will be generated.'
+    );
+    return []; // Cannot generate any mediaSetId → return empty
+  }
+
+  // Helper: get variationTypeId by exact or partial name match (case-insensitive)
+  const getVariationTypeId = (variationTitle, typeName) => {
+    const variation = variations.find((v) => v.variationName === variationTitle);
+    if (!variation) return null;
+    const matched = variation.variationTypes.find(
+      (t) => t.variationTypeName.trim().toLowerCase() === typeName.trim().toLowerCase()
+    );
+    return matched ? matched.variationTypeId : null;
+  };
+
+  // Group images by namePart
+  const imagesByName = imageLines.reduce((acc, { namePart, urlPart }) => {
+    const key = namePart || 'Default';
+    if (!acc[key]) acc[key] = [];
+    acc[key].push({ image: urlPart });
+    return acc;
+  }, {});
+
+  const validMediaMapping = [];
+
+  // Process each thumbnail → try to generate mediaSetId
+  thumbnailLines.forEach(({ namePart, urlPart: thumbnailImage }) => {
+    const name = namePart || 'Default';
+
+    if (!namePart) return; // Skip if no name (can't match)
+
+    const parts = namePart
+      .split(/[\+\&\|,]/)
+      .map((p) => p.trim())
+      .filter(Boolean);
+
+    let shapeId = null;
+    let colorId = null;
+
+    // Try direct match first
+    for (const part of parts) {
+      const s = getVariationTypeId(DIAMOND_SHAPE.title, part);
+      const c = getVariationTypeId(GOLD_COLOR.title, part);
+      if (s) shapeId = s;
+      if (c) colorId = c;
+    }
+
+    // Fallback: assume order → first = shape, second = color
+    if (!shapeId && parts[0]) {
+      shapeId = getVariationTypeId(DIAMOND_SHAPE.title, parts[0]);
+    }
+    if (!colorId && parts[1]) {
+      colorId = getVariationTypeId(GOLD_COLOR.title, parts[1]);
+    }
+
+    // Only proceed if BOTH IDs are found
+    if (shapeId && colorId) {
+      const mediaSetId = helperFunctions.generateMediaSetId([
+        { variationTypeId: shapeId },
+        { variationTypeId: colorId },
+      ]);
+
+      validMediaMapping.push({
+        mediaSetId,
+        name,
+        thumbnailImage,
+        images: imagesByName[name] || [],
+        video: '',
+      });
+    }
+    // Else: silently skip – no mediaSetId → not included
+  });
+
+  // Attach videos only to valid existing sets
+  videoLines.forEach(({ namePart, urlPart }) => {
+    if (!namePart) return;
+
+    const name = namePart;
+    const targetSet = validMediaMapping.find((set) => set.name === name);
+
+    if (targetSet) {
+      targetSet.video = urlPart;
+    }
+    // Do NOT create new set for video-only → we only allow sets with valid mediaSetId + thumbnail/images
+  });
+
+  // Final result: only sets with valid mediaSetId (and at least thumbnail or images)
+  return validMediaMapping.filter((set) => {
+    return set.thumbnailImage || (set.images && set.images.length > 0);
+  });
+};
 
 export const helperFunctions = {
   getCurrentUser,
@@ -973,5 +1097,6 @@ export const helperFunctions = {
   applyMediaSetIdByMatching,
   getThumbnailForSelectedVariations,
   getGoldColorWiseMedia,
-  getProductThumbnail
+  getProductThumbnail,
+  generateMediaMappingForExcel,
 };

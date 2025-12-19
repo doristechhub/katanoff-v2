@@ -6,6 +6,7 @@ import collection2 from "@/assets/images/about-us/about-collection-2.webp";
 import CustomImg from "./custom-img";
 import { helperFunctions } from "@/_helper";
 import Link from "next/link";
+import { LinkButton } from "./button";
 
 const collections = [
   {
@@ -41,14 +42,29 @@ const AboutUsCollectionToggle = () => {
           <div>
             <CustomImg src={image} alt={name} fill className="object-cover" />
           </div>
-          <Link
-            className="absolute bottom-4  cursor-pointer lg:bottom-12 left-1/2 -translate-x-1/2 text-center uppercase italic font-castoro text-white text-lg md:text-2xl 2xl:text-4xl font-medium"
-            href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
-              name
-            )}`}
-          >
-            {name}
-          </Link>
+          <div className="px-2 absolute bottom-4 cursor-pointer lg:bottom-24 left-1/2 -translate-x-1/2 w-full text-center">
+            <Link
+              className="text-center uppercase italic font-castoro text-white text-lg md:text-2xl 2xl:text-4xl font-medium w-fit"
+              href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                name
+              )}`}
+            >
+              {name}
+            </Link>
+            <div className="flex justify-center">
+              <div className="pt-4">
+                <LinkButton
+                  href={`/collections/collection/${helperFunctions.stringReplacedWithUnderScore(
+                    name
+                  )}`}
+                  className="!w-fit !uppercase !rounded-none !text-white hover:!text-white !bg-primary !border-primary hover:!bg-transparent hover:!border-white"
+                  aria-label="Shop Deals of the Week"
+                >
+                  Shop Now
+                </LinkButton>
+              </div>
+            </div>
+          </div>
         </div>
       ))}
     </div>

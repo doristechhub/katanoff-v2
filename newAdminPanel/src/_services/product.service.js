@@ -29,6 +29,7 @@ import {
   RINGS,
   allowedGenders,
   DEFAULT_QTY,
+  DIAMOND_SHAPE,
 } from 'src/_helpers/constants';
 import { isBoolean } from 'lodash';
 import axios from 'axios';
@@ -1784,22 +1785,113 @@ const validateImagesDetail = ({ data, sku, index }) => {
 };
 
 /**
- * Validates a thumbnail URL
- * @param {Object} params - Parameters
- * @param {string} params.thumbnail - Thumbnail URL
- * @param {string} params.color - Color prefix (e.g., 'Rose Gold')
+ * Validates a media URL (thumbnail / video)
+ * @param {Object} params
+ * @param {string} params.url - Media URL
+ * @param {string} params.label - Label for error message (e.g. "Thumbnail", "Video")
+ * @param {boolean} [params.required=true] - Whether URL is mandatory
  * @param {string} params.sku - Product SKU
  * @param {number} params.index - Product index
- * @returns {string|null} Error message or null if valid
+ * @returns {string|null} Error message or null
  */
-const validateThumbnail = ({ thumbnail, color, sku, index }) => {
-  if (!thumbnail) {
-    return `Product at index ${index} (SKU: ${sku || 'N/A'}): ${color} image is required`;
+const validateMediaUrl = ({ url, label, required = true, sku, index }) => {
+  if (!url) {
+    return required
+      ? `Product at index ${index} (SKU: ${sku || 'N/A'}): ${label} is required`
+      : null;
   }
-  if (typeof thumbnail !== 'string' || !/^https:\/\//i.test(thumbnail)) {
-    return `Product at index ${index} (SKU: ${sku || 'N/A'}): ${color} image must be a valid HTTPS URL`;
+
+  if (typeof url !== 'string' || !/^https:\/\//i.test(url)) {
+    return `Product at index ${index} (SKU: ${sku || 'N/A'}): ${label} must be a valid HTTPS URL`;
   }
+
   return null;
+};
+
+/**
+ * Validates media mapping generated from Excel (thumbnail, images, video)
+ * @param {Object} params - Parameters
+ * @param {Array} params.mediaMapping - Parsed media mapping array from Excel
+ * @param {string} params.sku - Product SKU
+ * @param {number} params.index - Product index
+ * @returns {Array<string>} Array of validation error messages (empty if valid)
+ */
+const validateMediaMappingFromExcel = ({ mediaMapping, sku, index }) => {
+  const errors = [];
+
+  if (!Array.isArray(mediaMapping) || !mediaMapping.length) {
+    errors.push(
+      `Product at index ${index} (SKU: ${sku || 'N/A'}): At least one media set is required`
+    );
+    return errors;
+  }
+
+  mediaMapping.forEach((set, setIndex) => {
+    const prefix = `Product at index ${index} (SKU: ${sku || 'N/A'}), Media Set ${setIndex}`;
+
+    if (!set.name) {
+      errors.push(`${prefix}: Media set name is required`);
+    }
+
+    // Thumbnail (required)
+    const thumbError = validateMediaUrl({
+      url: set.thumbnailImage,
+      label: `Thumbnail for "${set.name || 'Unnamed'}"`,
+      required: true,
+      sku,
+      index,
+    });
+    if (thumbError) errors.push(thumbError);
+
+    // Images (optional but strict)
+    if (Array.isArray(set.images) && set.images.length > 0) {
+      errors.push(
+        ...validateImagesDetail({
+          data: set.images,
+          sku,
+          index,
+        })
+      );
+    }
+
+    // Video (optional)
+    const videoError = validateMediaUrl({
+      url: set.video,
+      label: `Video for "${set.name || 'Unnamed'}"`,
+      required: false,
+      sku,
+      index,
+    });
+    if (videoError) errors.push(videoError);
+  });
+
+  return errors;
+};
+
+/**
+ * Trims media URLs safely
+ * @param {Array} mediaMapping
+ * @returns {Array}
+ */
+const trimMediaMappingUrls = (mediaMapping = []) => {
+  if (!Array.isArray(mediaMapping)) return [];
+
+  return mediaMapping.map((set) => ({
+    ...set,
+    name: typeof set.name === 'string' ? set.name.trim() : set.name,
+
+    thumbnailImage:
+      typeof set.thumbnailImage === 'string' ? set.thumbnailImage.trim() : set.thumbnailImage,
+
+    video: typeof set.video === 'string' ? set.video.trim() : set.video,
+
+    images: Array.isArray(set.images)
+      ? set.images.map((img) => ({
+          ...img,
+          image: typeof img.image === 'string' ? img.image.trim() : img.image,
+        }))
+      : [],
+  }));
 };
 
 /**
@@ -2317,20 +2409,12 @@ const addUpdateProduct = async ({
   priceMultiplier,
   index = 0,
 }) => {
+  let newlyUploadedUrls = [];
   return new Promise(async (resolve, reject) => {
     try {
       const uuid = uid();
       let {
         productName,
-        roseGoldThumbnailImage,
-        roseGoldImages,
-        roseGoldVideo,
-        yellowGoldThumbnailImage,
-        yellowGoldImages,
-        yellowGoldVideo,
-        whiteGoldThumbnailImage,
-        whiteGoldImages,
-        whiteGoldVideo,
         sku,
         discount,
         collectionIds,
@@ -2356,20 +2440,14 @@ const addUpdateProduct = async ({
         isDiamondFilter = false,
         diamondFilters,
         priceCalculationMode,
+        // NEW: Use these columns from Excel
+        thumbnail: thumbnailColumn,
+        images: imagesColumn,
+        video: videoColumn,
       } = sanitizeObject(product);
-
       // Sanitize inputs
       productName = productName ? productName.trim() : null;
       sku = sku ? sku.trim() : null;
-      roseGoldThumbnailImage = roseGoldThumbnailImage ? roseGoldThumbnailImage?.trim() : null;
-      roseGoldImages = Array.isArray(roseGoldImages) ? roseGoldImages : [];
-      roseGoldVideo = roseGoldVideo ? roseGoldVideo?.trim() : null;
-      yellowGoldThumbnailImage = yellowGoldThumbnailImage ? yellowGoldThumbnailImage?.trim() : null;
-      yellowGoldImages = Array.isArray(yellowGoldImages) ? yellowGoldImages : [];
-      yellowGoldVideo = yellowGoldVideo ? yellowGoldVideo?.trim() : null;
-      whiteGoldThumbnailImage = whiteGoldThumbnailImage ? whiteGoldThumbnailImage?.trim() : null;
-      whiteGoldImages = Array.isArray(whiteGoldImages) ? whiteGoldImages : [];
-      whiteGoldVideo = whiteGoldVideo ? whiteGoldVideo?.trim() : null;
       discount = !isNaN(discount) ? Number(discount) : 0;
       collectionIds = Array.isArray(collectionIds) ? collectionIds : [];
       settingStyleIds = Array.isArray(settingStyleIds) ? settingStyleIds : [];
@@ -2400,30 +2478,18 @@ const addUpdateProduct = async ({
       // Validate required fields
       const requiredFields = {
         productName,
-        roseGoldThumbnailImage,
-        yellowGoldThumbnailImage,
-        whiteGoldThumbnailImage,
-        roseGoldImages,
-        whiteGoldImages,
-        yellowGoldImages,
         sku,
         categoryId,
         description,
         variations,
         variComboWithQuantity,
         priceCalculationMode,
+        thumbnailColumn,
+        imagesColumn,
       };
       const missingFields = Object.entries(requiredFields)
         .filter(([key, value]) =>
-          [
-            'variations',
-            'variComboWithQuantity',
-            'roseGoldImages',
-            'whiteGoldImages',
-            'yellowGoldImages',
-          ].includes(key)
-            ? !value.length
-            : !value
+          ['variations', 'variComboWithQuantity'].includes(key) ? !value.length : !value
         )
         .map(([key]) => key);
       if (
@@ -2452,40 +2518,6 @@ const addUpdateProduct = async ({
         .filter(Boolean);
       if (arrayIdErrors.length) {
         reject(new Error(arrayIdErrors.join('; ')));
-        return;
-      }
-
-      // Validate thumbnails
-      const thumbnailValidations = [
-        { thumbnail: roseGoldThumbnailImage, color: 'Rose Gold thumbnail' },
-        { thumbnail: yellowGoldThumbnailImage, color: 'Yellow Gold thumbnail' },
-        { thumbnail: whiteGoldThumbnailImage, color: 'White Gold thumbnail' },
-      ];
-      const thumbnailErrors = thumbnailValidations
-        .map(({ thumbnail, color }) => validateThumbnail({ thumbnail, color, sku, index }))
-        .filter(Boolean);
-
-      if (thumbnailErrors.length) {
-        reject(new Error(thumbnailErrors.join('; ')));
-        return;
-      }
-
-      // Validate image arrays
-      const imageArrays = [
-        { data: roseGoldImages, name: 'Rose Gold images' },
-        { data: yellowGoldImages, name: 'Yellow Gold images' },
-        { data: whiteGoldImages, name: 'White Gold images' },
-      ];
-      const imagesErrors = imageArrays
-        .map(({ data, name }) => {
-          if (data?.length) {
-            return validateImagesDetail({ data, sku, index });
-          }
-        })
-        .filter(Boolean);
-
-      if (imagesErrors?.flat()?.length) {
-        reject(new Error(imagesErrors.flat().join('; ')));
         return;
       }
 
@@ -2551,8 +2583,6 @@ const addUpdateProduct = async ({
         additionalErrors.push('Variations data not valid');
       }
 
-      const variationsArray = getVariationsArray(variations);
-
       if (isInValidVariComboWithQuantityArray(variComboWithQuantity)) {
         additionalErrors.push('Combination data not valid');
       }
@@ -2575,116 +2605,216 @@ const addUpdateProduct = async ({
       });
       if (specificationsError.length) mergeErrorArr.push(...specificationsError);
 
+      // === Parse media from Excel columns ===
+      let parsedMediaSets = helperFunctions.generateMediaMappingForExcel({
+        thumbnail: thumbnailColumn,
+        images: imagesColumn,
+        video: videoColumn,
+        variations,
+      });
+
+      parsedMediaSets = trimMediaMappingUrls(parsedMediaSets);
+
+      // === Validate from Excel ===
+      const mediaErrors = validateMediaMappingFromExcel({
+        mediaMapping: parsedMediaSets,
+        sku,
+        index,
+      });
+
+      if (mediaErrors.length) {
+        return reject(new Error(mediaErrors.join('; ')));
+      }
+
+      if (!parsedMediaSets || parsedMediaSets.length === 0) {
+        return reject(
+          new Error(
+            `Product at index ${index} (SKU: ${sku}): At least one media set with thumbnail is required`
+          )
+        );
+      }
+
+      //  === Check for duplicate SKU ===
       const existingProduct = existingProducts.find(
         (p) => p?.sku?.toUpperCase() === sku?.toUpperCase()
       );
-      if (!existingProduct) {
-        let variComboWithQuantityArray = getVariComboWithQuantityArray(variComboWithQuantity);
+      if (existingProduct) {
+        return reject(new Error(`Product with SKU "${sku}" already exists`));
+      }
 
-        if (priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC) {
-          variComboWithQuantityArray = helperFunctions.calculateAutomaticPrices({
-            combinations: variComboWithQuantityArray,
-            customizationSubTypesList,
-            grossWeight,
-            totalCaratWeight,
-            priceMultiplier,
+      // === Upload all media files ===
+      const folder = productStoragePath;
+      const uploadedMediaMapping = await Promise.all(
+        parsedMediaSets.map(async (set) => {
+          const { mediaSetId, name = 'Unnamed', thumbnailImage, images = [], video } = set;
+
+          let uploadedThumbnail = '';
+          if (thumbnailImage) {
+            uploadedThumbnail = await uploadMediaToFirebase({
+              media: thumbnailImage,
+              folder,
+              type: 'thumbnail',
+              prefix: name.replace(/[^a-zA-Z0-9]/g, '_'),
+            });
+
+            if (uploadedThumbnail) newlyUploadedUrls.push(uploadedThumbnail);
+          }
+
+          const uploadedImages =
+            images.length > 0
+              ? await uploadMediaToFirebase({
+                  media: images.map((i) => i.image),
+                  folder,
+                  type: 'imageArray',
+                  prefix: name.replace(/[^a-zA-Z0-9]/g, '_'),
+                })
+              : [];
+          uploadedImages.forEach((img) => img.image && newlyUploadedUrls.push(img.image));
+
+          let uploadedVideo = '';
+          if (video) {
+            uploadedVideo = await uploadMediaToFirebase({
+              media: video,
+              folder,
+              type: 'video',
+              prefix: name.replace(/[^a-zA-Z0-9]/g, '_'),
+            });
+            if (uploadedVideo) newlyUploadedUrls.push(uploadedVideo);
+          }
+
+          return {
+            mediaSetId,
+            name,
+            thumbnailImage: uploadedThumbnail || '',
+            images: uploadedImages,
+            video: uploadedVideo || '',
+          };
+        })
+      );
+
+      // === Process variations & combinations ===
+      const variationsArray = getVariationsArray(variations);
+
+      let variComboWithQuantityArray = getVariComboWithQuantityArray(variComboWithQuantity);
+
+      // Apply automatic pricing
+      if (priceCalculationMode === PRICE_CALCULATION_MODES.AUTOMATIC) {
+        variComboWithQuantityArray = helperFunctions.calculateAutomaticPrices({
+          combinations: variComboWithQuantityArray,
+          customizationSubTypesList,
+          grossWeight,
+          totalCaratWeight,
+          priceMultiplier,
+        });
+      }
+
+      // === Match media sets to combos using name (e.g., "Round + Rose Gold") ===
+      // Then generate deterministic mediaSetId using only Shape + Color variationTypeIds
+      const diamondShapeVariation = variations.find((v) => v.variationName === DIAMOND_SHAPE.title);
+      const goldColorVariation = variations.find((v) => v.variationName === GOLD_COLOR.title);
+
+      const finalMediaMapping = [];
+      const finalUpdatedCombos = variComboWithQuantityArray.map((combo) => {
+        // Extract Shape and Color from this combo
+        let shapeTypeId = null;
+        let colorTypeId = null;
+
+        combo.combination.forEach((item) => {
+          if (item.variationId === diamondShapeVariation.variationId) {
+            shapeTypeId = item.variationTypeId;
+          } else if (item.variationId === goldColorVariation.variationId) {
+            colorTypeId = item.variationTypeId;
+          }
+        });
+
+        if (!shapeTypeId || !colorTypeId) {
+          // Skip or handle incomplete combo
+          return { ...combo, mediaSetId: null };
+        }
+
+        // Generate deterministic mediaSetId using only Shape + Color
+        const mediaSetId = helperFunctions.generateMediaSetId([
+          { variationTypeId: shapeTypeId },
+          { variationTypeId: colorTypeId },
+        ]);
+
+        // Find matching uploaded media set by name
+        const matchedMediaSet = uploadedMediaMapping.find(
+          (set) => set.mediaSetId.includes(shapeTypeId) && set.mediaSetId.includes(colorTypeId)
+        );
+
+        // Add to final mediaMapping if not already added
+        if (matchedMediaSet && !finalMediaMapping.some((m) => m.mediaSetId === mediaSetId)) {
+          finalMediaMapping.push({
+            mediaSetId,
+            name: matchedMediaSet.name,
+            thumbnailImage: matchedMediaSet.thumbnailImage,
+            images: matchedMediaSet.images,
+            video: matchedMediaSet.video || '',
           });
         }
 
-        const saltSKU = generateSaltSKU({ styleNo: sku });
-
-        const insertPattern = {
-          id: uuid,
-          productName,
-          sku,
-          saltSKU,
-          roseGoldThumbnailImage,
-          roseGoldImages,
-          roseGoldVideo,
-          yellowGoldThumbnailImage,
-          yellowGoldImages,
-          yellowGoldVideo,
-          whiteGoldThumbnailImage,
-          whiteGoldImages,
-          whiteGoldVideo,
-          discount,
-          collectionIds: collectionIds.map((id) => id?.trim()),
-          settingStyleIds: settingStyleIds.map((id) => id?.trim()),
-          categoryId,
-          subCategoryIds: subCategoryIds.map((id) => id?.trim()),
-          productTypeIds: productTypeIds.map((id) => id?.trim()),
-          gender,
-          netWeight,
-          grossWeight,
-          totalCaratWeight,
-          centerDiamondWeight,
-          sideDiamondWeight,
-          Length,
-          width,
-          lengthUnit,
-          widthUnit,
-          shortDescription,
-          description,
-          variations: variationsArray,
-          variComboWithQuantity: variComboWithQuantityArray,
-          isDiamondFilter,
-          diamondFilters: isDiamondFilter ? diamondFilters : null,
-          specifications,
-          priceCalculationMode,
-          active: false,
-          salesTaxPercentage: 0,
-          shippingCharge: 0,
-          totalReviews: 0,
-          starRating: 0,
-          totalStar: 0,
-          createdDate: Date.now(),
-          updatedDate: Date.now(),
+        return {
+          ...combo,
+          mediaSetId,
         };
+      });
 
-        resolve({ insertPattern, url: `${productsUrl}/${uuid}` });
-      } else {
-        reject(new Error('Product with this SKU already exists'));
-        // const hasChanges = !helperFunctions.deepEqual(insertPattern, existingProduct);
-        // if (hasChanges) {
-        //   const currentMediaUrls = [
-        //     insertPattern.roseGoldThumbnailImage,
-        //     ...insertPattern.roseGoldImages.map((img) => img.image),
-        //     insertPattern.roseGoldVideo,
-        //     insertPattern.yellowGoldThumbnailImage,
-        //     ...insertPattern.yellowGoldImages.map((img) => img.image),
-        //     insertPattern.yellowGoldVideo,
-        //     insertPattern.whiteGoldThumbnailImage,
-        //     ...insertPattern.whiteGoldImages.map((img) => img.image),
-        //     insertPattern.whiteGoldVideo,
-        //   ].filter((url) => url);
+      const saltSKU = generateSaltSKU({ styleNo: sku });
 
-        //   const existingMediaUrls = [
-        //     existingProduct.roseGoldThumbnailImage,
-        //     ...existingProduct.roseGoldImages.map((img) => img.image),
-        //     existingProduct.roseGoldVideo,
-        //     existingProduct.yellowGoldThumbnailImage,
-        //     ...existingProduct.yellowGoldImages.map((img) => img.image),
-        //     existingProduct.yellowGoldVideo,
-        //     existingProduct.whiteGoldThumbnailImage,
-        //     ...existingProduct.whiteGoldImages.map((img) => img.image),
-        //     existingProduct.whiteGoldVideo,
-        //   ].filter((url) => url);
+      const insertPattern = {
+        id: uuid,
+        productName,
+        sku,
+        saltSKU,
+        discount,
+        collectionIds: collectionIds.map((id) => id?.trim()),
+        settingStyleIds: settingStyleIds.map((id) => id?.trim()),
+        categoryId,
+        subCategoryIds: subCategoryIds.map((id) => id?.trim()),
+        productTypeIds: productTypeIds.map((id) => id?.trim()),
+        gender,
+        netWeight,
+        grossWeight,
+        totalCaratWeight,
+        centerDiamondWeight,
+        sideDiamondWeight,
+        Length,
+        width,
+        lengthUnit,
+        widthUnit,
+        shortDescription,
+        description,
+        variations: variationsArray,
+        variComboWithQuantity: finalUpdatedCombos,
+        mediaMapping: finalMediaMapping,
+        isDiamondFilter,
+        diamondFilters: isDiamondFilter ? diamondFilters : null,
+        specifications,
+        priceCalculationMode,
+        active: false,
+        salesTaxPercentage: 0,
+        shippingCharge: 0,
+        totalReviews: 0,
+        starRating: 0,
+        totalStar: 0,
+        createdDate: Date.now(),
+        updatedDate: Date.now(),
+      };
 
-        //   const unmatchedFromDbUrls = existingMediaUrls
-        //     .filter((url) => !currentMediaUrls.includes(url))
-        //     .map((url) => ({ url, source: 'dbUrls' }));
-
-        //   const updatePattern = {
-        //     url: `${productsUrl}/${existingProduct.id}`,
-        //     insertPattern,
-        //     unmatchedFromDbUrlsOnly: unmatchedFromDbUrls.map((item) => item.url),
-        //   };
-        //   resolve(updatePattern);
-        // } else {
-        //   resolve(null);
-        // }
-      }
+      resolve({ insertPattern, url: `${productsUrl}/${uuid}`, newlyUploadedUrls });
     } catch (e) {
+      // Cleanup all uploaded files if any error occurs
+      if (newlyUploadedUrls.length > 0) {
+        console.warn(`Product failed → deleting ${newlyUploadedUrls.length} uploaded files`);
+        await Promise.all(
+          newlyUploadedUrls.map((url) =>
+            deleteFile(productStoragePath, url).catch((err) =>
+              console.error(`Cleanup failed: ${url}`, err)
+            )
+          )
+        );
+      }
       reject(e);
     }
   });
@@ -2698,6 +2828,7 @@ const addUpdateProduct = async ({
  */
 const addUpdateManyProducts = async ({ productsList }) => {
   return new Promise(async (resolve, reject) => {
+    const allUploadedUrls = new Set();
     try {
       if (!Array.isArray(productsList) || !productsList.length) {
         throw new CustomError('Invalid Data: No products provided', 400);
@@ -2753,12 +2884,6 @@ const addUpdateManyProducts = async ({ productsList }) => {
             categoryName,
             description,
             variations,
-            roseGoldThumbnailImage,
-            yellowGoldThumbnailImage,
-            whiteGoldThumbnailImage,
-            roseGoldImages,
-            yellowGoldImages,
-            whiteGoldImages,
             grossWeight,
             totalCaratWeight,
             netWeight,
@@ -2872,30 +2997,6 @@ const addUpdateManyProducts = async ({ productsList }) => {
                 options: { minLength: 1 },
               });
               if (variationTypeErrors.length) mergeErrorArr.push(...variationTypeErrors);
-            }
-          });
-
-          // Validate thumbnails
-          const thumbnailValidations = [
-            { thumbnail: roseGoldThumbnailImage, color: 'Rose Gold thumbnail' },
-            { thumbnail: yellowGoldThumbnailImage, color: 'Yellow Gold thumbnail' },
-            { thumbnail: whiteGoldThumbnailImage, color: 'White Gold thumbnail' },
-          ];
-          thumbnailValidations.forEach(({ thumbnail, color }) => {
-            const error = validateThumbnail({ thumbnail, color, sku, index: absoluteIndex });
-            if (error) mergeErrorArr.push(error);
-          });
-
-          // Validate image arrays
-          const imageArrays = [
-            { data: roseGoldImages, name: 'Rose Gold images' },
-            { data: yellowGoldImages, name: 'Yellow Gold images' },
-            { data: whiteGoldImages, name: 'White Gold images' },
-          ];
-          imageArrays.forEach(({ data, name }) => {
-            if (data?.length) {
-              const errors = validateImagesDetail({ data, sku, index: absoluteIndex });
-              mergeErrorArr.push(...errors);
             }
           });
 
@@ -3097,12 +3198,24 @@ const addUpdateManyProducts = async ({ productsList }) => {
               })
             );
 
+            let hasDiamondShape = false;
+            let hasGoldColor = false;
+
             const variationsArray = await Promise.all(
               (product.variations || []).map(async (variation) => {
                 const matchedType = await getOrCreateCustomizationType({
                   name: variation.variationName,
                   cache: caches.customizationTypes,
                 });
+
+                if (matchedType?.title === DIAMOND_SHAPE.title) {
+                  hasDiamondShape = true;
+                }
+
+                if (matchedType?.title === GOLD_COLOR.title) {
+                  hasGoldColor = true;
+                }
+
                 const matchedSubTypes = await Promise.all(
                   (variation.variationTypes || []).map(async (type) => {
                     return getOrCreateCustomizationSubType({
@@ -3115,6 +3228,14 @@ const addUpdateManyProducts = async ({ productsList }) => {
                 return createVariation({ matchedType, matchedSubTypes });
               })
             );
+
+            if (!hasDiamondShape || !hasGoldColor) {
+              return reject(
+                new Error(
+                  `Product at index ${index} (SKU: ${sku}): Must have Diamond Shape and Gold Color variations`
+                )
+              );
+            }
 
             const variComboWithQuantity = generateVariationCombinations({
               variations: variationsArray,
@@ -3139,138 +3260,36 @@ const addUpdateManyProducts = async ({ productsList }) => {
 
       // Process products
       const existingProducts = await getAllProductsWithPagging();
-      const productInsertPatterns = await Promise.all(
-        mappedProductsList.map((product, idx) =>
-          addUpdateProduct({
+      // === Process each product individually ===
+      const productPromises = mappedProductsList.map(async (product, idx) => {
+        try {
+          const result = await addUpdateProduct({
             product,
             existingProducts,
             customizationSubTypesList: Array.from(caches.customizationSubTypes.values()),
             priceMultiplier,
             index: idx,
-          }).catch((error) => ({
+          });
+          // Collect all uploaded URLs from this product
+          if (result.newlyUploadedUrls?.length) {
+            result.newlyUploadedUrls.forEach((url) => allUploadedUrls.add(url));
+          }
+          return result;
+        } catch (error) {
+          return {
             error: error.message,
             product: { sku: product.sku || 'N/A', index: idx },
-          }))
-        )
-      );
+          };
+        }
+      });
 
-      const validPatterns = productInsertPatterns.filter((pattern) => pattern && !pattern.error);
-      const invalidPatterns = productInsertPatterns.filter((pattern) => pattern && pattern.error);
+      const results = await Promise.all(productPromises);
+
+      const validPatterns = results.filter((pattern) => pattern && !pattern.error);
+      const invalidPatterns = results.filter((pattern) => pattern && pattern.error);
 
       if (!invalidPatterns.length && validPatterns.length) {
-        const updatedValidPatterns = await Promise.all(
-          validPatterns.map(async ({ insertPattern, url }) => {
-            const {
-              roseGoldThumbnailImage,
-              roseGoldImages,
-              roseGoldVideo,
-              yellowGoldThumbnailImage,
-              yellowGoldImages,
-              yellowGoldVideo,
-              whiteGoldThumbnailImage,
-              whiteGoldImages,
-              whiteGoldVideo,
-            } = insertPattern;
-
-            // Define folders for media
-            const imageFolder = `${productsUrl}`;
-            const videoFolder = `${productsUrl}`;
-
-            // Upload media for Rose Gold
-            const roseGoldThumbnailImageUploaded = await uploadMediaToFirebase({
-              media: roseGoldThumbnailImage,
-              folder: imageFolder,
-              type: 'thumbnail',
-              prefix: 'rose_gold',
-            });
-
-            const roseGoldImagesUploaded = await uploadMediaToFirebase({
-              media: roseGoldImages,
-              folder: imageFolder,
-              type: 'imageArray',
-              prefix: 'rose_gold',
-            });
-
-            const roseGoldVideoUploaded = await uploadMediaToFirebase({
-              media: roseGoldVideo,
-              folder: videoFolder,
-              type: 'video',
-              prefix: 'rose_gold',
-            });
-
-            // Upload media for Yellow Gold
-            const yellowGoldThumbnailImageUploaded = await uploadMediaToFirebase({
-              media: yellowGoldThumbnailImage,
-              folder: imageFolder,
-              type: 'thumbnail',
-              prefix: 'yellow_gold',
-            });
-
-            const yellowGoldImagesUploaded = await uploadMediaToFirebase({
-              media: yellowGoldImages,
-              folder: imageFolder,
-              type: 'imageArray',
-              prefix: 'yellow_gold',
-            });
-
-            const yellowGoldVideoUploaded = await uploadMediaToFirebase({
-              media: yellowGoldVideo,
-              folder: videoFolder,
-              type: 'video',
-              prefix: 'yellow_gold',
-            });
-
-            // Upload media for White Gold
-            const whiteGoldThumbnailImageUploaded = await uploadMediaToFirebase({
-              media: whiteGoldThumbnailImage,
-              folder: imageFolder,
-              type: 'thumbnail',
-              prefix: 'white_gold',
-            });
-
-            const whiteGoldImagesUploaded = await uploadMediaToFirebase({
-              media: whiteGoldImages,
-              folder: imageFolder,
-              type: 'imageArray',
-              prefix: 'white_gold',
-            });
-
-            const whiteGoldVideoUploaded = await uploadMediaToFirebase({
-              media: whiteGoldVideo,
-              folder: videoFolder,
-              type: 'video',
-              prefix: 'white_gold',
-            });
-
-            // Update insertPattern with uploaded media URLs
-            return {
-              insertPattern: {
-                ...insertPattern,
-                // Rose Gold media
-                roseGoldThumbnailImage: roseGoldThumbnailImageUploaded,
-                roseGoldImages: roseGoldImagesUploaded,
-                roseGoldVideo: roseGoldVideoUploaded,
-                // Yellow Gold media
-                yellowGoldThumbnailImage: yellowGoldThumbnailImageUploaded,
-                yellowGoldImages: yellowGoldImagesUploaded,
-                yellowGoldVideo: yellowGoldVideoUploaded,
-                // White Gold media
-                whiteGoldThumbnailImage: whiteGoldThumbnailImageUploaded,
-                whiteGoldImages: whiteGoldImagesUploaded,
-                whiteGoldVideo: whiteGoldVideoUploaded,
-              },
-              url,
-            };
-          })
-        );
-        await fetchWrapperService.createMany(updatedValidPatterns);
-
-        // validPatterns.forEach((pattern) => {
-        //   const { unmatchedFromDbUrlsOnly = [] } = pattern;
-        //   if (unmatchedFromDbUrlsOnly?.length) {
-        //     unmatchedFromDbUrlsOnly.forEach((url) => deleteImage(url));
-        //   }
-        // });
+        await fetchWrapperService.createMany(validPatterns);
       }
 
       if (invalidPatterns.length) {
@@ -3287,12 +3306,39 @@ const addUpdateManyProducts = async ({ productsList }) => {
       }
 
       if (mergeErrorArr.length) {
+        // === Final rollback on any error ===
+        if (allUploadedUrls.size > 0) {
+          console.warn(`Import failed → rolling back ${allUploadedUrls.size} media files`);
+          await Promise.all(
+            Array.from(allUploadedUrls).map((url) =>
+              deleteFile(productStoragePath, url).catch((err) =>
+                console.warn(`Final rollback failed for ${url}:`, err)
+              )
+            )
+          );
+        }
         throw new CustomError('Some products failed to create/update', 400, mergeErrorArr);
       }
 
       resolve('All items created/updated successfully');
     } catch (e) {
-      reject(e);
+      // === Final rollback on any error ===
+      if (allUploadedUrls.size > 0) {
+        console.warn(`Import failed → rolling back ${allUploadedUrls.size} media files`);
+        await Promise.all(
+          Array.from(allUploadedUrls).map((url) =>
+            deleteFile(productStoragePath, url).catch((err) =>
+              console.warn(`Final rollback failed for ${url}:`, err)
+            )
+          )
+        );
+      }
+
+      if (e instanceof CustomError && Array.isArray(e.details)) {
+        reject(e); // Already has detailed errors
+      } else {
+        reject(e instanceof Error ? e : new Error(`Import failed: ${e?.message || e}`));
+      }
     }
   });
 };

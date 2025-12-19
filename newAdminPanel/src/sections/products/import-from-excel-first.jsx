@@ -224,7 +224,9 @@ const ImportFromExcelFirst = () => {
                 </Typography>
               </Paper>
             </Box>
-
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+              Note: You can import a maximum of 10 products at a time.
+            </Typography>
             {importFromExcel?.length ? (
               <Box
                 sx={{
