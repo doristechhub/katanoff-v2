@@ -55,7 +55,7 @@ const getAllOrderList = () => {
           ).length;
           const hasActiveReturns =
             isPendingOrApprovedOrReceivedReturnsCount ||
-              (rejectedCount > 0 && rejectedCount > 2)
+            (rejectedCount > 0 && rejectedCount > 2)
               ? false
               : true;
           return {
@@ -171,13 +171,9 @@ const trackOrderByOrderNumberAndEmail = (params) => {
           orderDetail.cancelledByName = findedUserData.name;
         }
       }
-      const productFindPattern = {
-        url: productsUrl,
-        key: "active",
-        value: true,
-      };
-      const allActiveProductsData = await fetchWrapperService.find(
-        productFindPattern
+      const productIds = orderDetail.products.map((op) => op?.productId);
+      const allActiveProductsData = await productService.getProductsByIds(
+        productIds
       );
       const customizations = await productService.getAllCustomizations();
       const diamondShapeList = await diamondShapeService.getAllDiamondShapes();
@@ -390,14 +386,17 @@ const processOrderProductItem = ({
   });
   const diamondDetail = orderProductItem?.diamondDetail
     ? {
-      ...orderProductItem?.diamondDetail,
-      shapeName: diamondShapeList?.find(
-        (shape) => shape.id === orderProductItem?.diamondDetail?.shapeId
-      )?.title,
-    }
+        ...orderProductItem?.diamondDetail,
+        shapeName: diamondShapeList?.find(
+          (shape) => shape.id === orderProductItem?.diamondDetail?.shapeId
+        )?.title,
+      }
     : null;
 
-  const thumbnailImage = helperFunctions.getThumbnailForSelectedVariations(findedProduct, variationArray);
+  const thumbnailImage = helperFunctions.getThumbnailForSelectedVariations(
+    findedProduct,
+    variationArray
+  );
 
   return {
     ...orderProductItem,

@@ -10,6 +10,7 @@ import {
   setOrderMessage,
   setInvoiceLoading,
   setTrackOrderLoading,
+  setLastTrackedOrder,
 } from "@/store/slices/orderSlice";
 import {
   setVerifyOrderLoader,
@@ -172,12 +173,21 @@ export const fetchTrackOrderByOrderNumberAndEmail = (payload) => {
     dispatch(setOrderMessage({ message: "", type: "" }));
     dispatch(setOrderDetail(null));
     dispatch(setTrackOrderLoading(true));
+
     try {
       const orderDetail = await orderService.trackOrderByOrderNumberAndEmail(
         payload
       );
       if (orderDetail) {
         dispatch(setOrderDetail(orderDetail));
+
+        // Save to Redux & localStorage
+        const trackedData = {
+          orderNumber: payload.orderNumber,
+          email: payload.email,
+        };
+        dispatch(setLastTrackedOrder(trackedData));
+        localStorage.setItem("lastTrackedOrder", JSON.stringify(trackedData));
         return orderDetail;
       }
       return false;

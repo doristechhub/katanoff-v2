@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
 import { fetchTrackOrderByOrderNumberAndEmail } from "@/_actions/order.action";
 import { LoadingPrimaryButton } from "@/components/ui/button";
 import CommonBgHeading from "@/components/ui/CommonBgHeading";
@@ -7,6 +8,7 @@ import CommonNotFound from "@/components/ui/CommonNotFound";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import OrderDetails from "@/components/ui/order-history/OrderDetail";
 import { setIsHovered } from "@/store/slices/commonSlice";
+import { setLastTrackedOrder } from "@/store/slices/orderSlice";
 import { useFormik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,19 +16,41 @@ import * as Yup from "yup";
 
 export default function TrackYourOrderPage() {
   const dispatch = useDispatch();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { isHovered } = useSelector(({ common }) => common);
-  const { orderDetail, orderDetailLoading, trackOrderLoading, orderMessage } =
-    useSelector(({ order }) => order);
+  const {
+    orderDetail,
+    orderDetailLoading,
+    trackOrderLoading,
+    orderMessage,
+    lastTrackedOrder,
+  } = useSelector(({ order }) => order);
 
   const orderDetailsRef = useRef(null);
-
   const [formSubmitted, setFormSubmitted] = useState(false);
+
+  // Load last tracked order from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("lastTrackedOrder");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        dispatch(setLastTrackedOrder(parsed));
+      } catch (e) {
+        console.warn("Failed to parse lastTrackedOrder:", e);
+      }
+    }
+  }, [dispatch]);
+
+  const prefilledOrderNumber = searchParams.get("orderNumber") || "";
 
   const formik = useFormik({
     initialValues: {
-      orderNumber: "",
-      email: "",
+      orderNumber: prefilledOrderNumber || lastTrackedOrder?.orderNumber || "",
+      email: lastTrackedOrder?.email || "",
     },
+    enableReinitialize: true,
     validationSchema: Yup.object({
       orderNumber: Yup.string().required("Order Number is required"),
       email: Yup.string()
@@ -36,6 +60,9 @@ export default function TrackYourOrderPage() {
     onSubmit: async (values) => {
       await dispatch(fetchTrackOrderByOrderNumberAndEmail(values));
       setFormSubmitted(true);
+
+      // Clean URL after submission
+      router.replace("/track-your-order", { scroll: false });
     },
   });
 
@@ -46,10 +73,9 @@ export default function TrackYourOrderPage() {
       const topOffset =
         orderDetailsRef.current.getBoundingClientRect().top +
         window.pageYOffset;
-      const customOffset = 100;
-      window.scrollTo({ top: topOffset - customOffset, behavior: "smooth" });
+      window.scrollTo({ top: topOffset - 100, behavior: "smooth" });
     }
-  }, [orderDetail]);
+  }, [orderDetail, formSubmitted]);
 
   return (
     <>
@@ -64,7 +90,7 @@ export default function TrackYourOrderPage() {
             </p>
           </div>
           <form onSubmit={handleSubmit} noValidate>
-            {/* Order Number Field */}
+            {/* Order Number */}
             <div className="mb-6">
               <label
                 htmlFor="orderNumber"
@@ -84,7 +110,7 @@ export default function TrackYourOrderPage() {
               )}
             </div>
 
-            {/* Email Field */}
+            {/* Email */}
             <div className="mb-6">
               <label
                 htmlFor="email"
@@ -119,7 +145,8 @@ export default function TrackYourOrderPage() {
                 Submit
               </LoadingPrimaryButton>
             </div>
-            {orderMessage && (
+
+            {orderMessage?.message && (
               <div className="mt-4">
                 <ErrorMessage message={orderMessage.message} />
               </div>
@@ -139,7 +166,7 @@ export default function TrackYourOrderPage() {
                 showInvoice={true}
               />
             ) : (
-              <CommonNotFound message={"Order Not Found!"} />
+              <CommonNotFound message="Order Not Found!" />
             )}
           </div>
         )}

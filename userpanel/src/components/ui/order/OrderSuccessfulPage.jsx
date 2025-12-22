@@ -10,16 +10,16 @@ import CustomImg from "../custom-img";
 
 const OrderSuccessfulPage = () => {
   const params = useParams();
-  let { orderNumber } = params;
+  const { orderNumber } = params;
   const currentUser = helperFunctions.getCurrentUser();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // clear values after payment success
+    // Clear cart and checkout data after success
     localStorage.removeItem("address");
     localStorage.removeItem("selectedShippingMethod");
     dispatch(setCartList([]));
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className="min-h-[70vh] lg:min-h-[60vh] flex items-center justify-center bg-offwhite px-4">
@@ -38,7 +38,7 @@ const OrderSuccessfulPage = () => {
 
         {/* Subtext */}
         <p className="text-baseblack text-sm sm:text-base md:text-lg mb-1">
-          Thank you so much for your order with your{" "}
+          Thank you so much for your order with{" "}
           <span className="font-bold">Order No. {orderNumber}</span>
         </p>
         <p className="text-baseblack text-sm sm:text-base md:text-lg mb-6">
@@ -49,7 +49,11 @@ const OrderSuccessfulPage = () => {
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <PrimaryLinkButton
             className="uppercase w-full"
-            href={`${currentUser ? "/order-history" : "/track-your-order"} `}
+            href={`${
+              currentUser
+                ? "/order-history"
+                : `/track-your-order?orderNumber=${orderNumber}`
+            } `}
           >
             TRACK YOUR ORDER
           </PrimaryLinkButton>

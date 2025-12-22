@@ -131,30 +131,35 @@ const validateFiles = (files, filesLength, uploadFileType) => {
   const validFileType = isValidFileType(uploadFileType, files);
   if (!validFileType) {
     throw new Error(
-      `Invalid file type! Only the following formats are allowed: ${allowedFileTypes.join(', ')}`
+      `Invalid file type! Only the following formats are allowed: ${allowedFileTypes.join(
+        ", "
+      )}`
     );
   }
 
   const totalSizeBytes = files.reduce((sum, file) => sum + file.size, 0);
 
   if (totalSizeBytes > fileSettings.RETURN_REQUEST_TOTAL_IMAGE_FILE_SIZE) {
-    throw new Error(`Total size of all files must be under ${totalSizeLimitMB} MB.`);
+    throw new Error(
+      `Total size of all files must be under ${totalSizeLimitMB} MB.`
+    );
   }
 };
 
-
 const insertReturnRequest = (params) => {
   return new Promise(async (resolve, reject) => {
-
     let imagesArray = [];
     let storagePath = null;
     try {
       const uuid = uid();
       storagePath = getStoragePath(uuid);
-      let { orderId, products, returnRequestReason, returnRequestImageFiles } = sanitizeObject(params);
+      let { orderId, products, returnRequestReason, returnRequestImageFiles } =
+        sanitizeObject(params);
       orderId = orderId?.trim() || null;
       returnRequestReason = returnRequestReason?.trim() || null;
-      returnRequestImageFiles = Array.isArray(returnRequestImageFiles) ? returnRequestImageFiles : [];
+      returnRequestImageFiles = Array.isArray(returnRequestImageFiles)
+        ? returnRequestImageFiles
+        : [];
       const userData = helperFunctions.getCurrentUser();
       if (!userData?.id) {
         reject(new Error("Unauthorized: User not authenticated"));
@@ -176,7 +181,11 @@ const insertReturnRequest = (params) => {
       }
 
       if (returnRequestImageFiles?.length) {
-        validateFiles(returnRequestImageFiles, returnRequestImageFiles?.length, uploadImageFileType);
+        validateFiles(
+          returnRequestImageFiles,
+          returnRequestImageFiles?.length,
+          uploadImageFileType
+        );
       }
 
       const {
@@ -237,16 +246,21 @@ const insertReturnRequest = (params) => {
         reject(new Error("Invalid data"));
         return;
       }
-      if (returnRequestImageFiles && Array.isArray(returnRequestImageFiles) && returnRequestImageFiles?.length) {
+      if (
+        returnRequestImageFiles &&
+        Array.isArray(returnRequestImageFiles) &&
+        returnRequestImageFiles?.length
+      ) {
         const uploadedFileUrls = await handleFileUpload(
           storagePath,
           returnRequestImageFiles,
           "Return Request Media"
         );
 
-        imagesArray = uploadedFileUrls?.map((url) => ({
-          image: url,
-        })) || [];
+        imagesArray =
+          uploadedFileUrls?.map((url) => ({
+            image: url,
+          })) || [];
       }
       const insertPattern = {
         id: uuid,
@@ -586,27 +600,35 @@ export const trackReturnByOrderNumberAndEmail = (params) => {
         return;
       }
 
-      const [allActiveProductsData, customizations, diamondShapeList] =
+      // Collect all unique product IDs from all returns
+      const productIds = [
+        ...new Set(
+          returnDetails.flatMap(
+            (returnItem) => returnItem.products?.map((p) => p.productId) || []
+          )
+        ),
+      ];
+
+      // Fetch only the required products by IDs
+      const [productsById, customizations, diamondShapeList] =
         await Promise.all([
-          fetchWrapperService.find({
-            url: productsUrl,
-            key: "active",
-            value: true,
-          }),
+          productService.getProductsByIds(productIds),
           productService.getAllCustomizations(),
           diamondShapeService.getAllDiamondShapes(),
         ]);
 
+      // Enrich each return with processed product data
       const enrichedReturns = returnDetails.map((returnItem) => ({
         ...returnItem,
-        products: returnItem.products?.map((product) =>
-          processReturnProductItem({
-            returnProductItem: product,
-            allActiveProductsData,
-            customizations,
-            diamondShapeList,
-          })
-        ),
+        products:
+          returnItem.products?.map((returnProductItem) =>
+            processReturnProductItem({
+              returnProductItem,
+              allActiveProductsData: productsById,
+              customizations,
+              diamondShapeList,
+            })
+          ) || [],
       }));
 
       resolve(helperFunctions.sortByField(enrichedReturns, "createdDate"));
@@ -645,14 +667,17 @@ const processReturnProductItem = ({
 
   const diamondDetail = returnProductItem?.diamondDetail
     ? {
-      ...returnProductItem?.diamondDetail,
-      shapeName: diamondShapeList?.find(
-        (shape) => shape.id === returnProductItem?.diamondDetail?.shapeId
-      )?.title,
-    }
+        ...returnProductItem?.diamondDetail,
+        shapeName: diamondShapeList?.find(
+          (shape) => shape.id === returnProductItem?.diamondDetail?.shapeId
+        )?.title,
+      }
     : null;
 
-  const thumbnailImage = helperFunctions.getThumbnailForSelectedVariations(findedProduct, variationArray);
+  const thumbnailImage = helperFunctions.getThumbnailForSelectedVariations(
+    findedProduct,
+    variationArray
+  );
 
   return {
     ...returnProductItem,
