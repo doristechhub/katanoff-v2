@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+
 const initialState = {
   orderList: [],
   orderDetail: null,
@@ -10,6 +11,8 @@ const initialState = {
   invoiceLoading: false,
   selectedOrder: "",
   trackOrderLoading: false,
+
+  lastTrackedOrder: null,
 };
 
 const orderSlice = createSlice({
@@ -30,7 +33,6 @@ const orderSlice = createSlice({
     setInvoiceLoading: (state, action) => {
       state.invoiceLoading = action.payload;
     },
-    // 
     setOrderLoading: (state, action) => {
       state.orderLoading = action.payload;
     },
@@ -50,6 +52,9 @@ const orderSlice = createSlice({
       state.trackOrderLoading = action.payload;
     },
 
+    setLastTrackedOrder: (state, action) => {
+      state.lastTrackedOrder = action.payload;
+    },
   },
 });
 
@@ -63,9 +68,8 @@ export const {
   setOrderDetail,
   setOrderDetailLoading,
   setInvoiceLoading,
-  setShowSummary,
-  setSubmittedData,
-  setTrackOrderLoading
+  setTrackOrderLoading,
+  setLastTrackedOrder,
 } = orderSlice.actions;
 
 export default orderSlice.reducer;
