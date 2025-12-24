@@ -24,6 +24,7 @@ import {
 } from 'src/store/slices/productSlice';
 import { helperFunctions } from 'src/_helpers';
 import CustomError from 'src/_helpers/customError';
+import { uid } from 'uid';
 
 // ----------------------------------------------------------------------
 
@@ -171,10 +172,12 @@ export const getSingleProduct = (productId) => async (dispatch) => {
         // thumbnail preview
         let previewThumbnailImage = [];
         if (item.thumbnailImage) {
+          const uuid = uid();
           const url = new URL(item.thumbnailImage);
           const ext = url.pathname.split('.').pop();
           previewThumbnailImage = [
             {
+              id: uuid,
               type: 'old',
               mimeType: `image/${ext}`,
               image: item.thumbnailImage,
@@ -184,9 +187,11 @@ export const getSingleProduct = (productId) => async (dispatch) => {
 
         // images preview
         const previewImages = item.images.map((img) => {
+          const uuid = uid();
           const url = new URL(img.image);
           const ext = url.pathname.split('.').pop();
           return {
+            id: uuid,
             type: 'old',
             mimeType: `image/${ext}`,
             image: img.image,
@@ -196,8 +201,10 @@ export const getSingleProduct = (productId) => async (dispatch) => {
         // video preview
         let previewVideo = [];
         if (item.video) {
+          const uuid = uid();
           previewVideo = [
             {
+              id: uuid,
               type: 'old',
               mimeType: 'video/mp4',
               video: item.video,

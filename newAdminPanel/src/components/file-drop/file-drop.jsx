@@ -1,7 +1,9 @@
 import _ from 'lodash';
+import { uid } from 'uid';
 import { toast } from 'react-toastify';
 import { useDropzone } from 'react-dropzone';
 import { forwardRef, useCallback } from 'react';
+import { ReactSortable } from 'react-sortablejs';
 
 import { Box, FormHelperText, Link, Paper, Stack, Typography, alpha } from '@mui/material';
 
@@ -82,6 +84,7 @@ const FileDrop = forwardRef(
       productId,
       // Style Props
       filesFolderSx,
+      draggable = false,
     },
     ref
   ) => {
@@ -127,9 +130,11 @@ const FileDrop = forwardRef(
         const promises = acceptedFiles.map(
           (file) =>
             new Promise((resolve) => {
+              const uuid = uid();
               const reader = new FileReader();
               reader.onloadend = () => {
                 resolve({
+                  id: uuid,
                   type: 'new',
                   image: reader.result,
                   ...(mediaType === 'pdf&image' && { mimeType: file.type }),
@@ -190,15 +195,13 @@ const FileDrop = forwardRef(
     // );
 
     const onRemove = useCallback(
-      (item, index) => {
-        const files = getValue(fileKey) || [];
+      ({ item, index }) => {
+        const files = getValue(fileKey)?.filter(Boolean) || [];
         const previews = getValue(previewKey) || [];
         const deleted = getValue(deleteKey) || [];
-
-        const removedPreview = previews[index];
-
-        const newFiles = files.filter((_, i) => i !== index);
-        const newPreviews = previews.filter((_, i) => i !== index);
+        const removedPreview = previews.find((preview) => preview.id === item?.id);
+        const newFiles = files.filter((fItem) => fItem?.id !== item?.id);
+        const newPreviews = previews.filter((pItem) => pItem?.id !== item?.id);
 
         setValue(fileKey, newFiles);
         setValue(previewKey, newPreviews);
@@ -212,6 +215,8 @@ const FileDrop = forwardRef(
     );
 
     const previews = getValue(previewKey) || [];
+
+    const sortableList = previews.map((item) => ({ ...item }));
 
     const browseLink = (
       <Link
@@ -230,6 +235,89 @@ const FileDrop = forwardRef(
       getTouched(previewKey) && getError(previewKey) ? (
         <FormHelperText sx={{ color: 'error.main', p: 1 }}>{getError(previewKey)}</FormHelperText>
       ) : null;
+
+    // Extract the preview rendering into a reusable component
+    const PreviewItem = ({ item, index }) => {
+      const handleRemove = useCallback(
+        (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (!loading) {
+            onRemove({ item, index });
+          }
+        },
+        [loading]
+      );
+
+      return (
+        <Box sx={{ position: 'relative' }}>
+          {mediaType === 'pdf&image' && item.mimeType?.includes('pdf') ? (
+            <PdfViewer pdf={item.image} />
+          ) : (
+            <Box
+              component={mediaType === 'video' ? 'video' : 'img'}
+              src={item?.mimeType?.includes('video') ? item?.video : item?.image}
+              autoPlay={mediaType === 'video'}
+              controls={mediaType === 'video'}
+              loop={mediaType === 'video'}
+              muted={mediaType === 'video'}
+              sx={{
+                p: 0.2,
+                width: mediaType === 'video' ? '300px' : '85px',
+                height: mediaType === 'video' ? '160px' : '85px',
+                border: `1px solid ${alpha(grey[600], 0.16)}`,
+                borderRadius: '10px',
+                objectFit: mediaType === 'video' ? 'cover' : 'contain',
+              }}
+              alt={`Preview ${index + 1}`}
+            />
+          )}
+
+          <Box
+            className="sortable-ignore"
+            onClick={handleRemove}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            sx={{
+              top: 1,
+              right: 1,
+              width: 25,
+              height: 25,
+              opacity: 0.5,
+              position: 'absolute',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              ':hover': { opacity: 1, transition: 'all 0.2s ease' },
+              zIndex: 10,
+            }}
+          >
+            <Iconify
+              icon="ep:circle-close-filled"
+              sx={{
+                width: '100%',
+                height: '100%',
+                color: 'text.secondary',
+                pointerEvents: 'none',
+              }}
+            />
+          </Box>
+
+          {draggable && (
+            <Iconify
+              icon="mdi:drag"
+              sx={{
+                position: 'absolute',
+                top: 5,
+                left: 5,
+                fontSize: 20,
+                color: 'primary.main',
+                opacity: 0.7,
+                pointerEvents: 'none',
+              }}
+            />
+          )}
+        </Box>
+      );
+    };
 
     return (
       <Stack sx={{ p: 0.4 }}>
@@ -290,48 +378,51 @@ const FileDrop = forwardRef(
         {renderErrors}
 
         <Stack direction="row" flexWrap="wrap" gap={1} mt={1}>
-          {previews.map((item, i) => (
-            <Box key={i} sx={{ position: 'relative' }}>
-              {item.mimeType?.includes('pdf') ? (
-                <PdfViewer pdf={item.image} />
-              ) : (
-                <Box
-                  component={mediaType === 'video' ? 'video' : 'img'}
-                  src={item?.mimeType?.includes('video') ? item?.video : item?.image}
-                  autoPlay={mediaType === 'video'}
-                  controls={mediaType === 'video'}
-                  loop={mediaType === 'video'}
-                  muted={mediaType === 'video'}
-                  sx={{
-                    p: 0.2,
-                    width: mediaType === 'video' ? '300px' : '85px',
-                    height: mediaType === 'video' ? '160px' : '85px',
-                    border: `1px solid ${alpha(grey[600], 0.16)}`,
-                    overflow: 'hidden',
-                    borderRadius: '10px',
-                    objectFit: mediaType === 'video' ? 'cover' : 'contain',
-                  }}
-                  alt={`Preview ${mediaType === 'video' ? 'video' : 'img'} ${i}`}
-                />
-              )}
+          {previews?.length > 0 && draggable && (
+            <ReactSortable
+              list={sortableList}
+              setList={(newOrder) => {
+                setValue(previewKey, newOrder);
+                const oldFiles = getValue(fileKey) || [];
+                const reorderedFiles = newOrder.map((item) => {
+                  const oldIndex = previews?.findIndex((p) => p.id === item.id);
+                  return oldFiles[oldIndex];
+                });
 
-              <Iconify
-                icon="ep:circle-close-filled"
-                onClick={() => !loading && onRemove(item, i)}
-                sx={{
-                  top: 1,
-                  right: 1,
-                  width: 25,
-                  height: 25,
-                  opacity: 0.5,
-                  position: 'absolute',
-                  color: 'text.secondary',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  ':hover': { opacity: 1, transition: 'all 0.2s ease' },
-                }}
-              />
-            </Box>
-          ))}
+                setValue(fileKey, reorderedFiles);
+              }}
+              animation={200}
+              filter=".sortable-ignore"
+              preventOnFilter={false}
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '8px',
+                marginTop: '8px',
+              }}
+            >
+              {sortableList.map((item, index) => (
+                <div
+                  key={item.id}
+                  style={{
+                    flexWrap: 'wrap',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    cursor: 'grab',
+                  }}
+                >
+                  <PreviewItem item={item} index={index} />
+                </div>
+              ))}
+            </ReactSortable>
+          )}{' '}
+          {previews.length > 0 && !draggable && (
+            <Stack direction="row" flexWrap="wrap" gap={1} mt={1}>
+              {previews?.map((item, index) => (
+                <PreviewItem key={item.id} item={item} index={index} />
+              ))}
+            </Stack>
+          )}
         </Stack>
       </Stack>
     );

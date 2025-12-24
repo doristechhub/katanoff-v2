@@ -97,6 +97,14 @@ a:hover {
     height: 100%;
 }
 
+.sortable-ghost {
+    opacity: 0.4;
+}
+
+.sortable-chosen {
+    cursor: grabbing;
+}
+
 
 @keyframes fade-in {
     from {
