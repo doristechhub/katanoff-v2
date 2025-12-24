@@ -256,6 +256,9 @@ export default function AddProductPage() {
         const thumbnailImageFile = extractSingleFile(mediaSet.thumbnailImageFile);
         const imageFiles = extractFiles(mediaSet.imageFiles);
         const videoFile = extractSingleFile(mediaSet.videoFile);
+        const orderPreviewImages = helperFunctions?.buildOrderedPreviewImages(
+          mediaSet.previewImages
+        );
 
         return {
           mediaSetId: mediaSet.mediaSetId,
@@ -266,6 +269,7 @@ export default function AddProductPage() {
           deletedImages: mediaSet.deletedImages?.map((item) => item?.image),
           videoFile,
           deleteUploadedVideo: mediaSet.deleteUploadedVideo[0]?.video,
+          orderPreviewImages,
         };
       });
 

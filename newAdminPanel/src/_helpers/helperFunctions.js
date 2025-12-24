@@ -1044,6 +1044,27 @@ const generateMediaMappingForExcel = ({ thumbnail, images, video, variations }) 
   });
 };
 
+const buildOrderedPreviewImages = (previewImages = []) => {
+  let newFilePointer = 0;
+
+  return previewImages.map((item, index) => {
+    if (item.type === 'old') {
+      return {
+        order: index + 1,
+        type: 'old',
+        image: item.image,
+      };
+    }
+
+    return {
+      order: index + 1,
+      type: 'new',
+      fileIndex: newFilePointer++,
+    };
+  });
+};
+
+
 export const helperFunctions = {
   getCurrentUser,
   getVariationsArray,
@@ -1099,4 +1120,5 @@ export const helperFunctions = {
   getGoldColorWiseMedia,
   getProductThumbnail,
   generateMediaMappingForExcel,
+  buildOrderedPreviewImages
 };

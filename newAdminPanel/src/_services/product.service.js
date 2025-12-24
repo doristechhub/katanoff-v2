@@ -370,6 +370,8 @@ const processMediaMappingFromParams = async ({
 
   // Third pass: build final mapping using uploadOrder
   let uploadIndex = 0;
+
+  // ── Assign mediaSetId to variation combinations ───────────────────
   const finalMediaMapping = mediaMappingParam.map((item) => {
     const { mediaSetId, name = '' } = item;
     const existingSet = existingMediaMap.get(mediaSetId) || {};
@@ -383,38 +385,39 @@ const processMediaMappingFromParams = async ({
       ? new Set(item.deletedImages)
       : new Set();
 
-    // 1. First, add all kept existing images (in original order)
-    const existingImages = existingSet.images || [];
-    for (const imgObj of existingImages) {
-      const url = imgObj.image;
-      if (url && !deletedUrlsSet.has(url)) {
+    // ─── Thumbnail ─────────────────────────────
+    if (item.thumbnailImageFile instanceof File) {
+      thumbnailImage = uploadedUrls[uploadIndex++];
+    } else {
+      thumbnailImage = existingSet.thumbnailImage || '';
+    }
+
+    // ─── Images (ORDER DRIVEN, NO ORDER FIELD) ──
+    const orderPreviewImages = item?.orderPreviewImages || [];
+    let localUploadIndex = uploadIndex;
+
+    for (const entry of orderPreviewImages) {
+      // Existing image
+      if (entry?.type === 'old') {
+        if (!deletedUrlsSet.has(entry.image)) {
+          images.push({ image: entry.image });
+        }
+      }
+
+      // New image
+      if (entry.type === 'new') {
+        const url = uploadedUrls[localUploadIndex++];
         images.push({ image: url });
       }
     }
 
-    // Then, add all newly uploaded files for this mediaSetId (in upload order)
-    for (const entry of uploadOrder) {
-      if (entry.mediaSetId !== mediaSetId) continue;
+    uploadIndex = localUploadIndex;
 
-      const url = uploadedUrls[uploadIndex++];
-
-      if (entry.type === 'thumb') {
-        thumbnailImage = url;
-      } else if (entry.type === 'image') {
-        images.push({ image: url });
-      } else if (entry.type === 'video') {
-        video = url;
-      }
-    }
-
-    // Use existing thumbnail if no new one
-    if (!thumbnailImage && existingSet.thumbnailImage) {
-      thumbnailImage = existingSet.thumbnailImage;
-    }
-
-    // Use existing video if no new one and not deleted
-    if (!video && existingSet.video && !item.deleteUploadedVideo) {
-      video = existingSet.video;
+    // ─── Video ─────────────────────────────────
+    if (item.videoFile instanceof File) {
+      video = uploadedUrls[uploadIndex++];
+    } else if (!item.deleteUploadedVideo) {
+      video = existingSet?.video || '';
     }
 
     return {
@@ -422,7 +425,7 @@ const processMediaMappingFromParams = async ({
       name,
       thumbnailImage,
       images,
-      video: video || '',
+      video,
     };
   });
 
@@ -887,16 +890,16 @@ const getAllProcessedProducts = () => {
 
           diamondFilters: product.isDiamondFilter
             ? {
-                ...product?.diamondFilters,
-                diamondShapes: product?.diamondFilters.diamondShapeIds?.map((shapeId) => {
-                  const foundedShape = diamondShapeList?.find((shape) => shape?.id === shapeId);
-                  return {
-                    title: foundedShape?.title,
-                    image: foundedShape?.image,
-                    id: foundedShape?.id,
-                  };
-                }),
-              }
+              ...product?.diamondFilters,
+              diamondShapes: product?.diamondFilters.diamondShapeIds?.map((shapeId) => {
+                const foundedShape = diamondShapeList?.find((shape) => shape?.id === shapeId);
+                return {
+                  title: foundedShape?.title,
+                  image: foundedShape?.image,
+                  id: foundedShape?.id,
+                };
+              }),
+            }
             : product?.diamondFilters,
           categoryName:
             menuData.categories.find((category) => category.id === product.categoryId)?.title || '',
@@ -1887,9 +1890,9 @@ const trimMediaMappingUrls = (mediaMapping = []) => {
 
     images: Array.isArray(set.images)
       ? set.images.map((img) => ({
-          ...img,
-          image: typeof img.image === 'string' ? img.image.trim() : img.image,
-        }))
+        ...img,
+        image: typeof img.image === 'string' ? img.image.trim() : img.image,
+      }))
       : [],
   }));
 };
@@ -2663,11 +2666,11 @@ const addUpdateProduct = async ({
           const uploadedImages =
             images.length > 0
               ? await uploadMediaToFirebase({
-                  media: images.map((i) => i.image),
-                  folder,
-                  type: 'imageArray',
-                  prefix: name.replace(/[^a-zA-Z0-9]/g, '_'),
-                })
+                media: images.map((i) => i.image),
+                folder,
+                type: 'imageArray',
+                prefix: name.replace(/[^a-zA-Z0-9]/g, '_'),
+              })
               : [];
           uploadedImages.forEach((img) => img.image && newlyUploadedUrls.push(img.image));
 

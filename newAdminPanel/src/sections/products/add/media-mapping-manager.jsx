@@ -127,6 +127,7 @@ const SimpleMediaCard = ({ mediaSet, index, formik, productId, loading, onDelete
                   deleteKey={`mediaMapping[${index}].deletedImages`}
                   loading={loading}
                   filesFolderSx={{ width: '150px' }}
+                  draggable={true}
                 />
               </Box>
             </Grid>
