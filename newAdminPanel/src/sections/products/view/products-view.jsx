@@ -353,6 +353,37 @@ export default function ProductsView() {
     const tempArry = matchedList?.map((pItem) => {
       const mediaMappingColumns = buildMediaMappingColumns(pItem);
 
+      const variationTypeMap = new Map();
+      pItem?.variations?.forEach((variation) => {
+        variation?.variationTypes?.forEach((type) => {
+          variationTypeMap.set(type.variationTypeId, {
+            variationName: variation.variationName,
+            variationTypeName: type.variationTypeName,
+          });
+        });
+      });
+
+      const uniqueCombinationsMap = new Map();
+      pItem?.variComboWithQuantity?.forEach((combo) => {
+        const comboParts = combo?.combination
+          ?.map((c) => {
+            const info = variationTypeMap.get(c.variationTypeId);
+            if (info?.variationName === 'Diamond Quality') {
+              return `${info.variationName}: ${info.variationTypeName}`;
+            }
+            return null;
+          })
+          .filter(Boolean)
+          .join(', ');
+
+        if (comboParts && !uniqueCombinationsMap.has(comboParts)) {
+          uniqueCombinationsMap.set(comboParts, combo.price);
+        }
+      });
+      const variationCombinations = Array.from(uniqueCombinationsMap.entries())
+        .map(([name, price]) => `${name}, Price: $${Number(price || 0).toFixed(2)}`)
+        .join(' | ');
+
       return {
         'Product Name': pItem.productName || '',
         SKU: pItem.sku || '',
@@ -387,6 +418,8 @@ export default function ProductsView() {
               return `${v.variationName}: ${types}`;
             })
             .join(' | ') || '',
+
+        'Variation Combinations (Grouped)': variationCombinations || '',
 
         Specifications:
           pItem?.specifications?.map((spec) => `${spec.title}: ${spec.description}`).join(' | ') ||
