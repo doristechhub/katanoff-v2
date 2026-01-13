@@ -868,14 +868,15 @@ const getAllActiveProducts = () => {
 const getAllProcessedProducts = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const tempActiveProductData = await getAllActiveProducts();
+      const productData = await fetchWrapperService.getPaginatdData(productsUrl);
+
       const customizations = await getAllCustomizations();
       const collectionData = await collectionService.getAllCollection();
       const settingStyleData = await settingStyleService.getAllSettingStyle();
       const diamondShapeList = await diamondShapeService.getAllDiamondShape();
       const menuData = await homeService.getAllMenuData();
 
-      const activeProductData = tempActiveProductData?.map((product) => {
+      const activeProductData = productData?.map((product) => {
         const subCategoryIds = product?.subCategoryIds || [];
 
         return {
@@ -890,16 +891,16 @@ const getAllProcessedProducts = () => {
 
           diamondFilters: product.isDiamondFilter
             ? {
-              ...product?.diamondFilters,
-              diamondShapes: product?.diamondFilters.diamondShapeIds?.map((shapeId) => {
-                const foundedShape = diamondShapeList?.find((shape) => shape?.id === shapeId);
-                return {
-                  title: foundedShape?.title,
-                  image: foundedShape?.image,
-                  id: foundedShape?.id,
-                };
-              }),
-            }
+                ...product?.diamondFilters,
+                diamondShapes: product?.diamondFilters.diamondShapeIds?.map((shapeId) => {
+                  const foundedShape = diamondShapeList?.find((shape) => shape?.id === shapeId);
+                  return {
+                    title: foundedShape?.title,
+                    image: foundedShape?.image,
+                    id: foundedShape?.id,
+                  };
+                }),
+              }
             : product?.diamondFilters,
           categoryName:
             menuData.categories.find((category) => category.id === product.categoryId)?.title || '',
@@ -1890,9 +1891,9 @@ const trimMediaMappingUrls = (mediaMapping = []) => {
 
     images: Array.isArray(set.images)
       ? set.images.map((img) => ({
-        ...img,
-        image: typeof img.image === 'string' ? img.image.trim() : img.image,
-      }))
+          ...img,
+          image: typeof img.image === 'string' ? img.image.trim() : img.image,
+        }))
       : [],
   }));
 };
@@ -2666,11 +2667,11 @@ const addUpdateProduct = async ({
           const uploadedImages =
             images.length > 0
               ? await uploadMediaToFirebase({
-                media: images.map((i) => i.image),
-                folder,
-                type: 'imageArray',
-                prefix: name.replace(/[^a-zA-Z0-9]/g, '_'),
-              })
+                  media: images.map((i) => i.image),
+                  folder,
+                  type: 'imageArray',
+                  prefix: name.replace(/[^a-zA-Z0-9]/g, '_'),
+                })
               : [];
           uploadedImages.forEach((img) => img.image && newlyUploadedUrls.push(img.image));
 
