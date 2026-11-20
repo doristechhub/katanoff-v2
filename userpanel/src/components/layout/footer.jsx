@@ -137,7 +137,18 @@ export default function Footer() {
         <div className="lg:h-[15vh] 2xl:h-[10vh] flex justify-center items-end mt-10 md:mt-14 lg:mt-0">
           <div className="flex flex-wrap 2xl:justify-end gap-2 lg:gap-4 2xl:text-lg text-center w-full justify-center">
             <ul className="">
-              <li>© {CURRENT_YEAR} Katanoff.com</li>
+              <li>
+                © {CURRENT_YEAR} Katanoff.com
+                <span className="mx-2">|</span>
+                <a
+                  href="https://www.bluesap.us/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline-offset-4 transition-all duration-300 hover:underline"
+                >
+                  Developed by Bluesap Solution
+                </a>
+              </li>
             </ul>
             <Link href="/terms-and-conditions" className="hover:underline">
               Terms & Conditions
