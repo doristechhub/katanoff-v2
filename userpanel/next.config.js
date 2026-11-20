@@ -7,9 +7,6 @@ module.exports = withBundleAnalyzer({
   images: {
     unoptimized: true,
   },
-  turbopack: {
-    enabled: true,
-  },
   reactStrictMode: false,
   experimental: {
     inlineCss: true,
